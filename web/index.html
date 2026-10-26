@@ -1588,10 +1588,12 @@ function addChat(snap) {
   });
   if (fresh.length && (atEnd || open)) L.scrollTop = L.scrollHeight;
   S.chatN = snap.chat_total;
-  $("#cbadge").textContent = S.chatUnread ? " " + S.chatUnread : "";
+  updChatBadge();
 }
+function updChatBadge() { const n = (S.chatUnread || 0) + (S.dmUnread || 0); $("#cbadge").textContent = n ? " " + n : ""; }
 async function sendChat() {
   const i = $("#ctext"), t = i.value.trim(); if (!t) return;
+  if (window.SGSCH && SGSCH.handles()) { i.value = ""; SGSCH.send(t); return; }   // 公共頻道 / 好友私訊
   i.value = "";
   const r = await api("/api/chat", {text: t});
   if (r && r.ok === false) toast(r.error);
@@ -1601,7 +1603,7 @@ $("#csend").onclick = sendChat;
 $("#ctext").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); sendChat(); } });
 document.querySelectorAll("#tabs button, #mnav button").forEach(b => b.addEventListener("click", () => {
   const lb = $("#logbar"); if (lb) lb.style.display = (b.dataset.t || b.dataset.m) === "cc" ? "none" : "";
-  if ((b.dataset.t || b.dataset.m) === "cc") { S.chatUnread = 0; $("#cbadge").textContent = ""; setTimeout(() => { const L = $("#cl"); L.scrollTop = L.scrollHeight; }, 0); }
+  if ((b.dataset.t || b.dataset.m) === "cc") { S.chatUnread = 0; updChatBadge(); if (window.SGSCH) SGSCH.shown(); setTimeout(() => { const L = $("#cl"); L.scrollTop = L.scrollHeight; }, 0); }
 }));
 /* ---------- 暱稱 ---------- */
 function myNick() { try { return localStorage.getItem("nick") || ""; } catch (e) { return ""; } }

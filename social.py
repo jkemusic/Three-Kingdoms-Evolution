@@ -143,11 +143,29 @@ class Social:
                 for k in ("fr", "in", "out"):
                     if b in u[k]:
                         u[k].remove(b)
+            for a, b in ((key, name), (name, key)):
+                self._u(a).get("rk", {}).pop(b, None)
             self.d["dm"].pop(self._pair(key, name), None)
             if key in self.invites:
                 self.invites[key] = [i for i in self.invites[key] if i["frm"] != name]
             self._save()
         return {"ok": True}
+
+    def set_remark(self, key, name, remark):
+        """自訂好友暱稱 (只有自己看得到);留空就恢復原名。"""
+        name = (name or "").strip().lower()
+        remark = re.sub(r"[\s<>&\"']+", " ", str(remark or "")).strip()[:12]
+        with self.lock:
+            me = self._u(key)
+            if name not in me["fr"]:
+                return {"ok": False, "error": "不是好友"}
+            rk = me.setdefault("rk", {})
+            if remark:
+                rk[name] = remark
+            else:
+                rk.pop(name, None)
+            self._save()
+        return {"ok": True, "remark": remark}
 
     def is_friend(self, a, b):
         return b in self._u(a)["fr"]
@@ -221,7 +239,7 @@ class Social:
                 rd = me["read"].get(f, 0)
                 unread = sum(1 for m in self.d["dm"].get(self._pair(key, f), []) if m["f"] == f and m["t"] > rd)
                 on = now - uf.get("seen", 0) < ONLINE_WITHIN
-                fr.append(dict(extra(f), user=self._name(f), id=f, online=on, seen=int(uf.get("seen", 0)),
+                fr.append(dict(extra(f), user=self._name(f), id=f, remark=me.get("rk", {}).get(f, ""), online=on, seen=int(uf.get("seen", 0)),
                                where=where(f) if on else "", unread=unread))
             fr.sort(key=lambda x: (not x["online"], -x["seen"]))
             inv = [{"id": i["id"], "from": self._name(i["frm"]), "room": i["room"], "rname": i["rname"]}

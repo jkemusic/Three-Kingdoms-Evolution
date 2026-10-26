@@ -428,6 +428,37 @@ MAX_ACCOUNTS = 2000
 MAX_BODY = 400_000   # 請求本文上限 (頭像 base64 約 160KB)
 ACCOUNTS = Accounts()
 SOCIAL = social.Social(os.path.join(DATA, "social.json"), ACCOUNTS)
+class PublicChat:
+    """公共頻道: 所有登入的玩家共用,不分房間 (只留在記憶體,最多 200 則)。"""
+    def __init__(self):
+        self.lock = threading.Lock()
+        self.msgs, self.id, self.t = [], 0, {}
+
+    def say(self, tok, nick, text):
+        text = re.sub(r"\s+", " ", str(text or "")).strip()[:200]
+        if not text:
+            return {"ok": False, "error": "訊息是空的"}
+        now = time.time()
+        nick = re.sub(r"[\s<>&\"']", "", str(nick or ""))[:10] or ACCOUNTS.username(tok) or "未命名"
+        with self.lock:
+            if now - self.t.get(tok, 0) < 0.8:
+                return {"ok": False, "error": "說話太快了"}
+            self.t[tok] = now
+            self.id += 1
+            self.msgs.append({"id": self.id, "nick": nick, "who": Manager.pid(tok), "text": text, "t": int(now),
+                              "avatar": PROFILES.avatar_url(tok), "style": PROFILES.style(tok), "lv": PROFILES.lv(tok), "dev": PROFILES.dev(tok)})
+            del self.msgs[:-200]
+        return {"ok": True}
+
+    def since(self, n):
+        with self.lock:
+            L = [m for m in self.msgs if m["id"] > n] if n else self.msgs[-60:]
+            return {"ok": True, "msgs": L, "last": self.id}
+
+
+PUBCHAT = PublicChat()
+
+
 def _card(key):   # 好友列表用: 頭貼 / 框 / 特效 / 段位 / 等級
     a = ACCOUNTS.d.get(key)
     t = a["uuid"] if a else ""
@@ -448,7 +479,7 @@ def leaderboard(me=""):
         rows.append({"name": acc["user"], "me": t == me, "lv": PROFILES.rank_label(p.get("rp", 0)), "rp": p.get("rp", 0), "xp": p["xp"],
                      "games": p["games"], "wins": p["wins"], "avatar": PROFILES.avatar_url(t), "style": PROFILES.style(t), "dev": PROFILES.dev(t)})
     return {"rows": rows}
-OPEN_API = {"/api/rooms", "/api/cardcat", "/api/cosmetics", "/api/i18n", "/api/roster", "/api/me", "/api/login", "/api/register"}
+OPEN_API = {"/api/about", "/api/rooms", "/api/cardcat", "/api/cosmetics", "/api/i18n", "/api/roster", "/api/me", "/api/login", "/api/register"}
 
 
 class AbortGame(Exception):
@@ -1254,6 +1285,12 @@ class Handler(BaseHTTPRequestHandler):
                 key = SOCIAL.key_of(tk)
                 SOCIAL.touch(key)
                 return self._send(200, SOCIAL.overview(key, friend_where, is_playing(tk)))
+            if path == "/api/gchat":
+                try:
+                    n = int(q.get("since", ["0"])[0])
+                except ValueError:
+                    n = 0
+                return self._send(200, PUBCHAT.since(n))
             if path == "/api/dm":
                 tk = q.get("tok", [""])[0]
                 return self._send(200, SOCIAL.thread(SOCIAL.key_of(tk), q.get("with", [""])[0]))
@@ -1386,6 +1423,8 @@ class Handler(BaseHTTPRequestHandler):
                 except ValueError:
                     return self._send(200, {"ok": False, "error": "圖片資料錯誤"})
                 return self._send(200, PROFILES.set_avatar(data.get("tok"), raw))
+            if path == "/api/gchat":
+                return self._send(200, PUBCHAT.say(data.get("tok"), data.get("nick"), data.get("text")))
             if path.startswith(("/api/friend_", "/api/dm_", "/api/invite")):
                 key = SOCIAL.key_of(data.get("tok"))
                 if path == "/api/friend_add":
@@ -1396,6 +1435,8 @@ class Handler(BaseHTTPRequestHandler):
                     return self._send(200, SOCIAL.decline(key, data.get("name")))
                 if path == "/api/friend_remove":
                     return self._send(200, SOCIAL.remove(key, data.get("name")))
+                if path == "/api/friend_nick":
+                    return self._send(200, SOCIAL.set_remark(key, data.get("name"), data.get("nick")))
                 if path == "/api/dm_send":
                     return self._send(200, SOCIAL.send(key, data.get("to"), data.get("text")))
                 if path == "/api/invite":

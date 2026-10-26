@@ -56,6 +56,7 @@
   }
   function inl(el) {
     if (!el.getAttribute) return;
+    if (el.hasAttribute("data-nm")) return;   // 主題色塊預覽: 顯示它自己的顏色,不隨目前主題變色
     const cur0 = el.getAttribute("style");
     if (!cur0 && el.dataset.ost == null) return;
     if (el.dataset.ost != null && el.dataset.osm !== cur0) { /* 被程式改過: 以新值為準 */ delete el.dataset.ost; }
@@ -228,7 +229,7 @@
 .fx-glitch>.fxb{background:linear-gradient(0deg,transparent 62%,rgba(0,255,230,.55) 62% 70%,transparent 70%);mix-blend-mode:screen;animation:fxgl2 2.4s steps(1) infinite .12s}
 @keyframes fxgl{0%,60%,70%,100%{transform:none;filter:none}62%{transform:translate(-2px,0);filter:drop-shadow(2px 0 0 rgba(255,0,90,.85)) drop-shadow(-2px 0 0 rgba(0,255,230,.85))}66%{transform:translate(2px,1px);filter:drop-shadow(-2px 0 0 rgba(255,0,90,.85)) drop-shadow(2px 0 0 rgba(0,255,230,.85))}}
 @keyframes fxgl2{0%,60%,70%,100%{opacity:0}62%,66%{opacity:1}}
-.fx-meteor>.fxa,.fx-meteor>.fxb{left:-30%;top:-30%;width:2px;height:16px;z-index:3;border-radius:2px;background:linear-gradient(0deg,rgba(255,255,255,0),#fff);box-shadow:0 0 5px #bfe9ff;transform:rotate(-40deg);opacity:0;animation:fxmt 2.2s ease-in infinite}
+.fx-meteor>.fxa,.fx-meteor>.fxb{left:-30%;top:-30%;width:2px;height:16px;z-index:3;border-radius:2px;background:linear-gradient(180deg,rgba(255,255,255,0),#fff);box-shadow:0 0 5px #bfe9ff;transform:rotate(-40deg);opacity:0;animation:fxmt 2.2s ease-in infinite}
 .fx-meteor>.fxb{left:10%;top:-45%;animation-delay:-1.1s;height:12px}
 @keyframes fxmt{0%{transform:translate(0,0) rotate(-40deg);opacity:0}10%{opacity:1}60%{opacity:1}100%{transform:translate(70px,60px) rotate(-40deg);opacity:0}}
 #cosdlg .tabs{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 12px}
@@ -285,7 +286,7 @@
           return h("button", {
             class: "tile" + (ok ? "" : " lock"), title: ok ? x.n : x.req_text,
             onclick: () => { if (!ok) return; if (!x.a) { save(null); } else { save({ a: x.a, b: x.b }); } render(); },
-          }, h("span", { style: { width: "58px", height: "40px", borderRadius: "9px", background: `linear-gradient(135deg,${x.b || DEF.b} 50%,${x.a || DEF.a} 50%)`, boxShadow: "inset 0 0 0 1px rgba(255,255,255,.2)" } }),
+          }, h("span", { "data-nm": "1", style: { width: "58px", height: "40px", borderRadius: "9px", background: `linear-gradient(135deg,${x.b || DEF.b} 50%,${x.a || DEF.a} 50%)`, boxShadow: "inset 0 0 0 1px rgba(255,255,255,.2)" } }),
           h("span", { class: "tn", text: (ok ? "" : "🔒 ") + x.n }), ok ? null : h("span", { class: "rq", text: "需要 " + x.req_text }));
         });
         body = h("div", {}, h("div", { class: "grid" }, ...sw),

@@ -44,7 +44,7 @@
     const mu = el("span", {class: "mu", title: (f.mutual_names || []).join("、"), text: f.mutual ? " · 共同好友 " + f.mutual : " · 無共同好友"});
     return [avEl(f.avatar, f.style, {style: {width: "38px", height: "38px", borderRadius: "50%", objectFit: "cover", flex: "none"}}),
       el("div", {class: "grow"},
-        el("div", {class: "nm"}, f.user, " ", el("span", {class: "lvt", text: "Lv" + (f.level || 1)}), " ", rkEl(f.rank), devEl(f.dev)),
+        el("div", {class: "nm"}, f.remark || f.user, f.remark ? el("span", {class: "lvt", text: " (" + f.user + ")"}) : "", " ", el("span", {class: "lvt", text: "Lv" + (f.level || 1)}), " ", rkEl(f.rank), devEl(f.dev)),
         el("div", {class: "st"}, sub || "", mu))];
   }
 
@@ -76,11 +76,11 @@
     try { d = await (await fetch("/api/social?tok=" + encodeURIComponent(TOK))).json(); } catch (e) { return; }
     if (!d || !d.ok) return;
     mountBtn();
-    F.data = d; badge();
+    F.data = d; badge(); chOptions(); chBadge();
     // 新訊息 / 新請求提示
     for (const f of d.friends) {
       const prev = F.seenUnread[f.id] || 0;
-      if (f.unread > prev && !(F.chat === f.id && F.dlg)) toast("💬 " + f.user + " 傳來私訊", "host");
+      if (f.unread > prev && !(F.chat === f.id && F.dlg)) toast("💬 " + (f.remark || f.user) + " 傳來私訊", "host");
       F.seenUnread[f.id] = f.unread;
     }
     if (F.seenReq >= 0 && d.req_in.length > F.seenReq) toast("👥 " + d.req_in[d.req_in.length - 1].user + " 想加你為好友", "host");
@@ -170,6 +170,12 @@
       body.append(el("div", {class: "frow"},
         el("span", {class: "dot" + (f.online ? " on" : "")}),
         ...person(f, st),
+        el("button", {title: "自訂暱稱 (只有你看得到)", text: "✏️", onclick: async () => {
+          const v = prompt("替「" + f.user + "」取個暱稱 (最多 12 字,留空恢復原名):", f.remark || "");
+          if (v === null) return;
+          const r = await post("/api/friend_nick", {name: f.id, nick: v});
+          if (!r.ok) toast(r.error || "失敗"); else poll();
+        }}),
         el("button", {title: "私訊", onclick: () => openChat(f)}, "💬", f.unread ? el("span", {class: "ub", text: f.unread}) : ""),
         ROOM ? el("button", {title: "邀請到目前的房間", text: "邀請", onclick: async () => { const r = await post("/api/invite", {to: f.id}); toast(r.ok ? "已邀請 " + f.user : (r.error || "邀請失敗"), r.ok ? "ok" : undefined); }}) : "",
         el("button", {title: "刪除好友", text: "🗑", onclick: async () => { if (confirm("確定要刪除好友「" + f.user + "」嗎?")) { await post("/api/friend_remove", {name: f.id}); poll(); } }})));
@@ -179,7 +185,12 @@
 
   // ---------- 私訊 ----------
   function openChat(f) {
-    F.chat = f.id; F.chatName = f.user; F.chatKey = "";
+    if (ROOM && document.getElementById("cc")) {   // 在房間內: 用右側聊天欄的私訊頻道
+      const m = document.getElementById("frdlg"); if (m) m.remove(); F.dlg = null; F.chat = null;
+      window.SGSCH.openDM(f.id);
+      return;
+    }
+    F.chat = f.id; F.chatName = f.remark || f.user; F.chatKey = "";
     const body = document.getElementById("frbody"); if (!body) return;
     body.textContent = "";
     const msgs = el("div", {class: "msgs", id: "frmsgs"});
@@ -212,6 +223,130 @@
     if (atEnd) box.scrollTop = box.scrollHeight;
     F.seenUnread[F.chat] = 0;
   }
+
+
+  // ---------- 右側聊天欄的頻道: 房間頻道 / 公共頻道 / 好友私訊 ----------
+  const CH = {cur: "room", pub: {last: 0, seen: 0, msgs: [], key: ""}, pubUnread: 0, sig: "", key: ""};
+  const ccOpen = () => { const c = document.getElementById("cc"); return !!(c && c.classList.contains("on") && c.offsetParent); };
+  function chMount() {
+    const cc = document.getElementById("cc"); if (!cc) return false;
+    if (document.getElementById("cchan")) return true;
+    const sel = el("select", {id: "cchan", style: {margin: "6px 8px 0", padding: "5px"}});
+    sel.onchange = () => { CH.cur = sel.value; chShow(); };
+    const gl = el("div", {id: "gl"}), dml = el("div", {id: "dml"});
+    const cl = document.getElementById("cl");
+    cc.insertBefore(sel, cl); cc.insertBefore(gl, cl); cc.insertBefore(dml, cl);
+    const st = document.createElement("style");
+    st.textContent = "#gl,#dml{flex:1;overflow:auto;padding:10px;min-height:0;display:none}#cchan{max-width:calc(100% - 16px)}";
+    document.head.append(st);
+    return true;
+  }
+  function chOptions() {
+    if (!chMount()) return;
+    const d = F.data, sel = document.getElementById("cchan");
+    const fr = d ? d.friends : [];
+    const sig = JSON.stringify([fr.map(f => [f.id, f.user, f.remark, f.unread, f.online]), CH.pubUnread]);
+    if (sig === CH.sig) return;
+    CH.sig = sig;
+    sel.textContent = "";
+    sel.append(el("option", {value: "room", text: "🏠 房間頻道"}), el("option", {value: "pub", text: "🌐 公共頻道" + (CH.pubUnread ? " (" + CH.pubUnread + ")" : "")}));
+    if (fr.length) {
+      const g = el("optgroup", {label: "好友私訊"});
+      for (const f of fr) g.append(el("option", {value: "dm:" + f.id, text: "💬 " + (f.remark || f.user) + (f.online ? " ●" : "") + (f.unread ? " (" + f.unread + ")" : "")}));
+      sel.append(g);
+    }
+    if (![...sel.options].some(o => o.value === CH.cur)) CH.cur = "room";
+    sel.value = CH.cur;
+  }
+  function chShow() {
+    if (!chMount()) return;
+    const cl = document.getElementById("cl"), gl = document.getElementById("gl"), dml = document.getElementById("dml");
+    cl.style.display = CH.cur === "room" ? "" : "none";
+    gl.style.display = CH.cur === "pub" ? "block" : "none";
+    dml.style.display = CH.cur.startsWith("dm:") ? "block" : "none";
+    const inp = document.getElementById("ctext");
+    inp.placeholder = CH.cur === "room" ? "輸入訊息,Enter 送出" : CH.cur === "pub" ? "公共頻道: 所有人都看得到" : "私訊,Enter 送出";
+    CH.key = "";
+    if (CH.cur === "pub") { CH.pub.seen = CH.pub.last; CH.pubUnread = 0; renderPub(true); }
+    if (CH.cur.startsWith("dm:")) renderDM(true);
+    CH.sig = ""; chBadge(); chOptions();
+  }
+  function chBadge() {
+    const d = F.data;
+    const dm = d ? d.friends.reduce((s, f) => s + (CH.cur === "dm:" + f.id && ccOpen() ? 0 : f.unread), 0) : 0;
+    S.dmUnread = dm + (CH.pubUnread || 0);
+    if (window.updChatBadge) updChatBadge();
+  }
+  const cmLine = (m, mine, showAv) => el("div", {class: "cm" + (mine ? " mine" : "")},
+    el("span", {class: "cn"}, showAv ? avEl(m.avatar, m.style, {style: {width: "22px", height: "22px", borderRadius: "50%", objectFit: "cover", verticalAlign: "middle"}}) : "",
+      m.nick + (m.lv ? " · " + m.lv : "") + " " + fmtTime(m.t) + " ", devEl(m.dev)),
+    el("span", {class: "ct", text: m.text}));
+  function renderPub(scroll) {
+    const box = document.getElementById("gl"); if (!box) return;
+    const P = CH.pub, key = P.msgs.length ? P.msgs[P.msgs.length - 1].id : 0;
+    if (key === P.key && !scroll) return;
+    P.key = key;
+    const atEnd = scroll || box.scrollTop + box.clientHeight >= box.scrollHeight - 30;
+    box.textContent = "";
+    if (!P.msgs.length) box.append(el("div", {class: "meta", text: "公共頻道: 所有登入的玩家都看得到,不分房間。"}));
+    for (const m of P.msgs) box.append(cmLine(m, m.who === S.myWho, true));
+    if (atEnd) box.scrollTop = box.scrollHeight;
+  }
+  async function pollPub() {
+    if (!S.user) return;
+    let r;
+    try { r = await (await fetch("/api/gchat?tok=" + encodeURIComponent(TOK) + "&since=" + CH.pub.last)).json(); } catch (e) { return; }
+    if (!r || !r.ok) return;
+    const P = CH.pub;
+    if (r.last < P.last) { P.msgs = []; P.last = 0; P.seen = 0; }   // 伺服器重啟
+    const first = P.last === 0 && !P.msgs.length;
+    if (r.msgs.length) P.msgs = P.msgs.concat(r.msgs.filter(m => m.id > P.last)).slice(-200);
+    P.last = r.last;
+    if (first || (CH.cur === "pub" && ccOpen())) P.seen = P.last;   // 第一次載入的舊訊息、正在看的頻道不算未讀
+    CH.pubUnread = P.msgs.filter(m => m.id > P.seen && m.who !== S.myWho).length;
+    if (CH.cur === "pub") renderPub(false);
+    chBadge(); chOptions();
+  }
+  async function renderDM(scroll) {
+    const id = CH.cur.slice(3), box = document.getElementById("dml"); if (!box) return;
+    let r;
+    try { r = await (await fetch("/api/dm?tok=" + encodeURIComponent(TOK) + "&with=" + encodeURIComponent(id))).json(); } catch (e) { return; }
+    if (!r.ok || CH.cur !== "dm:" + id) return;
+    const key = r.msgs.length + ":" + (r.msgs.length ? r.msgs[r.msgs.length - 1].t + r.msgs[r.msgs.length - 1].x : "");
+    F.seenUnread[id] = 0;
+    if (key === CH.key && !scroll) return;
+    CH.key = key;
+    const f = (F.data ? F.data.friends : []).find(x => x.id === id) || {user: "好友"};
+    const fn = f.remark || f.user;
+    const atEnd = scroll || box.scrollTop + box.clientHeight >= box.scrollHeight - 30;
+    box.textContent = "";
+    if (!r.msgs.length) box.append(el("div", {class: "meta", text: "和 " + fn + " 還沒有訊息,打個招呼吧。"}));
+    for (const m of r.msgs) box.append(cmLine({nick: m.me ? "我" : fn, t: m.t, text: m.x}, m.me, false));
+    if (atEnd) box.scrollTop = box.scrollHeight;
+  }
+  window.SGSCH = {
+    handles: () => CH.cur !== "room",
+    send: async t => {
+      if (CH.cur === "pub") {
+        const r = await post("/api/gchat", {text: t, nick: typeof myNick === "function" ? myNick() : ""});
+        if (!r.ok) toast(r.error || "傳送失敗");
+        pollPub();
+      } else if (CH.cur.startsWith("dm:")) {
+        const r = await post("/api/dm_send", {to: CH.cur.slice(3), text: t});
+        if (!r.ok) toast(r.error || "傳送失敗");
+        renderDM(true); poll();
+      }
+    },
+    shown: () => { chOptions(); chShow(); },
+    openDM: id => {   // 從好友視窗點 💬: 切到右側欄的私訊頻道
+      CH.cur = "dm:" + id; CH.sig = ""; chOptions(); chShow();
+      const b = document.querySelector("#tabs button[data-t=cc]") || document.querySelector("#mnav button[data-m=cc]");
+      if (b && !ccOpen()) b.click();
+      setTimeout(() => { const i = document.getElementById("ctext"); if (i) i.focus(); }, 100);
+    },
+  };
+  setInterval(() => { pollPub(); if (CH.cur.startsWith("dm:") && ccOpen()) renderDM(false); }, 3000);
+  setTimeout(pollPub, 1800);
 
   setInterval(poll, 4000);
   setTimeout(poll, 1500);
