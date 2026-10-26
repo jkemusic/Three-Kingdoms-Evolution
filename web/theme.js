@@ -68,7 +68,6 @@ html.gf #tabs{background:rgba(0,0,0,.28)}
 html.gf #tabs button.on{background:rgba(217,173,79,.1);color:#e8c872;box-shadow:inset 0 -2px 0 #d9ad4f}
 html.gf #log .turn{background:linear-gradient(90deg,rgba(217,173,79,.2),transparent);color:#e8c872;border-left-color:#d9ad4f}
 html.gf .th,html.gf .cc{border-radius:3px;background:rgba(44,32,22,.8);border-color:#5a4426}
-html.gf #bottom{background:linear-gradient(180deg,#22160d,#110a06);border-top:1px solid #8a6a30;box-shadow:0 -1px 0 rgba(217,173,79,.3),0 -6px 18px rgba(0,0,0,.45)}
 html.gf #bar .pr{color:#e8c872;text-shadow:0 0 8px rgba(217,173,79,.35)}
 html.gf button{background:linear-gradient(180deg,#3a281a,#24170f);box-shadow:inset 0 0 0 1px #8a6a30;border-radius:4px}
 html.gf button:hover{background:linear-gradient(180deg,#4a3322,#2e1e13);box-shadow:inset 0 0 0 1px #e8c872,0 0 10px rgba(217,173,79,.3)}
@@ -81,7 +80,7 @@ html.gf .pickbar{background:linear-gradient(160deg,#2c2016,#17100b);border:1px s
 `;
   document.head.appendChild(gf);
   /* ---------- 每個主題自己的字體 (只用系統內建字體,不下載): 依主題色對應字體,再依語言挑中 / 日 / 英的字型 ---------- */
-  const FONT_OF = {"#d4a64a": "ming", "#3fd2ff": "tech", "#c3ccd8": "hei", "#46e0a0": "kai", "#b58cff": "round", "#ff8fc0": "kai", "#ff7a45": "bold", "#f0c95c": "ming", "#9b8cff": "tech", "#7fffd4": "round", "#4d8dff": "hei", "#bfe9ff": "round", "#d9a066": "kai", "#7ed957": "kai", "#b8c0cc": "mono", "#ff5d73": "bold", "#ffb347": "round", "#b6ff3a": "mono", "#ff4de0": "tech", "#ffffff": "mono", "#c9a7ff": "round", "#ffd700": "ming", "#ff77a8": "pixel"};
+  const FONT_OF = {"#d4a64a": "ming", "#3fd2ff": "tech", "#c3ccd8": "hei", "#46e0a0": "kai", "#b58cff": "round", "#ff8fc0": "kai", "#ff7a45": "bold", "#f0c95c": "ming", "#9b8cff": "tech", "#7fffd4": "round", "#4d8dff": "hei", "#bfe9ff": "round", "#d9a066": "kai", "#7ed957": "kai", "#b8c0cc": "mono", "#ff5d73": "bold", "#ffb347": "round", "#b6ff3a": "mono", "#ff4de0": "tech", "#ffffff": "mono", "#c9a7ff": "round", "#ffd700": "ming", "#ff77a8": "pixel", "#9bbc0f": "pixel", "#29adff": "pixel", "#ffa300": "pixel", "#83769c": "pixel", "#ff004d": "pixel", "#c2c3c7": "pixel"};
   const FAM = {
     ming:  ['"Noto Serif TC","Source Han Serif TC","Songti TC","STSong","PMingLiU","MingLiU",serif', '"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP","MS PMincho",serif', 'Georgia,"Times New Roman","Noto Serif",serif'],
     kai:   ['"DFKai-SB","BiauKai","Kaiti TC","KaiTi","STKaiti","Noto Serif TC",serif', '"Yu Kyokasho","Hiragino Mincho ProN","Yu Mincho",serif', '"Palatino Linotype","Book Antiqua",Palatino,Georgia,serif'],
@@ -103,63 +102,164 @@ html[data-font=${k}]:lang(en){--ff:${en}}`).join(" ")
   const PX_A = "#ff77a8";
   const px = document.createElement("style"); px.dataset.cos = "1";
   px.textContent = `
-html.px{--gold:#ffec27;--red:#ff004d;--green:#00e436;--blue:#29adff;--accent:#ffec27;--text:#fff1e8;--dim:#c2c3c7}
-html.px,html.px body{background:#1d2b53 linear-gradient(45deg,rgba(255,255,255,.035) 25%,transparent 25% 75%,rgba(255,255,255,.035) 75%) 0 0/8px 8px;color:#fff1e8;-webkit-font-smoothing:none;text-rendering:optimizeSpeed}
-html.px *{border-radius:0!important;transition:none!important}
+html.px{--gold:var(--pxacc);--red:#ff004d;--green:var(--pxok);--blue:#29adff;--accent:var(--pxacc);--text:var(--pxfg);--dim:var(--pxdim)}
+html.px,html.px body{background:var(--pxbg) linear-gradient(45deg,rgba(255,255,255,.035) 25%,transparent 25% 75%,rgba(255,255,255,.035) 75%) 0 0/8px 8px;color:var(--pxfg);-webkit-font-smoothing:none;text-rendering:optimizeSpeed}
+html.px *,html.px *::before,html.px *::after{border-radius:0!important;transition:none!important}
+html.px input[type=checkbox],html.px input[type=radio]{-webkit-appearance:none;appearance:none;width:18px;height:18px;margin:0 6px 0 0;vertical-align:middle;background:#000;border:3px solid var(--pxfg);cursor:pointer;flex:none}
+html.px input[type=checkbox]:checked,html.px input[type=radio]:checked{background:var(--pxok);box-shadow:inset 0 0 0 3px #000}
+html.px .sw input{width:0;height:0;border:0}
+html.px input[type=range]{-webkit-appearance:none;appearance:none;height:14px;background:#000;border:3px solid var(--pxfg);padding:0;cursor:pointer}
+html.px input[type=range]::-webkit-slider-runnable-track{height:8px;background:transparent}
+html.px input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:12px;height:20px;margin-top:-6px;background:var(--pxacc);border:3px solid #000;border-radius:0;box-shadow:0 0 0 2px var(--pxfg)}
+html.px input[type=range]::-moz-range-track{height:8px;background:transparent}
+html.px input[type=range]::-moz-range-thumb{width:12px;height:20px;background:var(--pxacc);border:3px solid #000;border-radius:0;box-shadow:0 0 0 2px var(--pxfg)}
+html.px .sw .knob{background:#000;box-shadow:inset 0 0 0 3px var(--pxfg)}
+html.px .sw .knob::after{background:var(--pxdim);width:14px;height:14px;left:4px;top:4px}
+html.px .sw input:checked+.knob{background:var(--pxok);box-shadow:inset 0 0 0 3px var(--pxfg)}
+html.px .sw input:checked+.knob::after{background:var(--pxfg);left:22px}
 html.px .av,html.px .ph,html.px .avw>img,html.px .hp img,html.px .eq img{image-rendering:pixelated}
-html.px #top{background:#000;border-bottom:4px solid #fff1e8;box-shadow:0 4px 0 #7e2553}
-html.px #top .title{color:#ffec27;letter-spacing:.2em;text-shadow:2px 2px 0 #7e2553}
-html.px #tablewrap::before{border:8px solid #fff1e8;background:#008751 linear-gradient(45deg,rgba(0,0,0,.12) 25%,transparent 25% 75%,rgba(0,0,0,.12) 75%) 0 0/16px 16px;box-shadow:0 0 0 4px #000,8px 8px 0 4px rgba(0,0,0,.55);border-radius:0}
+html.px .avw,html.px .avw>img,html.px img.av,html.px .avw::before,html.px .avw::after,html.px .avw>i{border-radius:0!important}   /* 像素主題: 頭像、頭像框、特效統一方形 */
+html.px img.av{border:0}
+html.px #top{background:#000;border-bottom:4px solid var(--pxfg);box-shadow:0 4px 0 var(--pxbtn)}
+html.px #top .title{color:var(--pxacc);letter-spacing:.2em;text-shadow:2px 2px 0 var(--pxbtn)}
+html.px #tablewrap::before{border:8px solid var(--pxfg);background:var(--pxtbl) linear-gradient(45deg,rgba(0,0,0,.12) 25%,transparent 25% 75%,rgba(0,0,0,.12) 75%) 0 0/16px 16px;box-shadow:0 0 0 4px #000,8px 8px 0 4px rgba(0,0,0,.55);border-radius:0}
 html.px #tablewrap::after{box-shadow:inset 0 0 0 2px rgba(255,241,232,.35);border-radius:0}
-html.px #center .big{color:#ffec27;text-shadow:3px 3px 0 #7e2553}
-html.px #center{color:#fff1e8}
-html.px #roundtag{color:#ffec27;text-shadow:2px 2px 0 #000}
-html.px #roundtag .rtdeck{color:#fff1e8}
-html.px .pl{background:#1d2b53;box-shadow:inset 0 0 0 3px #fff1e8,0 0 0 3px #000,6px 6px 0 3px rgba(0,0,0,.55);animation:none}
+html.px #center .big{color:var(--pxacc);text-shadow:3px 3px 0 var(--pxbtn)}
+html.px #center{color:var(--pxfg)}
+html.px #roundtag{color:var(--pxacc);text-shadow:2px 2px 0 #000}
+html.px #roundtag .rtdeck{color:var(--pxfg)}
+html.px .pl{background:var(--pxbg);box-shadow:inset 0 0 0 3px var(--pxfg),0 0 0 3px #000,6px 6px 0 3px rgba(0,0,0,.55);animation:none}
 html.px .pl:hover{box-shadow:inset 0 0 0 3px #29adff,0 0 0 3px #000,6px 6px 0 3px rgba(0,0,0,.55)}
-html.px .pl.cur{box-shadow:inset 0 0 0 3px #ffec27,0 0 0 3px #000,6px 6px 0 3px rgba(0,0,0,.55);animation:none}
-html.px .pl.cur::after{content:"出牌";color:#000;background:#ffec27;box-shadow:0 0 0 2px #000;letter-spacing:.1em}
+html.px .pl.cur{box-shadow:inset 0 0 0 3px var(--pxacc),0 0 0 3px #000,6px 6px 0 3px rgba(0,0,0,.55);animation:none}
+html.px .pl.cur::after{content:"出牌";color:#000;background:var(--pxacc);box-shadow:0 0 0 2px #000;letter-spacing:.1em}
 html.px .pl.sel{box-shadow:inset 0 0 0 3px #ffa300,0 0 0 3px #000}
-html.px .pl .ph{border:2px solid #fff1e8;box-shadow:0 0 0 2px #000}
-html.px .pl .nm{color:#fff1e8}
+html.px .pl .ph{border:2px solid var(--pxfg);box-shadow:0 0 0 2px #000}
+html.px .pl .nm{color:var(--pxfg)}
 html.px .role{box-shadow:0 0 0 2px #000;padding:0 6px}
 html.px .hp{color:#ff004d;text-shadow:2px 2px 0 #000}
-html.px .tag{background:#7e2553;border:2px solid #000}
-html.px .bubble{background:#fff1e8;color:#1d2b53;border:3px solid #000;box-shadow:4px 4px 0 rgba(0,0,0,.5)}
+html.px .tag{background:var(--pxbtn);border:2px solid #000}
+html.px .bubble{background:var(--pxfg);color:var(--pxbg);border:3px solid #000;box-shadow:4px 4px 0 rgba(0,0,0,.5)}
 html.px .bubble::after{border-top-color:#000}
 html.px .pl.bb .bubble::after{border-bottom-color:#000}
-html.px .card{border:3px solid #000;box-shadow:0 0 0 2px #fff1e8,4px 4px 0 2px rgba(0,0,0,.55)}
-html.px .card.ok{border:3px solid #00e436;box-shadow:0 0 0 2px #fff1e8,4px 4px 0 2px rgba(0,0,0,.55)}
-html.px .card.picked{border-color:#ffec27;box-shadow:0 0 0 2px #fff1e8,6px 6px 0 2px rgba(0,0,0,.55)}
-html.px #side{background:#1d2b53;border-left:4px solid #fff1e8}
+html.px .card{border:3px solid #000;box-shadow:0 0 0 2px var(--pxfg),4px 4px 0 2px rgba(0,0,0,.55)}
+html.px .card.ok{border:3px solid var(--pxok);box-shadow:0 0 0 2px var(--pxfg),4px 4px 0 2px rgba(0,0,0,.55)}
+html.px .card.picked{border-color:var(--pxacc);box-shadow:0 0 0 2px var(--pxfg),6px 6px 0 2px rgba(0,0,0,.55)}
+html.px #side{background:var(--pxbg);border-left:4px solid var(--pxfg)}
 html.px #tabs{background:#000}
-html.px #tabs button.on{background:#7e2553;color:#ffec27;box-shadow:inset 0 -4px 0 #ffec27}
-html.px #log .turn{background:#7e2553;color:#ffec27;border-left:4px solid #ffec27}
-html.px .th,html.px .cc{background:#2a3a78;border:2px solid #000;box-shadow:inset 0 0 0 2px #5f6fb0}
-html.px #bottom{background:#000;border-top:4px solid #fff1e8;box-shadow:0 -4px 0 #7e2553}
-html.px #bar .pr{color:#ffec27;text-shadow:2px 2px 0 #000}
-html.px button{background:#7e2553;color:#fff1e8;border:0;box-shadow:inset 0 0 0 3px #fff1e8,0 0 0 2px #000,3px 3px 0 2px #000}
-html.px button:hover{background:#ab5236;box-shadow:inset 0 0 0 3px #ffec27,0 0 0 2px #000,3px 3px 0 2px #000}
-html.px button:not(:disabled):active{transform:translate(3px,3px);box-shadow:inset 0 0 0 3px #ffec27,0 0 0 2px #000}
-html.px button.primary{background:#00e436;color:#000;box-shadow:inset 0 0 0 3px #fff1e8,0 0 0 2px #000,3px 3px 0 2px #000}
-html.px input,html.px select,html.px textarea{background:#000;color:#fff1e8;border:3px solid #fff1e8}
-html.px #status{background:#000;color:#ffec27;border:2px solid #fff1e8}
-html.px .dlg,html.px .ci{background:#1d2b53;border:4px solid #fff1e8;box-shadow:0 0 0 3px #000,8px 8px 0 3px rgba(0,0,0,.6)}
-html.px .dlg h3,html.px .ci h3{color:#ffec27;text-shadow:2px 2px 0 #7e2553}
+html.px #tabs button.on{background:var(--pxbtn);color:var(--pxacc);box-shadow:inset 0 -4px 0 var(--pxacc)}
+html.px #log .turn{background:var(--pxbtn);color:var(--pxacc);border-left:4px solid var(--pxacc)}
+html.px .th,html.px .cc{background:var(--pxbg2);border:2px solid #000;box-shadow:inset 0 0 0 2px var(--pxbg3)}
+html.px #bar .pr{color:var(--pxacc);text-shadow:2px 2px 0 #000}
+html.px button{background:var(--pxbtn);color:var(--pxfg);border:0;box-shadow:inset 0 0 0 3px var(--pxfg),0 0 0 2px #000,3px 3px 0 2px #000}
+html.px button:hover{background:var(--pxbtnh);box-shadow:inset 0 0 0 3px var(--pxacc),0 0 0 2px #000,3px 3px 0 2px #000}
+html.px button:not(:disabled):active{transform:translate(3px,3px);box-shadow:inset 0 0 0 3px var(--pxacc),0 0 0 2px #000}
+html.px button.primary{background:var(--pxok);color:#000;box-shadow:inset 0 0 0 3px var(--pxfg),0 0 0 2px #000,3px 3px 0 2px #000}
+html.px input,html.px select,html.px textarea{background:#000;color:var(--pxfg);border:3px solid var(--pxfg)}
+html.px #status{background:#000;color:var(--pxacc);border:2px solid var(--pxfg)}
+html.px .dlg,html.px .ci{background:var(--pxbg);border:4px solid var(--pxfg);box-shadow:0 0 0 3px #000,8px 8px 0 3px rgba(0,0,0,.6)}
+html.px .dlg h3,html.px .ci h3{color:var(--pxacc);text-shadow:2px 2px 0 var(--pxbtn)}
 html.px .modal{background:rgba(0,0,0,.72)}
-html.px .pickbar{background:#1d2b53;border:3px solid #ffec27;box-shadow:0 0 0 3px #000,6px 6px 0 3px rgba(0,0,0,.6)}
+html.px .pickbar{background:var(--pxbg);border:3px solid var(--pxacc);box-shadow:0 0 0 3px #000,6px 6px 0 3px rgba(0,0,0,.6)}
 @font-face{font-family:"SGS Pixel TW";src:url(/fonts/pixel-tw.woff2) format("woff2");font-display:swap}
 @font-face{font-family:"SGS Pixel JA";src:url(/fonts/pixel-ja.woff2) format("woff2");font-display:swap}
 `;
   document.head.appendChild(px);
-  const pxOn = t => document.documentElement.classList.toggle("px", !!(t && t.a && t.a.toLowerCase() === PX_A));
+  const PXV = {"#ff77a8": {"bg": "#1d2b53", "bg2": "#2a3a78", "bg3": "#5f6fb0", "btn": "#7e2553", "btnh": "#ab5236", "acc": "#ffec27", "fg": "#fff1e8", "tbl": "#008751", "ok": "#00e436", "dim": "#c2c3c7"}, "#9bbc0f": {"bg": "#0f380f", "bg2": "#1f5a1f", "bg3": "#306230", "btn": "#306230", "btnh": "#4a7a1a", "acc": "#9bbc0f", "fg": "#e0f8d0", "tbl": "#2a6a2a", "ok": "#8bac0f", "dim": "#a8c890"}, "#29adff": {"bg": "#0b1a3a", "bg2": "#17306a", "bg3": "#3d5fa8", "btn": "#1d4fa0", "btnh": "#2f6fd0", "acc": "#7fd8ff", "fg": "#eaf6ff", "tbl": "#0a5a8a", "ok": "#00e436", "dim": "#9fb8d8"}, "#ffa300": {"bg": "#2e1706", "bg2": "#5a2d10", "bg3": "#8a4a1a", "btn": "#b04a14", "btnh": "#d96a24", "acc": "#ffcc33", "fg": "#fff1e0", "tbl": "#8a5a20", "ok": "#00e436", "dim": "#d0b090"}, "#83769c": {"bg": "#1f1633", "bg2": "#3a2c5c", "bg3": "#6a5a9a", "btn": "#5a3f8a", "btnh": "#7a5aba", "acc": "#c9b6ff", "fg": "#f2ecff", "tbl": "#3d2e6a", "ok": "#00e436", "dim": "#b0a6c8"}, "#c2c3c7": {"bg": "#1a1a1a", "bg2": "#333333", "bg3": "#666666", "btn": "#444444", "btnh": "#666666", "acc": "#ffffff", "fg": "#f0f0f0", "tbl": "#3a3a3a", "ok": "#cfcfcf", "dim": "#aaaaaa"}, "#ff004d": {"bg": "#2a0a14", "bg2": "#55162a", "bg3": "#8a2a44", "btn": "#a00032", "btnh": "#d0204a", "acc": "#ffec27", "fg": "#fff1e8", "tbl": "#4a1a2a", "ok": "#00e436", "dim": "#d0a0b0"}};
+  const pxOn = t => {
+    const a = (t && t.a || "").toLowerCase(), v = PXV[a], r = document.documentElement;
+    r.classList.toggle("px", !!v);
+    Object.keys(PXV["#ff77a8"]).forEach(k => v ? r.style.setProperty("--px" + k, v[k]) : r.style.removeProperty("--px" + k));
+  };
+  /* ---------- 其他主題的整體造型: 每個主題各自的配色 / 邊框 / 圓角 / 陰影 / 背景紋路 / 開關 / 勾選框 / 拉桿 ----------
+     用一份參數表產生樣式 (古風三國、像素另有專屬樣式)。參數: bg 頁面底 / p 面板漸層 / line 邊框色 / acc 重點色 / text 字色 / dim 次要字色 /
+     felt 牌桌漸層 / tbl 牌桌邊框 / btn 按鈕 / pri 主要按鈕 + pric 字色 / rad 圓角 / lw 邊框粗 / bs 邊框樣式 / sh 陰影 / clip 斜角 / pat 頁面紋路 / tpat 牌桌紋路 */
+  const SKINS = {
+    "#c3ccd8": { bg: "#15171b", p: ["#23262c", "#1a1c21"], line: "#4a4f58", acc: "#d7dce4", text: "#e6e9ee", dim: "#9aa1ad", felt: ["#2c3036", "#16181c"], tbl: "#565c66", btn: ["#2f333a", "#23262c"], pri: ["#d7dce4", "#a9b0bc"], pric: "#14161a", rad: 3, lw: 1, bs: "solid", sh: "0 4px 10px rgba(0,0,0,.5)", tpat: "repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 1px,transparent 1px 6px)" },
+    "#46e0a0": { bg: "#0a1f1a", p: ["#12362c", "#0b241d"], line: "#3fbf94", acc: "#6ff0c0", text: "#e4fff5", dim: "#8fc9b3", felt: ["#1d6b53", "#0b2e25"], tbl: "#46e0a0", btn: ["#17493a", "#0f3228"], pri: ["#46e0a0", "#1f9d72"], pric: "#04241a", rad: 12, lw: 2, bs: "solid", sh: "0 0 16px rgba(70,224,160,.18)", tpat: "repeating-linear-gradient(90deg,rgba(111,240,192,.06) 0 3px,transparent 3px 22px)" },
+    "#b58cff": { bg: "#150f2e", p: ["#2a1d54", "#1a1238"], line: "#a07cf0", acc: "#d1b3ff", text: "#f2eaff", dim: "#b3a2dc", felt: ["#3d2a7a", "#150d33"], tbl: "#b58cff", btn: ["#33256a", "#241a4b"], pri: ["#b58cff", "#7c4ddb"], pric: "#14093a", rad: 6, lw: 2, bs: "solid", sh: "0 0 18px rgba(181,140,255,.2)", clip: 8, tpat: "linear-gradient(60deg,rgba(255,255,255,.05) 25%,transparent 25% 75%,rgba(255,255,255,.05) 75%) 0 0/34px 60px" },
+    "#ff8fc0": { bg: "#26101e", p: ["#4a2038", "#331427"], line: "#ff9ec9", acc: "#ffc2de", text: "#fff0f7", dim: "#e0a6c0", felt: ["#8a3f66", "#3a1629"], tbl: "#ff8fc0", btn: ["#5b2645", "#431a33"], pri: ["#ff8fc0", "#e0568f"], pric: "#3a0f26", rad: 16, lw: 2, bs: "solid", sh: "0 6px 18px rgba(255,143,192,.16)", tpat: "radial-gradient(circle,rgba(255,200,225,.16) 0 2px,transparent 3px) 0 0/26px 26px" },
+    "#ff7a45": { bg: "#240f0f", p: ["#4a1d12", "#2c0f0b"], line: "#ff7a45", acc: "#ffb27a", text: "#fff1e8", dim: "#e0a58a", felt: ["#6e2a14", "#260d08"], tbl: "#ff7a45", btn: ["#5d2412", "#3a150c"], pri: ["#ff7a45", "#d9361c"], pric: "#2a0a04", rad: 4, lw: 3, bs: "solid", sh: "0 0 18px rgba(255,122,69,.28)", clip: 10, tpat: "repeating-linear-gradient(135deg,rgba(255,140,60,.07) 0 6px,transparent 6px 18px)" },
+    "#f0c95c": { bg: "#1d1608", p: ["#3a2c0e", "#241a08"], line: "#f0c95c", acc: "#ffe08a", text: "#fff6dc", dim: "#d9c18a", felt: ["#6b5314", "#241a06"], tbl: "#f0c95c", btn: ["#4a380f", "#2e220a"], pri: ["#f0c95c", "#c4961f"], pric: "#2a1d02", rad: 4, lw: 4, bs: "double", sh: "0 6px 16px rgba(0,0,0,.5)", tpat: "repeating-linear-gradient(45deg,rgba(255,224,138,.05) 0 2px,transparent 2px 14px)" },
+    "#9b8cff": { bg: "#080824", p: ["#1a1850", "#0d0c33"], line: "#7f72ff", acc: "#c3b8ff", text: "#eeeaff", dim: "#a79fe0", felt: ["#1c1a60", "#05051b"], tbl: "#9b8cff", btn: ["#25236b", "#171550"], pri: ["#9b8cff", "#5b4de0"], pric: "#07061f", rad: 8, lw: 1, bs: "solid", sh: "0 0 20px rgba(155,140,255,.25)", pat: "radial-gradient(circle,rgba(255,255,255,.55) 0 1px,transparent 1.5px) 0 0/53px 53px,radial-gradient(circle,rgba(195,184,255,.4) 0 1px,transparent 1.5px) 17px 29px/71px 71px", tpat: "radial-gradient(circle,rgba(255,255,255,.5) 0 1px,transparent 1.5px) 0 0/37px 37px" },
+    "#7fffd4": { bg: "#0b1f1d", p: ["#1a3f3a", "#10302c"], line: "#7fffd4", acc: "#aaffe6", text: "#eafff9", dim: "#8fd6c4", felt: ["#2a7f73", "#0d332f"], tbl: "#7fffd4", btn: ["#1f4d46", "#163a35"], pri: ["#7fffd4", "#3cc9a1"], pric: "#052420", rad: 14, lw: 1, bs: "solid", sh: "0 6px 18px rgba(127,255,212,.12)", tpat: "" },
+    "#4d8dff": { bg: "#0a1330", p: ["#14306a", "#0b1d46"], line: "#4d8dff", acc: "#8fbaff", text: "#e8f0ff", dim: "#93acd9", felt: ["#1b4aa8", "#08163a"], tbl: "#4d8dff", btn: ["#1b3b80", "#12295c"], pri: ["#4d8dff", "#2456d6"], pric: "#ffffff", rad: 10, lw: 2, bs: "solid", sh: "0 6px 18px rgba(77,141,255,.18)", tpat: "repeating-radial-gradient(circle at 50% 120%,rgba(143,186,255,.08) 0 10px,transparent 10px 22px)" },
+    "#bfe9ff": { bg: "#0c1a28", p: ["#2a4a66", "#18304a"], line: "#cfeeff", acc: "#e8f8ff", text: "#f4fbff", dim: "#a9c9de", felt: ["#3b6f94", "#0d2236"], tbl: "#bfe9ff", btn: ["#2f5878", "#21425c"], pri: ["#e8f8ff", "#9fd6f5"], pric: "#0a2236", rad: 14, lw: 1, bs: "solid", sh: "0 0 18px rgba(207,238,255,.2)", tpat: "linear-gradient(135deg,rgba(255,255,255,.1) 25%,transparent 25% 50%,rgba(255,255,255,.1) 50% 75%,transparent 75%) 0 0/40px 40px" },
+    "#d9a066": { bg: "#21160e", p: ["#4a3321", "#2f1f13"], line: "#c9935a", acc: "#f0c08a", text: "#fbeedb", dim: "#cfae8a", felt: ["#6b4a2e", "#24160d"], tbl: "#d9a066", btn: ["#5a3d26", "#3c2818"], pri: ["#d9a066", "#a8692f"], pric: "#2a1708", rad: 6, lw: 2, bs: "dashed", sh: "0 6px 14px rgba(0,0,0,.5)", tpat: "repeating-linear-gradient(0deg,rgba(255,220,170,.05) 0 2px,transparent 2px 7px),repeating-linear-gradient(90deg,rgba(255,220,170,.05) 0 2px,transparent 2px 7px)" },
+    "#7ed957": { bg: "#0c1f10", p: ["#1f4a26", "#12301a"], line: "#7ed957", acc: "#b4f08f", text: "#eefbe6", dim: "#9fcf8a", felt: ["#2f7a32", "#0e2c12"], tbl: "#7a5a2c", btn: ["#285c30", "#1a4022"], pri: ["#7ed957", "#3f9f2a"], pric: "#0a2208", rad: 10, lw: 3, bs: "solid", sh: "0 6px 16px rgba(0,0,0,.5)", tpat: "radial-gradient(ellipse at 20% 30%,rgba(180,240,143,.08) 0 6px,transparent 7px) 0 0/44px 38px" },
+    "#b8c0cc": { bg: "#15181d", p: ["#242830", "#1a1d23"], line: "#8d97a6", acc: "#cfd6e0", text: "#dfe4ec", dim: "#98a1af", felt: ["#2b2f37", "#14161a"], tbl: "#9aa3b0", btn: ["#2d323b", "#21252c"], pri: ["#cfd6e0", "#8e98a8"], pric: "#12151a", rad: 0, lw: 1, bs: "dashed", sh: "none", pat: "repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px)", tpat: "repeating-linear-gradient(0deg,rgba(255,255,255,.04) 0 1px,transparent 1px 4px)" },
+    "#ff5d73": { bg: "#240c12", p: ["#4d1626", "#30101a"], line: "#ff5d73", acc: "#ff9aa8", text: "#fff0f2", dim: "#e0a0aa", felt: ["#7a1a2e", "#2a0a12"], tbl: "#ff5d73", btn: ["#5c1a2c", "#3d1019"], pri: ["#ff5d73", "#c41d3a"], pric: "#ffffff", rad: 2, lw: 2, bs: "solid", sh: "0 0 16px rgba(255,93,115,.25)", clip: 10, tpat: "repeating-linear-gradient(45deg,rgba(255,120,140,.06) 0 3px,transparent 3px 16px)" },
+    "#ffb347": { bg: "#26160a", p: ["#5a2f1a", "#3a1d10"], line: "#ffb36b", acc: "#ffd09a", text: "#fff2e4", dim: "#e6b895", felt: ["#a04a2a", "#321638"], tbl: "#ffb36b", btn: ["#6b3820", "#47241a"], pri: ["#ffb347", "#e0742a"], pric: "#2a1204", rad: 14, lw: 2, bs: "solid", sh: "0 6px 18px rgba(255,179,71,.16)", tpat: "linear-gradient(180deg,rgba(255,200,120,.12),transparent 60%)" },
+    "#b6ff3a": { bg: "#0f1a08", p: ["#233d10", "#162608"], line: "#b6ff3a", acc: "#d4ff7a", text: "#f2ffd9", dim: "#a6c97a", felt: ["#2e5a10", "#0c1604"], tbl: "#b6ff3a", btn: ["#2b4a12", "#1c3009"], pri: ["#b6ff3a", "#7ec21a"], pric: "#0d1704", rad: 0, lw: 3, bs: "solid", sh: "0 0 14px rgba(182,255,58,.22)", tpat: "repeating-linear-gradient(-45deg,rgba(182,255,58,.08) 0 10px,transparent 10px 20px)" },
+    "#ff4de0": { bg: "#1a0828", p: ["#33104e", "#210a33"], line: "#ff4de0", acc: "#3dfff0", text: "#fff0ff", dim: "#d09ad8", felt: ["#3a0f5c", "#10041a"], tbl: "#3dfff0", btn: ["#3d1260", "#2a0b45"], pri: ["#ff4de0", "#b81da0"], pric: "#1a0420", rad: 0, lw: 2, bs: "solid", sh: "0 0 18px rgba(255,77,224,.3)", clip: 8, pat: "repeating-linear-gradient(0deg,rgba(61,255,240,.05) 0 1px,transparent 1px 3px)", tpat: "linear-gradient(rgba(61,255,240,.14) 1px,transparent 1px) 0 0/24px 24px,linear-gradient(90deg,rgba(255,77,224,.14) 1px,transparent 1px) 0 0/24px 24px" },
+    "#ffffff": { bg: "#111111", p: ["#1c1c1c", "#0e0e0e"], line: "#ffffff", acc: "#ffffff", text: "#ffffff", dim: "#bdbdbd", felt: ["#262626", "#0a0a0a"], tbl: "#ffffff", btn: ["#2a2a2a", "#161616"], pri: ["#ffffff", "#cfcfcf"], pric: "#000000", rad: 0, lw: 3, bs: "solid", sh: "6px 6px 0 rgba(255,255,255,.35)", tpat: "repeating-linear-gradient(45deg,rgba(255,255,255,.05) 0 2px,transparent 2px 10px)" },
+    "#c9a7ff": { bg: "#1a1230", p: ["#3a2c66", "#261b49"], line: "#c9a7ff", acc: "#e0ccff", text: "#f6efff", dim: "#b9a6e0", felt: ["#5a4a9a", "#1c1438"], tbl: "#c9a7ff", btn: ["#43357a", "#2f2459"], pri: ["#c9a7ff", "#8d63e0"], pric: "#170f33", rad: 16, lw: 2, bs: "solid", sh: "0 6px 18px rgba(201,167,255,.16)", tpat: "radial-gradient(circle,rgba(224,204,255,.14) 0 2px,transparent 3px) 0 0/30px 30px" },
+    "#ffd700": { bg: "#1a0f3a", p: ["#33206b", "#1f1245"], line: "#ffd700", acc: "#ffe566", text: "#fff8d6", dim: "#cbb97a", felt: ["#3c2380", "#150a34"], tbl: "#ffd700", btn: ["#412b82", "#2b1b5c"], pri: ["#ffd700", "#c99a00"], pric: "#1a0f3a", rad: 6, lw: 4, bs: "double", sh: "0 0 18px rgba(255,215,0,.18)", tpat: "repeating-linear-gradient(45deg,rgba(255,215,0,.06) 0 2px,transparent 2px 14px),repeating-linear-gradient(-45deg,rgba(255,215,0,.06) 0 2px,transparent 2px 14px)" },
+  };
+  function skinCss(a, s) {
+    const S = `html[data-skin="${a}"]`, lw = s.lw, B = `${lw}px ${s.bs} ${s.line}`, r = s.rad, cr = Math.min(r, 6), bs1 = s.bs === "double" ? "solid" : s.bs, lw1 = Math.max(1, Math.min(lw, 2));
+    const cp = s.clip ? `clip-path:polygon(${s.clip}px 0,100% 0,100% calc(100% - ${s.clip}px),calc(100% - ${s.clip}px) 100%,0 100%,0 ${s.clip}px);` : "";
+    const P = `linear-gradient(160deg,${s.p[0]},${s.p[1]})`, sh = s.sh;
+    const round = r >= 10, kr = round ? 99 : cr, tr = round ? "50%" : Math.min(cr, 3) + "px";
+    return `
+${S}{--text:${s.text};--dim:${s.dim};--accent:${s.acc}}
+${S},${S} body{background:${s.pat ? s.pat + "," : ""}${s.bg};color:${s.text}}
+${S} #top{background:linear-gradient(90deg,${s.p[1]},${s.p[0]} 50%,${s.p[1]});border-bottom:${Math.max(1, lw)}px ${bs1} ${s.line}}
+${S} #top .title,${S} #center .big,${S} #roundtag,${S} .dlg h3,${S} .ci h3,${S} #bar .pr{color:${s.acc}}
+${S} #tablewrap::before{border:${Math.max(3, lw * 2)}px ${s.bs === "dashed" ? "solid" : s.bs} ${s.tbl};background:${s.tpat ? s.tpat + "," : ""}radial-gradient(ellipse at 50% 42%,${s.felt[0]} 0,${s.felt[1]} 100%);box-shadow:0 0 0 3px ${s.bg},0 0 0 4px ${s.line}${sh === "none" ? "" : "," + sh},inset 0 0 70px rgba(0,0,0,.6)}
+${S} #tablewrap::after{box-shadow:inset 0 0 0 1px ${s.line}55}
+${S} #center,${S} #roundtag .rtdeck{color:${s.dim}}
+${S} .pl{background:${P};border:${B};border-radius:${r}px;box-shadow:${sh};animation:none}
+${S} .pl:hover{border-color:${s.acc}}
+${S} .pl.cur{border-color:${s.acc};box-shadow:0 0 0 2px ${s.acc}55,0 0 22px ${s.acc}88;animation:none}
+${S} .pl.cur::after{content:"出牌";background:${s.acc};color:${s.bg};box-shadow:none;letter-spacing:.15em;border-radius:${Math.min(r, 4)}px ${Math.min(r, 4)}px 0 0}
+${S} .pl.sel{box-shadow:0 0 0 2px ${s.acc}}
+${S} .pl .ph{border:1px solid ${s.line};border-radius:${Math.min(r, 6)}px}
+${S} .role{border-radius:${round ? 99 : Math.min(r, 4)}px}
+${S} .tag{background:${s.line}22;border-color:${s.line}88;border-radius:${round ? 99 : Math.min(r, 4)}px}
+${S} .bubble{background:${s.text};color:${s.bg};border:${Math.max(1, lw)}px ${bs1} ${s.line};border-radius:${Math.min(r, 10)}px}
+${S} .bubble::after{border-top-color:${s.text}}
+${S} .pl.bb .bubble::after{border-bottom-color:${s.text}}
+${S} .card{border:${lw1}px solid ${s.line};border-radius:${Math.min(r, 8)}px}
+${S} .card.ok{border:2px solid ${s.acc};box-shadow:0 0 14px ${s.acc}88,0 4px 10px rgba(0,0,0,.6)}
+${S} .card.picked{border-color:#fff;box-shadow:0 0 22px ${s.acc},0 10px 18px rgba(0,0,0,.6)}
+${S} #side{background:linear-gradient(180deg,${s.p[0]},${s.p[1]});border-left:${Math.max(1, lw)}px ${bs1} ${s.line}}
+${S} #tabs{background:rgba(0,0,0,.28)}
+${S} #tabs button.on{background:${s.acc}1f;color:${s.acc};box-shadow:inset 0 -3px 0 ${s.acc}}
+${S} #log .turn{background:linear-gradient(90deg,${s.acc}33,transparent);color:${s.acc};border-left-color:${s.acc}}
+${S} .th,${S} .cc{background:${s.p[0]}cc;border:1px solid ${s.line}77;border-radius:${Math.min(r, 8)}px}
+${S} button{background:linear-gradient(180deg,${s.btn[0]},${s.btn[1]});color:${s.text};border:0;box-shadow:inset 0 0 0 ${lw1}px ${s.line};border-radius:${r}px;${cp}}
+${S} button:hover{background:linear-gradient(180deg,${s.btn[0]},${s.btn[0]});box-shadow:inset 0 0 0 2px ${s.acc},0 0 12px ${s.acc}55}
+${S} button.primary{background:linear-gradient(180deg,${s.pri[0]},${s.pri[1]});color:${s.pric};box-shadow:inset 0 0 0 1px ${s.acc}}
+${S} input:not([type=checkbox]):not([type=radio]):not([type=range]),${S} select,${S} textarea{background:${s.bg};color:${s.text};border:${lw1}px ${bs1} ${s.line};border-radius:${Math.min(r, 8)}px}
+${S} #status{background:${s.p[1]};color:${s.acc};border-color:${s.line};border-radius:${Math.min(r, 8)}px}
+${S} .dlg,${S} .ci{background:${P};border:${B};border-radius:${r}px;box-shadow:${sh === "none" ? "" : sh + ","}0 18px 50px rgba(0,0,0,.7)}
+${S} .modal{background:rgba(0,0,0,.72)}
+${S} .pickbar{background:${P};border:${B};box-shadow:0 0 24px ${s.acc}55}
+${S} input[type=checkbox],${S} input[type=radio]{-webkit-appearance:none;appearance:none;width:18px;height:18px;margin:0 6px 0 0;vertical-align:middle;background:${s.bg};border:2px solid ${s.line};border-radius:${cr}px;cursor:pointer;flex:none}
+${S} input[type=radio]{border-radius:${r === 0 ? 0 : 50}%}
+${S} input[type=checkbox]:checked,${S} input[type=radio]:checked{background:${s.acc};box-shadow:inset 0 0 0 3px ${s.bg}}
+${S} .sw input{width:0;height:0;border:0}
+${S} .sw .knob{border-radius:${kr}px;background:${s.bg};box-shadow:inset 0 0 0 2px ${s.line}}
+${S} .sw .knob::after{border-radius:${round ? "50%" : Math.min(cr, 3) + "px"};background:${s.dim}}
+${S} .sw input:checked+.knob{background:linear-gradient(90deg,${s.pri[1]},${s.pri[0]});box-shadow:inset 0 0 0 2px ${s.line},0 0 10px ${s.acc}55}
+${S} .sw input:checked+.knob::after{background:#fff}
+${S} input[type=range]{-webkit-appearance:none;appearance:none;height:12px;background:${s.bg};border:2px solid ${s.line};border-radius:${kr}px;padding:0;cursor:pointer}
+${S} input[type=range]::-webkit-slider-runnable-track{height:8px;background:transparent}
+${S} input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:${round ? 18 : 12}px;height:${round ? 18 : 20}px;margin-top:${round ? -5 : -6}px;background:${s.acc};border:2px solid ${s.bg};border-radius:${tr};box-shadow:0 0 0 1px ${s.line}}
+${S} input[type=range]::-moz-range-track{height:8px;background:transparent}
+${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${round ? 18 : 20}px;background:${s.acc};border:2px solid ${s.bg};border-radius:${tr}}`;
+  }
+  const skinCssEl = document.createElement("style"); skinCssEl.dataset.cos = "1";
+  skinCssEl.textContent = Object.entries(SKINS).map(([a, s]) => skinCss(a, s)).join("\n");
+  document.head.appendChild(skinCssEl);
+  const skinOn = t => { const a = (t && t.a || "").toLowerCase(); if (SKINS[a]) document.documentElement.dataset.skin = a; else delete document.documentElement.dataset.skin; };
   const gfOn = t => document.documentElement.classList.toggle("gf", !!(t && t.a && t.a.toLowerCase() === GF_A));
 
   const origs = new WeakMap();
   function apply(t) {
     const els = [...document.querySelectorAll("style")].filter(e => !e.dataset.cos);
     t = t && t.a && t.b ? t : { a: GF_A, b: GF_B };   // 沒選主題 = 預設的古風三國
-    gfOn(t); pxOn(t); fontOn(t);
+    gfOn(t); pxOn(t); skinOn(t); fontOn(t);
     const off = t.a.toLowerCase() === DEF.a && t.b.toLowerCase() === DEF.b;   // 「電競藍」就是頁面原本的顏色
     const mp = off ? null : mapper(t), hx = v => v.toString(16).padStart(2, "0");
     curMp = mp;
@@ -404,9 +504,15 @@ html.px .pickbar{background:#1d2b53;border:3px solid #ffec27;box-shadow:0 0 0 3p
   }
   /* ---------- 玩家框 (牌桌上座位方塊的外觀,所有人都看得到): id 對應伺服器 cosmetics.BOXES ---------- */
   // c: 方塊底色 (上 / 下), bd: 邊線, gl: 光暈色, fl: 疊在底色上的花紋 (可省略)
+  const pxc = (col, sz) => `linear-gradient(45deg,${col} 25%,transparent 25% 75%,${col} 75%) 0 0/${sz}px ${sz}px`;   // 像素格紋
   const dots = (col, sz) => `radial-gradient(${col} 1px,transparent 1.5px) 0 0/${sz}px ${sz}px`;
   const BOX = {
     classic: null,
+    px_grass:   { px: 1, c: ["#2e8b3a", "#1f6a2c"], bd: "#8b5a2b", gl: "#8b5a2b", fl: pxc("rgba(0,0,0,.14)", 16) },
+    px_dungeon: { px: 1, c: ["#5b5f6b", "#43464f"], bd: "#c2c3c7", gl: "#c2c3c7", fl: `linear-gradient(rgba(0,0,0,.28) 2px,transparent 2px) 0 0/32px 16px,linear-gradient(90deg,rgba(0,0,0,.28) 2px,transparent 2px) 0 0/32px 16px` },
+    px_coin:    { px: 1, c: ["#e8b923", "#b8860b"], bd: "#fff1b0", gl: "#fff1b0", fl: pxc("rgba(255,255,255,.16)", 12) },
+    px_lava:    { px: 1, c: ["#d9381e", "#7a1408"], bd: "#ffa300", gl: "#ffa300", fl: pxc("rgba(255,163,0,.22)", 16) },
+    px_night:   { px: 1, c: ["#1d2b53", "#0b1230"], bd: "#29adff", gl: "#29adff", fl: `radial-gradient(#fff 1px,transparent 1.5px) 0 0/22px 22px,radial-gradient(#ffec27 1px,transparent 1.5px) 11px 11px/34px 34px` },
     felt:    { c: ["#1f6b52", "#0b2f25"], bd: "#c89b5e", gl: "#c89b5e" },
     wine:    { c: ["#6a1b2c", "#2a0a12"], bd: "#e5b26b", gl: "#e5b26b" },
     charcoal:{ c: ["#3a3f47", "#14171b"], bd: "#aeb8c6", gl: "#aeb8c6" },
@@ -434,14 +540,16 @@ html.px .pickbar{background:#1d2b53;border:3px solid #ffec27;box-shadow:0 0 0 3p
       boxStyle = document.createElement("style");
       boxStyle.textContent = `.pl[data-bx],.pvseat[data-bx]{background:var(--bx-bg)!important}
 .pl[data-bx]:not(.cur):not(.target):not(.win),.pvseat[data-bx]{box-shadow:var(--bx-sh)!important}
-.pl[data-bx].cur{background:var(--bx-bg)!important}`;
+.pl[data-bx].cur{background:var(--bx-bg)!important}
+.pl[data-bx][data-bxpx],.pvseat[data-bx][data-bxpx]{border-radius:0!important}`;
       document.head.appendChild(boxStyle);
     }
-    if (!sp) { el.removeAttribute("data-bx"); return; }
+    if (!sp) { el.removeAttribute("data-bx"); delete el.dataset.bxpx; return; }
     el.dataset.bx = id;
+    if (sp.px) el.dataset.bxpx = "1"; else delete el.dataset.bxpx;
     const st = el.style;
     st.setProperty("--bx-bg", `${sp.fl ? sp.fl + "," : ""}linear-gradient(160deg,${sp.c[0]}f2,${sp.c[1]}f5)`);
-    st.setProperty("--bx-sh", `inset 0 0 0 1px ${sp.bd},inset 0 0 22px ${sp.gl}33,0 0 14px ${sp.gl}40`);
+    st.setProperty("--bx-sh", sp.px ? `inset 0 0 0 3px ${sp.bd},0 0 0 3px #000,5px 5px 0 3px rgba(0,0,0,.5)` : `inset 0 0 0 1px ${sp.bd},inset 0 0 22px ${sp.gl}33,0 0 14px ${sp.gl}40`);
   }
   window.SGS_BOX = { apply: applyBox, spec: BOX };
   function pickBox(id) {
@@ -474,8 +582,9 @@ html.px .pickbar{background:#1d2b53;border:3px solid #ffec27;box-shadow:0 0 0 3p
       else if (tab === "theme") {
         const sw = CAT.themes.map(x => {
           const ok = has("themes", x.id);
+          const isSel = x.a ? !!(cur && cur.a && cur.a.toLowerCase() === x.a.toLowerCase()) : !(cur && cur.a && cur.a.toLowerCase() !== GF_A);   // 目前套用的主題 (預設 = 古風三國)
           return h("button", {
-            class: "tile" + (ok ? "" : " lock"), title: ok ? x.n : x.req_text,
+            class: "tile" + (ok ? "" : " lock") + (isSel ? " sel" : ""), title: ok ? x.n : x.req_text,
             onclick: () => { if (!ok) return; if (!x.a) { save(null); } else { save({ a: x.a, b: x.b }); } render(); },
           }, h("span", { "data-nm": "1", style: { width: "58px", height: "40px", borderRadius: "9px", background: `linear-gradient(135deg,${x.b || GF_B} 50%,${x.a || GF_A} 50%)`, boxShadow: "inset 0 0 0 1px rgba(255,255,255,.2)" } }),
           h("span", { class: "tn", text: (ok ? "" : "🔒 ") + x.n }), ok ? null : h("span", { class: "rq", text: "需要 " + x.req_text }));

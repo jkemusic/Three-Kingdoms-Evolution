@@ -202,7 +202,8 @@
         const box = el("div", { className: "setrow" }, el("span", { className: "sl", textContent: "版本" }), v);
         fetch("/api/about").then(r => r.json()).then(a => {
           v.textContent = "v" + a.version + " ";
-          const gh = el("a", { href: a.repo, target: "_blank", rel: "noopener", textContent: "GitHub", style: "margin:0 8px" });
+          const gh = el("button", { textContent: "GitHub", title: a.repo, style: "margin:0 8px" });
+          gh.onclick = () => window.open(a.repo, "_blank", "noopener");
           const lg = el("button", { textContent: "更新日誌" });
           lg.onclick = () => {
             const d2 = el("div", { className: "dlg", style: "max-width:560px" },

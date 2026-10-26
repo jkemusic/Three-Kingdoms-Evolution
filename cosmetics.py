@@ -58,7 +58,13 @@ def A(a): return {"t": "ach", "v": a}
 # 顏色主題 (a 主色 / b 底色)、頭像框 (id 對應前端 CSS fr-<id>)、頭像特效 (fx-<id>)
 THEMES = [
     {"id": "default", "n": "古風三國", "a": None, "b": None, "req": F()},
-    {"id": "pixel", "n": "像素", "a": "#ff77a8", "b": "#1d2b53", "req": F()},
+    {"id": "pixel", "n": "像素·糖粉", "a": "#ff77a8", "b": "#1d2b53", "req": F()},
+    {"id": "pixel_gb", "n": "像素·掌機綠", "a": "#9bbc0f", "b": "#0f380f", "req": F()},
+    {"id": "pixel_blue", "n": "像素·海藍", "a": "#29adff", "b": "#0b1a3a", "req": F()},
+    {"id": "pixel_amber", "n": "像素·琥珀", "a": "#ffa300", "b": "#2e1706", "req": F()},
+    {"id": "pixel_violet", "n": "像素·暮紫", "a": "#83769c", "b": "#1f1633", "req": F()},
+    {"id": "pixel_red", "n": "像素·赤紅", "a": "#ff004d", "b": "#2a0a14", "req": F()},
+    {"id": "pixel_bw", "n": "像素·黑白", "a": "#c2c3c7", "b": "#1a1a1a", "req": F()},
     {"id": "classic", "n": "電競藍", "a": "#3fd2ff", "b": "#0c1830", "req": F()},
     {"id": "graphite", "n": "石墨", "a": "#c3ccd8", "b": "#14161a", "req": F()},
     {"id": "jade", "n": "翡翠", "a": "#46e0a0", "b": "#0a1f1a", "req": T(1)},
@@ -175,6 +181,11 @@ BOXES = [
     {"id": "scroll", "n": "卷軸", "req": A("chars30")},
     {"id": "zen", "n": "禪意", "req": A("no_sha")},
     {"id": "neon", "n": "霓虹網格", "req": A("hand20")},
+    {"id": "px_grass", "n": "像素·草地", "req": F()},
+    {"id": "px_dungeon", "n": "像素·地牢", "req": F()},
+    {"id": "px_coin", "n": "像素·金幣", "req": A("wins25")},
+    {"id": "px_lava", "n": "像素·熔岩", "req": A("ranked30")},
+    {"id": "px_night", "n": "像素·星夜", "req": A("tier_gold")},
 ]
 
 

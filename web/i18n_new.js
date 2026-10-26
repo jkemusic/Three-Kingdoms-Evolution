@@ -47,7 +47,7 @@ window.SGS_LOG_TPL = (window.SGS_LOG_TPL || []).concat([
 ["漩渦", "Vortex", "渦"], ["光柱", "Light Pillar", "光の柱"], ["烈陽", "Blazing Sun", "烈日"], ["星河", "Galaxy", "天の川"], ["流星", "Meteor", "流星"],
 // --- 主題 ---
 ["薄荷", "Mint", "ミント"], ["深海", "Deep Sea", "深海"], ["冰藍", "Ice Blue", "アイスブルー"], ["咖啡", "Coffee", "コーヒー"], ["森林", "Forest", "森"],
-["灰燼", "Ashes", "灰燼"], ["古風三國", "Ancient Kingdoms", "古風三國"], ["電競藍", "Esports Blue", "eスポーツブルー"], ["像素", "Pixel", "ピクセル"], ["緋紅", "Scarlet", "緋色"], ["夕陽", "Sunset", "夕陽"], ["毒綠", "Toxic Green", "毒緑"], ["賽博", "Cyber", "サイバー"],
+["灰燼", "Ashes", "灰燼"], ["古風三國", "Ancient Kingdoms", "古風三國"], ["電競藍", "Esports Blue", "eスポーツブルー"], ["像素·草地", "Pixel · Grass", "ピクセル・草原"], ["像素·地牢", "Pixel · Dungeon", "ピクセル・ダンジョン"], ["像素·金幣", "Pixel · Coin", "ピクセル・コイン"], ["像素·熔岩", "Pixel · Lava", "ピクセル・溶岩"], ["像素·星夜", "Pixel · Night", "ピクセル・星夜"], ["像素·糖粉", "Pixel · Candy", "ピクセル・キャンディ"], ["像素·掌機綠", "Pixel · Handheld", "ピクセル・携帯機"], ["像素·海藍", "Pixel · Ocean", "ピクセル・海"], ["像素·琥珀", "Pixel · Amber", "ピクセル・琥珀"], ["像素·暮紫", "Pixel · Dusk", "ピクセル・夕暮れ"], ["像素·赤紅", "Pixel · Red", "ピクセル・赤"], ["像素·黑白", "Pixel · Mono", "ピクセル・モノ"], ["緋紅", "Scarlet", "緋色"], ["夕陽", "Sunset", "夕陽"], ["毒綠", "Toxic Green", "毒緑"], ["賽博", "Cyber", "サイバー"],
 ["黑白", "Monochrome", "モノクロ"], ["薰衣草", "Lavender", "ラベンダー"], ["皇家", "Royal", "ロイヤル"],
 // --- 好友 / 房間 / 密碼 ---
 ["  (把這組 UID 給朋友,他就能加你)", "  (Give this UID to a friend so they can add you)", "  (このUIDを友達に教えると追加してもらえます)"],
