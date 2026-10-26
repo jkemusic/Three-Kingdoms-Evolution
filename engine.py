@@ -1112,7 +1112,7 @@ class Game:
             if not q.alive or not p.alive:
                 continue
             if trick == "突":   # 突襲: 有人受傷結算就停止,所以輪到這個人才問他 (後面沒輪到的人不會被問)
-                self.sha_window(p, q, SimpleNamespace(name=trick), f"使用了{ {"南": "南蠻入侵", "萬": "萬箭齊發", "突": "突襲"}.get(trick, trick) } (結算到你了)")
+                self.sha_window(p, q, SimpleNamespace(name=trick), "使用了" + {"南": "南蠻入侵", "萬": "萬箭齊發", "突": "突襲"}.get(trick, trick) + " (結算到你了)")
                 if not q.alive or not p.alive:
                     continue
             if not self.need_response(q, need, {"attacker": p, "group": trick}):
