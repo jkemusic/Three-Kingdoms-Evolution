@@ -1556,11 +1556,11 @@ function openSetup() {
       const cs = roster.filter(c => c.faction === f).sort((x, y) => x.name.localeCompare(y.name, "zh-u-co-stroke"));
       return cs.length ? h("optgroup", {label: f}, ...cs.map(c => h("option", {value: c.name, text: `${c.faction} ${c.name} (${c.maxhp}體力)`}))) : null;
     }).filter(Boolean)];
-  const keep = {}, keepD = {};
+  const keep = {}, keepD = {}; let diffSeg = null;
   const mkSeat = (i, n) => {   // 一個座位: 武將 / 電腦難度 / 開放給朋友 / 把這個武將複製到別的座位
     const open0 = h("div", {class: "open"}, toggle("開放給朋友", false));
     const sel = h("select", {"data-seat": i}, charOpts()); if (keep[i]) sel.value = keep[i];
-    const dsel = h("select", {"data-dseat": i, title: "這個座位的電腦難度"}, diffLabels().map((t, k) => h("option", {value: k + 1, text: "🤖 " + t}))); dsel.value = keepD[i] || String(st.diff);
+    const dsel = h("select", {"data-dseat": i, title: "這個座位的電腦難度"}, diffLabels().map((t, k) => h("option", {value: k + 1, text: "🤖 " + t}))); dsel.disabled = st.ranked === "ranked"; dsel.value = keepD[i] || String(st.diff);
     const cp = h("select", {class: "cpy", title: "把這個座位的武將複製到另一個座位 (兩個座位會用同一位武將)"},
       h("option", {value: "", text: "⧉ 複製到…"}), h("option", {value: "all", text: "全部其他座位"}), ...Array.from({length: n}, (_, k) => k).filter(k => k !== i).map(k => h("option", {value: k, text: "座位 " + k})));
     cp.onchange = () => {
@@ -1620,6 +1620,8 @@ function openSetup() {
     const on = st.ranked === "ranked";
     if (on) { st.mode = "normal"; st.hp = 4; st.lord = "random"; st.rm = "normal"; if (st.n < 4) st.n = 4; Object.keys(keep).forEach(k => keep[k] = ""); }
     drawMode(); hpDraw(); rebuild();
+    seatBox.querySelectorAll("select[data-dseat]").forEach(x => { x.disabled = on; });
+    if (diffSeg) { diffSeg.style.opacity = on ? ".45" : ""; diffSeg.style.pointerEvents = on ? "none" : ""; }
     specAll.disabled = on; if (on) specAll.checked = false;   // 旁觀者可看全部: 段位模式不能開
     { const f = specAll.closest(".fld"); if (f) f.style.opacity = on ? ".45" : ""; }
     [modeBox, hpBox, lordBox, rmBox].forEach(b => { const s = b.closest(".sec"); if (s) { s.classList.toggle("lk", on); } });
@@ -1646,7 +1648,7 @@ function openSetup() {
       sect("人數", "", nBox),
       sect("身分配置", "", varBox),
       sect("主公座位", "主公從哪個座位開始;身分會在開局時才揭曉", lordBox),
-      sect("電腦難度", "上面一排是一次調整全部電腦;每個座位也可以在下方「座位與武將」各自調整。段位模式打贏電腦加的積分: 弱 +10 / 中 +18 / 強 +25 / 很強 +32,多個難度取平均;輸了 −15。", seg(diffLabels().map((t, k) => [k + 1, t]), st.diff, v => { st.diff = v; seatBox.querySelectorAll("select[data-dseat]").forEach(x => { x.value = String(v); keepD[x.dataset.dseat] = String(v); }); })),
+      sect("電腦難度", "上面一排是一次調整全部電腦;每個座位也可以在下方「座位與武將」各自調整。段位模式打贏電腦加的積分: 弱 +10 / 中 +18 / 強 +25 / 很強 +32;輸了 −15。段位模式的電腦難度不能自己調,跟著入座玩家的平均段位走: 青銅 弱 / 白銀·黃金 中 / 白金·鑽石 強 / 大師·傳說 很強。", diffSeg = seg(diffLabels().map((t, k) => [k + 1, t]), st.diff, v => { st.diff = v; seatBox.querySelectorAll("select[data-dseat]").forEach(x => { x.value = String(v); keepD[x.dataset.dseat] = String(v); }); })),
       sect("基礎體力上限", "所有武將的體力上限一起增減 (預設 4);原本就比較高或低的武將會保留差距。例如設 6,原本 4 血的武將變 6 血,原本 3 血的變 5 血", hpBox),
       sect("遊戲模式", "正常模式: 武將不變;百變模式: 第 2 輪起,每次輪到玩家的回合一開始都會隨機換成一位新武將 (已損失的體力不變)", modeBox),
       sect("身分模式", "正常: 一般身分局;無身分: 沒有主公反賊,各打各的,最後活著的人贏;身分全公開: 所有人的身分一開始就公開;主公不公開: 主公不亮身分,也不加體力上限", rmBox),

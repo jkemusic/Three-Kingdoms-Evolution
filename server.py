@@ -46,6 +46,7 @@ class Profiles:
     # 段位: 積分 (rp) 決定。每個段位 (傳說除外) 再分 3 / 2 / 1 三小段,1 最高
     RANKS = [("青銅", 0), ("白銀", 100), ("黃金", 250), ("白金", 450), ("鑽石", 700), ("大師", 1000), ("傳說", 1400)]
     WIN_RP = {1: 10, 2: 18, 3: 25, 4: 32}   # 段位模式贏: 依電腦難度加分 (全真人 25)
+    RANK_DIFF = {"青銅": 1, "白銀": 2, "黃金": 2, "白金": 3, "鑽石": 3, "大師": 4, "傳說": 4}   # 段位模式: 電腦難度跟著段位 (弱 / 中 / 強 / 很強)
     LOSS_RP = 15                            # 段位模式輸: 扣分 (最低 0 分)
 
     @classmethod
@@ -854,6 +855,10 @@ class Manager:
             return {"ok": False, "error": "only host can start"}
         cfg, n = self.cfg, self.cfg["n"]
         self.humans = set(self.claims)   # 沒人坐的真人座位由 AI 接手
+        if cfg.get("ranked"):   # 段位模式: 電腦難度由入座真人的平均段位決定,不能自己調
+            rps = [PROFILES.get(t).get("rp", 0) if PROFILES.get(t) else 0 for t in self.claims.values()]
+            avg = sum(rps) / len(rps) if rps else 0
+            cfg["difficulty"], cfg["diffs"] = Profiles.RANK_DIFF.get(Profiles.rank(avg)[0], 3), []
         pool = list(cfg["pool"])
         self.pick_rng = random.Random(cfg["seed"] + 1)
         lord = cfg.get("lord", "random")
