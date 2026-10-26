@@ -102,7 +102,7 @@ class Profiles:
                 self._save()
             return p["uid"]
 
-    DEVS = {"jke", "lonea"}   # 開發者 (帳號名稱小寫)
+    DEVS = {"jke", "lone_a"}   # 開發者 (帳號名稱小寫)
 
     def dev(self, tok):
         return ACCOUNTS.uuids.get(tok) in self.DEVS

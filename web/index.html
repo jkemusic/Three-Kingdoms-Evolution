@@ -1587,7 +1587,7 @@ function openSetup() {
     if (!on) return;
     const pct = p.rp_next == null ? 100 : Math.max(0, Math.min(100, (p.rp - p.rp_lo) / (p.rp_next - p.rp_lo) * 100));
     rkIn.append("我的段位 ", rkEl(p.rank), " · 積分 " + p.rp + " · " + (p.rp_next == null ? "已達最高段位" : "再 " + (p.rp_next - p.rp) + " 分升到 " + p.next_rank));
-    rkSide.append(h("div", {class: "meta", text: "我的段位"}), h("div", {style: {margin: "6px 0"}}, rkEl(p.rank, true), devEl(p.dev)),
+    rkSide.append(h("div", {class: "meta", text: "我的段位"}), h("div", {style: {margin: "6px 0"}}, rkEl(p.rank, true)),
       h("div", {class: "meta", text: "積分 " + p.rp}),
       h("div", {class: "rkbar"}, h("i", {style: {width: pct + "%"}})),
       h("div", {class: "meta", text: p.rp_next == null ? "已達最高段位" : "再 " + (p.rp_next - p.rp) + " 分升到 " + p.next_rank}));
