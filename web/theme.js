@@ -561,7 +561,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
     px_coin:    { px: 1, c: ["#b07a00", "#6e4800"], bd: "#fff1b0", gl: "#fff1b0" },
     px_lava:    { px: 1, c: ["#c9301a", "#7e1d0e"], bd: "#ffa300", gl: "#ffa300" },
     px_night:   { px: 1, c: ["#101640", "#05071a"], bd: "#ffec27", gl: "#ffec27" },
-    felt:    { c: ["#1f6b52", "#0b2f25"], bd: "#c89b5e", gl: "#c89b5e", fl: dots("rgba(255,255,255,.1)", 10), mv: [1, 1] },
+    felt:    { c: ["#1f6b52", "#0b2f25"], bd: "#c89b5e", gl: "#c89b5e", fl: dots("rgba(255,255,255,.1)", 10), still: 1 },
     charcoal:{ c: ["#3a3f47", "#14171b"], bd: "#aeb8c6", gl: "#aeb8c6", fl: `linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px) 0 0/14px 14px,linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px) 0 0/14px 14px`, mv: [1, 1] },
     jade:    { c: ["#1b8a63", "#06291f"], bd: "#5fe8b0", gl: "#46e0a0" },
     ink:     { c: ["#7d8c90", "#46545a"], bd: "#1d2326", gl: "#aeb9bc" },
@@ -712,8 +712,9 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
     px_dungeon: () => `<i class="br"></i>` + [[10, 34, 0], [29, 26, -.5], [49, 36, -.2], [68, 27, -.8], [88, 35, -.35]].map(([x, y, d]) => `<b class="tc" style="left:${x}%;top:${y}%"><i class="tg" style="--dl:${d - 0.3}s"></i><i class="tf a" style="--dl:${d}s"></i><i class="tf b" style="--dl:${d}s"></i><i class="tkh"></i></b>`).join("") + `<b class="bt" style="--dl:-3s"><i class="up"></i><i class="dn"></i></b>`,
     zen: () => `<i class="rk"></i><i class="rg" style="left:20%;top:62%;--dl:0s"></i><i class="rg" style="left:20%;top:62%;--dl:-3s"></i><i class="rg" style="left:20%;top:62%;--dl:-6s"></i><i class="sto" style="left:20%;top:62%;width:30px;height:17px"></i><i class="sto" style="left:8%;top:80%;width:16px;height:9px"></i>`,
     px_lava: () => `<i class="pl1" style="background-image:url(${pxLavaUri(0)})"></i><i class="pl2" style="background-image:url(${pxLavaUri(2.4)})"></i>` + rng(6).map(i => `<i class="pb" style="left:${(R(i, 1) * 92 + 2).toFixed(0)}%;--t:${(3 + R(i, 2) * 3).toFixed(1)}s;--dl:${(-R(i, 3) * 6).toFixed(1)}s"></i>`).join(""),
-    px_night: () => `<i class="mo"></i>` + rng(22).map(i => `<i class="st ${["", "y", "c", ""][i % 4]}" style="left:${(R(i, 1) * 96 + 1).toFixed(0)}%;top:${(R(i, 2) * 92 + 2).toFixed(0)}%;--t:${(1.2 + R(i, 3) * 2.4).toFixed(1)}s;--dl:${(-R(i, 4) * 3).toFixed(1)}s"></i>`).join("")
-      + [[16, 28], [62, 60], [86, 22]].map(([x, y], i) => `<i class="sx" style="left:${x}%;top:${y}%;--t:${2 + i * .7}s;--dl:${-i * .9}s"></i>`).join("") + `<i class="ss" style="--t:7s;--dl:-2s"></i>`,
+    px_night: () => `<i class="mo"></i>` + rng(22).map(i => { const l = R(i, 1) * 96 + 1; let t = R(i, 2) * 92 + 2; if (l > 44 && t < 62) t = 62 + t * .55;   /* 月亮那一塊不放星星 */
+      return `<i class="st ${["", "y", "c", ""][i % 4]}" style="left:${l.toFixed(0)}%;top:${t.toFixed(0)}%;--t:${(1.2 + R(i, 3) * 2.4).toFixed(1)}s;--dl:${(-R(i, 4) * 3).toFixed(1)}s"></i>`; }).join("")
+      + [[16, 28], [62, 60], [44, 12]].map(([x, y], i) => `<i class="sx" style="left:${x}%;top:${y}%;--t:${2 + i * .7}s;--dl:${-i * .9}s"></i>`).join("") + `<i class="ss" style="--t:7s;--dl:-2s"></i>`,
     galaxy: () => rng(26).map(i => `<i class="gs" style="left:${(R(i, 1) * 97 + 1).toFixed(0)}%;top:${(R(i, 2) * 94 + 2).toFixed(0)}%;width:${(1 + R(i, 3) * 1.4).toFixed(1)}px;height:${(1 + R(i, 3) * 1.4).toFixed(1)}px;--t:${(2 + R(i, 4) * 3).toFixed(1)}s;--dl:${(-R(i, 5) * 4).toFixed(1)}s"></i>`).join("")
       + [[14, 30], [48, 68], [76, 24], [92, 70]].map(([x, y], i) => `<i class="gb" style="left:${x}%;top:${y}%;--t:${3 + i * .6}s;--dl:${-i * 1.1}s"></i>`).join("")
       + [[8, 9, -1], [30, 12.5, -7]].map(([y, t, d]) => `<i class="cm" style="top:${y}%;--t:${t}s;--dl:${d}s"></i>`).join(""),
@@ -959,7 +960,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
       const rest = l.slice(e).trim(), sl = rest.indexOf("/"), pos = (sl < 0 ? rest : rest.slice(0, sl)).replace("no-repeat", "").trim() || "0 0", size = sl < 0 ? "auto" : rest.slice(sl + 1).replace("no-repeat", "").trim();
       imgs.push(l.slice(0, e)); szs.push(size); p0.push(pos);
       const m = /^(-?[\d.]+)(?:px)?\s+(-?[\d.]+)(?:px)?$/.exec(pos), z = /^(\d+)px\s+(\d+)px$/.exec(size);
-      if (m && z) { p1.push((+m[1] + mv[0] * z[1]) + "px " + (+m[2] + mv[1] * z[2]) + "px"); moves = true; } else p1.push(pos);
+      if (m && z && !sp.still) { p1.push((+m[1] + mv[0] * z[1]) + "px " + (+m[2] + mv[1] * z[2]) + "px"); moves = true; } else p1.push(pos);
     }
     imgs.push(`linear-gradient(160deg,${sp.c[0]}f2,${sp.c[1]}f5)`); szs.push("auto"); p0.push("0 0"); p1.push("0 0");
     st.setProperty("--bx-img", imgs.join(",")); st.setProperty("--bx-sz", szs.join(",")); st.setProperty("--bx-p0", p0.join(",")); st.setProperty("--bx-p1", p1.join(","));
