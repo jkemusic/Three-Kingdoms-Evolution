@@ -431,6 +431,7 @@ button.big{font-size:16px;font-weight:800;padding:10px 38px}
 #rooms .rbox{width:min(640px,100%);background:#0b1a30;border:1px solid #24557d;border-radius:14px;padding:18px 20px;box-shadow:0 10px 40px rgba(0,0,0,.6)}
 #rooms h2{margin:0 0 4px;color:#3fd2ff}
 .rnew{display:flex;gap:8px;margin:14px 0}.rnew input{flex:1}
+@media (max-width:560px){.rnew{flex-wrap:wrap}.rnew input{flex:1 1 100%;min-width:0;max-width:none!important;min-height:44px}.rnew #rpw{flex:1 1 0}.rnew button{flex:none;white-space:nowrap;min-height:44px}}   /* 手機: 房間名稱獨佔一列,密碼和按鈕同一列 (原本按鈕被擠成直排、溢出卡片) */
 #rlist{display:flex;flex-direction:column;gap:8px;max-height:55vh;overflow:auto}
 .rrow{display:flex;align-items:center;gap:10px;background:#0e2442;border:1px solid #24496f;border-radius:10px;padding:10px 12px}
 .rrow .ri{flex:1;min-width:0}.rrow .rn{font-weight:700}.rrow .rm{font-size:12px;color:var(--dim)}
