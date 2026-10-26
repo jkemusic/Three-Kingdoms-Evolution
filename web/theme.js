@@ -231,9 +231,9 @@
 .fx-glitch>.fxb{background:linear-gradient(0deg,transparent 62%,rgba(0,255,230,.55) 62% 70%,transparent 70%);mix-blend-mode:screen;animation:fxgl2 2.4s steps(1) infinite .12s}
 @keyframes fxgl{0%,60%,70%,100%{transform:none;filter:none}62%{transform:translate(-2px,0);filter:drop-shadow(2px 0 0 rgba(255,0,90,.85)) drop-shadow(-2px 0 0 rgba(0,255,230,.85))}66%{transform:translate(2px,1px);filter:drop-shadow(-2px 0 0 rgba(255,0,90,.85)) drop-shadow(2px 0 0 rgba(0,255,230,.85))}}
 @keyframes fxgl2{0%,60%,70%,100%{opacity:0}62%,66%{opacity:1}}
-.fx-meteor>.fxa,.fx-meteor>.fxb{left:-30%;top:-30%;width:2px;height:16px;z-index:3;border-radius:2px;background:linear-gradient(180deg,rgba(255,255,255,0),#fff);box-shadow:0 0 5px #bfe9ff;transform:rotate(-40deg);opacity:0;animation:fxmt 2.2s ease-in infinite}
-.fx-meteor>.fxb{left:10%;top:-45%;animation-delay:-1.1s;height:12px}
-@keyframes fxmt{0%{transform:translate(0,0) rotate(-40deg);opacity:0}10%{opacity:1}60%{opacity:1}100%{transform:translate(70px,60px) rotate(-40deg);opacity:0}}
+.fx-meteor>.fxa,.fx-meteor>.fxb{left:8%;top:-6%;width:2px;height:10px;z-index:3;border-radius:2px;background:linear-gradient(180deg,rgba(255,255,255,0),#fff);box-shadow:0 0 5px #bfe9ff;transform:rotate(-40deg);opacity:0;animation:fxmt 2.2s ease-in infinite}
+.fx-meteor>.fxb{left:42%;top:-10%;animation-delay:-1.1s;height:8px}
+@keyframes fxmt{0%{transform:translate(0,0) rotate(-40deg);opacity:0}10%{opacity:1}60%{opacity:1}100%{transform:translate(30px,26px) rotate(-40deg);opacity:0}}
 #cosdlg .tabs{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 12px}
 #cosdlg .tabs button.on{background:linear-gradient(180deg,#46d6ff,#1b9fd6);color:#021c2a;font-weight:700}
 #cosdlg .grid{display:flex;gap:10px;flex-wrap:wrap}
