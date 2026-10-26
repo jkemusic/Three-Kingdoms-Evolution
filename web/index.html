@@ -1428,6 +1428,12 @@ function renderMembers() {   // 👥 房間成員: 每個人都看得到 (不只
     avEl(x.avatar, x.style, {}),
     h("span", {text: (x.host ? "👑 " : "") + (x.name || "未命名") + (x.id === S.myWho ? " (你)" : "")}), rkEl(x.lv), devEl(x.dev),
     h("span", {class: "tg", text: x.spec ? "👁 觀戰者" : x.seat != null ? "座位 " + x.seat : ""}),
+    S.amHost && x.id !== S.myWho && !x.host ? h("button", {type: "button", text: "👑 讓房主", title: "把房主讓給他", style: {padding: "1px 8px", fontSize: "12px", marginLeft: "6px"}, onclick: async ev => {
+      ev.stopPropagation();
+      if (!confirm(`確定把房主讓給「${x.name || "未命名"}」嗎?你之後就不能操作新遊戲/暫停等功能了。`)) return;
+      const r = await api("/api/transfer", {to: x.id});
+      if (r.ok) { toast("房主已讓給 " + (r.name || "對方"), "host"); poll(true); } else toast("讓房主失敗: " + r.error);
+    }}) : null,
     S.amHost && x.id !== S.myWho ? h("button", {type: "button", text: "踢出", title: "踢出房間", style: {padding: "1px 8px", fontSize: "12px", marginLeft: "6px"}, onclick: async ev => { ev.stopPropagation();
       if (!confirm("確定要把「" + (x.name || "未命名") + "」踢出房間嗎?")) return;
       const r = await api("/api/kick", {to: x.id});
@@ -2032,7 +2038,7 @@ async function showBoard() {
       avEl(x.avatar, x.style, {style: {width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover"}}),
       h("span", {style: {flex: 1}}, h("div", {}, x.name, devEl(x.dev))),
       h("span", {style: {textAlign: "right"}}, h("div", {}, rkEl(x.lv), h("span", {class: "meta", text: " " + (x.rp || 0) + (x.rp_next != null ? " / " + x.rp_next : "") + " 分"})),
-        h("div", {class: "meta", text: x.games ? `${x.wins} 勝 / ${x.games} 場` : "尚無對局"})));
+        h("div", {class: "meta", text: x.games ? `段位 ${x.wins} 勝 / ${x.games} 場` : "尚無段位對局"})));
     const sorted = rows.slice().sort(SORTS[key]);
     sorted.slice(0, 10).forEach((x, i) => body.append(line(x, i)));
     const mi = sorted.findIndex(x => x.me);

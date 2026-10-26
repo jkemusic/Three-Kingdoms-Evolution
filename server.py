@@ -485,7 +485,7 @@ SOCIAL.uid_key = lambda uid: next((k for k, a in list(ACCOUNTS.d.items()) if PRO
 
 
 def leaderboard(me=""):
-    """玩家排行榜: 所有有帳號的玩家 (等級、勝場、勝率)。"""
+    """玩家排行榜: 所有有帳號的玩家 (段位、積分、段位模式的勝場 / 場數;休閒模式不計)。"""
     rows = []
     for acc in list(ACCOUNTS.d.values()):
         t = acc["uuid"]
@@ -493,7 +493,7 @@ def leaderboard(me=""):
         if not p:
             continue
         rows.append({"name": acc["user"], "acc": acc["user"].lower(), "me": t == me, "lv": PROFILES.rank_label(p.get("rp", 0)), "rp": p.get("rp", 0), "rp_next": PROFILES.rank(p.get("rp", 0))[3], "xp": p["xp"],
-                     "games": p["games"], "wins": p["wins"], "avatar": PROFILES.avatar_url(t), "style": PROFILES.style(t), "dev": PROFILES.dev(t)})
+                     "games": p.get("rgames", 0), "wins": p.get("rwins", 0), "avatar": PROFILES.avatar_url(t), "style": PROFILES.style(t), "dev": PROFILES.dev(t)})
     return {"rows": rows}
 OPEN_API = {"/api/about", "/api/rooms", "/api/cardcat", "/api/cosmetics", "/api/i18n", "/api/roster", "/api/me", "/api/login", "/api/register"}
 
