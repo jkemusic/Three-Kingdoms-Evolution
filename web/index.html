@@ -1583,7 +1583,7 @@ async function showPlayer(key) {   // 看別人的個人資訊 (在線列表 / �
         h("div", {style: {height: "10px", background: "#0e2442", borderRadius: "99px", overflow: "hidden", margin: "6px 0"}}, h("div", {style: {width: pct + "%", height: "100%", background: "linear-gradient(90deg,#3fd2ff,#2a7de1)"}})),
         h("div", {class: "meta", text: `段位積分 ${p.rp}` + (p.rp_next != null ? ` / ${p.rp_next} · 距離下一段 (${p.next_rank}) 還差 ${p.rp_next - p.rp} 分` : " (最高段位)")}),
         streakLine(p),
-        h("div", {style: {display: "flex", gap: "8px", flexWrap: "wrap", margin: "12px 0"}}, stat("總場數", p.games), stat("勝場", p.wins), stat("勝率", rate(p.wins, p.games)), stat("段位場", p.rgames), stat("段位勝率", rate(p.rwins, p.rgames))),
+        h("div", {style: {display: "flex", gap: "8px", flexWrap: "wrap", margin: "12px 0"}}, stat("總場數", p.games), stat("勝場", p.wins), stat("勝率", rate(p.wins, p.games)), stat("段位場", p.rgames), stat("段位勝率", rate(p.rwins, p.rgames)), stat("遊玩時間", fmtPlay(p.playtime))),
         mutualBox(p),
         h("div", {style: {fontWeight: 700, margin: "10px 0 4px"}, text: "最常使用的武將"}),
         p.chars.length ? h("div", {}, p.chars.map(([n, g, w]) => h("div", {style: {display: "flex", justifyContent: "space-between", padding: "3px 0", borderBottom: "1px solid #17304f"}},
@@ -2081,7 +2081,7 @@ async function showProfile() {
       h("div", {style: {height: "10px", background: "#0e2442", borderRadius: "99px", overflow: "hidden", margin: "6px 0"}}, h("div", {style: {width: pct + "%", height: "100%", background: "linear-gradient(90deg,#3fd2ff,#2a7de1)"}})),
       h("div", {class: "meta", text: `段位積分 ${p.rp}` + (p.rp_next != null ? ` / ${p.rp_next} · 距離下一段 (${p.next_rank}) 還差 ${p.rp_next - p.rp} 分` : " (最高段位)")}),
         streakLine(p),
-      h("div", {style: {display: "flex", gap: "8px", flexWrap: "wrap", margin: "12px 0"}}, stat("總場數", p.games), stat("勝場", p.wins), stat("勝率", rate(p.wins, p.games)), stat("段位場", p.rgames || 0), stat("段位勝率", rate(p.rwins || 0, p.rgames || 0))),
+      h("div", {style: {display: "flex", gap: "8px", flexWrap: "wrap", margin: "12px 0"}}, stat("總場數", p.games), stat("勝場", p.wins), stat("勝率", rate(p.wins, p.games)), stat("段位場", p.rgames || 0), stat("段位勝率", rate(p.rwins || 0, p.rgames || 0)), stat("遊玩時間", fmtPlay(p.playtime))),
       h("div", {style: {fontWeight: 700, margin: "10px 0 4px"}, text: "最常使用的武將"}),
       chars.length ? h("div", {}, chars) : h("div", {class: "meta", text: "還沒有紀錄 (入座打完一場就會出現)"}),
       h("div", {style: {marginTop: "14px", display: "flex", gap: "8px", alignItems: "center"}},
@@ -2132,12 +2132,13 @@ function uploadAvatar(file) {   // 縮成 128x128 JPEG (置中裁切) 再上傳
   img.src = url;
 }
 $("#bProf").onclick = showProfile;
+const fmtPlay = sec => { const m = Math.floor((sec || 0) / 60); return m >= 60 ? `${Math.floor(m / 60)} 小時 ${m % 60} 分鐘` : `${m} 分鐘`; };   // 累計遊玩時間
 async function showBoard() {
   const M = $("#modal"); S.modalOpen = "board"; M.textContent = "";
   const close = () => { M.textContent = ""; S.modalOpen = null; };
   const r = await (await fetch("/api/leaderboard?tok=" + encodeURIComponent(TOK))).json();
   const rows = r.rows || [];
-  const SORTS = {"段位": (a, b) => (b.rp || 0) - (a.rp || 0) || b.wins - a.wins, "勝場": (a, b) => b.wins - a.wins || (b.rp || 0) - (a.rp || 0)};
+  const SORTS = {"段位": (a, b) => (b.rp || 0) - (a.rp || 0) || b.wins - a.wins, "勝場": (a, b) => b.wins - a.wins || (b.rp || 0) - (a.rp || 0), "遊玩時間": (a, b) => (b.playtime || 0) - (a.playtime || 0) || (b.rp || 0) - (a.rp || 0)};
   let key = "段位";
   const body = h("div", {class: "dbody"}), tabs = h("div", {style: {display: "flex", gap: "6px", marginBottom: "8px"}});
   const draw = () => {
@@ -2150,7 +2151,8 @@ async function showBoard() {
       avEl(x.avatar, x.style, {style: {width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover"}}),
       h("span", {style: {flex: 1}}, h("div", {}, x.name, devEl(x.dev))),
       h("span", {style: {textAlign: "right"}}, h("div", {}, rkEl(x.lv), h("span", {class: "meta", text: " " + (x.rp || 0) + (x.rp_next != null ? " / " + x.rp_next : "") + " 分"})),
-        h("div", {class: "meta", text: x.games ? `段位 ${x.wins} 勝 / ${x.games} 場` : "尚無段位對局"})));
+        h("div", {class: "meta", text: x.games ? `段位 ${x.wins} 勝 / ${x.games} 場` : "尚無段位對局"}),
+        h("div", {class: "meta", text: "遊玩時間 " + fmtPlay(x.playtime)})));
     const sorted = rows.slice().sort(SORTS[key]);
     sorted.slice(0, 10).forEach((x, i) => body.append(line(x, i)));
     const mi = sorted.findIndex(x => x.me);

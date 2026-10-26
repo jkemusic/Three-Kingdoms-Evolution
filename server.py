@@ -117,7 +117,7 @@ class Profiles:
         nm, sub, lo, hi = self.rank(rp)
         return {"uuid": self.uid(tok), "dev": self.dev(tok), "rank": self.rank_label(rp), "next_rank": self.rank_label(hi) if hi is not None else None, "tier": nm, "rp": rp, "rp_lo": lo, "rp_next": hi,
                 "rgames": p.get("rgames", 0), "rwins": p.get("rwins", 0), "rank_note": p.get("rank_note"), "level": lv, "xp": p["xp"], "xp_cur": self.xp_for(lv), "xp_next": self.xp_for(lv + 1),
-                "games": p["games"], "wins": p["wins"], "avatar": self.avatar_url(tok),
+                "games": p["games"], "wins": p["wins"], "playtime": p.get("playtime", 0), "avatar": self.avatar_url(tok),
                 "chars": sorted(([n, v[0], v[1]] for n, v in p.get("chars", {}).items()), key=lambda x: (-x[1], -x[2]))[:3],
                 "roles": {n: v for n, v in p.get("roles", {}).items()},
                 **self.cos_info(tok)}
@@ -228,7 +228,7 @@ class Profiles:
     STREAK_STEP, STREAK_CAP = 3, 15
     WIN_XP = {1: 15, 2: 30, 3: 45, 4: 70}   # 電腦難度 弱/中/強/很強: 打贏給的經驗值
 
-    def award(self, tok, won, char=None, role=None, win_xp=None, ranked=False, win_rp=None, facts=None, loss_rp=None):
+    def award(self, tok, won, char=None, role=None, win_xp=None, ranked=False, win_rp=None, facts=None, loss_rp=None, secs=0):
         """回傳 (段位積分變化, 之前段位, 之後段位);休閒模式積分不變 (變化 0)。"""
         p = self.get(tok)
         if not p:
@@ -236,6 +236,7 @@ class Profiles:
         gain = self.XP_GAME + ((win_xp if win_xp is not None else self.XP_WIN) if won else 0)
         before = self.rank_label(p.get("rp", 0))
         with self.lock:
+            p["playtime"] = p.get("playtime", 0) + max(0, min(int(secs or 0), 6 * 3600))   # 累計遊玩秒數 (單場最多算 6 小時)
             p["xp"] += gain; p["games"] += 1; p["wins"] += 1 if won else 0
             delta = 0; bonus = 0
             if ranked:
@@ -479,7 +480,7 @@ def player_public(key):
     _nm, _sub, lo, hi = PROFILES.rank(rp)
     return {"ok": True, "uid": PROFILES.uid(t), "rp_lo": lo, "rp_next": hi, "next_rank": PROFILES.rank_label(hi) if hi is not None else None, "user": a["user"], "dev": PROFILES.dev(t), "avatar": PROFILES.avatar_url(t), "style": PROFILES.style(t),
             "rank": PROFILES.rank_label(rp), "rp": rp, "rstreak": p.get("rstreak", 0), "streak_bonus": min(PROFILES.STREAK_CAP, p.get("rstreak", 0) * PROFILES.STREAK_STEP), "level": lv, "games": p.get("games", 0), "wins": p.get("wins", 0),
-            "rgames": p.get("rgames", 0), "rwins": p.get("rwins", 0), "ach": len(p.get("ach", {})),
+            "rgames": p.get("rgames", 0), "rwins": p.get("rwins", 0), "playtime": p.get("playtime", 0), "ach": len(p.get("ach", {})),
             "chars": sorted(([n, v[0], v[1]] for n, v in p.get("chars", {}).items()), key=lambda x: (-x[1], -x[2]))[:3]}
 
 
@@ -501,7 +502,7 @@ def leaderboard(me=""):
         if not p:
             continue
         rows.append({"name": acc["user"], "acc": acc["user"].lower(), "me": t == me, "lv": PROFILES.rank_label(p.get("rp", 0)), "rp": p.get("rp", 0), "rp_next": PROFILES.rank(p.get("rp", 0))[3], "xp": p["xp"],
-                     "games": p.get("rgames", 0), "wins": p.get("rwins", 0), "avatar": PROFILES.avatar_url(t), "style": PROFILES.style(t), "dev": PROFILES.dev(t)})
+                     "games": p.get("rgames", 0), "wins": p.get("rwins", 0), "playtime": p.get("playtime", 0), "avatar": PROFILES.avatar_url(t), "style": PROFILES.style(t), "dev": PROFILES.dev(t)})
     return {"rows": rows}
 OPEN_API = {"/api/about", "/api/rooms", "/api/cardcat", "/api/cosmetics", "/api/i18n", "/api/roster", "/api/me", "/api/login", "/api/register"}
 
@@ -806,7 +807,7 @@ class Manager:
             return {"ok": False, "error": "cannot forfeit"}
         g = self.game
         pl = g.players[seat]
-        r = PROFILES.award(tok, False, pl._char.name if getattr(pl, "_char", None) else None, pl.role, None, True, None, {"hp": pl.hp, "alive": pl.alive})
+        r = PROFILES.award(tok, False, pl._char.name if getattr(pl, "_char", None) else None, pl.role, None, True, None, {"hp": pl.hp, "alive": pl.alive}, secs=time.time() - getattr(self, "game_t0", time.time()))
         who = self.nicks.get(tok) or "未命名"
         if r:
             d, b, a = r
@@ -955,6 +956,7 @@ class Manager:
                  mode="shuffle" if cfg.get("mode") == "shuffle" else "normal", role_mode=cfg.get("role_mode") or "normal", base_hp=int(cfg.get("base_hp") or 4))
         g.on_log = self.on_log
         self.game, self.lobby = g, False
+        self.game_t0 = time.time()
         self.thread = threading.Thread(target=self._run, args=(g,), daemon=True)
         self.thread.start()
         return {"ok": True}
@@ -993,7 +995,7 @@ class Manager:
                 if len(g.players) <= 3:   # 2~3 人 (沒有隊友,只能靠自己): 贏的經驗加倍
                     wx = 2 * (wx if wx is not None else Profiles.XP_WIN)
                 r = PROFILES.award(tok, (w == f"P{pl.idx}") if noroles else (camp(pl.role) == w and (pl.role != "內奸" or pl.alive)), pl._char.name, pl.role, wx, ranked, wrp, {"practice": bool(self.cfg.get("practice")), "hp": pl.hp, "alive": pl.alive, "rounds": g.round, "n": len(g.players), "noroles": noroles, "dmg": pl.dmg_total, "sha": pl.sha_n,
-                                                                                                                  "maxhand": pl.max_hand, "chain11": pl.chain11, "wei": pl.wei_n, "same": len(g.players) >= 2 and len({q._char.name for q in g.players}) == 1}, lrp)
+                                                                                                                  "maxhand": pl.max_hand, "chain11": pl.chain11, "wei": pl.wei_n, "same": len(g.players) >= 2 and len({q._char.name for q in g.players}) == 1}, lrp, secs=time.time() - getattr(self, "game_t0", time.time()))
                 if r:
                     d, b, a = r
                     who = self.nicks.get(tok) or '未命名'
@@ -1030,8 +1032,11 @@ class Manager:
             return
         if self.abort:
             raise AbortGame()
+        _p0 = time.time() if self.paused else None
         while self.paused and not self._step_ev.is_set() and not self.abort and not self._humans_all_dead():
             time.sleep(0.05)
+        if _p0 is not None:
+            self.game_t0 = getattr(self, "game_t0", _p0) + (time.time() - _p0)   # 暫停的時間不算遊玩時間
         self._step_ev.clear()
         if self.abort:
             raise AbortGame()
