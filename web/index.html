@@ -837,7 +837,13 @@ function tpText(tp) {
   const h2 = TP_HINT[tp.opts[0].card && tp.opts[0].card.name] || ["請點第 1 位玩家", "請點第 2 位玩家"];
   return `${tp.label} — ${h2[tp.chosen.length]} (${tp.chosen.length + 1}/2)`;
 }
+function syncAnims(root) {   // 牌桌每次重畫都會重建元素,循環動畫 (頭貼特效等) 會從頭播;全部對齊到文件時間軸,重畫後就不會被重置
+  try { for (const a of root.getAnimations({subtree: true})) if (a.effect && a.effect.getComputedTiming().iterations === Infinity) a.startTime = 0; } catch (e) {}
+}
 function renderTable(snap) {
+  renderTable0(snap); syncAnims($("#table"));
+}
+function renderTable0(snap) {
   bindHover();
   const T = $("#table"); T.textContent = "";
   const n = snap.players.length;
@@ -1625,6 +1631,13 @@ function openSetup() {
       sect("座位與武將", "留「隨機武將」會從 " + roster.length + " 位武將中抽,不重複;勾「開放給朋友」讓朋友入座。段位模式: 武將全部隨機,座位全部開放,按下開始後想打的人按「參戰」,沒按的自動觀戰,沒人坐的座位由電腦擔任", h("div", {}, openAll, seatBox))),
     h("div", {class: "df"}, h("button", {text: "取消", onclick: close}), h("button", {class: "primary big", text: "開始遊戲", onclick: start})));
   M.append(h("div", {class: "modal"}, dlg, rkSide));
+  const placeRk = () => {   // 左邊的段位卡貼著對話框左緣;聊天欄開著對話框被推向左邊時,放不下就不顯示 (下方仍有一行段位)
+    if (!rkSide.isConnected) return;
+    const r = dlg.getBoundingClientRect();
+    rkSide.style.right = "auto"; rkSide.style.left = Math.max(0, r.left - 202) + "px";
+    rkSide.style.visibility = r.left < 206 ? "hidden" : "";
+  };
+  setTimeout(placeRk, 30); setTimeout(placeRk, 300); window.addEventListener("resize", placeRk);
 }
 
 function showNickGate(rename) {
