@@ -460,7 +460,7 @@ PUBCHAT = PublicChat()
 
 
 def player_public(key):
-    """別人看得到的個人資訊 (只放公開的統計,不含 UID / 帳號憑證)。"""
+    """別人看得到的個人資訊 (公開的統計 + UID;不含密碼 / 登入憑證)。"""
     a = ACCOUNTS.d.get((key or "").strip().lower())
     if not a:
         return {"ok": False, "error": "找不到這位玩家"}
@@ -469,7 +469,7 @@ def player_public(key):
     rp = p.get("rp", 0)
     lv = PROFILES.level(p.get("xp", 0))
     _nm, _sub, lo, hi = PROFILES.rank(rp)
-    return {"ok": True, "rp_lo": lo, "rp_next": hi, "next_rank": PROFILES.rank_label(hi) if hi is not None else None, "user": a["user"], "dev": PROFILES.dev(t), "avatar": PROFILES.avatar_url(t), "style": PROFILES.style(t),
+    return {"ok": True, "uid": PROFILES.uid(t), "rp_lo": lo, "rp_next": hi, "next_rank": PROFILES.rank_label(hi) if hi is not None else None, "user": a["user"], "dev": PROFILES.dev(t), "avatar": PROFILES.avatar_url(t), "style": PROFILES.style(t),
             "rank": PROFILES.rank_label(rp), "rp": rp, "level": lv, "games": p.get("games", 0), "wins": p.get("wins", 0),
             "rgames": p.get("rgames", 0), "rwins": p.get("rwins", 0), "ach": len(p.get("ach", {})),
             "chars": sorted(([n, v[0], v[1]] for n, v in p.get("chars", {}).items()), key=lambda x: (-x[1], -x[2]))[:3]}

@@ -1499,6 +1499,7 @@ async function showPlayer(key) {   // 看別人的個人資訊 (在線列表 / �
           avEl(p.avatar, p.style, {style: {width: "72px", height: "72px", borderRadius: "50%", objectFit: "cover", border: "2px solid #3fd2ff"}}, "big"),
           h("div", {style: {flex: 1, minWidth: 0}},
             h("div", {style: {fontSize: "28px", fontWeight: 800, lineHeight: 1.15, wordBreak: "break-all"}}, p.user, " ", devEl(p.dev)),
+            h("div", {class: "meta", style: {userSelect: "all"}, text: "UID " + p.uid}),
             h("div", {style: {margin: "6px 0"}}, rkEl(p.rank, true)))),
         h("div", {style: {height: "10px", background: "#0e2442", borderRadius: "99px", overflow: "hidden", margin: "6px 0"}}, h("div", {style: {width: pct + "%", height: "100%", background: "linear-gradient(90deg,#3fd2ff,#2a7de1)"}})),
         h("div", {class: "meta", text: `段位積分 ${p.rp}` + (p.rp_next != null ? ` / ${p.rp_next} · 距離下一段 (${p.next_rank}) 還差 ${p.rp_next - p.rp} 分` : " (最高段位)")}),
