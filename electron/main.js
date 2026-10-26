@@ -37,7 +37,7 @@ function openConnectDialog() {
     const url = normalizeUrl(raw);
     if (!url) return "網址格式不對";
     if (!(await probe(url))) return "連不上這個伺服器 (請確認網址、同一個網路,以及主機已開啟區網模式)";
-    saveCfg({ lastServer: raw.trim() });
+    saveCfg({ lastServer: raw.trim(), autoConnect: true });   // 下次開啟自動連線
     remote = url; stopServer();
     await win.loadURL(url);
     Menu.setApplicationMenu(buildMenu());
@@ -49,6 +49,7 @@ function openConnectDialog() {
 }
 
 async function backToLocal() {
+  saveCfg({ autoConnect: false });
   remote = null; stopServer(); startServer();
   try { await waitReady(); await win.loadURL("http://127.0.0.1:" + port + "/"); } catch (e) {}
   Menu.setApplicationMenu(buildMenu());
@@ -123,12 +124,19 @@ function buildMenu() {
 
 async function createWindow() {
   port = await freePort(8765);
-  startServer();
+  const cfg = loadCfg();
+  if (cfg.autoConnect && cfg.lastServer) {   // 上次選了連線到某個伺服器: 開啟就直接連 (連不上才退回本機)
+    const url = normalizeUrl(cfg.lastServer);
+    if (url && await probe(url)) remote = url;
+  }
+  if (!remote) startServer();
   win = new BrowserWindow({ width: 1280, height: 860, title: "三國殺模擬器", backgroundColor: "#0e0f11", webPreferences: { contextIsolation: true } });
   Menu.setApplicationMenu(buildMenu());
   win.webContents.setWindowOpenHandler(({ url }) => { shell.openExternal(url); return { action: "deny" }; });
-  try { await waitReady(); await win.loadURL("http://127.0.0.1:" + port + "/"); }
-  catch (e) { dialog.showErrorBox("無法啟動", String(e.message || e)); app.quit(); }
+  try {
+    if (remote) await win.loadURL(remote);
+    else { await waitReady(); await win.loadURL("http://127.0.0.1:" + port + "/"); }
+  } catch (e) { dialog.showErrorBox("無法啟動", String(e.message || e)); app.quit(); }
 }
 
 const gotLock = app.requestSingleInstanceLock();
