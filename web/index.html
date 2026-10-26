@@ -843,6 +843,9 @@ function syncAnims(root) {   // 牌桌每次重畫都會重建元素,循環動�
 function renderTable(snap) {
   renderTable0(snap); syncAnims($("#table"));
 }
+(() => {   // 成員列表 / 聊天室等任何重畫都一樣: 循環動畫 (頭貼特效) 對齊文件時間軸,不會被重置
+  let q = 0; new MutationObserver(() => { if (!q) q = requestAnimationFrame(() => { q = 0; syncAnims(document.body); }); }).observe(document.body, {childList: true, subtree: true});
+})();
 function renderTable0(snap) {
   bindHover();
   const T = $("#table"); T.textContent = "";

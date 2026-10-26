@@ -178,13 +178,14 @@
           if (!r.ok) toast(r.error || "失敗"); else poll();
         }}),
         el("button", {title: f.online ? "私訊" : "對方離線,不能聊天", disabled: !f.online, onclick: () => openChat(f)}, "💬", f.unread ? el("span", {class: "ub", text: f.unread}) : ""),
-        ROOM ? el("button", {title: f.online ? "邀請到目前的房間" : "對方離線,不能邀請", disabled: !f.online, text: "邀請", onclick: async () => { const r = await post("/api/invite", {to: f.id}); toast(r.ok ? "已邀請 " + f.user : (r.error || "邀請失敗"), r.ok ? "ok" : undefined); }}) : "",
+        ROOM ? el("button", {title: !f.online ? "對方離線,不能邀請" : inRoom(f) ? "對方已經在這個房間裡" : "邀請到目前的房間", disabled: !f.online || inRoom(f), text: "邀請", onclick: async () => { const r = await post("/api/invite", {to: f.id}); toast(r.ok ? "已邀請 " + f.user : (r.error || "邀請失敗"), r.ok ? "ok" : undefined); }}) : "",
         el("button", {title: "刪除好友", text: "🗑", onclick: async () => { if (confirm("確定要刪除好友「" + f.user + "」嗎?")) { await post("/api/friend_remove", {name: f.id}); poll(); } }})));
     }
     if (hadFocus) { inp.focus(); try { inp.setSelectionRange(caret, caret); } catch (e) {} }
   }
 
   // ---------- 私訊 ----------
+  const inRoom = f => ((typeof S !== "undefined" && S.online) || []).some(x => x.acc === f.id);   // 已經在目前房間的人不能再邀請
   function openChat(f) {
     if (ROOM && document.getElementById("cc")) {   // 在房間內: 用右側聊天欄的私訊頻道
       const m = document.getElementById("frdlg"); if (m) m.remove(); F.dlg = null; F.chat = null;

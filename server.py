@@ -1529,6 +1529,16 @@ class Handler(BaseHTTPRequestHandler):
                         return self._send(200, {"ok": False, "error": "你不在這個房間裡"})
                     if m.solo:
                         return self._send(200, {"ok": False, "error": "單人模式的房間不能邀請別人"})
+                    to_key = (data.get("to") or "").strip().lower(); now = time.time()
+                    for rid2, m2 in list(ROOMS.items()):   # 已經在這個房間的人、或正在對局中 (有座位、對局還沒結束) 的人不能邀請
+                        for t2, ts in list(m2.seen.items()):
+                            if now - ts > 30 or ACCOUNTS.uuids.get(t2) != to_key:
+                                continue
+                            if rid2 == rid:
+                                return self._send(200, {"ok": False, "error": "對方已經在這個房間裡了"})
+                            g2 = m2.game
+                            if g2 is not None and not getattr(g2, "winner", None) and t2 in m2.claims.values():
+                                return self._send(200, {"ok": False, "error": "對方正在對局中,不能邀請"})
                     return self._send(200, SOCIAL.invite(key, data.get("to"), rid, m.room_name or "房間"))
                 if path == "/api/invite_reply":
                     r = SOCIAL.reply(key, int(data.get("id") or 0), bool(data.get("accept")))
