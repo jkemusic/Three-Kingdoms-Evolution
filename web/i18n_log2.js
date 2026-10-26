@@ -21,7 +21,7 @@ window.SGS_LOG_TPL = (window.SGS_LOG_TPL || []).concat([
 ["{}[{}] {} 是吳勢力,要棄 {} 張手牌,否則扣 {} 點體力 (可閃)", "{1}[{2}] {3} is a Wu player: discards {4} hand card(s) or loses {5} HP (dodgeable)", "{1}[{2}] {3} は呉勢力: 手札{4}枚を捨てるか体力-{5}(閃で防げる)"],
 ["{}[{}] 獲得造成傷害的 {}", "{1}[{2}] takes {3}, which caused the damage", "{1}[{2}] ダメージを与えた {3} を得る"],
 ["{}[{}] 趁 {} 抽牌,也抽 {} 張", "{1}[{2}] takes the chance while {3} draws: also draws {4} card(s)", "{1}[{2}] {3} のドローに乗じて、自分も{4}枚引く"],
-["{}[張紘] 扣血,其他人也各扣 {} 血", "{1}[Zhang Hong] loses HP: everyone else also loses {2} HP", "{1}[張紘] 体力を失い、他の全員も体力-{2}"],
+["{}[張紘] 扣血,其他人也各扣 {} 血 (可閃)", "{1}[Zhang Hong] loses HP: everyone else also loses {2} HP (dodgeable)", "{1}[張紘] 体力を失い、他の全員も体力-{2} (閃で防げる)"],
 ["{}[{}] 棄 {},把傷害轉為 {} 點轉給 {}", "{1}[{2}] discards {3}, turns the damage into {4} point(s) and passes it to {5}", "{1}[{2}] {3} を捨て、ダメージを{4}点にして {5} に移す"],
 ["{}[{}] 判定五次", "{1}[{2}] judges five times", "{1}[{2}] 5回判定"],
 ["{}[{}] {} 使用{},要交一張手牌 (否則扣 {} 點體力)", "{1}[{2}] {3} used {4}: must hand over a card (or lose {5} HP)", "{1}[{2}] {3} が{4}を使用: 手札を1枚渡す(でなければ体力-{5})"],

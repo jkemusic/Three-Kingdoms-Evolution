@@ -110,7 +110,7 @@ class Char:
     block_names = ()                                # 不能以你為目標的牌 (出)
     one_card = False                                # 全場每人每回合只能用 1 張牌 (曹沖)
     cap3 = False                                    # 全場手牌上限最多 3 (劉禪)
-    no_extra_draw = False                           # 全場一般抽牌以外抽牌需打出閃 (張紘)
+    no_extra_draw = False                           # 全場一般抽牌以外完全不能抽牌 (張紘)
     single_to_all = False                           # 單一對象錦囊對其他所有人有效 (關興)
     basic_as_trick = False                          # 全場基本牌的種類也算錦囊 (魯肅)
     def blocks_card(self, g, p, card): return False  # 這張牌你不能使用
@@ -1858,9 +1858,9 @@ class 張紘(Char):
         g.new_dmg_chain()   # 受傷之後才發動: 另開一條新連鎖
         if not g.trigger_ok(p, "張紘-連坐"):
             return
-        g.link(f"{p.name}[張紘] 扣血,其他人也各扣 {n} 血")
+        g.link(f"{p.name}[張紘] 扣血,其他人也各扣 {n} 血 (可閃)")
         for q in list(g.others(p)):
-            if q.alive:
+            if q.alive and not g.need_response(q, "閃", {"attacker": p}):   # 每個人可以打出一張閃躲掉
                 g.damage(p, q, n, _bonus=False)
 
 

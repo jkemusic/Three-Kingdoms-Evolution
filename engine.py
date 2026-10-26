@@ -390,12 +390,9 @@ class Game:
         if n > 0 and blocked and not self.ordinary and self.aura("no_extra_draw"):   # 擊殺獎勵: 張紘在場完全抽不到,不能用閃換
             self.log(f"  [張紘] {p.name} 不能抽牌 (非一般抽牌)")
             return []
-        if n > 0 and not self.ordinary and self.aura("no_extra_draw"):
-            zh = next(q for q in self.alive_players() if q.char.no_extra_draw)
-            self.log(f"  [張紘] {p.name} 想抽 {n} 張 (非一般抽牌),需打出一張閃")
-            if not self.need_response(p, "閃", {"attacker": zh}):
-                self.log(f"  {p.name} 沒有打出閃,抽不到牌")
-                return []
+        if n > 0 and not self.ordinary and self.aura("no_extra_draw"):   # 張紘: 一般抽牌以外完全抽不到 (可閃是第 3 個技能,不是這個)
+            self.log(f"  [張紘] {p.name} 不能抽牌 (非一般抽牌)")
+            return []
         got = []
         for _ in range(n):
             c = self.pop_deck()
