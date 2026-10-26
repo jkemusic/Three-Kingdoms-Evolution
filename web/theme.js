@@ -558,7 +558,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
   const dots = (col, sz) => `radial-gradient(${col} 1px,transparent 1.5px) 0 0/${sz}px ${sz}px`;
   const BOX = {
     classic: null,
-    px_grass:   { px: 1, c: ["#2e8b3a", "#1f6a2c"], bd: "#8b5a2b", gl: "#8b5a2b" },
+    px_grass:   { px: 1, c: ["#4fb4f0", "#aee4ff"], bd: "#8b5a2b", gl: "#8b5a2b" },
     px_dungeon: { px: 1, c: ["#3a3d4a", "#1b1c24"], bd: "#c2c3c7", gl: "#c2c3c7" },
     px_coin:    { px: 1, c: ["#b07a00", "#6e4800"], bd: "#fff1b0", gl: "#fff1b0" },
     px_lava:    { px: 1, c: ["#c9301a", "#7e1d0e"], bd: "#ffa300", gl: "#ffa300" },
@@ -572,7 +572,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
     sakura:  { c: ["#8f3a62", "#33142a"], bd: "#ff8fc0", gl: "#ff8fc0" },
     thunder: { c: ["#2c2a6e", "#0c0b26"], bd: "#ffe14d", gl: "#ffe14d" },
     ice:     { c: ["#3d7fa8", "#1b3f5e"], bd: "#dff4ff", gl: "#bfe9ff" },
-    lava:    { c: ["#5a1408", "#1d0502"], bd: "#ff7a45", gl: "#ff5a2a" },
+    lava:    { c: ["#a81d04", "#4a0e02"], bd: "#ff7a45", gl: "#ff5a2a" },
     samurai: { c: ["#9a9994", "#5e5d59"], bd: "#e6e6e6", gl: "#bdbdbd" },
     royal:   { c: ["#4a2c86", "#170d33"], bd: "#f0c95c", gl: "#b58cff" },
     sunset:  { c: ["#2a2060", "#e0783a"], bd: "#ffb36b", gl: "#ff8f5a" },
@@ -590,16 +590,13 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
   const COIN_ROWS = ["..oooo..", ".oyyyyo.", "oyhhyyyo", "oyhyyyso", "oyyyyyso", "oyyyysso", ".oyssso.", "..oooo.."];
   const COIN_COL = { o: "#8a5a00", y: "#ffd23f", h: "#fff3a6", s: "#d89a00" };
   const COIN_URI = "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8" shape-rendering="crispEdges">${COIN_ROWS.map((r, y) => [...r].map((c, x) => c === "." ? "" : `<rect x="${x}" y="${y}" width="1" height="1" fill="${COIN_COL[c]}"/>`).join("")).join("")}</svg>`);
-  const moonUri = (col, N = 14) => {   // 彎鉤月: 大圓減去偏左上的小圓,留下右下彎鉤 (像素點陣)
+  const moonUri = (col, N = 16) => {   // 彎鉤月 (像素點陣): 大圓減去偏左上的小圓,留下右下彎鉤;邊緣一圈深金色、內側亮
+    const on = (x, y) => { if (x < 0 || y < 0 || x >= N || y >= N) return false; const cx = x + .5 - N / 2, cy = y + .5 - N / 2; return Math.hypot(cx, cy) <= N / 2 - .3 && Math.hypot(cx + N * .2, cy + N * .16) > N * .4; };
     let r = "";
-    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
-      const cx = x + .5 - N / 2, cy = y + .5 - N / 2;
-      const o = Math.hypot(cx, cy) <= N / 2 - .3, inn = Math.hypot(cx + N * .17, cy - N * .1) <= N * .38;
-      if (o && !inn) r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${col(x, y, N)}"/>`;
-    }
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (on(x, y)) r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${col(on(x - 1, y) && on(x + 1, y) && on(x, y - 1) && on(x, y + 1), x, y)}"/>`;
     return "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${N} ${N}" shape-rendering="crispEdges">${r}</svg>`);
   };
-  const MOON_URI = moonUri((x, y, N) => x + y < N * .85 ? "#c9a94f" : x > N * .72 ? "#e6cf7a" : "#fff1a8");
+  const MOON_URI = moonUri((inner, x, y) => !inner ? "#d9b95a" : (x + y) % 7 === 0 ? "#ffffff" : "#fff1a8");
   const MOON_HALO = moonUri(() => "#fff1a8");
   const bambooSvg = () => {
     const XS = [11, 33, 58, 70, 104, 127, 149, 181, 206, 229];   // 竹子位置: 刻意不等距
@@ -675,6 +672,25 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
   const TUFT = sprite([".....l...", ".l...l.l.", ".l.l.m.l.", ".m.l.m.m.", ".m.m.m.m.", "dm.m.m.md", "dmmmmmmmd", "ddmmmmmdd", ".ddddddd."], GRASS_COL);
   const FLOWER = c => sprite(["..ppp..", ".ppypp.", "..ppp..", "...g...", "...g...", "..gg...", "...g..."], { p: c, y: "#ffd23f", g: "#2f8a3a" });
   const GRASS_TILE = (() => { let o = '<rect width="24" height="16" fill="#2f8a3a"/>'; for (let i = 0; i < 46; i++) { const x = Math.floor(R(i, 1) * 24), y = Math.floor(R(i, 2) * 15), c = R(i, 3) < .5 ? "#27722f" : "#49a84a", h = R(i, 4) < .45 ? 2 : 1; o += `<rect x="${x}" y="${y}" width="1" height="${h}" fill="${c}"/>`; } return "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 16" shape-rendering="crispEdges">${o}</svg>`); })();
+  const hillClip = (ph, amp, base) => {   // 草地起伏: 階梯狀 (像素風) 的山丘輪廓,上緣以下才顯示草
+    const pts = ["0% 100%"];
+    for (let i = 0; i <= 25; i++) { const x = i * 4, y = Math.round((base + amp * (Math.sin(i * .42 + ph) + .5 * Math.sin(i * .95 + ph * 2))) / 4) * 4; if (i) pts.push(`${x}% ${pts[pts.length - 1].split(" ")[1]}`); pts.push(`${x}% ${y}%`); }
+    pts.push("100% 100%"); return `polygon(${pts.join(",")})`;
+  };
+  const HILL_FAR = hillClip(1.2, 7, 38), HILL_NEAR = hillClip(4, 9, 58);
+  const lavaPlates = () => {   // 熔岩湖面: 暗色冷卻殼板漂移,殼板之間露出發亮的橘黃岩漿 (縫隙隨板子移動忽寬忽窄)
+    const C = 8, Rw = 4, W = 240 / C, H = 100 / Rw, P = [];
+    for (let r = 0; r <= Rw; r++) for (let c = 0; c <= C; c++) { const k = r * 9 + c; P.push([c * W + (c % C ? (R(k, 1) - .5) * W * .7 : 0), r * H + (r % Rw ? (R(k, 2) - .5) * H * .7 : 0)]); }
+    let o = "";
+    for (let r = 0; r < Rw; r++) for (let c = 0; c < C; c++) {
+      const q = [P[r * (C + 1) + c], P[r * (C + 1) + c + 1], P[(r + 1) * (C + 1) + c + 1], P[(r + 1) * (C + 1) + c]], k = r * 9 + c;
+      const cx = q.reduce((a, v) => a + v[0], 0) / 4, cy = q.reduce((a, v) => a + v[1], 0) / 4;
+      const pts = q.map((v, i) => { const f = .88 + R(k, 10 + i) * .09; return ((cx + (v[0] - cx) * f).toFixed(1)) + "," + ((cy + (v[1] - cy) * f).toFixed(1)); }).join(" ");
+      const dx = ((R(k, 3) - .5) * 5).toFixed(1), dy = ((R(k, 4) - .5) * 4).toFixed(1);
+      o += `<polygon class="lp" style="--dx:${dx}px;--dy:${dy}px;--t:${(7 + R(k, 5) * 7).toFixed(1)}s;--dl:${(-R(k, 6) * 9).toFixed(1)}s" points="${pts}" fill="url(#lg${Math.floor(R(k, 7) * 3)})" stroke="#a81a04" stroke-width="1.5" stroke-linejoin="round"/>`;
+    }
+    return `<svg class="bm" viewBox="0 0 240 100" preserveAspectRatio="none"><defs>${[["#fff0a0", "#ff9a22"], ["#ffc23a", "#ff6a14"], ["#ff9a2a", "#e83a08"]].map(([a, b], i) => `<radialGradient id="lg${i}"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></radialGradient>`).join("")}</defs>${o}</svg>`;
+  };
   const SCENE = {
     sakura: () => rng(11).map(i => { const w = 7 + R(i, 1) * 5, t = 5 + R(i, 2) * 4, dx = (R(i, 3) > .5 ? 1 : -1) * (30 + R(i, 4) * 80); return `<i class="pt" style="left:${(R(i, 5) * 100).toFixed(1)}%;width:${w.toFixed(1)}px;height:${(w * .65).toFixed(1)}px;--t:${t.toFixed(1)}s;--dl:${(-R(i, 6) * t).toFixed(1)}s;--dx:${dx.toFixed(0)}px"></i>`; }).join(""),
     ink: () => [[20, 50, 6.5, 0], [52, 38, 7.5, -2.6], [80, 56, 6, -4.2]].map(([x, y, t, d]) => `<b class="ik" style="left:${x}%;top:${y}%;--t:${t}s;--dl:${d}s"><i class="cl"></i><i class="rp"></i><i class="dr"></i></b>`).join(""),
@@ -687,9 +703,9 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
       + rng(5).map(i => `<i class="wd" style="top:${(18 + R(i, 1) * 55).toFixed(0)}%;--t:${(1.8 + R(i, 2) * 1.6).toFixed(1)}s;--dl:${(-R(i, 3) * 3).toFixed(1)}s"></i>`).join("")
       + rng(9).map(i => `<i class="sn" style="left:${(R(i, 4) * 60).toFixed(0)}%;top:${(R(i, 5) * 40).toFixed(0)}%;--t:${(3 + R(i, 6) * 2).toFixed(1)}s;--dl:${(-R(i, 7) * 4).toFixed(1)}s"></i>`).join(""),
     gold: () => `<i class="lq a" style="--t:16s;background:linear-gradient(105deg,${goldStops()})"></i><i class="lq b" style="--t:23s;background:linear-gradient(78deg,${goldStops()})"></i><i class="lq g" style="--t:11s"></i>`,
-    jade: () => `<i class="ms a" style="--t:42s"></i><i class="ms b" style="--t:58s"></i>` + jadeVeins() + rng(5).map(i => `<i class="gs jg" style="left:${(R(i, 1) * 92 + 4).toFixed(0)}%;top:${(R(i, 2) * 84 + 8).toFixed(0)}%;width:2.5px;height:2.5px;--t:${(2.5 + R(i, 3) * 3).toFixed(1)}s;--dl:${(-R(i, 4) * 4).toFixed(1)}s"></i>`).join(""),
-    lava: () => `<i class="lv a" style="--t:13s"></i><i class="lv b" style="--t:19s"></i>` + lavaFlow() + rng(7).map(i => `<i class="bb" style="left:${(6 + R(i, 1) * 88).toFixed(0)}%;--s:${(4 + R(i, 2) * 4).toFixed(1)}px;--t:${(3.5 + R(i, 3) * 3).toFixed(1)}s;--dl:${(-R(i, 4) * 6).toFixed(1)}s"></i>`).join(""),
-    px_grass: () => `<i class="gt"></i>` + rng(11).map(i => `<i class="tu" style="left:${(R(i, 1) * 94).toFixed(0)}%;--d:${(2.6 + R(i, 2) * 2.4).toFixed(1)}s;--o:${(-R(i, 3) * 4).toFixed(1)}s"></i>`).join("") + rng(9).map(i => `<i class="fw2" style="left:${(R(i + 40, 1) * 94 + 1).toFixed(1)}%;bottom:${(R(i + 40, 2) * 22 + 1).toFixed(0)}px;background-image:url(${FLOWER(["#ff5d73", "#fff1e8", "#ffd23f", "#b58cff", "#ff9bd2", "#7fd6ff"][Math.floor(R(i + 40, 3) * 6)])});zoom:${(.7 + R(i + 40, 4) * .6).toFixed(2)};--d:${(3 + R(i + 40, 5) * 2.5).toFixed(1)}s;--o:${(-R(i + 40, 6) * 4).toFixed(1)}s"></i>`).join(""),
+    jade: () => `<i class="ms a" style="--t:42s"></i><i class="ms b" style="--t:58s"></i>` + rng(5).map(i => `<i class="gs jg" style="left:${(R(i, 1) * 92 + 4).toFixed(0)}%;top:${(R(i, 2) * 84 + 8).toFixed(0)}%;width:2.5px;height:2.5px;--t:${(2.5 + R(i, 3) * 3).toFixed(1)}s;--dl:${(-R(i, 4) * 4).toFixed(1)}s"></i>`).join(""),
+    lava: () => `<i class="lvbg"></i>` + lavaPlates() + rng(6).map(i => `<i class="bb" style="left:${(6 + R(i, 1) * 88).toFixed(0)}%;--s:${(4 + R(i, 2) * 4).toFixed(1)}px;--t:${(3.5 + R(i, 3) * 3).toFixed(1)}s;--dl:${(-R(i, 4) * 6).toFixed(1)}s"></i>`).join(""),
+    px_grass: () => `<i class="sky"></i>` + [[14, 38, -3], [34, 56, -26]].map(([y, t, d]) => `<i class="cd2" style="top:${y}%;--t:${t}s;--dl:${d}s"></i>`).join("") + `<i class="gt2"></i><i class="gt"></i>` + rng(11).map(i => `<i class="tu" style="left:${(R(i, 1) * 94).toFixed(0)}%;--d:${(2.6 + R(i, 2) * 2.4).toFixed(1)}s;--o:${(-R(i, 3) * 4).toFixed(1)}s"></i>`).join("") + rng(9).map(i => `<i class="fw2" style="left:${(R(i + 40, 1) * 94 + 1).toFixed(1)}%;bottom:${(R(i + 40, 2) * 22 + 1).toFixed(0)}px;background-image:url(${FLOWER(["#ff5d73", "#fff1e8", "#ffd23f", "#b58cff", "#ff9bd2", "#7fd6ff"][Math.floor(R(i + 40, 3) * 6)])});zoom:${(.7 + R(i + 40, 4) * .6).toFixed(2)};--d:${(3 + R(i + 40, 5) * 2.5).toFixed(1)}s;--o:${(-R(i + 40, 6) * 4).toFixed(1)}s"></i>`).join(""),
     px_dungeon: () => `<i class="br"></i>` + [[10, 34, 0], [29, 26, -.5], [49, 36, -.2], [68, 27, -.8], [88, 35, -.35]].map(([x, y, d]) => `<b class="tc" style="left:${x}%;top:${y}%"><i class="tg" style="--dl:${d - 0.3}s"></i><i class="tf a" style="--dl:${d}s"></i><i class="tf b" style="--dl:${d}s"></i><i class="tkh"></i></b>`).join("") + `<b class="bt" style="--dl:-3s"><i class="up"></i><i class="dn"></i></b>`,
     zen: () => `<i class="rk"></i><i class="rg" style="left:20%;top:62%;--dl:0s"></i><i class="rg" style="left:20%;top:62%;--dl:-3s"></i><i class="rg" style="left:20%;top:62%;--dl:-6s"></i><i class="sto" style="left:20%;top:62%;width:30px;height:17px"></i><i class="sto" style="left:8%;top:80%;width:16px;height:9px"></i>`,
     px_lava: () => `<i class="pl1" style="background-image:url(${pxLavaUri(0)})"></i><i class="pl2" style="background-image:url(${pxLavaUri(2.4)})"></i>` + rng(6).map(i => `<i class="pb" style="left:${(R(i, 1) * 92 + 2).toFixed(0)}%;--t:${(3 + R(i, 2) * 3).toFixed(1)}s;--dl:${(-R(i, 3) * 6).toFixed(1)}s"></i>`).join(""),
@@ -700,7 +716,8 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
       + [[8, 9, -1], [30, 12.5, -7]].map(([y, t, d]) => `<i class="cm" style="top:${y}%;--t:${t}s;--dl:${d}s"></i>`).join(""),
     px_coin: () => rng(16).map(i => `<i class="fc" style="left:${(R(i, 1) * 94 + 1).toFixed(0)}%;--s:${(9 + Math.floor(R(i, 2) * 3) * 2)}px;--t:${(2.6 + R(i, 3) * 3.4).toFixed(1)}s;--dl:${(-R(i, 4) * 6).toFixed(1)}s;--x1:${((R(i, 5) - .5) * 36).toFixed(0)}px;--x2:${((R(i, 6) - .5) * 60).toFixed(0)}px;--rt:${((R(i, 7) > .5 ? 1 : -1) * (200 + R(i, 8) * 500)).toFixed(0)}deg;--fl:${(.5 + R(i, 9) * 1.1).toFixed(2)}s"></i>`).join(""),
     bamboo: () => bambooSvg() + rng(3).map(i => `<i class="pt bl2" style="left:${(10 + R(i, 1) * 80).toFixed(0)}%;width:11px;height:5px;--t:${(6 + R(i, 2) * 3).toFixed(1)}s;--dl:${(-R(i, 3) * 8).toFixed(1)}s;--dx:${(R(i, 4) > .5 ? 1 : -1) * 50}px"></i>`).join(""),
-    samurai: () => {   // 水墨: 淡墨遠山 + 留白的月 + 濃淡不一的毛筆竹 (邊緣用雜訊擾動出飛白),只有拔刀那一刻是白色筆勢
+    samurai: () => {   // 水墨
+      const rough = (pts, seed, amp, n) => { const out = []; pts.forEach((p, i) => { const q = pts[(i + 1) % pts.length], len = Math.hypot(q[0] - p[0], q[1] - p[1]) || 1, nx = -(q[1] - p[1]) / len, ny = (q[0] - p[0]) / len; for (let j = 0; j < n; j++) { const t = j / n, o = (R(seed + i * 7 + j, 3) - .5) * 2 * amp; out.push([p[0] + (q[0] - p[0]) * t + nx * o, p[1] + (q[1] - p[1]) * t + ny * o]); } }); return out.map(v => v[0].toFixed(1) + "," + v[1].toFixed(1)).join(" "); };   // 邊緣加上不規則抖動,像毛筆的飛白
       const stalk = (x, w, op, blur) => `<path d="M${x},100 Q${x + w * .3},52 ${x + w * .12},0 L${x + w * .88},0 Q${x + w * 1.15},52 ${x + w},100Z" fill="#0c0c0c" opacity="${op}"${blur ? ' filter="url(#smb)"' : ""}/>`;
       const node = (x, w, y, op) => `<path d="M${x - 1.2},${y} Q${x + w / 2},${y - 1.6} ${x + w + 1.2},${y + .3} L${x + w + 1},${y + 1.7} Q${x + w / 2},${y + .6} ${x - 1},${y + 1.6}Z" fill="#0c0c0c" opacity="${op}"/>`;
       const leaf = (x, y, a, L, op) => `<path d="M0,0 Q${L * .5},${-L * .22} ${L},0 Q${L * .5},${L * .1} 0,0Z" transform="translate(${x},${y}) rotate(${a})" fill="#0c0c0c" opacity="${op}"/>`;
@@ -713,16 +730,16 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
       return `<svg class="bm" viewBox="0 0 240 100" preserveAspectRatio="xMidYMid slice"><defs>`
         + `<linearGradient id="smg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9a9994"/><stop offset=".55" stop-color="#85847f"/><stop offset="1" stop-color="#5e5d59"/></linearGradient>`
         + `<radialGradient id="smm"><stop offset="0" stop-color="#f1efe8" stop-opacity=".95"/><stop offset=".7" stop-color="#e6e3da" stop-opacity=".85"/><stop offset="1" stop-color="#e6e3da" stop-opacity="0"/></radialGradient>`
-        + `<filter id="smb"><feGaussianBlur stdDeviation="1.1"/></filter><filter id="smw"><feGaussianBlur stdDeviation="3.5"/></filter>`
+        + `<linearGradient id="smi" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#050505"/><stop offset=".6" stop-color="#16161a"/><stop offset="1" stop-color="#2e2e2a"/></linearGradient><linearGradient id="sml" gradientUnits="userSpaceOnUse" x1="70" y1="0" x2="182" y2="0"><stop offset="0" stop-color="#f4f2ea" stop-opacity=".15"/><stop offset=".55" stop-color="#f4f2ea" stop-opacity=".95"/><stop offset="1" stop-color="#f4f2ea" stop-opacity=".5"/></linearGradient><filter id="smb"><feGaussianBlur stdDeviation="1.1"/></filter><filter id="smw"><feGaussianBlur stdDeviation="3.5"/></filter>`
         + `<filter id="smr" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency=".05 .12" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.6"/></filter></defs>`
         + `<rect width="240" height="100" fill="url(#smg)"/><circle cx="168" cy="34" r="22" fill="url(#smm)"/>`
         + `<ellipse cx="120" cy="80" rx="150" ry="14" fill="#d8d6cd" opacity=".32" filter="url(#smw)"/><g filter="url(#smw)" opacity=".5"><path d="M-10,70 L20,46 L44,62 L78,34 L108,60 L140,40 L176,64 L210,44 L250,66 L250,100 L-10,100Z" fill="#4a4a48"/></g>`
         + `<g filter="url(#smr)">${far}${mid}${lv}</g>`
-        + `<g class="sx-lo"><path d="M164,100 L164.6,52 L172,41 L172.6,100Z" fill="#161616"/><path d="M164,76 L172.4,75 L172.5,77 L164,78Z" fill="#555"/></g>`
-        + `<g class="sx-up"><path d="M164.6,50 Q163.5,22 164.4,0 L172,0 Q172.6,22 172,40Z" fill="#161616"/><path d="M164.5,26 L172.2,25 L172.2,27 L164.5,28Z" fill="#555"/>${leaf(172, 12, -35, 12, .85)}${leaf(164, 18, 200, 11, .8)}</g>`
-        + `<g class="sx-sam"><path d="M43,92 Q46,74 47,58 L56,56 Q60,74 63,92Z" fill="#050505"/><path d="M44,58 Q46,46 48,44 L56,43 Q58,50 58,58Z" fill="#050505"/><path d="M57,50 Q64,52 66,57 Q61,56 56,56Z" fill="#050505"/><ellipse cx="52" cy="39.5" rx="3.6" ry="4" fill="#050505"/><path d="M37,40 Q52,22 67,40 Q52,35 37,40Z" fill="#050505"/><g class="sx-sw"><path d="M56,56 L86,55.4" stroke="#f2f2f2" stroke-width="1" stroke-linecap="round"/><rect x="54" y="54.6" width="3" height="2.6" fill="#050505"/></g></g>`
+        + `<g class="sx-lo"><polygon points="${rough([[164, 100], [164.4, 52], [172, 41], [172.6, 100]], 11, .5, 9)}" fill="url(#smi)"/><path d="M165,70 L165.4,96 M167,60 L167.2,90 M170,56 L170.4,92" stroke="#6a6a66" stroke-width=".35" opacity=".5"/></g>`
+        + `<g class="sx-up"><polygon points="${rough([[164.4, 50], [164, 0], [172.4, 0], [172, 40]], 23, .5, 9)}" fill="url(#smi)"/><path d="M165,6 L165.2,44 M168,2 L168.4,36" stroke="#6a6a66" stroke-width=".35" opacity=".5"/>${leaf(172, 12, -35, 12, .85)}${leaf(164, 18, 200, 11, .8)}</g>`
+        + `<g class="sx-sam"><polygon points="${rough([[43, 92], [46, 74], [47, 58], [56, 56], [60, 74], [63, 92]], 31, .8, 7)}" fill="url(#smi)"/><polygon points="${rough([[44, 58], [46, 46], [48, 44], [56, 43], [58, 50], [58, 58]], 41, .6, 5)}" fill="#060606"/><polygon points="${rough([[57, 50], [64, 52], [67, 57], [61, 57], [56, 56]], 47, .5, 4)}" fill="#060606"/><ellipse cx="52" cy="39.5" rx="3.6" ry="4" fill="#060606"/><polygon points="${rough([[37, 40], [44, 31], [52, 25], [60, 31], [67, 40], [52, 36]], 53, .7, 6)}" fill="#050505"/><path d="M47,88 L48,66 M52,90 L52.6,64 M57,88 L56.4,66 M40,38 L52,28" stroke="#8a8a85" stroke-width=".4" opacity=".28"/><g class="sx-sw"><path d="M56,56 L86,55.4" stroke="#f2f2f2" stroke-width="1" stroke-linecap="round"/><rect x="54" y="54.6" width="3" height="2.6" fill="#050505"/></g></g>`
         + `<path d="M0,92 Q60,88 120,92 T240,91 L240,100 L0,100Z" fill="#0a0a0a" opacity=".9"/>`
-        + `<path class="sx-sl" d="M70,63 Q124,40 182,32 Q126,47 70,63Z" fill="#f4f2ea"/></svg><i class="fg a"></i><i class="fg b"></i><i class="sxf"></i>`;
+        + `<g class="sx-sl"><polygon points="${rough([[70, 63], [124, 40], [182, 32], [126, 47]], 61, 1, 9)}" fill="url(#sml)"/><path d="M76,61 Q126,41 178,33 M82,62 Q128,46 170,36 M96,57 Q132,45 160,40" stroke="#fff" stroke-width=".5" fill="none" opacity=".55" stroke-dasharray="14 5 6 7"/><circle cx="186" cy="30" r=".9" fill="#f4f2ea" opacity=".8"/><circle cx="190" cy="34" r=".6" fill="#f4f2ea" opacity=".7"/><circle cx="184" cy="36" r=".5" fill="#f4f2ea" opacity=".6"/></g></svg><i class="fg a"></i><i class="fg b"></i><i class="sxf"></i>`;
     },
     royal: () => `<i class="ry"></i><i class="cu l"></i><i class="cu r"></i>`
       + rng(10).map(i => `<i class="sp" style="left:${(R(i, 1) * 90 + 4).toFixed(0)}%;--t:${(4 + R(i, 2) * 4).toFixed(1)}s;--dl:${(-R(i, 3) * 6).toFixed(1)}s;--s:${(5 + R(i, 4) * 5).toFixed(0)}px"></i>`).join(""),
@@ -734,7 +751,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
   };
   const SCENE_CSS = `
 [data-bx]{isolation:isolate}
-.pvseat[data-bx]{position:relative}
+.pvseat[data-bx],.bxsw[data-bx]{position:relative}
 .pl[data-bx] .inf,.pvseat[data-bx] .pvt{text-shadow:0 1px 3px rgba(0,0,0,.9)}
 .bxfx{position:absolute;inset:var(--bx-bw,1px);border-radius:inherit;overflow:hidden;pointer-events:none;z-index:-1}
 .bxfx *{position:absolute;pointer-events:none;display:block}
@@ -792,7 +809,9 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 .bxfx .pl2{opacity:.55;background-size:72px 48px;animation-direction:reverse;animation-duration:19s}
 .bxfx .pb{bottom:-6px;width:5px;height:5px;background:#ffd23f;box-shadow:0 0 0 1px #ff7a1a;opacity:0;animation:bxrise var(--t) linear var(--dl) infinite}
 /* 像素草地: 草叢與花隨風擺動 */
-.bxfx .gt{inset:0;background:url(${GRASS_TILE}) 0 0/72px 48px;image-rendering:pixelated}
+.bxfx .sky{inset:0;background:linear-gradient(rgb(79,180,240) 0 40%,rgb(127,203,246) 40% 65%,rgb(174,228,255) 65%)}
+.bxfx .gt2{inset:0;background:linear-gradient(rgba(10,50,30,.4),rgba(10,50,30,.4)),url(${GRASS_TILE}) 0 0/72px 48px;image-rendering:pixelated;clip-path:${HILL_FAR}}
+.bxfx .gt{inset:0;background:url(${GRASS_TILE}) 0 0/72px 48px;image-rendering:pixelated;clip-path:${HILL_NEAR}}
 .bxfx .tu{bottom:-3px;width:27px;height:27px;background:url(${TUFT}) 0 0/100% 100%;image-rendering:pixelated;transform-origin:50% 100%;animation:bxgsway var(--d) ease-in-out var(--o) infinite alternate}
 .bxfx .fw2{width:21px;height:27px;background-size:100% 100%;image-rendering:pixelated;transform-origin:50% 100%;animation:bxgsway var(--d) ease-in-out var(--o) infinite alternate}
 @keyframes bxgsway{from{transform:rotate(-6deg)}to{transform:rotate(6deg)}}
@@ -830,7 +849,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 .bxfx .bt i{left:0;top:0;width:27px;height:15px;image-rendering:pixelated;background-size:100% 100%}
 .bxfx .bt .up{background-image:url(${BAT_UP});animation:bxflame .3s steps(1) infinite}
 .bxfx .bt .dn{background-image:url(${BAT_DN});animation:bxflameb .3s steps(1) infinite}
-@keyframes bxbat{0%{transform:translate(-40px,8px)}10%{transform:translate(50px,-4px)}20%{transform:translate(130px,10px)}30%{transform:translate(210px,-2px)}42%{transform:translate(320px,6px)}100%{transform:translate(320px,6px)}}
+@keyframes bxbat{0%{transform:translate(-40px,8px)}25%{transform:translate(150px,-4px)}50%{transform:translate(310px,10px)}75%{transform:translate(470px,-2px)}100%{transform:translate(640px,6px)}}
 /* 禪意: 枯山水 — 沙紋、石頭、緩緩擴散的漣漪,與一筆畫出的圓相 */
 .bxfx .rk{inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.07) 0 1px,transparent 1px 7px)}
 .bxfx .sto{transform:translate(-50%,-50%);border-radius:50% 50% 46% 46%/62% 62% 38% 38%;background:radial-gradient(ellipse at 38% 30%,#8d887a,#3b3830 70%);box-shadow:0 3px 4px rgba(0,0,0,.45)}
@@ -845,8 +864,8 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 .bxfx .st.y{background:#ffec27}.bxfx .st.c{background:#29adff}
 .bxfx .sx{width:3px;height:3px;background:#fff;box-shadow:3px 0 #fff,-3px 0 #fff,0 3px #fff,0 -3px #fff;animation:bxblink2 var(--t) steps(1) var(--dl) infinite}
 @keyframes bxblink2{0%{opacity:1}50%{opacity:.08}100%{opacity:1}}
-.bxfx .mo{right:12%;top:12%;width:34px;height:34px;background:url(${MOON_URI}) 0 0/34px 34px;image-rendering:pixelated;transform:rotate(-24deg)}
-.bxfx .mh{right:calc(12% - 6px);top:calc(12% - 6px);width:46px;height:46px;background:url(${MOON_HALO}) 0 0/46px 46px;image-rendering:pixelated;opacity:.2;transform:rotate(-24deg);animation:bxblink3 2.4s steps(1) infinite}
+.bxfx .mo{right:12%;top:12%;width:48px;height:48px;background:url(${MOON_URI}) 0 0/48px 48px;image-rendering:pixelated}
+.bxfx .mh{right:calc(12% - 8px);top:calc(12% - 8px);width:64px;height:64px;background:url(${MOON_HALO}) 0 0/64px 64px;image-rendering:pixelated;opacity:.16;animation:bxblink3 2.4s steps(1) infinite}
 @keyframes bxblink3{0%{opacity:1}50%{opacity:.4}100%{opacity:1}}
 .bxfx .ss{left:0;top:6%;width:4px;height:4px;background:#ffec27;box-shadow:-4px -2px #fff1e8,-8px -4px #ffa300,-12px -6px rgba(255,163,0,.6);opacity:0;animation:bxshoot var(--t) steps(14) var(--dl) infinite}
 @keyframes bxshoot{0%{transform:translate(0,0);opacity:0}6%{opacity:1}28%{transform:translate(260px,90px);opacity:1}30%,100%{transform:translate(264px,92px);opacity:0}}
@@ -870,6 +889,11 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 .bxfx .bm{inset:0;width:100%;height:100%}
 .bxfx .lf{animation:bxsway var(--d) ease-in-out var(--o) infinite alternate}
 @keyframes bxsway{from{transform:rotate(-7deg)}to{transform:rotate(7deg)}}
+.bxsw .bxfx{zoom:.5}.bxsw .bxfx *,.bxsw[data-bxm]{animation-play-state:paused!important}.tile:hover .bxsw .bxfx *,.tile.sel .bxsw .bxfx *,.tile:hover .bxsw[data-bxm]{animation-play-state:running!important}
+.bxfx .lvbg{inset:0;background:#7a1203;animation:bxlavap 3.6s ease-in-out infinite alternate}
+@keyframes bxlavap{from{opacity:.82}to{opacity:1}}
+.bxfx .lp{animation:bxplate var(--t) ease-in-out var(--dl) infinite alternate}
+@keyframes bxplate{from{transform:translate(0,0)}to{transform:translate(var(--dx),var(--dy))}}
 /* 武士: 黑白竹林,拔刀一閃,竹子斜斷落下 (8 秒一輪) */
 .bxfx .sx-lo,.bxfx .sx-up,.bxfx .sx-sam,.bxfx .sx-sw,.bxfx .sx-sl{transform-box:view-box}
 .bxfx .sx-sam{animation:sxsam 8s ease-in-out infinite}
@@ -903,16 +927,16 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
   function applyBox(el, id) {   // 給牌桌上的座位方塊 (.pl) 套上玩家框
     const sp = BOX[id]; if (!el) return;
     if (!boxStyle) {
-      boxStyle = document.createElement("style");
-      boxStyle.textContent = `.pl[data-bx],.pvseat[data-bx]{background-image:var(--bx-img)!important;background-size:var(--bx-sz)!important;background-repeat:repeat!important;background-position:var(--bx-p0)}   /* 位置不能加 !important,否則會蓋掉動畫 */
-.pl[data-bx]:not(.cur):not(.target):not(.win),.pvseat[data-bx]{box-shadow:var(--bx-sh)!important}
-.pl[data-bx][data-bxpx],.pvseat[data-bx][data-bxpx]{border-radius:0!important}
+      boxStyle = document.createElement("style"); boxStyle.dataset.cos = "1";
+      boxStyle.textContent = `.pl[data-bx],.pvseat[data-bx],.bxsw[data-bx]{background-image:var(--bx-img)!important;background-size:var(--bx-sz)!important;background-repeat:repeat!important;background-position:var(--bx-p0)}   /* 位置不能加 !important,否則會蓋掉動畫 */
+.pl[data-bx]:not(.cur):not(.target):not(.win),.pvseat[data-bx],.bxsw[data-bx]{box-shadow:var(--bx-sh)!important}
+.pl[data-bx][data-bxpx],.pvseat[data-bx],.bxsw[data-bx][data-bxpx]{border-radius:0!important}
 /* 玩家框會動: 底色漸層角度緩緩擺動,有格紋 / 圓點圖樣的再加上圖樣慢慢飄移 (像素款是一格一格跳) */
 @keyframes bxmove{from{background-position:var(--bx-p0)}to{background-position:var(--bx-p1)}}
-.pl[data-bxm],.pvseat[data-bxm]{animation:bxmove var(--bx-dur,12s) linear infinite!important}
-@media (prefers-reduced-motion:reduce){.pl[data-bx],.pvseat[data-bx]{animation:none!important}}`;
+.pl[data-bxm],.pvseat[data-bxm],.bxsw[data-bxm]{animation:bxmove var(--bx-dur,12s) linear infinite!important}
+@media (prefers-reduced-motion:reduce){.pl[data-bx],.pvseat[data-bx],.bxsw[data-bx]{animation:none!important}}`;
       document.head.appendChild(boxStyle);
-      const scs = document.createElement("style"); scs.textContent = SCENE_CSS; document.head.appendChild(scs);
+      const scs = document.createElement("style"); scs.dataset.cos = "1"; scs.textContent = SCENE_CSS; document.head.appendChild(scs);
     }
     if (!sp) { el.removeAttribute("data-bx"); delete el.dataset.bxpx; delete el.dataset.bxm; const o0 = el.querySelector(":scope > .bxfx"); if (o0) o0.remove(); return; }
     el.dataset.bx = id;
@@ -982,7 +1006,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
           return h("button", {
             class: "tile" + (ok ? "" : " lock") + (on ? " sel" : "") + (pv && pv.box === x.id ? " pvd" : ""), title: ok ? x.n : "需要 " + x.req_text, "aria-pressed": on ? "true" : "false",
             onclick: async () => { if (!ok) { pv = { box: x.id, need: x.req_text }; render(); return; } pv = null; const id = x.id === "classic" ? "" : x.id; sel.box = id; pickBox(id); render(); },
-          }, h("span", { style: { width: "64px", height: "40px", borderRadius: "6px", background: bg, boxShadow: `inset 0 0 0 1px ${sp ? sp.bd : "#24557d"},0 0 8px ${sp ? sp.gl + "55" : "rgba(63,210,255,.25)"}` } }),
+          }, (() => { const e = h("span", { class: "bxsw", style: { display: "block", width: "92px", height: "54px", borderRadius: "6px", background: bg, boxShadow: `inset 0 0 0 1px ${sp ? sp.bd : "#24557d"},0 0 8px ${sp ? sp.gl + "55" : "rgba(63,210,255,.25)"}` } }); if (sp) applyBox(e, x.id); return e; })(),
           h("span", { class: "tn", text: (ok ? "" : "🔒 ") + x.n }), ok ? null : h("span", { class: "rq", text: "需要 " + x.req_text }), ok ? null : lockProg(x));
         });
         body = h("div", {}, h("div", { class: "meta", style: { marginBottom: "6px" }, text: `已解鎖 ${(CAT.boxes || []).filter(x => has("boxes", x.id)).length} / ${(CAT.boxes || []).length}` }), h("div", { class: "grid" }, ...sw), h("div", { class: "meta", style: { marginTop: "10px" }, text: "玩家框是牌桌上你的座位方塊外觀,所有玩家都看得到。有些要成就解鎖。" }));
@@ -1116,9 +1140,14 @@ html.px .fx-ring::after{inset:-14%}html.px .fx-ice>.fxa{inset:-16%}html.px .fx-v
 .fx-sun>.fxa{inset:-40%;background:${SUN_RAYS} center/100% 100% no-repeat;-webkit-mask:none;mask:none;animation:frspin 20s linear infinite}
 .fx-sun::after{background:none;-webkit-mask:none;mask:none;animation:none}
 .fx-sun>.fxb{inset:-10%;background:radial-gradient(closest-side,transparent 80%,rgba(255,226,110,.55) 92%,transparent 100%);animation:fxglow2 2.6s ease-in-out infinite}
+/* 光柱: 像閃光燈,從頭像上方打出一大束光,微微抖動閃爍 */
+.fx-beam>.fxa{left:-30%;right:-30%;top:-150%;bottom:40%;background:linear-gradient(0deg,rgba(255,250,200,.95),rgba(255,244,170,.5) 45%,rgba(255,240,150,.08) 90%,transparent);clip-path:polygon(40% 100%,60% 100%,100% 0,0 0);transform-origin:50% 100%;animation:fxflash 1.1s steps(1) infinite}
+@keyframes fxflash{0%{transform:rotate(-3deg);opacity:.95}18%{transform:rotate(2.5deg);opacity:.65}33%{transform:rotate(-1.5deg);opacity:1}52%{transform:rotate(3.5deg);opacity:.7}70%{transform:rotate(-3.5deg);opacity:.95}85%{transform:rotate(1deg);opacity:.6}}
 .avw.fr-yinyang::before{background:conic-gradient(#fff 0,#fff 12%,#000 38%,#000 62%,#fff 88%,#fff 100%)}
 `;
   document.head.appendChild(st);
+  { const rk = document.createElement("style"); rk.dataset.cos = "1";   // 段位徽章的顏色固定,不隨主題換色 (鑽石 = 藍底)
+    rk.textContent = ".rk-鑽石{background:linear-gradient(#4f9dff,#1b46c9)!important;color:#fff!important}.rk-白金{background:linear-gradient(#7ff0e0,#2a9f95)!important;color:#03241f!important}"; document.head.appendChild(rk); }
 
   const label = () => {
     const L = (window.SGS_I18N && SGS_I18N.lang) || "zh";

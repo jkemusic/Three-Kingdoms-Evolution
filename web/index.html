@@ -42,7 +42,7 @@ input[type=range]{accent-color:var(--accent);padding:0}
 #roundtag .rtdeck{font-size:14px;letter-spacing:.05em;font-weight:600;color:#9eeaff;margin-top:2px}
 #center .big{font-size:30px;color:var(--gold);font-weight:800;letter-spacing:.2em}
 #winner{margin-top:10px;font-size:24px;color:#fff;font-weight:800;background:rgba(0,0,0,.45);padding:6px 20px;border-radius:99px;border:1px solid var(--gold)}
-.pl{position:absolute;transform:translate(-50%,-50%);width:236px;background:linear-gradient(160deg,rgba(33,44,57,.96),rgba(20,28,37,.96));border:2px solid var(--line);border-radius:14px;padding:8px;display:flex;gap:8px;cursor:pointer;box-shadow:var(--shadow);transition:border-color .2s,box-shadow .2s}
+.pl{position:absolute;transform:translate(-50%,-50%);width:calc(236px + var(--exn,0) * 42px);background:linear-gradient(160deg,rgba(33,44,57,.96),rgba(20,28,37,.96));border:2px solid var(--line);border-radius:14px;padding:8px;display:flex;gap:8px;cursor:pointer;box-shadow:var(--shadow);transition:border-color .2s,box-shadow .2s}
 .pl:hover{border-color:#44586f}
 .pl.cur{border-color:var(--accent);box-shadow:0 0 0 2px rgba(233,191,98,.25),0 0 24px rgba(233,191,98,.5);animation:pulse 2s infinite}
 @keyframes pulse{50%{box-shadow:0 0 0 4px rgba(233,191,98,.15),0 0 32px rgba(233,191,98,.65)}}
@@ -116,7 +116,7 @@ input[type=range]{accent-color:var(--accent);padding:0}
 #mnav{display:none}
 body.hide-side #mid{grid-template-columns:1fr}
 body.hide-side #side{display:none}
-.zone{display:flex;flex-wrap:wrap;gap:4px;width:100%;margin-top:2px}.zone.jz{margin-top:3px}
+.zone{display:flex;flex-wrap:wrap;gap:4px;width:100%;margin-top:2px}.zone.jz{margin-top:3px}.zone:not(.jz){flex-wrap:nowrap}   /* 裝備排成一排,裝備多就把玩家框橫向撐寬;判定區另起一排 */
 .eq{position:relative;width:38px;height:54px;border-radius:4px;border:1px solid #3b4b5f;overflow:hidden;background:#0d0f13;box-shadow:0 2px 5px rgba(0,0,0,.5);cursor:help}
 .eq img{width:100%;height:100%;object-fit:cover;display:block}
 .eq .nm2{display:flex;height:100%;align-items:center;justify-content:center;font-size:12px;font-weight:700}
@@ -127,9 +127,9 @@ body.hide-side #side{display:none}
 #table.dense .eq{width:30px;height:43px}
 #table{--hw:122px;--hh:100px}
 #table.mid{--hw:116px;--hh:88px}
-#table.mid .pl{width:224px}
+#table.mid .pl{width:calc(224px + var(--exn,0) * 42px)}
 #table.dense{--hw:96px;--hh:72px}
-#table.dense .pl{width:184px;padding:5px;gap:6px}
+#table.dense .pl{width:calc(184px + var(--exn,0) * 34px);padding:5px;gap:6px}
 #tablewrap:has(#table.dense)::before{border-radius:44px;inset:70px 150px}
 #tablewrap:has(#table.dense)::after{display:none}
 #table.dense .pl .ph{width:48px;height:68px}
@@ -308,7 +308,7 @@ button.big{font-size:16px;font-weight:800;padding:10px 38px}
 @keyframes tin{from{opacity:0;transform:translateY(-8px)}}
 #hostbar{font-size:13px;padding:2px 10px;border-radius:2px;background:#0c1d36;border:1px solid #1f4468;white-space:nowrap}
 #hostbar.me{color:var(--gold);border-color:#8a6a1c}
-#hostbar.wait{color:#9eeaff}
+#hostbar.wait{color:#9eeaff}#hostbar:empty{display:none!important}
 .mini-btn{margin-top:8px;padding:3px 14px!important;font-size:12px}
 .pl.waiting .nm::after{content:" ⏳"}
 .pl.waiting{outline:2px dashed #ffb44d;outline-offset:2px}
@@ -493,7 +493,8 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
 .pl .nm{left:6px!important;transform:none;align-items:flex-start!important}
 .pl .inf>.nr{display:flex;align-items:center;gap:4px;min-width:0;font-weight:700;font-size:14px;color:#fff;white-space:nowrap}
 .pl .inf>.nr .pn{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:0 1 auto}
-.pl .inf>.nr .role,.pl .inf>.nr .winb{flex:0 0 auto;border-radius:99px}   /* 名字標籤改放框內 */
+.pl .inf>.nr .role,.pl .inf>.nr .winb{flex:0 0 auto;border-radius:99px}
+.pl .inf>.nr .winb{position:static!important;transform:none!important;top:auto!important;left:auto!important;margin-left:2px;padding:0 6px}   /* 名字標籤改放框內 */
 .tag.bd{font-weight:700;white-space:normal;max-width:100%;line-height:1.35;border-radius:6px}.tag.bd-ren{background:#1f6b4a;color:#c9ffe6}.tag.bd-shi{background:#7a2230;color:#ffd0d6}.tag.bd-mk{background:#7a5b10;color:#ffe9a8;box-shadow:0 0 8px rgba(255,210,74,.6)}
 .tag.bd-cnt{background:#1c4a7a;color:#cfe8ff}.tag.bd-once{background:#3a3f4d;color:#d6dbe6}.tag.bd-st{background:#6b3b8a;color:#f1d9ff;box-shadow:0 0 6px rgba(190,120,255,.5)}
 .pile .card .lab,.sitem .card .lab{white-space:nowrap;padding-left:0;padding-right:0}.pile .card .lab{font-size:10px}
@@ -888,6 +889,7 @@ function renderTable0(snap) {
     const zone = h("div", {class: "zone"});
     [["weapon", "武"], ["weapon2", "武2"], ["armor", "防"], ["armor2", "防2"], ["h+", "+1"], ["h-", "-1"]].forEach(([k, lab]) => { if (eq[k]) zone.append(eqEl(eq[k], lab, false, p.is_viewer && eqPick && eqPick.has(String(eq[k].id)) ? () => { const o = S.tgtPick.opts.find(x => String(x.target.cid) === String(eq[k].id)); S.tgtPick = null; submit(pend.id, [o.i]); } : null)); });
     if (zone.childNodes.length) tags.append(zone);
+    const exn = Math.max(0, zone.childNodes.length - 3);   // 3 張以內放得下,超過的每張把框多撐 1 格寬
     if (p.judge.length) { const jz = h("div", {class: "zone jz"}); p.judge.forEach(j => jz.append(eqEl(j, "判", true))); tags.append(jz); }   // 延時錦囊另外一排
     if (p.chained) ph.classList.add("hz");   // 鐵索橫置: 武將牌真的橫過來 (轉 90 度)
     if (p.flipped) tags.append(h("span", {class: "tag flip", text: "翻面"}));
@@ -903,6 +905,7 @@ function renderTable0(snap) {
     const el = h("div", {"data-idx": p.idx, class: "pl" + (snap.cur === p.idx && !snap.over ? " cur" : "") + (winners.has(p.idx) ? " win" : "") + (p.is_viewer ? " me" : "") + (snap.waiting === p.idx && !snap.over ? " waiting" : "") + (p.alive ? "" : " dead") + (S.sel === p.idx ? " sel" : "") + (targetIdx.has(p.idx) ? " target" : "") + (pickMode && S.tgtPick.chosen && S.tgtPick.chosen.includes(p.idx) ? " tp1" : "") + (pickMode && !targetIdx.has(p.idx) ? " dimmed" : ""),
                          style: rp ? {left: rp[0] + "px", top: rp[1] + "px", order: k} : {left: `clamp(var(--hw),${x}%,calc(100% - var(--hw)))`, top: `clamp(var(--hh),${y}%,calc(100% - var(--hh)))`, order: k}, onclick: () => { if (pickMode) { tpClick(S.tgtPick, p.idx, pend); return; } S.sel = S.sel === p.idx ? null : p.idx; $("#thf").value = S.sel == null ? "" : String(S.sel); renderThoughts(); renderTable(S.snap); }}, ph, inf);
     { const bx = ((snap.avstyles || {})[p.idx] || {}).bx; if (bx && window.SGS_BOX) SGS_BOX.apply(el, bx); }   // 玩家框
+    if (exn) el.style.setProperty("--exn", exn);
     const t = S.lastTh[p.idx];
     const age = t && t._ts ? (Date.now() - t._ts) / 1000 : 99;
     if (t && age < 3.2 && !/不發動|不出|不響應|不使用|不用|放棄|跳過/.test(t.title) && snap.thoughts_visible && p.alive && snap.viewer !== p.idx)
@@ -1426,7 +1429,7 @@ function showHostBar(snap) {
   if (snap.host_name == null && snap.is_host) { e.textContent = "公共房間 · 沒有房主,任何人都可以操作"; e.className = "me"; return; }
   if (snap.host_name == null) { e.textContent = "等待房主建立遊戲…"; e.className = "wait"; return; }
   if (snap.is_host) { e.textContent = "👑 你是房主"; e.className = "me"; }
-  else { e.textContent = `👑 房主: ${snap.host_name || "未命名"} · 等待房主操作`; e.className = "wait"; }
+  else { e.textContent = ""; e.className = "wait"; }   // 非房主不再顯示「房主: xxx · 等待房主操作」
 }
 function renderHandover(box) {   // 房主: 把房主讓給目前在線的某人
   box.textContent = "";
@@ -2015,9 +2018,9 @@ async function showProfile() {
             S.nickLocked ? null : h("button", {text: "✎", title: "改暱稱", style: {padding: "3px 10px"}, onclick: () => { close(); showNickGate(true); }})),
           h("div", {style: {margin: "6px 0"}}, rkEl(p.rank, true), devEl(p.dev)),
           h("div", {style: {display: "flex", gap: "6px", flexWrap: "wrap"}},
-            h("button", {text: "上傳頭貼", style: {whiteSpace: "nowrap"}, onclick: () => $("#avfile").click()}),
-            p.avatar ? h("button", {text: "移除", style: {whiteSpace: "nowrap"}, onclick: async () => { await api("/api/avatar", {data: ""}); showProfile(); }}) : null,
-            h("button", {text: "🎨 外觀", style: {whiteSpace: "nowrap"}, onclick: () => { close(); SGS_THEME.open("theme"); }}))),
+            h("button", {text: "上傳頭貼", style: {whiteSpace: "nowrap", padding: "6px 10px"}, onclick: () => $("#avfile").click()}),
+            h("button", {text: "🎨 外觀", style: {whiteSpace: "nowrap", padding: "6px 10px"}, onclick: () => { close(); SGS_THEME.open("theme"); }}),
+            p.avatar ? h("button", {text: "移除", style: {whiteSpace: "nowrap", padding: "6px 10px"}, onclick: async () => { await api("/api/avatar", {data: ""}); showProfile(); }}) : null)),
         h("input", {id: "avfile", type: "file", accept: "image/*", style: {display: "none"}, onchange: e => uploadAvatar(e.target.files[0])})),
       h("div", {style: {height: "10px", background: "#0e2442", borderRadius: "99px", overflow: "hidden", margin: "6px 0"}}, h("div", {style: {width: pct + "%", height: "100%", background: "linear-gradient(90deg,#3fd2ff,#2a7de1)"}})),
       h("div", {class: "meta", text: `段位積分 ${p.rp}` + (p.rp_next != null ? ` / ${p.rp_next} · 距離下一段 (${p.next_rank}) 還差 ${p.rp_next - p.rp} 分` : " (最高段位)")}),
