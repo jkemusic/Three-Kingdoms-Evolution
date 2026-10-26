@@ -542,6 +542,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
   /* ---------- 玩家框 (牌桌上座位方塊的外觀,所有人都看得到): id 對應伺服器 cosmetics.BOXES ---------- */
   // c: 方塊底色 (上 / 下), bd: 邊線, gl: 光暈色, fl: 疊在底色上的花紋 (可省略)
   const pxc = (col, sz) => `linear-gradient(45deg,${col} 25%,transparent 25% 75%,${col} 75%) 0 0/${sz}px ${sz}px`;   // 像素格紋
+  const strp = (col, sz) => `linear-gradient(135deg,${col} 25%,transparent 25% 50%,${col} 50% 75%,transparent 75%) 0 0/${sz}px ${sz}px`;   // 斜紋 (無縫)
   const dots = (col, sz) => `radial-gradient(${col} 1px,transparent 1.5px) 0 0/${sz}px ${sz}px`;
   const BOX = {
     classic: null,
@@ -550,25 +551,25 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
     px_coin:    { px: 1, c: ["#e8b923", "#b8860b"], bd: "#fff1b0", gl: "#fff1b0", fl: pxc("rgba(255,255,255,.16)", 12) },
     px_lava:    { px: 1, c: ["#d9381e", "#7a1408"], bd: "#ffa300", gl: "#ffa300", fl: pxc("rgba(255,163,0,.22)", 16) },
     px_night:   { px: 1, c: ["#0a0e1f", "#000000"], bd: "#ffec27", gl: "#ffec27", fl: `linear-gradient(45deg,#ffec27 10%,transparent 10% 90%,#ffec27 90%) 0 0/36px 36px,linear-gradient(-45deg,rgba(255,255,255,.5) 8%,transparent 8% 92%,rgba(255,255,255,.5) 92%) 18px 18px/36px 36px` },
-    felt:    { c: ["#1f6b52", "#0b2f25"], bd: "#c89b5e", gl: "#c89b5e" },
-    wine:    { c: ["#6a1b2c", "#2a0a12"], bd: "#e5b26b", gl: "#e5b26b" },
-    charcoal:{ c: ["#3a3f47", "#14171b"], bd: "#aeb8c6", gl: "#aeb8c6" },
-    jade:    { c: ["#177a5a", "#073328"], bd: "#46e0a0", gl: "#46e0a0", fl: `linear-gradient(180deg,rgba(70,224,160,.14),transparent 40%)` },
-    ink:     { c: ["#5a5850", "#26241f"], bd: "#d9d3c0", gl: "#d9d3c0", fl: `repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 2px,transparent 2px 9px)` },
-    tatami:  { c: ["#7d6d3f", "#2e2714"], bd: "#86b36f", gl: "#86b36f", fl: `linear-gradient(rgba(63,107,58,.25) 1px,transparent 1px) 0 0/22px 22px,linear-gradient(90deg,rgba(63,107,58,.25) 1px,transparent 1px) 0 0/22px 22px` },
-    gold:    { c: ["#6b5314", "#241b05"], bd: "#f0c95c", gl: "#f0c95c", fl: `linear-gradient(180deg,rgba(240,201,92,.18),transparent 45%)` },
-    sakura:  { c: ["#8f3a62", "#33142a"], bd: "#ff8fc0", gl: "#ff8fc0", fl: dots("rgba(255,143,192,.4)", 18) },
-    thunder: { c: ["#2c2a6e", "#0c0b26"], bd: "#ffe14d", gl: "#ffe14d", fl: `repeating-linear-gradient(115deg,rgba(255,225,77,.1) 0 2px,transparent 2px 26px)` },
-    ice:     { c: ["#2f6a8f", "#12304a"], bd: "#dff4ff", gl: "#bfe9ff", fl: dots("rgba(255,255,255,.45)", 16) },
-    lava:    { c: ["#7a2410", "#2a0c04"], bd: "#ff7a45", gl: "#ff5a2a", fl: `linear-gradient(0deg,rgba(255,90,42,.28),transparent 55%)` },
-    royal:   { c: ["#4a2c86", "#170d33"], bd: "#f0c95c", gl: "#b58cff", fl: `linear-gradient(135deg,rgba(240,201,92,.12),transparent 50%)` },
-    sunset:  { c: ["#a04a2a", "#321638"], bd: "#ffb36b", gl: "#ff8f5a", fl: `linear-gradient(180deg,rgba(255,179,107,.2),transparent 55%)` },
-    crystal: { c: ["#1f7694", "#0b3040"], bd: "#9ff0ff", gl: "#5fe0ff", fl: `linear-gradient(45deg,rgba(159,240,255,.12) 25%,transparent 25% 75%,rgba(159,240,255,.12) 75%) 0 0/20px 20px` },
-    galaxy:  { c: ["#3a2a8a", "#0a0828"], bd: "#c3b8ff", gl: "#9b8cff", fl: dots("rgba(255,255,255,.6)", 23) + "," + dots("rgba(195,184,255,.45)", 13) },
-    bamboo:  { c: ["#3f7a45", "#112a17"], bd: "#a6d38c", gl: "#7fc77a", fl: `repeating-linear-gradient(90deg,rgba(166,211,140,.12) 0 4px,transparent 4px 22px)` },
-    scroll:  { c: ["#8d7140", "#33270f"], bd: "#5b3a22", gl: "#8d6a3a", fl: `linear-gradient(180deg,rgba(255,240,200,.18),transparent 50%)` },
-    zen:     { c: ["#7a705a", "#2a251a"], bd: "#7a6f55", gl: "#9a9078", fl: `repeating-radial-gradient(circle at 20% 50%,rgba(255,255,255,.1) 0 2px,transparent 2px 16px)` },
-    neon:    { c: ["#1a0a3a", "#06020f"], bd: "#ff3df0", gl: "#3dfff0", fl: `linear-gradient(rgba(61,255,240,.14) 1px,transparent 1px) 0 0/16px 16px,linear-gradient(90deg,rgba(255,61,240,.14) 1px,transparent 1px) 0 0/16px 16px` },
+    felt:    { c: ["#1f6b52", "#0b2f25"], bd: "#c89b5e", gl: "#c89b5e", fl: dots("rgba(255,255,255,.1)", 10), mv: [1, 0.5] },
+    wine:    { c: ["#6a1b2c", "#2a0a12"], bd: "#e5b26b", gl: "#e5b26b", fl: strp("rgba(229,178,107,.08)", 36), mv: [1, 0] },
+    charcoal:{ c: ["#3a3f47", "#14171b"], bd: "#aeb8c6", gl: "#aeb8c6", fl: `linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px) 0 0/14px 14px,linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px) 0 0/14px 14px`, mv: [1, 1] },
+    jade:    { c: ["#177a5a", "#073328"], bd: "#46e0a0", gl: "#46e0a0", fl: strp("rgba(70,224,160,.1)", 44) + ",linear-gradient(180deg,rgba(70,224,160,.14),transparent 40%)", mv: [1, 0] },
+    ink:     { c: ["#5a5850", "#26241f"], bd: "#d9d3c0", gl: "#d9d3c0", fl: `repeating-linear-gradient(0deg,rgba(255,255,255,.06) 0 2px,transparent 2px 9px) 0 0/60px 9px`, mv: [0, -1] },
+    tatami:  { c: ["#7d6d3f", "#2e2714"], bd: "#86b36f", gl: "#86b36f", fl: `linear-gradient(rgba(63,107,58,.25) 1px,transparent 1px) 0 0/22px 22px,linear-gradient(90deg,rgba(63,107,58,.25) 1px,transparent 1px) 0 0/22px 22px`, mv: [1, 1] },
+    gold:    { c: ["#6b5314", "#241b05"], bd: "#f0c95c", gl: "#f0c95c", fl: strp("rgba(240,201,92,.12)", 90) + ",linear-gradient(180deg,rgba(240,201,92,.18),transparent 45%)", mv: [1, 0] },
+    sakura:  { c: ["#8f3a62", "#33142a"], bd: "#ff8fc0", gl: "#ff8fc0", fl: dots("rgba(255,143,192,.4)", 18), mv: [-1, 1] },
+    thunder: { c: ["#2c2a6e", "#0c0b26"], bd: "#ffe14d", gl: "#ffe14d", fl: strp("rgba(255,225,77,.12)", 40), mv: [-1, 0] },
+    ice:     { c: ["#2f6a8f", "#12304a"], bd: "#dff4ff", gl: "#bfe9ff", fl: dots("rgba(255,255,255,.45)", 16), mv: [0, 1] },
+    lava:    { c: ["#7a2410", "#2a0c04"], bd: "#ff7a45", gl: "#ff5a2a", fl: dots("rgba(255,170,70,.75)", 26) + "," + dots("rgba(255,120,40,.6)", 17) + ",linear-gradient(0deg,rgba(255,90,42,.28),transparent 55%)", mv: [0, -1] },
+    royal:   { c: ["#4a2c86", "#170d33"], bd: "#f0c95c", gl: "#b58cff", fl: strp("rgba(240,201,92,.1)", 56) + ",linear-gradient(135deg,rgba(240,201,92,.12),transparent 50%)", mv: [1, 0] },
+    sunset:  { c: ["#a04a2a", "#321638"], bd: "#ffb36b", gl: "#ff8f5a", fl: `repeating-linear-gradient(0deg,rgba(255,179,107,.15) 0 6px,transparent 6px 22px) 0 0/40px 22px,linear-gradient(180deg,rgba(255,179,107,.2),transparent 55%)`, mv: [0, 1] },
+    crystal: { c: ["#1f7694", "#0b3040"], bd: "#9ff0ff", gl: "#5fe0ff", fl: `linear-gradient(45deg,rgba(159,240,255,.12) 25%,transparent 25% 75%,rgba(159,240,255,.12) 75%) 0 0/20px 20px`, mv: [1, 1] },
+    galaxy:  { c: ["#3a2a8a", "#0a0828"], bd: "#c3b8ff", gl: "#9b8cff", fl: dots("rgba(255,255,255,.6)", 23) + "," + dots("rgba(195,184,255,.45)", 13), mv: [1, 0] },
+    bamboo:  { c: ["#3f7a45", "#112a17"], bd: "#a6d38c", gl: "#7fc77a", fl: `repeating-linear-gradient(90deg,rgba(166,211,140,.14) 0 4px,transparent 4px 22px) 0 0/22px 40px`, mv: [1, 0] },
+    scroll:  { c: ["#8d7140", "#33270f"], bd: "#5b3a22", gl: "#8d6a3a", fl: `linear-gradient(90deg,rgba(91,58,34,.14) 1px,transparent 1px) 0 0/18px 18px,linear-gradient(rgba(91,58,34,.14) 1px,transparent 1px) 0 0/18px 18px,linear-gradient(180deg,rgba(255,240,200,.18),transparent 50%)`, mv: [1, 0] },
+    zen:     { c: ["#7a705a", "#2a251a"], bd: "#7a6f55", gl: "#9a9078", fl: `repeating-radial-gradient(circle at 50% 50%,rgba(255,255,255,.1) 0 2px,transparent 2px 16px) 0 0/64px 64px`, mv: [1, 1] },
+    neon:    { c: ["#1a0a3a", "#06020f"], bd: "#ff3df0", gl: "#3dfff0", fl: `linear-gradient(rgba(61,255,240,.14) 1px,transparent 1px) 0 0/16px 16px,linear-gradient(90deg,rgba(255,61,240,.14) 1px,transparent 1px) 0 0/16px 16px`, mv: [0, 1] },
   };
   let boxStyle = null;
   function applyBox(el, id) {   // 給牌桌上的座位方塊 (.pl) 套上玩家框
@@ -581,30 +582,23 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 .pl[data-bx][data-bxpx],.pvseat[data-bx][data-bxpx]{border-radius:0!important}
 /* 玩家框會動: 底色漸層角度緩緩擺動,有格紋 / 圓點圖樣的再加上圖樣慢慢飄移 (像素款是一格一格跳) */
 @keyframes bxmove{from{background-position:var(--bx-p0)}to{background-position:var(--bx-p1)}}
-@keyframes bxslide{from{transform:translateX(-130%) skewX(-18deg)}to{transform:translateX(330%) skewX(-18deg)}}
-.bxsh{position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none;z-index:1}
-.bxsh::before{content:"";position:absolute;top:0;bottom:0;left:0;width:30%;background:linear-gradient(90deg,transparent,var(--bx-hl),transparent);animation:bxslide var(--bx-dur,6s) linear infinite;will-change:transform}
-.pl[data-bxpx] .bxsh::before,.pvseat[data-bxpx] .bxsh::before{background:var(--bx-hl);width:14%;animation-timing-function:steps(10)}
-.pl[data-bxm],.pvseat[data-bxm]{animation:bxmove 3s steps(8) infinite!important}
-@media (prefers-reduced-motion:reduce){.pl[data-bx],.pvseat[data-bx]{animation:none!important}.bxsh{display:none}}`;
+.pl[data-bxm],.pvseat[data-bxm]{animation:bxmove var(--bx-dur,12s) linear infinite!important}
+@media (prefers-reduced-motion:reduce){.pl[data-bx],.pvseat[data-bx]{animation:none!important}}`;
       document.head.appendChild(boxStyle);
     }
-    if (!sp) { el.removeAttribute("data-bx"); delete el.dataset.bxpx; delete el.dataset.bxm; const o = el.querySelector(":scope > .bxsh"); if (o) o.remove(); return; }
+    if (!sp) { el.removeAttribute("data-bx"); delete el.dataset.bxpx; delete el.dataset.bxm; return; }
     el.dataset.bx = id;
     if (sp.px) el.dataset.bxpx = "1"; else delete el.dataset.bxpx;
     const st = el.style;
     st.setProperty("--bx-bg", `${sp.fl ? sp.fl + "," : ""}linear-gradient(160deg,${sp.c[0]}f2,${sp.c[1]}f5)`);
     const layers = []; { let d = 0, cur = ""; for (const ch of (sp.fl || "")) { if (ch === "(") d++; if (ch === ")") d--; if (ch === "," && !d) { layers.push(cur); cur = ""; } else cur += ch; } if (cur.trim()) layers.push(cur); }
-    const szs = layers.map(l => /\/\s*(\d+)px\s+(\d+)px/.exec(l));   // 像素款: 圖樣依各自大小一格一格飄移 (無縫)
-    if (sp.px && szs.some(Boolean)) {
+    const szs = layers.map(l => /\/\s*(\d+)px\s+(\d+)px/.exec(l)), mv = sp.mv || [1, 1];   // 花紋依各自大小朝 mv 方向飄移一格,才能無縫循環
+    if (szs.some(Boolean)) {
       st.setProperty("--bx-p0", szs.map(() => "0 0").concat("0 0").join(","));
-      st.setProperty("--bx-p1", szs.map(m => m ? m[1] + "px " + m[2] + "px" : "0 0").concat("0 0").join(","));
+      st.setProperty("--bx-p1", szs.map(m => m ? (mv[0] * m[1]) + "px " + (mv[1] * m[2]) + "px" : "0 0").concat("0 0").join(","));
+      st.setProperty("--bx-dur", (sp.px ? 6 : 12) + "s");
       el.dataset.bxm = "1";
-    } else delete el.dataset.bxm;
-    // 掃過的亮帶: 獨立圖層只用 transform 動 (不重繪整個框,不卡)
-    st.setProperty("--bx-hl", sp.px ? "rgba(255,255,255,.14)" : `${sp.bd}33`);
-    st.setProperty("--bx-dur", (sp.px ? 3 : 6) + "s");
-    if (!el.querySelector(":scope > .bxsh")) { const sh = document.createElement("span"); sh.className = "bxsh"; el.appendChild(sh); }
+    } else { delete el.dataset.bxm; st.removeProperty("--bx-p0"); st.removeProperty("--bx-p1"); }
     st.setProperty("--bx-sh", sp.px ? `inset 0 0 0 3px ${sp.bd},0 0 0 3px #000,5px 5px 0 3px rgba(0,0,0,.5)` : `inset 0 0 0 1px ${sp.bd},inset 0 0 22px ${sp.gl}33,0 0 14px ${sp.gl}40`);
   }
   window.SGS_BOX = { apply: applyBox, spec: BOX };

@@ -668,7 +668,7 @@ class Manager:
         if tok:
             now = time.time()
             if tok not in self.seen:
-                self._event(f"➡ {self._name_of(tok)} 進入房間", "ok", tok)
+                self._event(f"→ {self._name_of(tok)} 進入房間", "ok", tok)
             self.seen[tok] = now
             if not self.host and not self.host_cleared and not self.public:   # 最先連線的人成為房主 (公共房間沒有房主)
                 self.host = tok
@@ -732,7 +732,7 @@ class Manager:
             now = time.time()
             self.seen.pop(tok, None)
             self.alive.pop(tok, None)
-            self._event(f"⬅ {self._name_of(tok)} 離開了房間", "bad", tok)
+            self._event(f"← {self._name_of(tok)} 離開了房間", "bad", tok)
             if tok == self.host:
                 if self.public:
                     self.host, self.host_cleared = None, True
