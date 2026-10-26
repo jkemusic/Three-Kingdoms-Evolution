@@ -29,7 +29,7 @@ After=network.target
 User=sgs
 WorkingDirectory=$APP/app
 Environment=SGS_DATA=$DATA SGS_ASSETS=$DATA/assets SGS_PORT=$PORT PYTHONUTF8=1
-ExecStart=/usr/bin/python3 $APP/app/server.py --lan --no-browser
+ExecStart=/usr/bin/python3 $APP/app/server.py --no-browser
 Restart=always
 RestartSec=3
 

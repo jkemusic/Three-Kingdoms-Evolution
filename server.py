@@ -304,22 +304,30 @@ class Accounts:
         k = self.uuids.get(tok)
         return self.d[k]["user"] if k else None
 
-    def _blocked(self, key):
+    def _blocked(self, key, limit=6):
         now = time.time()
         L = [t for t in self.fails.get(key, []) if now - t < 300]
         self.fails[key] = L
-        return len(L) >= 6
+        return len(L) >= limit
 
-    def register(self, user, pw=None, adopt_tok=None):
+    def register(self, user, pw=None, adopt_tok=None, ip=""):
         user = (user or "").strip()
         if not self.NAME_RE.match(user):
             return {"ok": False, "error": "使用者名稱 2~10 字,只能用中英文、數字、底線"}
         import uuid as _uuid
+        now = time.time()
         with self.lock:
+            L = [t for t in self.fails.get("reg:" + ip, []) if now - t < 3600]
+            if len(L) >= 5:   # 同一個 IP 一小時最多註冊 5 個,避免灌帳號
+                return {"ok": False, "error": "這個網路最近註冊太多帳號了,請稍後再試"}
+            if len(self.d) >= MAX_ACCOUNTS:
+                return {"ok": False, "error": "帳號數量已達上限"}
             if user.lower() in self.d:
                 return {"ok": False, "error": "這個名稱已被使用"}
             # 若這個瀏覽器原本有舊的訪客檔案 (尚未綁帳號),直接沿用,等級不會丟
             u = adopt_tok if (adopt_tok and adopt_tok in PROFILES.d and adopt_tok not in self.uuids) else str(_uuid.uuid4())
+            L.append(now)
+            self.fails["reg:" + ip] = L
             self.d[user.lower()] = {"user": user, "uuid": u, "created": int(time.time())}
             self.uuids[u] = user.lower()
             self._save()
@@ -329,7 +337,7 @@ class Accounts:
     def login(self, uid, pw=None, ip=""):
         """只憑 8 位數字 UID 登入 (沒有密碼)。"""
         key = (uid or "").strip()
-        if self._blocked("ip:" + ip):
+        if self._blocked("ip:" + ip) or self._blocked("all", 60):
             return {"ok": False, "error": "嘗試次數太多,請 5 分鐘後再試"}
         a = None
         if key.isdigit():
@@ -339,6 +347,8 @@ class Accounts:
                     break
         if not a:
             self.fails.setdefault("ip:" + ip, []).append(time.time())
+            self.fails.setdefault("all", []).append(time.time())   # 全站失敗次數也限制 (分散式猜 UID)
+            time.sleep(0.5)
             return {"ok": False, "error": "找不到這個 UID"}
         return {"ok": True, "tok": self.new_session(a["uuid"]), "user": a["user"]}
 
@@ -351,6 +361,8 @@ class Accounts:
             pass
 
 
+MAX_ACCOUNTS = 2000
+MAX_BODY = 400_000   # 請求本文上限 (頭像 base64 約 160KB)
 ACCOUNTS = Accounts()
 
 
@@ -1050,6 +1062,9 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(code)
         self.send_header("Content-Type", ctype)
         self.send_header("Content-Length", str(len(body)))
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("X-Frame-Options", "DENY")
+        self.send_header("Referrer-Policy", "no-referrer")
         self.send_header("Cache-Control", "no-store" if ctype.startswith(("application/json", "application/javascript", "text/")) else "max-age=3600")
         self.end_headers()
         self.wfile.write(body)
@@ -1156,15 +1171,29 @@ class Handler(BaseHTTPRequestHandler):
                 return self._file(os.path.join(WEB, "hp", os.path.basename(path)))
             if path.startswith("/assets/"):
                 full = os.path.normpath(os.path.join(ROOT, path[len("/assets/"):].replace("/", os.sep)))
-                if not full.startswith(os.path.normpath(ROOT)):
+                if os.path.commonpath([full, os.path.normpath(ROOT)]) != os.path.normpath(ROOT):
                     return self._send(403, {"error": "forbidden"})
                 return self._file(full)
             self._send(404, {"error": "not found"})
         except (BrokenPipeError, ConnectionResetError):
             pass
 
+    def _ip(self):
+        """連線來源 IP。只有本機反向代理 (Caddy) 轉來的連線才相信 X-Forwarded-For。"""
+        ip = self.client_address[0]
+        if ip in ("127.0.0.1", "::1"):
+            xf = (self.headers.get("X-Forwarded-For") or "").split(",")[-1].strip()
+            if xf:
+                return xf
+        return ip
+
     def do_POST(self):
-        n = int(self.headers.get("Content-Length") or 0)
+        try:
+            n = int(self.headers.get("Content-Length") or 0)
+        except ValueError:
+            n = -1
+        if n < 0 or n > MAX_BODY:
+            return self._send(413, {"error": "too large"})
         try:
             data = json.loads(self.rfile.read(n) or b"{}")
         except ValueError:
@@ -1175,9 +1204,9 @@ class Handler(BaseHTTPRequestHandler):
             data["tok"] = ACCOUNTS.resolve(raw)
         try:
             if path == "/api/register":
-                return self._send(200, ACCOUNTS.register(data.get("user"), data.get("pw"), data.get("tok")))
+                return self._send(200, ACCOUNTS.register(data.get("user"), data.get("pw"), data.get("tok"), self._ip()))
             if path == "/api/login":
-                return self._send(200, ACCOUNTS.login(data.get("user"), data.get("pw"), self.client_address[0]))
+                return self._send(200, ACCOUNTS.login(data.get("user"), data.get("pw"), self._ip()))
             if path.startswith("/api/") and path not in OPEN_API and not ACCOUNTS.is_account(data.get("tok")):
                 return self._send(200, {"ok": False, "auth": False, "kicked": raw in ACCOUNTS.kicked, "error": "請先登入"})
             if path == "/api/ach_ack":
@@ -1233,7 +1262,9 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(200, M.control(data))
             self._send(404, {"error": "not found"})
         except Exception as ex:
-            self._send(500, {"error": f"{type(ex).__name__}: {ex}"})
+            import traceback
+            traceback.print_exc()   # 詳細錯誤只留在伺服器日誌,不回傳給使用者
+            self._send(500, {"error": "伺服器發生錯誤"})
 
 
 def main():
