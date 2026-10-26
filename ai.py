@@ -412,6 +412,9 @@ class HeuristicAgent(RandomAgent):
                 for k in ("占", "反", "調"):
                     if k in by:
                         return by[k]
+                others = [c for c in cands if c.name not in ("占", "反", "調")]   # 陳群 1 血 / 蔣幹: 手牌當占卜 / 調虎離山
+                if others:
+                    return min(others, key=self.val)
             elif "調" in by and len(self.foes(g, p, -0.5)) >= 2:
                 return by["調"]
             return None

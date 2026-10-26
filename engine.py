@@ -541,8 +541,11 @@ class Game:
             if self.void:
                 break
             banned = self.banned()
-            cands = [c for c in tgt.hand if (c.name in ("反", "調", "占") and c.name not in banned)
-                     or ("調" not in banned and tgt.char.as_card(self, tgt, c, "調"))]
+            def vname(c):   # 這張牌在這裡當成哪一種 (沒得用就 None)
+                if c.name in ("反", "調", "占"):
+                    return None if c.name in banned else c.name
+                return next((k for k in ("調", "占") if k not in banned and tgt.char.as_card(self, tgt, c, k)), None)
+            cands = [c for c in tgt.hand if vname(c)]
             if self.trick_locked(tgt):   # 鐘繇沒手牌: 反 / 調 / 占 也是錦囊,不能用
                 cands = []
             if not cands:
@@ -552,7 +555,7 @@ class Game:
                 break
             self.discard_card(tgt, c)
             self.chain_view.append((c, tgt.idx))
-            cname = c.name if c.name in ("反", "調", "占") else "調"
+            cname = vname(c) or "調"
             self.log(f"  {tgt.name} 使用 {c}" + ("" if cname == c.name else f" 當作 {cname}"))
             for q in list(self.alive_players()):
                 q.char.on_card_used(self, q, tgt, c)
@@ -635,7 +638,7 @@ class Game:
                 if c:
                     self.discard_card(q, c)
                     if c.name == "酒":
-                        tgt.hp = max(1, tgt.hp + max(2, q.char.jiu_heal(self, q)))   # 酒救人: 回 2 點 (至少回到 1 點體力)
+                        tgt.hp += max(2, q.char.jiu_heal(self, q))   # 酒救人: 回 2 點 (跟桃一樣,不夠還是瀕死)
                     else:
                         tgt.hp += q.char.peach_heal(self, q)
                     self.log(f"HEAL|{tgt.idx}|1")

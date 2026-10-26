@@ -2124,6 +2124,10 @@ class 陳群(Char):
         t = _borrow_pick(g, p, cands, "陳群-借技能")
         p.borrow2 = [t]
         g.log(f"  {p.name}[陳群] 2 點體力: 擁有 {t.name} 的技能 (直到他死亡)")
+        if t._char.name == "蔣幹":   # 蔣幹「你有1血」: 血量變 1,離開 2 血所以這次複製隨即失效
+            p.hp = 1
+            p.borrow2 = []
+            g.log(f"  {p.name}[陳群] 複製蔣幹: 體力變成 1,離開 2 點體力,複製失效")
 
     def on_turn_start(self, g, p):  # 依回合開始時的體力取得不同能力
         if p.hp == 2:  # 2 點體力: 擁有另一位玩家的技能
