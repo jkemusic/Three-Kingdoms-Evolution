@@ -110,7 +110,7 @@ window.SGS_LOG_TPL = (window.SGS_LOG_TPL || []).concat([
 // --- 玩家框 ---
 ["🪟 玩家框", "🪟 Player box", "🪟 プレイヤー枠"], ["玩家框", "Player box", "プレイヤー枠"],
 ["玩家框是牌桌上你的座位方塊外觀,所有玩家都看得到。有些要成就解鎖。", "The player box is how your seat looks on the table, visible to everyone. Some need an achievement to unlock.", "プレイヤー枠は卓上の自分の席の見た目で、全員に見えます。実績で解放されるものもあります。"],
-["經典", "Classic", "クラシック"], ["綠絨", "Green Felt", "グリーンフェルト"], ["酒紅絨", "Wine Velvet", "ワインベルベット"], ["炭灰", "Charcoal", "チャコール"],
+["經典", "Classic", "クラシック"], ["綠絨", "Green Felt", "グリーンフェルト"], ["炭灰", "Charcoal", "チャコール"],
 ["翡翠", "Jade", "翡翠"], ["水墨", "Ink Wash", "水墨"], ["榻榻米", "Tatami", "畳"], ["鎏金", "Gilded", "金箔"], ["櫻花", "Sakura", "桜"],
 ["雷霆", "Thunderbolt", "雷霆"], ["冰原", "Ice Field", "氷原"], ["熔岩", "Lava", "溶岩"], ["黃昏", "Dusk", "黄昏"],
 ["水晶", "Crystal", "水晶"], ["竹林", "Bamboo Grove", "竹林"], ["武士", "Samurai", "侍"], ["卷軸", "Scroll", "巻物"], ["禪意", "Zen", "禅"], ["霓虹網格", "Neon Grid", "ネオングリッド"],

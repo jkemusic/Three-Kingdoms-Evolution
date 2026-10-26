@@ -192,7 +192,7 @@ html.px .fx-radar>.fxa{background:conic-gradient(from var(--pxa),transparent 0 7
 html.px .fx-comet>.fxa{background:conic-gradient(from var(--pxa),transparent 0 78%,rgba(120,220,255,.1) 84%,rgba(255,255,255,.95) 100%);animation:pxrot 1.8s linear infinite}
 html.px .fx-sun>.fxa{background:repeating-conic-gradient(from var(--pxa),#fff2a8 0 3deg,#ffc83a 3deg 6deg,transparent 6deg 30deg);animation:pxrot 16s linear infinite}
 html.px .fx-sun::after{background:repeating-conic-gradient(from calc(15deg + var(--pxa)),#ff9a2e 0 4deg,transparent 4deg 30deg);animation:pxrot 22s linear infinite reverse}
-html.px .fr-yinyang::before{background:conic-gradient(from var(--pxa),#fff 0 50%,#000 50% 100%);animation:pxrot 6s linear infinite}
+html.px .fr-yinyang::before{background:conic-gradient(from var(--pxa),#fff 0,#fff 12%,#000 38%,#000 62%,#fff 88%,#fff 100%);animation:pxrot 6s linear infinite}
 @font-face{font-family:"SGS Pixel TW";src:url(/fonts/pixel-tw.woff2) format("woff2");font-display:swap}
 @font-face{font-family:"SGS Pixel JA";src:url(/fonts/pixel-ja.woff2) format("woff2");font-display:swap}
 `;
@@ -564,7 +564,6 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
     px_lava:    { px: 1, c: ["#c9301a", "#7e1d0e"], bd: "#ffa300", gl: "#ffa300" },
     px_night:   { px: 1, c: ["#101640", "#05071a"], bd: "#ffec27", gl: "#ffec27" },
     felt:    { c: ["#1f6b52", "#0b2f25"], bd: "#c89b5e", gl: "#c89b5e", fl: dots("rgba(255,255,255,.1)", 10), mv: [1, 0.5] },
-    wine:    { c: ["#6a1b2c", "#2a0a12"], bd: "#e5b26b", gl: "#e5b26b", fl: strp("rgba(229,178,107,.08)", 36), mv: [1, 0] },
     charcoal:{ c: ["#3a3f47", "#14171b"], bd: "#aeb8c6", gl: "#aeb8c6", fl: `linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px) 0 0/14px 14px,linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px) 0 0/14px 14px`, mv: [1, 1] },
     jade:    { c: ["#1b8a63", "#06291f"], bd: "#5fe8b0", gl: "#46e0a0" },
     ink:     { c: ["#7d8c90", "#46545a"], bd: "#1d2326", gl: "#aeb9bc" },
@@ -574,13 +573,13 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
     thunder: { c: ["#2c2a6e", "#0c0b26"], bd: "#ffe14d", gl: "#ffe14d" },
     ice:     { c: ["#3d7fa8", "#1b3f5e"], bd: "#dff4ff", gl: "#bfe9ff" },
     lava:    { c: ["#5a1408", "#1d0502"], bd: "#ff7a45", gl: "#ff5a2a" },
-    samurai: { c: ["#3b3b3b", "#121212"], bd: "#e6e6e6", gl: "#bdbdbd" },
+    samurai: { c: ["#9a9994", "#5e5d59"], bd: "#e6e6e6", gl: "#bdbdbd" },
     royal:   { c: ["#4a2c86", "#170d33"], bd: "#f0c95c", gl: "#b58cff" },
     sunset:  { c: ["#2a2060", "#e0783a"], bd: "#ffb36b", gl: "#ff8f5a" },
     crystal: { c: ["#1f7694", "#0a2e3c"], bd: "#9ff0ff", gl: "#5fe0ff" },
     galaxy:  { c: ["#2a1d6a", "#070620"], bd: "#c3b8ff", gl: "#9b8cff", fl: `radial-gradient(ellipse at 30% 40%,rgba(140,90,255,.38),transparent 55%),radial-gradient(ellipse at 75% 70%,rgba(60,140,255,.3),transparent 55%)` },
     bamboo:  { c: ["#2f6b3a", "#0f2a17"], bd: "#a6d38c", gl: "#7fc77a" },
-    scroll:  { c: ["#8d7140", "#33270f"], bd: "#5b3a22", gl: "#8d6a3a", fl: `linear-gradient(90deg,rgba(91,58,34,.14) 1px,transparent 1px) 0 0/18px 18px,linear-gradient(rgba(91,58,34,.14) 1px,transparent 1px) 0 0/18px 18px,linear-gradient(180deg,rgba(255,240,200,.18),transparent 50%)`, mv: [1, 0] },
+    scroll:  { c: ["#bd9d62", "#6b4f27"], bd: "#8a2f22", gl: "#c9a15a", fl: `linear-gradient(90deg,rgba(138,47,34,.5) 2px,transparent 2px) 0 0/34px 60px,linear-gradient(90deg,rgba(138,47,34,.22) 1px,transparent 1px) 17px 0/34px 60px,repeating-linear-gradient(0deg,rgba(80,50,20,.09) 0 1px,transparent 1px 4px) 0 0/34px 60px,radial-gradient(ellipse at 30% 20%,rgba(255,245,210,.22),transparent 60%) 0 0/34px 60px`, mv: [1, 0] },
     zen:     { c: ["#7a705a", "#2a251a"], bd: "#bdb393", gl: "#9a9078" },
     neon:    { c: ["#1a0a3a", "#06020f"], bd: "#ff3df0", gl: "#3dfff0", fl: `linear-gradient(rgba(61,255,240,.14) 1px,transparent 1px) 0 0/16px 16px,linear-gradient(90deg,rgba(255,61,240,.14) 1px,transparent 1px) 0 0/16px 16px`, mv: [0, 1] },
   };
@@ -692,17 +691,40 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
     lava: () => `<i class="lv a" style="--t:13s"></i><i class="lv b" style="--t:19s"></i>` + lavaFlow() + rng(7).map(i => `<i class="bb" style="left:${(6 + R(i, 1) * 88).toFixed(0)}%;--s:${(4 + R(i, 2) * 4).toFixed(1)}px;--t:${(3.5 + R(i, 3) * 3).toFixed(1)}s;--dl:${(-R(i, 4) * 6).toFixed(1)}s"></i>`).join(""),
     px_grass: () => `<i class="gt"></i>` + rng(11).map(i => `<i class="tu" style="left:${(R(i, 1) * 94).toFixed(0)}%;--d:${(2.6 + R(i, 2) * 2.4).toFixed(1)}s;--o:${(-R(i, 3) * 4).toFixed(1)}s"></i>`).join("") + rng(9).map(i => `<i class="fw2" style="left:${(R(i + 40, 1) * 94 + 1).toFixed(1)}%;bottom:${(R(i + 40, 2) * 22 + 1).toFixed(0)}px;background-image:url(${FLOWER(["#ff5d73", "#fff1e8", "#ffd23f", "#b58cff", "#ff9bd2", "#7fd6ff"][Math.floor(R(i + 40, 3) * 6)])});zoom:${(.7 + R(i + 40, 4) * .6).toFixed(2)};--d:${(3 + R(i + 40, 5) * 2.5).toFixed(1)}s;--o:${(-R(i + 40, 6) * 4).toFixed(1)}s"></i>`).join(""),
     px_dungeon: () => `<i class="br"></i>` + [[10, 34, 0], [29, 26, -.5], [49, 36, -.2], [68, 27, -.8], [88, 35, -.35]].map(([x, y, d]) => `<b class="tc" style="left:${x}%;top:${y}%"><i class="tg" style="--dl:${d - 0.3}s"></i><i class="tf a" style="--dl:${d}s"></i><i class="tf b" style="--dl:${d}s"></i><i class="tkh"></i></b>`).join("") + `<b class="bt" style="--dl:-3s"><i class="up"></i><i class="dn"></i></b>`,
-    zen: () => `<i class="rk"></i><i class="rg" style="left:20%;top:62%;--dl:0s"></i><i class="rg" style="left:20%;top:62%;--dl:-3s"></i><i class="rg" style="left:20%;top:62%;--dl:-6s"></i><i class="sto" style="left:20%;top:62%;width:30px;height:17px"></i><i class="sto" style="left:8%;top:80%;width:16px;height:9px"></i><svg class="en" viewBox="0 0 40 40"><circle cx="20" cy="20" r="14" fill="none" stroke="#1b1810" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="88" transform="rotate(-65 20 20)"/></svg>`,
+    zen: () => `<i class="rk"></i><i class="rg" style="left:20%;top:62%;--dl:0s"></i><i class="rg" style="left:20%;top:62%;--dl:-3s"></i><i class="rg" style="left:20%;top:62%;--dl:-6s"></i><i class="sto" style="left:20%;top:62%;width:30px;height:17px"></i><i class="sto" style="left:8%;top:80%;width:16px;height:9px"></i>`,
     px_lava: () => `<i class="pl1" style="background-image:url(${pxLavaUri(0)})"></i><i class="pl2" style="background-image:url(${pxLavaUri(2.4)})"></i>` + rng(6).map(i => `<i class="pb" style="left:${(R(i, 1) * 92 + 2).toFixed(0)}%;--t:${(3 + R(i, 2) * 3).toFixed(1)}s;--dl:${(-R(i, 3) * 6).toFixed(1)}s"></i>`).join(""),
     px_night: () => `<i class="mh"></i><i class="mo"></i>` + rng(22).map(i => `<i class="st ${["", "y", "c", ""][i % 4]}" style="left:${(R(i, 1) * 96 + 1).toFixed(0)}%;top:${(R(i, 2) * 92 + 2).toFixed(0)}%;--t:${(1.2 + R(i, 3) * 2.4).toFixed(1)}s;--dl:${(-R(i, 4) * 3).toFixed(1)}s"></i>`).join("")
       + [[16, 28], [62, 60], [86, 22]].map(([x, y], i) => `<i class="sx" style="left:${x}%;top:${y}%;--t:${2 + i * .7}s;--dl:${-i * .9}s"></i>`).join("") + `<i class="ss" style="--t:7s;--dl:-2s"></i>`,
     galaxy: () => rng(26).map(i => `<i class="gs" style="left:${(R(i, 1) * 97 + 1).toFixed(0)}%;top:${(R(i, 2) * 94 + 2).toFixed(0)}%;width:${(1 + R(i, 3) * 1.4).toFixed(1)}px;height:${(1 + R(i, 3) * 1.4).toFixed(1)}px;--t:${(2 + R(i, 4) * 3).toFixed(1)}s;--dl:${(-R(i, 5) * 4).toFixed(1)}s"></i>`).join("")
       + [[14, 30], [48, 68], [76, 24], [92, 70]].map(([x, y], i) => `<i class="gb" style="left:${x}%;top:${y}%;--t:${3 + i * .6}s;--dl:${-i * 1.1}s"></i>`).join("")
       + [[8, 9, -1], [30, 12.5, -7]].map(([y, t, d]) => `<i class="cm" style="top:${y}%;--t:${t}s;--dl:${d}s"></i>`).join(""),
-    px_coin: () => rng(16).map(i => `<i class="fc" style="left:${(R(i, 1) * 94 + 1).toFixed(0)}%;--s:${(9 + Math.floor(R(i, 2) * 3) * 2)}px;--t:${(3.2 + R(i, 3) * 3).toFixed(1)}s;--dl:${(-R(i, 4) * 6).toFixed(1)}s"></i>`).join(""),
+    px_coin: () => rng(16).map(i => `<i class="fc" style="left:${(R(i, 1) * 94 + 1).toFixed(0)}%;--s:${(9 + Math.floor(R(i, 2) * 3) * 2)}px;--t:${(2.6 + R(i, 3) * 3.4).toFixed(1)}s;--dl:${(-R(i, 4) * 6).toFixed(1)}s;--x1:${((R(i, 5) - .5) * 36).toFixed(0)}px;--x2:${((R(i, 6) - .5) * 60).toFixed(0)}px;--rt:${((R(i, 7) > .5 ? 1 : -1) * (200 + R(i, 8) * 500)).toFixed(0)}deg;--fl:${(.5 + R(i, 9) * 1.1).toFixed(2)}s"></i>`).join(""),
     bamboo: () => bambooSvg() + rng(3).map(i => `<i class="pt bl2" style="left:${(10 + R(i, 1) * 80).toFixed(0)}%;width:11px;height:5px;--t:${(6 + R(i, 2) * 3).toFixed(1)}s;--dl:${(-R(i, 3) * 8).toFixed(1)}s;--dx:${(R(i, 4) > .5 ? 1 : -1) * 50}px"></i>`).join(""),
-    samurai: () => `<svg class="bm" viewBox="0 0 240 100" preserveAspectRatio="xMidYMid slice"><rect width="240" height="100" fill="url(#smg)"/><defs><linearGradient id="smg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a4a4a"/><stop offset="1" stop-color="#151515"/></linearGradient></defs><rect x="14" y="0" width="3" height="100" fill="#262626"/><rect x="30" y="0" width="2" height="100" fill="#2c2c2c"/><rect x="92" y="0" width="3" height="100" fill="#262626"/><rect x="112" y="0" width="2" height="100" fill="#2e2e2e"/><rect x="136" y="0" width="4" height="100" fill="#222"/><rect x="196" y="0" width="3" height="100" fill="#262626"/><rect x="218" y="0" width="4" height="100" fill="#202020"/><rect x="234" y="0" width="2" height="100" fill="#2c2c2c"/><rect x="13" y="22" width="5" height="1.4" fill="#555"/><rect x="13" y="58" width="5" height="1.4" fill="#555"/><rect x="91" y="40" width="5" height="1.4" fill="#555"/><rect x="135" y="30" width="6" height="1.4" fill="#555"/><rect x="135" y="70" width="6" height="1.4" fill="#555"/><rect x="195" y="18" width="5" height="1.4" fill="#555"/><rect x="195" y="64" width="5" height="1.4" fill="#555"/><rect x="217" y="44" width="6" height="1.4" fill="#555"/><g class="sx-lo"><polygon points="164,100 164,50 172,40 172,100" fill="#d8d8d8"/><rect x="164" y="60" width="8" height="1.5" fill="#8a8a8a"/></g><g class="sx-up"><polygon points="164,50 164,0 172,0 172,40" fill="#d8d8d8"/><rect x="164" y="22" width="8" height="1.5" fill="#8a8a8a"/></g><g class="sx-sam"><path d="M44,90 L46,60 L56,60 L60,90Z" fill="#050505"/><path d="M45,60 L47,44 L56,44 L56,60Z" fill="#050505"/><circle cx="51.5" cy="39" r="4" fill="#050505"/><path d="M41,38 L51.5,28 L62,38Z" fill="#050505"/><g class="sx-sw"><path d="M56,56 L84,55.4" stroke="#f2f2f2" stroke-width="1.2" stroke-linecap="round"/><rect x="54" y="54.6" width="3" height="2.6" fill="#050505"/></g></g><rect y="90" width="240" height="10" fill="#080808"/><path class="sx-sl" d="M72,60 Q122,40 178,34" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" pathLength="100"/></svg><i class="fg a"></i><i class="fg b"></i><i class="sxf"></i>`,
-    royal: () => `<i class="ry"></i><i class="cu l"></i><i class="cu r"></i><svg class="cr" viewBox="0 0 40 28"><defs><linearGradient id="gc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff0b8"/><stop offset="1" stop-color="#c9961e"/></linearGradient></defs><path d="M3,24 L5,7 L13,16 L20,3 L27,16 L35,7 L37,24 Z" fill="url(#gc)"/><rect x="3" y="24" width="34" height="3" rx="1" fill="#e8bb4a"/><circle cx="5" cy="6" r="2" fill="#ff5d73"/><circle cx="20" cy="2.5" r="2.3" fill="#7fd6ff"/><circle cx="35" cy="6" r="2" fill="#ff5d73"/><circle cx="20" cy="19" r="2" fill="#b58cff"/></svg>`
+    samurai: () => {   // 水墨: 淡墨遠山 + 留白的月 + 濃淡不一的毛筆竹 (邊緣用雜訊擾動出飛白),只有拔刀那一刻是白色筆勢
+      const stalk = (x, w, op, blur) => `<path d="M${x},100 Q${x + w * .3},52 ${x + w * .12},0 L${x + w * .88},0 Q${x + w * 1.15},52 ${x + w},100Z" fill="#0c0c0c" opacity="${op}"${blur ? ' filter="url(#smb)"' : ""}/>`;
+      const node = (x, w, y, op) => `<path d="M${x - 1.2},${y} Q${x + w / 2},${y - 1.6} ${x + w + 1.2},${y + .3} L${x + w + 1},${y + 1.7} Q${x + w / 2},${y + .6} ${x - 1},${y + 1.6}Z" fill="#0c0c0c" opacity="${op}"/>`;
+      const leaf = (x, y, a, L, op) => `<path d="M0,0 Q${L * .5},${-L * .22} ${L},0 Q${L * .5},${L * .1} 0,0Z" transform="translate(${x},${y}) rotate(${a})" fill="#0c0c0c" opacity="${op}"/>`;
+      let far = "", mid = "", lv = "";
+      [[8, 2.4], [58, 2], [104, 2.6], [128, 2], [186, 2.4], [232, 2.2]].forEach(([x, w], i) => { far += stalk(x, w, .22 + R(i, 1) * .1, 1); for (let k = 0; k < 4; k++) far += node(x, w, 12 + k * 24 + R(i * 7 + k, 2) * 6, .2); });
+      [[22, 3.4], [78, 3], [146, 3.8], [208, 3.4], [226, 2.8]].forEach(([x, w], i) => {
+        mid += stalk(x, w, .72 + R(i, 3) * .2);
+        for (let k = 0; k < 4; k++) { const y = 10 + k * 22 + R(i * 5 + k, 4) * 8; mid += node(x, w, y, .85); lv += leaf(x + w, y, -30 - R(i * 3 + k, 5) * 50, 9 + R(i + k, 6) * 7, .8) + leaf(x, y + 2, 205 + R(i * 3 + k, 7) * 40, 8 + R(i + k, 8) * 7, .7) + leaf(x + w, y + 1, 10 + R(i + k, 9) * 30, 7 + R(i + k, 1) * 6, .6); }
+      });
+      return `<svg class="bm" viewBox="0 0 240 100" preserveAspectRatio="xMidYMid slice"><defs>`
+        + `<linearGradient id="smg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9a9994"/><stop offset=".55" stop-color="#85847f"/><stop offset="1" stop-color="#5e5d59"/></linearGradient>`
+        + `<radialGradient id="smm"><stop offset="0" stop-color="#f1efe8" stop-opacity=".95"/><stop offset=".7" stop-color="#e6e3da" stop-opacity=".85"/><stop offset="1" stop-color="#e6e3da" stop-opacity="0"/></radialGradient>`
+        + `<filter id="smb"><feGaussianBlur stdDeviation="1.1"/></filter><filter id="smw"><feGaussianBlur stdDeviation="3.5"/></filter>`
+        + `<filter id="smr" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency=".05 .12" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.6"/></filter></defs>`
+        + `<rect width="240" height="100" fill="url(#smg)"/><circle cx="168" cy="34" r="22" fill="url(#smm)"/>`
+        + `<ellipse cx="120" cy="80" rx="150" ry="14" fill="#d8d6cd" opacity=".32" filter="url(#smw)"/><g filter="url(#smw)" opacity=".5"><path d="M-10,70 L20,46 L44,62 L78,34 L108,60 L140,40 L176,64 L210,44 L250,66 L250,100 L-10,100Z" fill="#4a4a48"/></g>`
+        + `<g filter="url(#smr)">${far}${mid}${lv}</g>`
+        + `<g class="sx-lo"><path d="M164,100 L164.6,52 L172,41 L172.6,100Z" fill="#161616"/><path d="M164,76 L172.4,75 L172.5,77 L164,78Z" fill="#555"/></g>`
+        + `<g class="sx-up"><path d="M164.6,50 Q163.5,22 164.4,0 L172,0 Q172.6,22 172,40Z" fill="#161616"/><path d="M164.5,26 L172.2,25 L172.2,27 L164.5,28Z" fill="#555"/>${leaf(172, 12, -35, 12, .85)}${leaf(164, 18, 200, 11, .8)}</g>`
+        + `<g class="sx-sam"><path d="M43,92 Q46,74 47,58 L56,56 Q60,74 63,92Z" fill="#050505"/><path d="M44,58 Q46,46 48,44 L56,43 Q58,50 58,58Z" fill="#050505"/><path d="M57,50 Q64,52 66,57 Q61,56 56,56Z" fill="#050505"/><ellipse cx="52" cy="39.5" rx="3.6" ry="4" fill="#050505"/><path d="M37,40 Q52,22 67,40 Q52,35 37,40Z" fill="#050505"/><g class="sx-sw"><path d="M56,56 L86,55.4" stroke="#f2f2f2" stroke-width="1" stroke-linecap="round"/><rect x="54" y="54.6" width="3" height="2.6" fill="#050505"/></g></g>`
+        + `<path d="M0,92 Q60,88 120,92 T240,91 L240,100 L0,100Z" fill="#0a0a0a" opacity=".9"/>`
+        + `<path class="sx-sl" d="M70,63 Q124,40 182,32 Q126,47 70,63Z" fill="#f4f2ea"/></svg><i class="fg a"></i><i class="fg b"></i><i class="sxf"></i>`;
+    },
+    royal: () => `<i class="ry"></i><i class="cu l"></i><i class="cu r"></i>`
       + rng(10).map(i => `<i class="sp" style="left:${(R(i, 1) * 90 + 4).toFixed(0)}%;--t:${(4 + R(i, 2) * 4).toFixed(1)}s;--dl:${(-R(i, 3) * 6).toFixed(1)}s;--s:${(5 + R(i, 4) * 5).toFixed(0)}px"></i>`).join(""),
   };
   const SCENE_TPL = {};
@@ -793,7 +815,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 .bxfx .bd i+i{left:7px;transform-origin:0 50%;animation-name:bxflap2}
 @keyframes bxflap{from{transform:rotate(-24deg)}to{transform:rotate(18deg)}}
 @keyframes bxflap2{from{transform:rotate(24deg)}to{transform:rotate(-18deg)}}
-@keyframes bxbird{0%{transform:translate(-30px,6px)}50%{transform:translate(140px,-6px)}100%{transform:translate(290px,4px)}}
+@keyframes bxbird{0%{transform:translate(-30px,6px)}50%{transform:translate(250px,-6px)}100%{transform:translate(540px,4px)}}
 /* 像素地牢: 石磚牆、火把閃爍、偶爾飛過的蝙蝠 */
 .bxfx .br{inset:0;background:url(${BRICK_URI}) 0 0/64px 32px;image-rendering:pixelated;opacity:1}
 .bxfx .tc{width:14px;height:33px}
@@ -838,8 +860,10 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 /* 像素金幣: 滿滿的金幣堆,金光閃閃、偶爾有金幣掉下來 */
 .bxfx .cp{inset:0;image-rendering:pixelated}
 .bxfx .gl{width:5px;height:5px;background:#fff;clip-path:polygon(40% 0,60% 0,60% 40%,100% 40%,100% 60%,60% 60%,60% 100%,40% 100%,40% 60%,0 60%,0 40%,40% 40%);animation:bxblink2 var(--t) steps(1) var(--dl) infinite}
-.bxfx .fc{top:-16px;width:var(--s);height:var(--s);background:url(${COIN_URI}) 0 0/100% 100%;image-rendering:pixelated;animation:bxcoinfall var(--t) linear var(--dl) infinite;will-change:transform}
-@keyframes bxcoinfall{0%{transform:translateY(0) scaleX(1)}20%{transform:translateY(27px) scaleX(.15)}40%{transform:translateY(54px) scaleX(1)}60%{transform:translateY(81px) scaleX(.15)}80%{transform:translateY(108px) scaleX(1)}100%{transform:translateY(135px) scaleX(.15)}}
+.bxfx .fc{top:-16px;width:var(--s);height:var(--s);background:url(${COIN_URI}) 0 0/100% 100%;image-rendering:pixelated;animation:bxcoinfall var(--t) cubic-bezier(.45,.05,.85,.6) var(--dl) infinite,bxcoinroll var(--t) linear var(--dl) infinite,bxcoinflip var(--fl) ease-in-out var(--dl) infinite alternate;will-change:transform,translate,rotate}
+@keyframes bxcoinfall{0%{translate:0 0}35%{translate:var(--x1) 50px}70%{translate:var(--x2) 100px}100%{translate:calc(var(--x1) + var(--x2)) 150px}}
+@keyframes bxcoinroll{to{rotate:var(--rt)}}
+@keyframes bxcoinflip{from{transform:scaleX(1)}to{transform:scaleX(.2)}}
 /* 竹林: 竹子左右擺動,竹葉另外隨風搖 */
 .bxfx .sk{animation:bxstalk var(--d) ease-in-out var(--o) infinite alternate}
 @keyframes bxstalk{from{transform:rotate(calc(var(--a)*-1))}to{transform:rotate(var(--a))}}
@@ -852,11 +876,11 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 @keyframes sxsam{0%,36%{transform:translateX(0)}41%{transform:translateX(16px)}60%{transform:translateX(16px)}78%,100%{transform:translateX(0)}}
 .bxfx .sx-sw{transform-origin:56px 56px;animation:sxsw 8s ease-in-out infinite}
 @keyframes sxsw{0%,34%{transform:rotate(165deg)}41%{transform:rotate(-6deg)}60%{transform:rotate(-6deg)}78%,100%{transform:rotate(165deg)}}
-.bxfx .sx-sl{stroke-dasharray:100;stroke-dashoffset:100;opacity:0;animation:sxsl 8s linear infinite}
-@keyframes sxsl{0%,38%{stroke-dashoffset:100;opacity:0}39%{opacity:1}43%{stroke-dashoffset:0;opacity:1}50%{stroke-dashoffset:0;opacity:0}100%{opacity:0}}
+.bxfx .sx-sl{transform-origin:70px 63px;transform:scaleX(0);opacity:0;animation:sxsl 8s ease-out infinite}
+@keyframes sxsl{0%,38%{transform:scaleX(0);opacity:0}39%{opacity:.95}43%{transform:scaleX(1);opacity:.95}52%{transform:scaleX(1);opacity:0}100%{transform:scaleX(1);opacity:0}}
 .bxfx .sx-up{animation:sxup 8s ease-in infinite}
 @keyframes sxup{0%,43%{transform:translate(0,0) rotate(0);opacity:1}60%{transform:translate(9px,18px) rotate(7deg);opacity:1}72%{transform:translate(16px,60px) rotate(16deg);opacity:0}88%{transform:translate(0,0) rotate(0);opacity:0}100%{transform:translate(0,0) rotate(0);opacity:1}}
-.bxfx .sxf{inset:0;background:#fff;opacity:0;animation:sxfl 8s linear infinite}
+.bxfx .sxf{inset:0;background:#f4f2ea;opacity:0;animation:sxfl 8s linear infinite}
 @keyframes sxfl{0%,41%{opacity:0}42.5%{opacity:.5}47%,100%{opacity:0}}
 .bxfx .fg{left:-30%;width:160%;height:36%;background:radial-gradient(closest-side,rgba(220,220,220,.2),transparent);animation:sxfog 14s ease-in-out infinite alternate}
 .bxfx .fg.a{top:48%}
@@ -1033,6 +1057,21 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 
 /* ---------- 介面可用性補強 (依 ui-ux-pro-max 檢查): 鍵盤焦點 / 減少動態 / 觸控目標 / 視窗關閉 / 螢幕閱讀器標籤 ---------- */
 (function () {
+  const svgUri = body => "url(\"data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="-50 -50 100 100">${body}</svg>`) + "\")";
+  const spiral = (arms, r0, r1, turn, c0, c1, n = 64) => {   // 旋渦: 幾條由內向外逐漸變細變淡的螺旋臂 (用一串漸小的圓點組成)
+    let o = "";
+    for (let a = 0; a < arms; a++) for (let i = 0; i < n; i++) {
+      const t = i / (n - 1), r = r0 + (r1 - r0) * t, th = a * Math.PI * 2 / arms + t * turn;
+      o += `<circle cx="${(Math.cos(th) * r).toFixed(1)}" cy="${(Math.sin(th) * r).toFixed(1)}" r="${(5.2 * Math.pow(1 - t, .7) + .8).toFixed(2)}" fill="${t < .5 ? c0 : c1}" opacity="${(.9 * Math.pow(1 - t, .6) + .1).toFixed(2)}"/>`;
+    }
+    return o;
+  };
+  const VORTEX_A = svgUri(spiral(3, 31, 49, 2.3, "#e9ccff", "#9b4cf5"));
+  const VORTEX_B = svgUri(spiral(2, 31, 44, -2.6, "#d6f4ff", "#58b8ff", 48));
+  const SUN_RAYS = svgUri(`<defs><radialGradient id="sg" gradientUnits="userSpaceOnUse" r="50"><stop offset=".55" stop-color="#fff2a8"/><stop offset="1" stop-color="#ff8a1f"/></radialGradient></defs>`
+    + Array.from({ length: 12 }, (_, i) => `<polygon points="-3.4,-30 3.4,-30 0,-49.5" fill="url(#sg)" transform="rotate(${i * 30})"/>`).join("")
+    + Array.from({ length: 12 }, (_, i) => `<polygon points="-2.4,-30 2.4,-30 0,-41" fill="#ffc83a" opacity=".85" transform="rotate(${i * 30 + 15})"/>`).join("")
+    + `<circle r="29.5" fill="none" stroke="#ffe27a" stroke-width="1.6"/><circle r="31" fill="none" stroke="#ffb02e" stroke-width="3.5" opacity=".3"/>`);
   const st = document.createElement("style");
   st.textContent = `
 /* 鍵盤焦點: 只在用鍵盤操作時顯示,不影響滑鼠點擊 */
@@ -1071,7 +1110,14 @@ html.px .fx-ring::after{inset:-14%}html.px .fx-ice>.fxa{inset:-16%}html.px .fx-v
 @keyframes frtw{from{opacity:.75}to{opacity:1}}
 /* 清單 (聊天室 / 成員 / 好友 / 排行榜) 裡一次出現很多頭像: 動畫先停住,滑鼠移上去那一列才動 (一個畫面只讓重點在動) */
 .cm .avw::before,.cm .avw::after,.mr .avw::before,.mr .avw::after,.frow .avw::before,.frow .avw::after,.lbrow .avw::before,.lbrow .avw::after{animation-play-state:paused}
-.cm:hover .avw::before,.cm:hover .avw::after,.mr:hover .avw::before,.mr:hover .avw::after,.frow:hover .avw::before,.frow:hover .avw::after,.lbrow:hover .avw::before,.lbrow:hover .avw::after{animation-play-state:running}`;
+.cm:hover .avw::before,.cm:hover .avw::after,.mr:hover .avw::before,.mr:hover .avw::after,.frow:hover .avw::before,.frow:hover .avw::after,.lbrow:hover .avw::before,.lbrow:hover .avw::after{animation-play-state:running}/* 漩渦: 螺旋臂 (外淡內濃) 兩層反向轉;烈陽: 尖角光芒 + 外圈,慢轉 */
+.fx-vortex>.fxa{inset:-32%;background:${VORTEX_A} center/100% 100% no-repeat;-webkit-mask:none;mask:none;animation:frspin 3.2s linear infinite}
+.fx-vortex>.fxb{inset:-32%;border:0;background:${VORTEX_B} center/100% 100% no-repeat;-webkit-mask:none;mask:none;animation:frspin 5s linear infinite reverse}
+.fx-sun>.fxa{inset:-40%;background:${SUN_RAYS} center/100% 100% no-repeat;-webkit-mask:none;mask:none;animation:frspin 20s linear infinite}
+.fx-sun::after{background:none;-webkit-mask:none;mask:none;animation:none}
+.fx-sun>.fxb{inset:-10%;background:radial-gradient(closest-side,transparent 80%,rgba(255,226,110,.55) 92%,transparent 100%);animation:fxglow2 2.6s ease-in-out infinite}
+.avw.fr-yinyang::before{background:conic-gradient(#fff 0,#fff 12%,#000 38%,#000 62%,#fff 88%,#fff 100%)}
+`;
   document.head.appendChild(st);
 
   const label = () => {

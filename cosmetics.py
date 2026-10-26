@@ -163,7 +163,6 @@ def req_text(r):
 BOXES = [
     {"id": "classic", "n": "經典", "req": F()},
     {"id": "felt", "n": "綠絨", "req": F()},
-    {"id": "wine", "n": "酒紅絨", "req": F()},
     {"id": "charcoal", "n": "炭灰", "req": F()},
     {"id": "jade", "n": "翡翠", "req": A("first_win")},
     {"id": "ink", "n": "水墨", "req": A("games50")},
