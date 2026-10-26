@@ -596,7 +596,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
     for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (on(x, y)) r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${col(on(x - 1, y) && on(x + 1, y) && on(x, y - 1) && on(x, y + 1), x, y)}"/>`;
     return "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${N} ${N}" shape-rendering="crispEdges">${r}</svg>`);
   };
-  const MOON_URI = moonUri((inner, x, y) => !inner ? "#d9b95a" : (x + y) % 7 === 0 ? "#ffffff" : "#fff1a8");
+  const MOON_URI = moonUri((inner, x, y) => !inner ? "#d9b95a" : "#fff1a8");
   const MOON_HALO = moonUri(() => "#fff1a8");
   const bambooSvg = () => {
     const XS = [11, 33, 58, 70, 104, 127, 149, 181, 206, 229];   // 竹子位置: 刻意不等距
@@ -714,12 +714,12 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
     px_dungeon: () => `<i class="br"></i>` + [[10, 34, 0], [29, 26, -.5], [49, 36, -.2], [68, 27, -.8], [88, 35, -.35]].map(([x, y, d]) => `<b class="tc" style="left:${x}%;top:${y}%"><i class="tg" style="--dl:${d - 0.3}s"></i><i class="tf a" style="--dl:${d}s"></i><i class="tf b" style="--dl:${d}s"></i><i class="tkh"></i></b>`).join("") + `<b class="bt" style="--dl:-3s"><i class="up"></i><i class="dn"></i></b>`,
     zen: () => `<i class="rk"></i><i class="rg" style="left:20%;top:62%;--dl:0s"></i><i class="rg" style="left:20%;top:62%;--dl:-3s"></i><i class="rg" style="left:20%;top:62%;--dl:-6s"></i><i class="sto" style="left:20%;top:62%;width:30px;height:17px"></i><i class="sto" style="left:8%;top:80%;width:16px;height:9px"></i>`,
     px_lava: () => `<i class="pl1" style="background-image:url(${pxLavaUri(0)})"></i><i class="pl2" style="background-image:url(${pxLavaUri(2.4)})"></i>` + rng(6).map(i => `<i class="pb" style="left:${(R(i, 1) * 92 + 2).toFixed(0)}%;--t:${(3 + R(i, 2) * 3).toFixed(1)}s;--dl:${(-R(i, 3) * 6).toFixed(1)}s"></i>`).join(""),
-    px_night: () => `<i class="mh"></i><i class="mo"></i>` + rng(22).map(i => `<i class="st ${["", "y", "c", ""][i % 4]}" style="left:${(R(i, 1) * 96 + 1).toFixed(0)}%;top:${(R(i, 2) * 92 + 2).toFixed(0)}%;--t:${(1.2 + R(i, 3) * 2.4).toFixed(1)}s;--dl:${(-R(i, 4) * 3).toFixed(1)}s"></i>`).join("")
+    px_night: () => `<i class="mo"></i>` + rng(22).map(i => `<i class="st ${["", "y", "c", ""][i % 4]}" style="left:${(R(i, 1) * 96 + 1).toFixed(0)}%;top:${(R(i, 2) * 92 + 2).toFixed(0)}%;--t:${(1.2 + R(i, 3) * 2.4).toFixed(1)}s;--dl:${(-R(i, 4) * 3).toFixed(1)}s"></i>`).join("")
       + [[16, 28], [62, 60], [86, 22]].map(([x, y], i) => `<i class="sx" style="left:${x}%;top:${y}%;--t:${2 + i * .7}s;--dl:${-i * .9}s"></i>`).join("") + `<i class="ss" style="--t:7s;--dl:-2s"></i>`,
     galaxy: () => rng(26).map(i => `<i class="gs" style="left:${(R(i, 1) * 97 + 1).toFixed(0)}%;top:${(R(i, 2) * 94 + 2).toFixed(0)}%;width:${(1 + R(i, 3) * 1.4).toFixed(1)}px;height:${(1 + R(i, 3) * 1.4).toFixed(1)}px;--t:${(2 + R(i, 4) * 3).toFixed(1)}s;--dl:${(-R(i, 5) * 4).toFixed(1)}s"></i>`).join("")
       + [[14, 30], [48, 68], [76, 24], [92, 70]].map(([x, y], i) => `<i class="gb" style="left:${x}%;top:${y}%;--t:${3 + i * .6}s;--dl:${-i * 1.1}s"></i>`).join("")
       + [[8, 9, -1], [30, 12.5, -7]].map(([y, t, d]) => `<i class="cm" style="top:${y}%;--t:${t}s;--dl:${d}s"></i>`).join(""),
-    px_coin: () => rng(16).map(i => `<i class="fc" style="left:${(R(i, 1) * 94 + 1).toFixed(0)}%;--s:${(9 + Math.floor(R(i, 2) * 3) * 2)}px;--t:${(2.6 + R(i, 3) * 3.4).toFixed(1)}s;--dl:${(-R(i, 4) * 6).toFixed(1)}s;--x1:${((R(i, 5) - .5) * 36).toFixed(0)}px;--x2:${((R(i, 6) - .5) * 60).toFixed(0)}px;--rt:${((R(i, 7) > .5 ? 1 : -1) * (200 + R(i, 8) * 500)).toFixed(0)}deg;--fl:${(.5 + R(i, 9) * 1.1).toFixed(2)}s"></i>`).join(""),
+    px_coin: () => rng(18).map(i => `<i class="fc" style="left:${(R(i, 1) * 94 + 1).toFixed(0)}%;--s:${(9 + Math.floor(R(i, 2) * 3) * 2)}px;--t:${(1.05 + R(i, 3) * .9).toFixed(2)}s;--dl:${(-R(i, 4) * 3).toFixed(2)}s;--fl:${(.28 + R(i, 9) * .3).toFixed(2)}s"></i>`).join(""),
     bamboo: () => bambooSvg() + rng(3).map(i => `<i class="pt bl2" style="left:${(10 + R(i, 1) * 80).toFixed(0)}%;width:11px;height:5px;--t:${(6 + R(i, 2) * 3).toFixed(1)}s;--dl:${(-R(i, 3) * 8).toFixed(1)}s;--dx:${(R(i, 4) > .5 ? 1 : -1) * 50}px"></i>`).join(""),
     samurai: () => {   // 水墨
       const rough = (pts, seed, amp, n) => { const out = []; pts.forEach((p, i) => { const q = pts[(i + 1) % pts.length], len = Math.hypot(q[0] - p[0], q[1] - p[1]) || 1, nx = -(q[1] - p[1]) / len, ny = (q[0] - p[0]) / len; for (let j = 0; j < n; j++) { const t = j / n, o = (R(seed + i * 7 + j, 3) - .5) * 2 * amp; out.push([p[0] + (q[0] - p[0]) * t + nx * o, p[1] + (q[1] - p[1]) * t + ny * o]); } }); return out.map(v => v[0].toFixed(1) + "," + v[1].toFixed(1)).join(" "); };   // 邊緣加上不規則抖動,像毛筆的飛白
@@ -886,11 +886,9 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 /* 像素金幣: 滿滿的金幣堆,金光閃閃、偶爾有金幣掉下來 */
 .bxfx .cp{inset:0;image-rendering:pixelated}
 .bxfx .gl{width:5px;height:5px;background:#fff;clip-path:polygon(40% 0,60% 0,60% 40%,100% 40%,100% 60%,60% 60%,60% 100%,40% 100%,40% 60%,0 60%,0 40%,40% 40%);animation:bxblink2 var(--t) steps(1) var(--dl) infinite}
-.bxfx .fc{top:-16px;width:var(--s);height:var(--s);background:url(${COIN_URI}) 0 0/100% 100%;image-rendering:pixelated;animation:bxcoinfall var(--t) cubic-bezier(.3,0,.9,.75) var(--dl) infinite,bxcoinroll var(--t) linear var(--dl) infinite,bxcoinflip var(--fl) ease-in-out var(--dl) infinite alternate,bxcoinsway calc(var(--fl) * 3) ease-in-out var(--dl) infinite alternate;will-change:transform,translate,rotate,scale}
-@keyframes bxcoinfall{from{translate:0 0}to{translate:0 170px}}   /* 只有 2 個關鍵格: 每一格各自套緩動的話會一段一段停頓 (像撞到東西),所以落下用單段加速 */
-@keyframes bxcoinroll{to{rotate:var(--rt)}}
-@keyframes bxcoinflip{from{scale:1 1}to{scale:.2 1}}
-@keyframes bxcoinsway{from{transform:translateX(var(--x1))}to{transform:translateX(var(--x2))}}
+.bxfx .fc{top:-16px;width:var(--s);height:var(--s);background:url(${COIN_URI}) 0 0/100% 100%;image-rendering:pixelated;animation:bxcoinfall var(--t) cubic-bezier(.55,0,1,.6) var(--dl) infinite,bxcoinflip var(--fl) linear var(--dl) infinite alternate;will-change:transform,translate}
+@keyframes bxcoinfall{from{translate:0 0}to{translate:0 190px}}   /* 有重量: 筆直快速落下,愈落愈快 (重力加速),不左右飄;只有硬幣自己翻面 */
+@keyframes bxcoinflip{from{transform:scaleX(1)}to{transform:scaleX(.2)}}
 /* 竹林: 竹子左右擺動,竹葉另外隨風搖 */
 .bxfx .sk{animation:bxstalk var(--d) ease-in-out var(--o) infinite alternate}
 @keyframes bxstalk{from{transform:rotate(calc(var(--a)*-1))}to{transform:rotate(var(--a))}}
