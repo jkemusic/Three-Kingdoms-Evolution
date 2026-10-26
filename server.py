@@ -963,7 +963,7 @@ class Manager:
                 if len(g.players) <= 3:   # 2~3 人 (沒有隊友,只能靠自己): 贏的經驗加倍
                     wx = 2 * (wx if wx is not None else Profiles.XP_WIN)
                 r = PROFILES.award(tok, (w == f"P{pl.idx}") if noroles else (camp(pl.role) == w and (pl.role != "內奸" or pl.alive)), pl._char.name, pl.role, wx, ranked, wrp, {"practice": bool(self.cfg.get("practice")), "hp": pl.hp, "alive": pl.alive, "rounds": g.round, "n": len(g.players), "noroles": noroles, "dmg": pl.dmg_total, "sha": pl.sha_n,
-                                                                                                                  "maxhand": pl.max_hand, "chain11": pl.chain11, "same": len(g.players) >= 2 and len({q._char.name for q in g.players}) == 1}, lrp)
+                                                                                                                  "maxhand": pl.max_hand, "chain11": pl.chain11, "wei": pl.wei_n, "same": len(g.players) >= 2 and len({q._char.name for q in g.players}) == 1}, lrp)
                 if r:
                     d, b, a = r
                     who = self.nicks.get(tok) or '未命名'

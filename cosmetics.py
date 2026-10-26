@@ -42,6 +42,7 @@ ACHIEVEMENTS = [
     ("comeback", "死而後勝", "先陣亡,但最後取得勝利", lambda p, lv, pt, f: bool(f.get("won") and not f.get("alive", True))),
     ("hand20", "手牌收藏家", "手牌同時超過 20 張", lambda p, lv, pt, f: f.get("maxhand", 0) > 20),
     ("chain11", "連鎖大師", "接出第 11 個以上的連鎖", lambda p, lv, pt, f: bool(f.get("chain11"))),
+    ("wei5", "易容大師", "單場使用「偽」5 次以上", lambda p, lv, pt, f: f.get("wei", 0) >= 5),
     ("clones", "千人一面", "在所有人武將都一樣的對局中獲勝", lambda p, lv, pt, f: bool(f.get("won") and f.get("same"))),
 ]
 ACH_BY_ID = {a[0]: a for a in ACHIEVEMENTS}

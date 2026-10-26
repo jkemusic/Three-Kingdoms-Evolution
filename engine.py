@@ -102,6 +102,7 @@ class Player:
         self.dg_flip = False          # 偽裝的那張武將牌是否翻面 (本尊是否翻面看 flipped)
         self.dmg_total = self.sha_n = self.max_hand = 0   # 成就統計: 整場造成的傷害 / 打出或使用的殺數 / 手牌最多張數
         self.chain11 = False           # 成就: 接出第 11 個以上的連鎖
+        self.wei_n = 0                 # 成就: 整場使用「偽」的次數
         self.thunder = None           # 降雷: (使用的 turn_id, 原本是否翻面)
         self.empty_seen = False       # 手牌已空 (曹休「失去最後一張手牌」用)
 
@@ -1186,6 +1187,8 @@ class Game:
         d = self.stats["cards_played"]
         d[n] = d.get(n, 0) + 1
         p.played += 1
+        if n == "偽":
+            p.wei_n += 1
         for q in list(self.alive_players()):
             q.char.on_card_used(self, q, p, card)
         if real.kind == "trick":
@@ -1196,7 +1199,7 @@ class Game:
             tk[1] += 1
             if tk[1] > 1 and self.aura("one_card"):   # 曹沖: 一回合只能用 1 張錦囊,每超過一張 -1 點體力
                 self.log(f"  [曹沖] {p.name} 這回合第 {tk[1]} 張錦囊,超過 1 張,扣 1 點體力")
-                self.damage(None, p, 1)
+                self.damage(next((q for q in self.alive_players() if q.char.one_card), None), p, 1, _bonus=False, _mods=False)   # 來源是曹沖 (場上有曹沖技能的人),只標來源,不吃武器 / 強弱加成
         if real is not card:
             p.char.on_view_used(self, p, card)
         if isinstance(tgt, Player) and tgt is not p and tgt.alive and card.kind in ("basic", "trick"):

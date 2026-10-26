@@ -2015,7 +2015,7 @@ class 司馬炎(Char):
             g.discard.append(c)
             if c.color == "紅":
                 g.heal(p)
-            else:
+            elif p.maxhp < 8:   # 體力上限最多 8
                 p.maxhp += 1
         return True
 

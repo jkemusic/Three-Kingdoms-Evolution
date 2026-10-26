@@ -1874,9 +1874,9 @@ function closeHandView() {   // 點空白處 / Esc: 取消釘住並收起別人�
   showHandView(); renderThoughts(); if (S.snap) renderTable(S.snap);
 }
 (function () {   // 拖曳牌桌: 按住空白處移動整個場地 (避免被底部手牌擋住),雙擊還原
-  const W = $("#tablewrap"); let st = null, px = 0, py = 0;
+  const W = $("#tablewrap"), DY = 28; let st = null, px = 0, py = DY;   // 預設檢視往下移一點點
   const apply = () => { W.style.setProperty("--px", px + "px"); W.style.setProperty("--py", py + "px"); };
-  W.classList.add("pannable");
+  W.classList.add("pannable"); apply();
   W.addEventListener("mousedown", e => {
     if (e.button !== 0 || window.innerWidth <= 820 || e.target.closest(".pl, button, input, select, a")) return;
     st = {x: e.clientX, y: e.clientY, px, py}; W.classList.add("dragging"); e.preventDefault();
@@ -1886,7 +1886,7 @@ function closeHandView() {   // 點空白處 / Esc: 取消釘住並收起別人�
     px = Math.max(-500, Math.min(500, st.px + e.clientX - st.x)); py = Math.max(-500, Math.min(500, st.py + e.clientY - st.y)); apply();
   });
   window.addEventListener("mouseup", () => { st = null; W.classList.remove("dragging"); });
-  W.addEventListener("dblclick", e => { if (!e.target.closest(".pl")) { px = py = 0; apply(); } });
+  W.addEventListener("dblclick", e => { if (!e.target.closest(".pl")) { px = 0; py = DY; apply(); } });
 })();
 document.addEventListener("click", e => { const hh = e.target.closest(".modal.soft .dlg h3"); if (hh) hh.parentElement.classList.toggle("mini");
   if (!e.target.closest(".pl, #hv, #cardinfo, #modal, #side, #top, #bottom")) closeHandView(); });
