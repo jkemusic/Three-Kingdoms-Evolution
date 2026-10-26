@@ -102,6 +102,11 @@ class Profiles:
                 self._save()
             return p["uid"]
 
+    DEVS = {"jke", "lonea"}   # 開發者 (帳號名稱小寫)
+
+    def dev(self, tok):
+        return ACCOUNTS.uuids.get(tok) in self.DEVS
+
     def info(self, tok):
         p = self.get(tok)
         if not p:
@@ -109,7 +114,7 @@ class Profiles:
         lv = self.level(p["xp"])
         rp = p.get("rp", 0)
         nm, sub, lo, hi = self.rank(rp)
-        return {"uuid": self.uid(tok), "rank": self.rank_label(rp), "next_rank": self.rank_label(hi) if hi is not None else None, "tier": nm, "rp": rp, "rp_lo": lo, "rp_next": hi,
+        return {"uuid": self.uid(tok), "dev": self.dev(tok), "rank": self.rank_label(rp), "next_rank": self.rank_label(hi) if hi is not None else None, "tier": nm, "rp": rp, "rp_lo": lo, "rp_next": hi,
                 "rgames": p.get("rgames", 0), "rwins": p.get("rwins", 0), "rank_note": p.get("rank_note"), "level": lv, "xp": p["xp"], "xp_cur": self.xp_for(lv), "xp_next": self.xp_for(lv + 1),
                 "games": p["games"], "wins": p["wins"], "avatar": self.avatar_url(tok),
                 "chars": sorted(([n, v[0], v[1]] for n, v in p.get("chars", {}).items()), key=lambda x: (-x[1], -x[2]))[:3],
@@ -382,7 +387,11 @@ class Accounts:
 
     def login(self, user, pw=None, ip=""):
         """使用者名稱 + 密碼登入。失敗一律回同一句話 (不透露帳號是否存在)。"""
-        key = (user or "").strip().lower()
+        raw = (user or "").strip()
+        key, via_uid = raw.lower(), False
+        if key not in self.d and raw.isdigit() and len(raw) == 8:   # 也可以用 8 位數字 UID 登入 (還是要密碼)
+            key = next((k for k, x in list(self.d.items()) if PROFILES.uid(x["uuid"]) == raw), raw)
+            via_uid = key in self.d
         if self._blocked("ip:" + ip) or self._blocked("all", 60) or self._blocked("u:" + key, 8):
             return {"ok": False, "error": "嘗試次數太多,請 5 分鐘後再試"}
         a = self.d.get(key)
@@ -396,8 +405,8 @@ class Accounts:
             for k in ("ip:" + ip, "all", "u:" + key):
                 self.fails.setdefault(k, []).append(now)
             time.sleep(0.5)
-            return {"ok": False, "error": "使用者名稱或密碼不正確"}
-        return {"ok": True, "tok": self.new_session(a["uuid"]), "user": a["user"], "default_pw": bool(a["pw"].get("d"))}
+            return {"ok": False, "error": "帳號 / UID 或密碼不正確"}
+        return {"ok": True, "tok": self.new_session(a["uuid"]), "user": a["user"], "default_pw": bool(a["pw"].get("d")), "via_uid": via_uid}
 
     def _save(self):
         try:
@@ -431,7 +440,7 @@ def leaderboard(me=""):
         if not p:
             continue
         rows.append({"name": acc["user"], "me": t == me, "lv": PROFILES.rank_label(p.get("rp", 0)), "rp": p.get("rp", 0), "xp": p["xp"],
-                     "games": p["games"], "wins": p["wins"], "avatar": PROFILES.avatar_url(t), "style": PROFILES.style(t)})
+                     "games": p["games"], "wins": p["wins"], "avatar": PROFILES.avatar_url(t), "style": PROFILES.style(t), "dev": PROFILES.dev(t)})
     return {"rows": rows}
 OPEN_API = {"/api/rooms", "/api/cardcat", "/api/cosmetics", "/api/i18n", "/api/roster", "/api/me", "/api/login", "/api/register"}
 
@@ -633,7 +642,7 @@ class Manager:
 
     def online(self):
         now = time.time()
-        return [{"id": self.pid(t), "name": self.nicks.get(t, ""), "host": t == self.host, "lv": PROFILES.lv(t), "avatar": PROFILES.avatar_url(t), "style": PROFILES.style(t),
+        return [{"id": self.pid(t), "name": self.nicks.get(t, ""), "host": t == self.host, "lv": PROFILES.lv(t), "dev": PROFILES.dev(t), "avatar": PROFILES.avatar_url(t), "style": PROFILES.style(t),
                  "seat": self.seat_of(t), "spec": self._is_spec(t)}
                 for t, ts in self.seen.items() if now - ts < 6]
 

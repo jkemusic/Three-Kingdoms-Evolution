@@ -9,6 +9,7 @@ import time
 ONLINE_WITHIN = 15        # 秒: 最近這麼久有輪詢過就算在線
 INVITE_TTL = 30 * 60      # 邀請有效時間
 MAX_FRIENDS = 100
+DEVS = {"jke", "lonea"}
 DM_KEEP = 200             # 每組對話最多保留幾則
 
 
@@ -215,7 +216,7 @@ class Social:
                 rd = me["read"].get(f, 0)
                 unread = sum(1 for m in self.d["dm"].get(self._pair(key, f), []) if m["f"] == f and m["t"] > rd)
                 on = now - uf.get("seen", 0) < ONLINE_WITHIN
-                fr.append({"user": self._name(f), "id": f, "online": on, "seen": int(uf.get("seen", 0)),
+                fr.append({"user": self._name(f), "id": f, "dev": f in DEVS, "online": on, "seen": int(uf.get("seen", 0)),
                            "where": where(f) if on else "", "unread": unread})
             fr.sort(key=lambda x: (not x["online"], -x["seen"]))
             inv = [{"id": i["id"], "from": self._name(i["frm"]), "room": i["room"], "rname": i["rname"]}

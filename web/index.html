@@ -595,7 +595,7 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
   <h2>三國殺重製版</h2>
   <div class="meta" id="authmsg">請登入或註冊後開始遊戲</div>
   <div class="atabs"><button id="aLogin" class="on">登入</button><button id="aReg">註冊</button></div>
-  <input id="auser" type="text" maxlength="10" placeholder="使用者名稱" autocomplete="username">
+  <input id="auser" type="text" maxlength="10" placeholder="使用者名稱 或 UID" autocomplete="username">
   <input id="apw" type="password" maxlength="64" placeholder="密碼" autocomplete="current-password" style="margin-top:8px">
   <div id="aerr" class="aerr"></div>
   <button id="asubmit" class="primary big">登入</button>
@@ -781,6 +781,7 @@ function bindHover() {
   V.addEventListener("mouseenter", () => { S.hvOver = true; clearTimeout(timer); });   // 滑鼠移進手牌面板時保持開啟,才能點牌看詳細
   V.addEventListener("mouseleave", () => { S.hvOver = false; leave(); });
 }
+function devEl(d) { return d ? h("span", {class: "rk", style: {background: "#7a3cff", color: "#fff", marginLeft: "4px"}, title: "遊戲開發者", text: "開發者"}) : null; }
 function rkEl(r, big) {   // 段位標籤 (例: 黃金2)
   if (!r) return null;
   return h("span", {class: "rk rk-" + String(r).replace(/\d+$/, "") + (big ? " big" : ""), title: "段位 " + r, text: r});
@@ -1407,7 +1408,7 @@ function renderMembers() {   // 👥 房間成員: 每個人都看得到 (不只
   pn.append(h("h4", {text: "房間成員 (" + o.length + ")"}));
   o.forEach(x => pn.append(h("div", {class: "mr"},
     avEl(x.avatar, x.style, {}),
-    h("span", {text: (x.host ? "👑 " : "") + (x.name || "未命名") + (x.id === S.myWho ? " (你)" : "")}), rkEl(x.lv),
+    h("span", {text: (x.host ? "👑 " : "") + (x.name || "未命名") + (x.id === S.myWho ? " (你)" : "")}), rkEl(x.lv), devEl(x.dev),
     h("span", {class: "tg", text: x.spec ? "👁 觀戰者" : x.seat != null ? "座位 " + x.seat : ""}))));
 }
 (function () {
@@ -1846,7 +1847,7 @@ async function showProfile() {
   const chars = (p.chars || []).map(([n, g, w]) => h("div", {style: {display: "flex", justifyContent: "space-between", padding: "3px 0", borderBottom: "1px solid #17304f"}},
     h("span", {text: n}), h("span", {class: "meta", text: g + " 場 · " + w + " 勝 · " + rate(w, g)})));
   M.append(h("div", {class: "modal", onclick: e => { if (e.target.classList.contains("modal")) close(); }}, h("div", {class: "dlg", style: {maxWidth: "460px"}},
-    h("div", {class: "dh"}, h("div", {}, h("h3", {text: "玩家資訊"})), h("button", {class: "x", text: "✕", onclick: close})),
+    h("div", {class: "dh"}, h("div", {}, h("h3", {text: "玩家資訊"}), devEl(p.dev)), h("button", {class: "x", text: "✕", onclick: close})),
     h("div", {class: "dbody"},
       h("div", {style: {display: "flex", alignItems: "center", gap: "14px"}},
         avEl(p.avatar, {fr: p.sel && p.sel.frame, fx: p.sel && p.sel.fx}, {id: "avbig", style: {width: "72px", height: "72px", borderRadius: "50%", objectFit: "cover", border: "2px solid #3fd2ff"}}, "big"),
@@ -1873,7 +1874,7 @@ async function showProfile() {
         h("span", {style: {flex: 1, wordBreak: "break-all"}, text: "UID: " + p.uuid}),
         h("button", {text: "複製", onclick: e => { const b = e.target, ok = () => { b.textContent = "已複製"; }; if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(p.uuid).then(ok); else { const t = h("textarea", {}); t.value = p.uuid; document.body.append(t); t.select(); try { document.execCommand("copy"); ok(); } catch (x) {} t.remove(); } }}))))));
 }
-function showPwDialog(forced) {   // 修改密碼 (forced: 還在用預設密碼,登入後提醒)
+function showPwDialog(forced, note) {   // 修改密碼 (forced: 還在用預設密碼,登入後提醒)
   const M = $("#modal"); S.modalOpen = "pw"; M.textContent = "";
   const close = () => { M.textContent = ""; S.modalOpen = null; };
   const mk = (ph, ac) => h("input", {type: "password", maxlength: 64, placeholder: ph, autocomplete: ac, style: {width: "100%", marginTop: "8px"}});
@@ -1890,6 +1891,7 @@ function showPwDialog(forced) {   // 修改密碼 (forced: 還在用預設密碼
   M.append(h("div", {class: "modal", style: {zIndex: 7500}, onclick: e => { if (e.target.classList.contains("modal") && !forced) close(); }}, h("div", {class: "dlg", style: {maxWidth: "400px"}},
     h("div", {class: "dh"}, h("div", {}, h("h3", {text: "🔑 修改密碼"})), h("button", {class: "x", text: forced ? "稍後" : "✕", style: forced ? {width: "auto", borderRadius: "17px", padding: "0 12px"} : {}, onclick: close})),
     h("div", {class: "dbody"},
+      note ? h("div", {style: {marginBottom: "6px", lineHeight: 1.5}, text: note}) : null,
       forced ? h("div", {class: "meta", style: {color: "#ffb454"}, text: "你還在使用預設密碼 12345,任何人都能登入你的帳號,請現在改掉。"}) : null,
       o, n1, n2, err, h("button", {class: "primary", text: "更新密碼", style: {marginTop: "10px", width: "100%"}, onclick: go})))));
   setTimeout(() => (forced ? n1 : o).focus(), 50);
@@ -1929,7 +1931,7 @@ async function showBoard() {
       body.append(h("div", {style: {display: "flex", alignItems: "center", gap: "10px", padding: "6px 4px", borderBottom: "1px solid #17304f", background: me ? "#12335a" : ""}},
         h("span", {style: {width: "28px", textAlign: "center", fontWeight: 700, color: i < 3 ? "#ffd24a" : "#8fb4d8"}, text: i < 3 ? ["🥇", "🥈", "🥉"][i] : String(i + 1)}),
         avEl(x.avatar, x.style, {style: {width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover"}}),
-        h("span", {style: {flex: 1}}, h("div", {text: x.name})),
+        h("span", {style: {flex: 1}}, h("div", {}, x.name, devEl(x.dev))),
         h("span", {style: {textAlign: "right"}}, h("div", {}, rkEl(x.lv), h("span", {class: "meta", text: " " + (x.rp || 0) + " 分"})),
           h("div", {class: "meta", text: x.games ? `${x.wins} 勝 / ${x.games} 場 · ${Math.round(rate(x) * 100)}%` : "尚無對局"}))));
     });
@@ -1945,7 +1947,7 @@ let AUTH_MODE = "login";
 function setAuthMode(m) {
   AUTH_MODE = m;
   $("#aLogin").classList.toggle("on", m === "login"); $("#aReg").classList.toggle("on", m === "reg");
-  $("#auser").placeholder = m === "reg" ? "設定使用者名稱 (2~10 字)" : "使用者名稱";
+  $("#auser").placeholder = m === "reg" ? "設定使用者名稱 (2~10 字)" : "使用者名稱 或 UID";
   $("#apw").placeholder = m === "reg" ? "設定密碼 (4 字以上,留空 = 預設 12345)" : "密碼";
   $("#apw").autocomplete = m === "reg" ? "new-password" : "current-password";
   $("#asubmit").textContent = m === "reg" ? "註冊" : "登入"; $("#aerr").textContent = "";
@@ -1956,6 +1958,7 @@ async function submitAuth() {
   const r = await (await fetch(AUTH_MODE === "reg" ? "/api/register" : "/api/login", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({user, pw, tok: TOK})})).json();
   if (!r.ok) { $("#aerr").textContent = r.error || "失敗"; return; }
   if (AUTH_MODE === "reg" && r.default_pw) alert("註冊成功!\n你使用的是預設密碼 12345,請登入後到「個人資訊」修改密碼。");
+  try { if (r.via_uid) sessionStorage.setItem("sgs_via_uid", r.user); } catch (e) {}   // 用 UID 登入的: 進去後提醒改用帳號
   try { localStorage.setItem("sgs_tok", r.tok); localStorage.removeItem("sgs_theme"); localStorage.setItem("nick", r.user.slice(0, 10)); } catch (e) {}
   const u = new URL(location.href); u.searchParams.delete("tok"); history.replaceState(null, "", u); location.reload();
 }
@@ -2023,7 +2026,10 @@ $("#rname").onkeydown = e => { if (e.key === "Enter") $("#rcreate").click(); };
   try { me = await (await fetch("/api/me?tok=" + encodeURIComponent(TOK))).json(); } catch (e) {}
   if (!me.ok) { showAuth(me.kicked ? "你的帳號已在另一個裝置登入,請重新登入" : ""); await new Promise(() => {}); return; }   // 沒登入: 停在登入畫面
   S.user = me.user;
-  if (me.default_pw) setTimeout(() => { if (!S.modalOpen) showPwDialog(true); }, 1500);   // 還在用預設密碼: 提醒修改
+  let viaUid = ""; try { viaUid = sessionStorage.getItem("sgs_via_uid") || ""; sessionStorage.removeItem("sgs_via_uid"); } catch (e) {}
+  const uidNote = viaUid ? "你是用 UID 登入的。之後請改用你的帳號「" + viaUid + "」+ 密碼登入 (UID 現在是公開給朋友加好友用的)。" : "";
+  if (me.default_pw) setTimeout(() => { if (!S.modalOpen) showPwDialog(true, uidNote); }, 1500);   // 還在用預設密碼: 提醒修改
+  else if (uidNote) toast(uidNote, "host");
   if (!ROOM) showRooms(); else $("#roomname").textContent = "";
   const r = await api("/api/roster");
   S.roster = r.chars; S.roles = r.roles; renderChars();

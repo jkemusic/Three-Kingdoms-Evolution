@@ -148,7 +148,7 @@
       const st = f.online ? ("在線" + (f.where ? " · " + f.where : "")) : ("最後上線: " + fmtSeen(f.seen, d.now));
       body.append(el("div", {class: "frow"},
         el("span", {class: "dot" + (f.online ? " on" : "")}),
-        el("div", {class: "grow"}, el("div", {class: "nm", text: f.user}), el("div", {class: "st", text: st})),
+        el("div", {class: "grow"}, el("div", {class: "nm"}, f.user, f.dev ? el("span", {class: "rk", style: {background: "#7a3cff", color: "#fff", marginLeft: "4px"}, text: "開發者"}) : ""), el("div", {class: "st", text: st})),
         el("button", {title: "私訊", onclick: () => openChat(f)}, "💬", f.unread ? el("span", {class: "ub", text: f.unread}) : ""),
         ROOM ? el("button", {title: "邀請到目前的房間", text: "邀請", onclick: async () => { const r = await post("/api/invite", {to: f.id}); toast(r.ok ? "已邀請 " + f.user : (r.error || "邀請失敗"), r.ok ? "ok" : undefined); }}) : "",
         el("button", {title: "刪除好友", text: "🗑", onclick: async () => { if (confirm("確定要刪除好友「" + f.user + "」嗎?")) { await post("/api/friend_remove", {name: f.id}); poll(); } }})));
