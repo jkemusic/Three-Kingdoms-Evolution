@@ -844,7 +844,7 @@ function tpText(tp) {
   return `${tp.label} — ${h2[tp.chosen.length]} (${tp.chosen.length + 1}/2)`;
 }
 function syncAnims(root) {   // 牌桌每次重畫都會重建元素,循環動畫 (頭貼特效等) 會從頭播;全部對齊到文件時間軸,重畫後就不會被重置
-  try { for (const a of root.getAnimations({subtree: true})) if (a.effect && a.startTime !== 0 && a.effect.getComputedTiming().iterations === Infinity) a.startTime = 0;   // 已經對齊的不要再動 (重設時間軸會讓動畫卡頓) } catch (e) {}
+  try { for (const a of root.getAnimations({subtree: true})) if (a.effect && a.startTime !== 0 && a.effect.getComputedTiming().iterations === Infinity) a.startTime = 0; } catch (e) {}   // 已經對齊的不要再動 (重設時間軸會讓動畫卡頓)
 }
 function renderTable(snap) {
   renderTable0(snap); syncAnims($("#table"));
