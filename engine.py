@@ -1819,9 +1819,10 @@ class Game:
                         self.take_turn(p)
                         assert self.count_cards() == self.total_cards, "牌數不守恆"
                     if self.round == 1 and k == 0:   # 主公第一回合結束後,由主公決定往左還是往右輪
-                        i = self.lord.agent.choose_option(self, self.lord, "輪次方向", ["往左 (座位號遞增)", "往右 (座位號遞減)"]) if self.lord.alive and n > 2 else 0
+                        ask = self.lord.alive and len(self.alive_players()) > 2   # 第一回合結束只剩兩個人 (或更少): 往哪邊輪都一樣,不用問
+                        i = self.lord.agent.choose_option(self, self.lord, "輪次方向", ["往左 (座位號遞增)", "往右 (座位號遞減)"]) if ask else 0
                         self.dir = 1 if i == 0 else -1
-                        if n > 2:
+                        if ask:
                             self.log(f"  {self.lord.name} 決定輪次方向: {'往左 (座位號遞增)' if self.dir == 1 else '往右 (座位號遞減)'}")
                     k += 1
             self.winner = "平手(超過回合上限)"
