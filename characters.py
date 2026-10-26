@@ -1064,8 +1064,13 @@ class 曹植(Char):
 
     def views(self, g, p, c): return ["五"] if c.name == "桃" else []
 
-    def on_turn_start(self, g, p):  # 七輪後勝利
-        if g.round > 7:
+    def on_turn_start(self, g, p):  # 七輪後勝利 (輪數從這個人變成曹植的時候開始算: 化身 / 偽裝 / 交換武將都一樣)
+        st = self.__dict__.setdefault("_rounds", {})
+        base, last = st.get(p.idx, (None, None))
+        if base is None or g.round - last > 3:   # 第一次擁有 (或隔了很久才又變成他): 重新從 0 算
+            base = g.round - 1
+        st[p.idx] = (base, g.round)
+        if g.round - base > 7:
             from engine import GameOver
             g.winner = "曹植 (七輪後獨自勝利)"
             raise GameOver()

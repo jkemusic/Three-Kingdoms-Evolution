@@ -671,6 +671,8 @@ function updHint() {
   b.style.top = (r && r.height > 0 ? Math.max(8, r.top - b.offsetHeight - 8) : 60) + "px";
 }
 
+window.SGS_HINT_OFF = () => { hintOn = false; updHint(); };   // 開新局 (不是練習局) 時,練習提示橫幅要消失
+
 /* ---------- 啟動 ---------- */
 const CSS = `
 #langsel{background:#1b2230;color:#e6edf7;border:1px solid #394559;border-radius:6px;padding:3px 6px;font-size:13px}

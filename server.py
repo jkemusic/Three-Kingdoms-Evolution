@@ -459,6 +459,22 @@ class PublicChat:
 PUBCHAT = PublicChat()
 
 
+def player_public(key):
+    """別人看得到的個人資訊 (只放公開的統計,不含 UID / 帳號憑證)。"""
+    a = ACCOUNTS.d.get((key or "").strip().lower())
+    if not a:
+        return {"ok": False, "error": "找不到這位玩家"}
+    t = a["uuid"]
+    p = PROFILES.d.get(t) or {}
+    rp = p.get("rp", 0)
+    lv = PROFILES.level(p.get("xp", 0))
+    _nm, _sub, lo, hi = PROFILES.rank(rp)
+    return {"ok": True, "rp_lo": lo, "rp_next": hi, "next_rank": PROFILES.rank_label(hi) if hi is not None else None, "user": a["user"], "dev": PROFILES.dev(t), "avatar": PROFILES.avatar_url(t), "style": PROFILES.style(t),
+            "rank": PROFILES.rank_label(rp), "rp": rp, "level": lv, "games": p.get("games", 0), "wins": p.get("wins", 0),
+            "rgames": p.get("rgames", 0), "rwins": p.get("rwins", 0), "ach": len(p.get("ach", {})),
+            "chars": sorted(([n, v[0], v[1]] for n, v in p.get("chars", {}).items()), key=lambda x: (-x[1], -x[2]))[:3]}
+
+
 def _card(key):   # 好友列表用: 頭貼 / 框 / 特效 / 段位 / 等級
     a = ACCOUNTS.d.get(key)
     t = a["uuid"] if a else ""
@@ -476,7 +492,7 @@ def leaderboard(me=""):
         p = PROFILES.d.get(t)
         if not p:
             continue
-        rows.append({"name": acc["user"], "me": t == me, "lv": PROFILES.rank_label(p.get("rp", 0)), "rp": p.get("rp", 0), "xp": p["xp"],
+        rows.append({"name": acc["user"], "me": t == me, "lv": PROFILES.rank_label(p.get("rp", 0)), "rp": p.get("rp", 0), "rp_next": PROFILES.rank(p.get("rp", 0))[3], "xp": p["xp"],
                      "games": p["games"], "wins": p["wins"], "avatar": PROFILES.avatar_url(t), "style": PROFILES.style(t), "dev": PROFILES.dev(t)})
     return {"rows": rows}
 OPEN_API = {"/api/about", "/api/rooms", "/api/cardcat", "/api/cosmetics", "/api/i18n", "/api/roster", "/api/me", "/api/login", "/api/register"}
@@ -498,6 +514,9 @@ class Manager:
         self.claims = {}
         self.seen = {}    # tok -> 最後一次連線時間 (算目前在線人數)
         self.kicked = {}  # tok -> 解除時間 (被房主踢出)
+        self.solo = False  # 單人模式房間: 只有建立者進得去,不顯示在大廳,離開就刪除
+        self.pw = None    # 房間密碼 (加鹽雜湊;None = 沒有密碼)
+        self.allowed = set()   # 輸入過密碼 / 被邀請的玩家 (uuid)
         self.alive = {}   # tok -> 目前是否視為在線 (斷線偵測用)
         self.events = []  # 給所有人的通知 (斷線 / 重連 / 換房主)
         self.ev_id = 0
@@ -570,10 +589,11 @@ class Manager:
             humans.add(human)
         self.humans = humans
         self.claims = {}
-        self.host = cfg.get("tok")
+        starter = cfg.get("tok")
+        self.host = None if self.public else starter   # 公共房間沒有房主,任何人都能操作
         self.host_cleared = False
-        if self.host and human is not None and human < n:
-            self.claims[human] = self.host
+        if starter and human is not None and human < n:
+            self.claims[human] = starter
         self.cfg = dict(cfg, seed=seed, n=n, want=want, pool=pool)
         self.paused = False
         self.speed = float(cfg.get("speed", 0.35))
@@ -582,7 +602,7 @@ class Manager:
         self.game = None
         self.lobby = True
         if humans <= set(self.claims):  # 純觀戰或只有房主一人: 直接開始
-            self.start(self.host, force=True)
+            self.start(starter, force=True)
         return {"ok": True, "seed": seed}
 
     def say(self, tok, text):
@@ -639,26 +659,34 @@ class Manager:
     def touch(self, tok):
         if tok:
             now = time.time()
-            if tok in self.kicked and self.kicked[tok] > now:
-                return
             if tok not in self.seen:
                 self._event(f"➡ {self._name_of(tok)} 進入房間", "info")
             self.seen[tok] = now
-            if not self.host and not self.host_cleared:   # 最先連線的人成為房主 (公共房間房主下線後除外)
+            if not self.host and not self.host_cleared and not self.public:   # 最先連線的人成為房主 (公共房間沒有房主)
                 self.host = tok
             self.presence()
 
     OFFLINE_AFTER = 25   # 超過幾秒沒連線視為斷線
-    KICK_SECS = 600      # 被踢後幾秒內不能再進同一個房間
 
     def _name_of(self, tok):
         return self.nicks.get(tok) or ACCOUNTS.username(tok) or "未命名"
 
-    def is_kicked(self, tok):
-        return self.kicked.get(tok, 0) > time.time()
+    def can_enter(self, tok):
+        """沒設密碼的房間誰都能進;有密碼的要輸入過密碼、被邀請、或是房間建立者。"""
+        if self.solo:
+            return tok == self.owner
+        return not self.pw or tok == self.owner or tok in self.allowed
+
+    def is_kicked(self, tok):   # 被踢的人還沒收到通知 (收到一次就清掉,可以馬上再進來,沒有冷卻)
+        return tok in self.kicked
+
+    def pop_kicked(self, tok):
+        return self.kicked.pop(tok, None) is not None
 
     def kick(self, tok, to_id):
         """房主踢人: 對方離開房間 (座位交給電腦,遊戲不中斷),一段時間內不能再進來。"""
+        if not self.host:
+            return {"ok": False, "error": "這個房間目前沒有房主 (公共房間的房主下線後會清空),不能踢人"}
         if not tok or tok != self.host:
             return {"ok": False, "error": "只有房主能踢人"}
         target = next((t for t in list(self.seen) if self.pid(t) == to_id), None)
@@ -682,7 +710,7 @@ class Manager:
         with self.plock:
             self.seen.pop(target, None)
             self.alive.pop(target, None)
-            self.kicked[target] = time.time() + self.KICK_SECS
+            self.kicked[target] = True
             self._event(f"🚪 {name} 被房主踢出了房間", "warn")
         return {"ok": True, "name": name}
 
@@ -818,7 +846,7 @@ class Manager:
         return {"ok": True}
 
     def start(self, tok, force=False):
-        if not force and (self.game is not None or self.picking or tok != self.host):
+        if not force and (self.game is not None or self.picking or not self.is_host(tok)):
             return {"ok": False, "error": "only host can start"}
         cfg, n = self.cfg, self.cfg["n"]
         self.humans = set(self.claims)   # 沒人坐的真人座位由 AI 接手
@@ -1115,8 +1143,9 @@ def is_playing(tok):
     return any(m.game_active() and tok in m.claims.values() for m in list(ROOMS.values()))
 
 
-def create_room(tok, name):
+def create_room(tok, name, password=None, solo=False):
     name = (name or "").strip()[:20] or "新房間"
+    password = str(password or "")[:20]
     if not tok:
         return {"ok": False, "error": "no token"}
     with ROOMS_LOCK:
@@ -1127,9 +1156,30 @@ def create_room(tok, name):
         rid = "".join(random.choice("abcdefghjkmnpqrstuvwxyz23456789") for _ in range(5))
         m = Manager()
         m.room_name, m.owner, m.host = name, tok, tok   # 建立者就是房主
+        if password:
+            m.pw = Accounts._mk(password)
+        m.solo = bool(solo)
         m.created = time.time()
         ROOMS[rid] = m
-    return {"ok": True, "room": rid, "name": name}
+    return {"ok": True, "room": rid, "name": name, "locked": bool(password)}
+
+
+def join_room(tok, rid, password, ip=""):
+    """輸入房間密碼加入 (錯太多次暫時鎖住)。"""
+    m = ROOMS.get(rid)
+    if m is None:
+        return {"ok": False, "gone": True, "error": "房間已不存在"}
+    if not m.pw or m.can_enter(tok):
+        return {"ok": True}
+    key = "room:" + str(rid) + ":" + str(tok)
+    if ACCOUNTS._blocked(key, 6) or ACCOUNTS._blocked("room-ip:" + ip, 30):
+        return {"ok": False, "error": "密碼錯太多次了,請 5 分鐘後再試"}
+    if not Accounts._verify(m.pw, str(password or "")):
+        for k in (key, "room-ip:" + ip):
+            ACCOUNTS.fails.setdefault(k, []).append(time.time())
+        return {"ok": False, "error": "房間密碼不正確"}
+    m.allowed.add(tok)
+    return {"ok": True}
 
 
 def delete_room(tok, rid):
@@ -1165,11 +1215,14 @@ def list_rooms(tok=None):
     now = time.time()
     out = []
     for rid, m in list(ROOMS.items()):
+        if m.solo:
+            continue
         on = m.online()
         st = ("進行中" if m.game_active() else "選武將" if m.picking else "等待玩家" if m.lobby else "空房")
         out.append({"id": rid, "name": m.room_name, "online": len(on), "state": st, "host": m.host_name() or "",
                     "n": m.cfg.get("n") if m.cfg else None, "main": rid == "main",
-                    "can_delete": rid != "main" and tok in (m.owner, m.host)})
+                    "can_delete": rid != "main" and tok in (m.owner, m.host),
+                    "locked": bool(m.pw), "need_pw": bool(m.pw) and not m.can_enter(tok)})
     out.sort(key=lambda r: (not r["main"], -r["online"]))
     return out
 
@@ -1285,6 +1338,8 @@ class Handler(BaseHTTPRequestHandler):
                 key = SOCIAL.key_of(tk)
                 SOCIAL.touch(key)
                 return self._send(200, SOCIAL.overview(key, friend_where, is_playing(tk)))
+            if path == "/api/player":
+                return self._send(200, player_public(q.get("name", [""])[0]))
             if path == "/api/gchat":
                 try:
                     n = int(q.get("since", ["0"])[0])
@@ -1321,8 +1376,10 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(200, {"chars": ROSTER_DATA, "roles": {str(k): v for k, v in ROLES.items()}})
             if path == "/api/state":
                 tok = q.get("tok", [""])[0]
-                if M.is_kicked(tok):
+                if M.pop_kicked(tok):
                     return self._send(200, {"kicked": True, "ready": False})
+                if not M.can_enter(tok):
+                    return self._send(200, {"need_pw": True, "ready": False})
                 viewer = M.seat_of(tok)
                 M.touch(tok)
                 nk = q.get("nick", [None])[0]
@@ -1444,7 +1501,14 @@ class Handler(BaseHTTPRequestHandler):
                     m = ROOMS.get(rid)
                     if m is None or time.time() - m.seen.get(data.get("tok"), 0) > 30:
                         return self._send(200, {"ok": False, "error": "你不在這個房間裡"})
-                    return self._send(200, SOCIAL.invite(key, data.get("to"), rid, m.room_name or "房間"))
+                    if m.solo:
+                        return self._send(200, {"ok": False, "error": "單人模式的房間不能邀請別人"})
+                    r = SOCIAL.invite(key, data.get("to"), rid, m.room_name or "房間")
+                    if r.get("ok") and m.pw:   # 被邀請的人不用再輸入密碼
+                        acc = ACCOUNTS.d.get((data.get("to") or "").strip().lower())
+                        if acc:
+                            m.allowed.add(acc["uuid"])
+                    return self._send(200, r)
                 if path == "/api/invite_reply":
                     r = SOCIAL.reply(key, int(data.get("id") or 0), bool(data.get("accept")))
                     if r.get("room") and ROOMS.get(r["room"]) is None:
@@ -1458,13 +1522,22 @@ class Handler(BaseHTTPRequestHandler):
             if path == "/api/room_create" and not ACCOUNTS.is_account(data.get("tok")):
                 return self._send(200, {"ok": False, "auth": False, "error": "請先登入"})
             if path == "/api/room_create":
-                return self._send(200, create_room(data.get("tok"), data.get("name")))
+                return self._send(200, create_room(data.get("tok"), data.get("name"), data.get("password"), bool(data.get("solo"))))
+            if path == "/api/room_join":
+                return self._send(200, join_room(data.get("tok"), data.get("room") or "main", data.get("password"), self._ip()))
             M = ROOMS.get(data.get("room") or "main")
             if M is None:
                 return self._send(200, {"ok": False, "gone": True, "error": "房間已不存在"})
+            if M.is_kicked(data.get("tok")) and path != "/api/leave":
+                return self._send(200, {"ok": False, "kicked": True, "error": "你被房主踢出了這個房間"})
+            if not M.can_enter(data.get("tok")):
+                return self._send(200, {"ok": False, "need_pw": True, "error": "這個房間需要密碼"})
             if path == "/api/kick":
                 return self._send(200, M.kick(data.get("tok"), data.get("to")))
             if path == "/api/leave":
+                if M.solo and data.get("tok") == M.owner:   # 單人模式: 離開就把房間 (和對局) 收掉
+                    delete_room(data.get("tok"), data.get("room") or "main")
+                    return self._send(200, {"ok": True})
                 M.leave(data.get("tok"))
                 return self._send(200, {"ok": True})
             if path == "/api/rematch":

@@ -351,6 +351,7 @@ button.big{font-size:16px;font-weight:800;padding:10px 38px}
 #members.on{display:block}#members .mr{display:flex;align-items:center;gap:8px;padding:4px 2px;font-size:13px}#members .mr img{width:26px;height:26px;border-radius:50%;object-fit:cover}#members .mr .av0{width:26px;text-align:center}#members .mr .tg{margin-left:auto;font-size:11px;color:#7fb7dd}#members h4{margin:0 0 4px;color:#3fd2ff;font-size:13px}
 #waitbar{display:none!important}
 @media(max-width:820px){#bar{position:relative;z-index:30}}
+@media (min-width:821px){body.setup-open:not(.hide-side) #modal .modal{right:390px}body.setup-open:not(.hide-side) #side{z-index:25}}   /* 新遊戲設定: 右邊的聊天 / 紀錄欄不被蓋住 */
 #waitbar{display:none;pointer-events:none;background:#0c1d36;border:1px solid #24557d;color:var(--accent);border-radius:99px;padding:3px 12px;font-size:13px;white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis;flex:0 1 auto}
 #tablewrap .panhint{position:fixed;left:8px;bottom:4px;z-index:13;font-size:12px;color:#7fb7dd;opacity:.75;pointer-events:none}
 #log .lcw{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 2px}#log .lcn{font-size:11px;color:#c3d6ea;line-height:1.2;margin-top:1px;white-space:nowrap}#log img.lc{display:inline-block;vertical-align:middle;width:44px;height:62px;object-fit:cover;margin:0 2px;border-radius:3px;border:1px solid #2f6f9c;cursor:help}
@@ -604,7 +605,8 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
 <div id="rooms"><div class="rbox">
   <h2>三國殺重製版 · 大廳</h2>
   <div class="meta">選一個房間加入,或自己創建一個。房間沒人超過 10 分鐘會自動刪除。</div>
-  <div class="rnew"><input id="rname" type="text" maxlength="20" placeholder="房間名稱 (例如: 阿明的房間)"><button id="rcreate" class="primary">創建房間</button></div>
+  <div class="rnew"><input id="rname" type="text" maxlength="20" placeholder="房間名稱 (例如: 阿明的房間)"><input id="rpw" type="password" maxlength="20" placeholder="房間密碼 (可不設)" autocomplete="new-password" style="max-width:150px"><button id="rcreate" class="primary">創建房間</button></div>
+  <div class="rnew"><button id="rsolo" class="primary" title="自己一個人和電腦對打 (房間不公開)">🤖 單人模式 (和電腦對打)</button></div>
   <div id="rlist"></div>
 </div></div>
 <div id="modal"></div>
@@ -638,12 +640,14 @@ if (!TOK) { TOK = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : "
 let ROOM = new URLSearchParams(location.search).get("room") || "";
 if (!ROOM) { try { ROOM = sessionStorage.getItem("sgs_room") || ""; } catch (e) {} }
 async function api(path, body) {
+  if ((path === "/api/new" || path === "/api/rematch") && !(body && body.practice) && window.SGS_HINT_OFF) SGS_HINT_OFF();   // 開新局: 練習提示橫幅消失
   if (body !== undefined && body && typeof body === "object") body = Object.assign({tok: TOK, room: ROOM || "main"}, body);
   if (body === undefined && path.startsWith("/api/state")) path += "&tok=" + TOK + "&room=" + encodeURIComponent(ROOM || "main") + "&nick=" + encodeURIComponent(myNick()) + "&cm=" + (localStorage.getItem("sgs_chain") || "me");
   const r = await fetch(path, body === undefined ? {} : {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
   const j = await r.json();
   if (j && j.gone && ROOM) leaveRoom("房間已不存在 (太久沒有人,已被刪除)");
-  if (j && j.kicked && ROOM) leaveRoom("你被房主踢出了房間 (10 分鐘內不能再進入)");
+  if (j && j.need_pw && ROOM) { leaveRoom("這個房間需要密碼,請從房間列表輸入密碼加入"); return j; }
+  if (j && j.kicked && ROOM) leaveRoom("你被房主踢出了房間");
   if (j && j.auth === false) showAuth(j.kicked ? "你的帳號已在另一個裝置登入,請重新登入" : "");
   return j;
 }
@@ -672,11 +676,11 @@ function bindPrev(e, c) {   // 滑鼠移上去: 左側顯示大圖與效果 (類
   });
   e.addEventListener("mouseleave", () => { $("#prev").style.display = "none"; });
 }
-function charBody(c, st, tag) {
+function charBody(c, st, tag, p) {
   return h("div", {class: "ci char"}, c.img ? h("img", {src: c.img}) : "",
     h("div", {}, tag ? h("div", {class: "recb", text: tag}) : "", h("h3", {text: `${c.faction} ${c.name}`}), h("div", {class: "meta", text: st}),
       c.skills.map((s, i) => h("p", {class: "sk", text: /^\d+[.、]/.test(s) || c.skills.length < 2 ? s : (i + 1) + ". " + s})),
-      ...borrowNodes(p)));
+      ...(p ? borrowNodes(p) : [])));
 }
 function borrowNodes(p) {   // 複製別人技能 (馬謖 / 陳群 / 韓當): 在技能最後用黃字列出複製來的技能,每點一行
   const out = [];
@@ -697,7 +701,7 @@ function showCharInfo(p) {   // 點武將頭像: 顯示技能全文與目前狀�
     if (d) {
       const stt = [`體力 ${p.hp}/${p.maxhp}`, `手牌 ${p.hand_n}`]; if (p.role !== "?" && p.role !== "無") stt.push(p.role);
       box.append(h("div", {class: "modal", onclick: () => { box.textContent = ""; }}, h("div", {style: {display: "flex", gap: "14px", flexWrap: "wrap", justifyContent: "center", maxHeight: "92vh", overflow: "auto"}},
-        charBody(d, p.disguise_kind === "alias" ? `化身為 · 這回合擁有他的技能` : `偽裝成 · 這回合擁有他的技能`, p.disguise_kind === "alias" ? "🌀 化身為" : "🎭 偽裝成"), charBody(c, `原本的武將 · 體力上限 ${c.maxhp} · 目前: ${stt.join(" / ")}`, "原本的武將"))));
+        charBody(d, p.disguise_kind === "alias" ? `化身為 · 這回合擁有他的技能` : `偽裝成 · 這回合擁有他的技能`, p.disguise_kind === "alias" ? "🌀 化身為" : "🎭 偽裝成"), charBody(c, `原本的武將 · 體力上限 ${c.maxhp} · 目前: ${stt.join(" / ")}`, "原本的武將", p))));
       return;
     }
   }
@@ -1385,15 +1389,17 @@ function handleEvents(evs) {   // 斷線 / 重連 / 換房主 通知 (第一次�
   S.evSeen = Math.max(S.evSeen, mx);
 }
 function showHostBar(snap) {
-  S.amHost = !!snap.is_host;   // 上方標示房主;非房主只能等待
+  S.hostless = snap.host_name == null;
+  S.amHost = !!(snap.is_host && snap.host_name != null);   // 真的有房主才算 (沒有房主時任何人都顯示「你是房主」,但不能踢人)   // 上方標示房主;非房主只能等待
   const e = $("#hostbar");
-  if (snap.host_name == null && snap.is_host) { e.textContent = "👑 你是房主"; e.className = "me"; return; }
+  if (snap.host_name == null && snap.is_host) { e.textContent = "公共房間 · 沒有房主,任何人都可以操作"; e.className = "me"; return; }
   if (snap.host_name == null) { e.textContent = "等待房主建立遊戲…"; e.className = "wait"; return; }
   if (snap.is_host) { e.textContent = "👑 你是房主"; e.className = "me"; }
   else { e.textContent = `👑 房主: ${snap.host_name || "未命名"} · 等待房主操作`; e.className = "wait"; }
 }
 function renderHandover(box) {   // 房主: 把房主讓給目前在線的某人
   box.textContent = "";
+  const sec = box.closest("section"); if (sec) sec.style.display = S.hostless ? "none" : "";   // 公共房間沒有房主: 不顯示這一區
   const others = (S.online || []).filter(x => !x.host && x.id !== S.myWho);   // 不能讓給自己
   if (!others.length) { box.append(h("span", {class: "meta", text: "目前沒有其他人在線,無人可讓"})); return; }
   others.forEach(x => box.append(h("button", {type: "button", text: "👑 讓給 " + (x.name || "未命名"), onclick: async () => {
@@ -1438,8 +1444,8 @@ function renderOnlineList() {
   box.textContent = "";
   if (!o.length) box.append(h("div", {class: "meta", text: "目前沒有人在線"}));
   o.forEach(x => box.append(h("div", {style: {display: "flex", alignItems: "center", gap: "8px", padding: "7px 4px", borderBottom: "1px solid #17304f"}},
-    avEl(x.avatar, x.style, {style: {width: "36px", height: "36px", borderRadius: "50%", objectFit: "cover", flex: "none"}}),
-    h("div", {style: {flex: 1, minWidth: 0}},
+    avEl(x.avatar, x.style, {style: {width: "36px", height: "36px", borderRadius: "50%", objectFit: "cover", flex: "none", cursor: x.acc ? "pointer" : ""}, onclick: () => x.acc && showPlayer(x.acc)}),
+    h("div", {style: {flex: 1, minWidth: 0, cursor: x.acc ? "pointer" : ""}, title: "查看個人資訊", onclick: () => x.acc && showPlayer(x.acc)},
       h("div", {style: {fontWeight: 600}}, (x.host ? "👑 " : "") + (x.name || "未命名") + (x.id === S.myWho ? " (你)" : ""), " ", rkEl(x.lv), devEl(x.dev)),
       x.spec || x.seat != null ? h("div", {class: "meta", text: x.spec ? "👁 觀戰者" : "座位 " + x.seat}) : null),
     x.id !== S.myWho && x.acc && window.SGS_FRIENDS ? friendBtn(x) : null,
@@ -1449,6 +1455,34 @@ function renderOnlineList() {
       toast(r.ok ? "已踢出 " + r.name : "踢人失敗: " + (r.error || ""), r.ok ? "ok" : undefined);
     }}) : null)));
 }
+async function showPlayer(key) {   // 看別人的個人資訊 (在線列表 / 好友列表點開)
+  let p;
+  try { p = await (await fetch("/api/player?tok=" + encodeURIComponent(TOK) + "&name=" + encodeURIComponent(key))).json(); } catch (e) { return; }
+  if (!p || !p.ok) { toast((p && p.error) || "讀取失敗"); return; }
+  const old = document.getElementById("playerdlg"); if (old) old.remove();
+  const close = () => { const m = document.getElementById("playerdlg"); if (m) m.remove(); };
+  const rate = (a, b) => b ? Math.round(a / b * 100) + "%" : "-";
+  const pct = p.rp_next == null ? 100 : Math.max(0, Math.min(100, (p.rp - p.rp_lo) / (p.rp_next - p.rp_lo) * 100));
+  const stat = (k, v) => h("div", {style: {background: "#0e2442", border: "1px solid #24496f", borderRadius: "10px", padding: "8px 12px", flex: "1 1 90px", textAlign: "center"}},
+    h("div", {style: {fontSize: "20px", fontWeight: 700, color: "#3fd2ff"}, text: String(v)}), h("div", {class: "meta", text: k}));
+  const m = h("div", {class: "modal", id: "playerdlg", style: {zIndex: 7700}, onclick: e => { if (e.target === m) close(); }},
+    h("div", {class: "dlg", style: {maxWidth: "420px"}},
+      h("div", {class: "dh"}, h("div", {}, h("h3", {text: "玩家資訊"})), h("button", {class: "x", text: "✕", onclick: close})),
+      h("div", {class: "dbody"},
+        h("div", {style: {display: "flex", alignItems: "center", gap: "14px"}},
+          avEl(p.avatar, p.style, {style: {width: "72px", height: "72px", borderRadius: "50%", objectFit: "cover", border: "2px solid #3fd2ff"}}, "big"),
+          h("div", {style: {flex: 1, minWidth: 0}},
+            h("div", {style: {fontSize: "28px", fontWeight: 800, lineHeight: 1.15, wordBreak: "break-all"}, text: p.user}),
+            h("div", {style: {margin: "6px 0"}}, rkEl(p.rank, true), devEl(p.dev)))),
+        h("div", {style: {height: "10px", background: "#0e2442", borderRadius: "99px", overflow: "hidden", margin: "6px 0"}}, h("div", {style: {width: pct + "%", height: "100%", background: "linear-gradient(90deg,#3fd2ff,#2a7de1)"}})),
+        h("div", {class: "meta", text: `段位積分 ${p.rp}` + (p.rp_next != null ? ` / ${p.rp_next} · 距離下一段 (${p.next_rank}) 還差 ${p.rp_next - p.rp} 分` : " (最高段位)")}),
+        h("div", {style: {display: "flex", gap: "8px", flexWrap: "wrap", margin: "12px 0"}}, stat("總場數", p.games), stat("勝場", p.wins), stat("勝率", rate(p.wins, p.games)), stat("段位場", p.rgames), stat("段位勝率", rate(p.rwins, p.rgames))),
+        h("div", {style: {fontWeight: 700, margin: "10px 0 4px"}, text: "最常使用的武將"}),
+        p.chars.length ? h("div", {}, p.chars.map(([n, g, w]) => h("div", {style: {display: "flex", justifyContent: "space-between", padding: "3px 0", borderBottom: "1px solid #17304f"}},
+          h("span", {text: n}), h("span", {class: "meta", text: g + " 場 · " + w + " 勝 · " + rate(w, g)})))) : h("div", {class: "meta", text: "還沒有紀錄"}))));
+  document.body.append(m);
+}
+window.showPlayer = showPlayer;
 function friendBtn(x) {   // 在線列表: 已是好友顯示「好友」,已送出請求顯示「已邀請」,否則可加好友
   const d = window.SGS_FRIENDS.data() || {friends: [], req_out: []};
   const st = {padding: "2px 9px", fontSize: "12px"};
@@ -1828,6 +1862,7 @@ function applySide(hide) {
   try { localStorage.setItem("hideSide", hide ? "1" : ""); } catch (e) {}
   setTimeout(() => { if (S.snap) renderTable(S.snap); }, 30);   // 牌桌寬度改變,座位要重新排
 }
+new MutationObserver(() => document.body.classList.toggle("setup-open", S.modalOpen === "setup")).observe($("#modal"), {childList: true});
 $("#bSide").onclick = () => applySide(!document.body.classList.contains("hide-side"));
 try { if (localStorage.getItem("hideSide")) applySide(true); } catch (e) {}
 window.addEventListener("resize", () => { if (S.snap) renderTable(S.snap); });
@@ -1979,7 +2014,7 @@ async function showBoard() {
       h("span", {style: {width: "28px", textAlign: "center", fontWeight: 700, color: i < 3 ? "#ffd24a" : "#8fb4d8"}, text: i < 3 ? ["🥇", "🥈", "🥉"][i] : String(i + 1)}),
       avEl(x.avatar, x.style, {style: {width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover"}}),
       h("span", {style: {flex: 1}}, h("div", {}, x.name, devEl(x.dev))),
-      h("span", {style: {textAlign: "right"}}, h("div", {}, rkEl(x.lv), h("span", {class: "meta", text: " " + (x.rp || 0) + " 分"})),
+      h("span", {style: {textAlign: "right"}}, h("div", {}, rkEl(x.lv), h("span", {class: "meta", text: " " + (x.rp || 0) + (x.rp_next != null ? " / " + x.rp_next : "") + " 分"})),
         h("div", {class: "meta", text: x.games ? `${x.wins} 勝 / ${x.games} 場` : "尚無對局"})));
     const sorted = rows.slice().sort(SORTS[key]);
     sorted.slice(0, 10).forEach((x, i) => body.append(line(x, i)));
@@ -2041,12 +2076,54 @@ async function refreshRooms() {
   const L = $("#rlist"); L.textContent = "";
   for (const r of list) {
     L.append(h("div", {class: "rrow"},
-      h("div", {class: "ri"}, h("div", {class: "rn", text: r.name}), h("div", {class: "rm", text: (r.host ? "房主: " + r.host + " · " : "") + (r.n ? r.n + " 人局 · " : "") + "目前 " + r.online + " 人在線"})),
+      h("div", {class: "ri"}, h("div", {class: "rn", text: (r.locked ? "🔒 " : "") + r.name}), h("div", {class: "rm", text: (r.host ? "房主: " + r.host + " · " : "") + (r.n ? r.n + " 人局 · " : "") + "目前 " + r.online + " 人在線"})),
       h("span", {class: "st" + (r.state === "進行中" ? " go" : ""), text: r.state}),
       r.can_delete ? h("button", {text: "改名", title: "修改房間名稱", onclick: async () => { const nn = prompt("新的房間名稱", r.name); if (nn == null) return; const x = await (await fetch("/api/room_rename", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({tok: TOK, target: r.id, name: nn})})).json(); if (!x.ok) toast(x.error); refreshRooms(); }}) : null,
       r.can_delete ? h("button", {text: "刪除", title: "刪除這個房間", onclick: async () => { if (confirm("確定要刪除房間「" + r.name + "」嗎?")) { await fetch("/api/room_delete", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({tok: TOK, target: r.id})}); refreshRooms(); } }}) : null,
-      h("button", {class: "primary", text: r.state === "進行中" || r.state === "選武將" ? "觀戰" : "加入", title: r.state === "進行中" || r.state === "選武將" ? "遊戲已開始,只能觀戰" : "", onclick: () => enterRoom(r.id, r.name)})));
+      h("button", {class: "primary", text: r.state === "進行中" || r.state === "選武將" ? "觀戰" : "加入", title: r.state === "進行中" || r.state === "選武將" ? "遊戲已開始,只能觀戰" : "", onclick: () => joinRoom(r)})));
   }
+}
+function openSolo() {   // 單人模式: 開一個不公開的房間,直接和電腦對打
+  if (document.getElementById("solodlg")) return;
+  const st = {n: 5, diff: 3, ranked: "casual"};
+  const close = () => { const m = document.getElementById("solodlg"); if (m) m.remove(); };
+  const body = h("div", {class: "dbody"});
+  const draw = () => {
+    body.textContent = "";
+    const seg = (items, cur, on) => h("div", {style: {display: "flex", gap: "6px", flexWrap: "wrap", margin: "4px 0 12px"}}, items.map(([v, t]) => h("button", {type: "button", class: v === cur ? "primary" : "", text: t, onclick: () => { on(v); draw(); }})));
+    body.append(h("div", {style: {fontWeight: 700}, text: "人數 (你 + 電腦)"}),
+      seg([2, 3, 4, 5, 6, 7, 8, 9, 10].filter(x => st.ranked !== "ranked" || x >= 4).map(x => [x, x + " 人"]), st.n, v => { st.n = v; }),
+      h("div", {style: {fontWeight: 700}, text: "電腦難度"}),
+      seg(diffLabels().map((t, k) => [k + 1, "🤖 " + t]), st.diff, v => { st.diff = v; }),
+      h("div", {style: {fontWeight: 700}, text: "模式"}),
+      seg([["casual", "🎮 休閒模式"], ["ranked", "🏅 段位模式"]], st.ranked, v => { st.ranked = v; if (v === "ranked" && st.n < 4) st.n = 4; }),
+      h("div", {class: "meta", text: "你坐座位 0,其他座位都是電腦;房間不公開,離開就會結束對局。"}),
+      h("div", {style: {display: "flex", justifyContent: "flex-end", marginTop: "14px", gap: "8px"}},
+        h("button", {text: "取消", onclick: close}), h("button", {class: "primary", text: "開始", onclick: go})));
+  };
+  const go = async () => {
+    const r = await (await fetch("/api/room_create", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({tok: TOK, name: "單人模式", solo: true})})).json();
+    if (!r.ok) { toast("開房失敗: " + r.error); return; }
+    close(); enterRoom(r.room, r.name);
+    S.baseSeat = null; S.logN = 0; S.thN = 0; S.thoughts = []; S.lastTh = {}; S.sel = null; S.picked = null; S.pendId = 0;
+    $("#log").textContent = ""; $("#thl").textContent = "";
+    const x = await api("/api/new", {players: st.n, human: "0", humans: [0], chars: [], variant: 0, lord: "random", mode: "normal", role_mode: st.n < 4 ? "none" : "normal", base_hp: 4, ranked: st.ranked === "ranked", difficulty: st.diff, diffs: [], seed: "", speed: +($("#speed").value || 0.35)});
+    if (x && x.ok === false) toast("開始失敗: " + (x.error || ""));
+    poll(true);
+  };
+  const m = h("div", {class: "modal", id: "solodlg", style: {zIndex: 7500}, onclick: e => { if (e.target === m) close(); }},
+    h("div", {class: "dlg", style: {maxWidth: "420px"}}, h("div", {class: "dh"}, h("div", {}, h("h3", {text: "🤖 單人模式"})), h("button", {class: "x", text: "✕", onclick: close})), body));
+  document.body.append(m);
+  draw();
+}
+$("#rsolo").onclick = openSolo;
+async function joinRoom(r) {   // 有密碼的房間: 先輸入密碼 (房主 / 被邀請的人不用)
+  if (r.need_pw) {
+    const pw = prompt("「" + r.name + "」需要密碼:"); if (pw == null) return;
+    const x = await (await fetch("/api/room_join", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({tok: TOK, room: r.id, password: pw})})).json();
+    if (!x.ok) { toast(x.error || "加入失敗"); return; }
+  }
+  enterRoom(r.id, r.name);
 }
 function showRooms(msg) {
   $("#rooms").classList.add("on");
@@ -2065,11 +2142,16 @@ async function roomDelete() {
   if (!x.ok) { toast(x.error); return; }
   const m = $("#modal"); if (m) m.textContent = ""; S.modalOpen = null; leaveRoom("房間已刪除");
 }
-$("#bRooms").onclick = () => { if ($("#bRooms").disabled) return; leaveRoom(); };
+$("#bRooms").onclick = () => {
+  if ($("#bRooms").disabled) return;
+  const others = (S.online || []).filter(x => x.id !== S.myWho).length;
+  if (S.amHost && others > 0 && !confirm("你是房主,離開後房主會自動交給房間裡的其他人。確定要回到大廳嗎?")) return;
+  leaveRoom();
+};
 $("#rcreate").onclick = async () => {
-  const r = await (await fetch("/api/room_create", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({tok: TOK, name: $("#rname").value})})).json();
+  const r = await (await fetch("/api/room_create", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({tok: TOK, name: $("#rname").value, password: $("#rpw").value})})).json();
   if (!r.ok) { toast("創建失敗: " + r.error); return; }
-  $("#rname").value = ""; enterRoom(r.room, r.name);
+  $("#rname").value = ""; $("#rpw").value = ""; enterRoom(r.room, r.name);
 };
 $("#rname").onkeydown = e => { if (e.key === "Enter") $("#rcreate").click(); };
 (async () => {

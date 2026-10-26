@@ -42,8 +42,9 @@
   // 一個人的資料: 頭貼 (含框 / 特效) + 名字 + 等級 / 段位 / 開發者 + 共同好友
   function person(f, sub) {
     const mu = el("span", {class: "mu", title: (f.mutual_names || []).join("、"), text: f.mutual ? " · 共同好友 " + f.mutual : " · 無共同好友"});
-    return [avEl(f.avatar, f.style, {style: {width: "38px", height: "38px", borderRadius: "50%", objectFit: "cover", flex: "none"}}),
-      el("div", {class: "grow"},
+    const open = () => window.showPlayer && window.showPlayer(f.id);
+    return [avEl(f.avatar, f.style, {style: {width: "38px", height: "38px", borderRadius: "50%", objectFit: "cover", flex: "none", cursor: "pointer"}, onclick: open}),
+      el("div", {class: "grow", style: {cursor: "pointer"}, title: "查看個人資訊", onclick: open},
         el("div", {class: "nm"}, f.remark || f.user, f.remark ? el("span", {class: "lvt", text: " (" + f.user + ")"}) : "", " ", rkEl(f.rank), devEl(f.dev)),
         el("div", {class: "st"}, sub || "", mu))];
   }
@@ -176,8 +177,8 @@
           const r = await post("/api/friend_nick", {name: f.id, nick: v});
           if (!r.ok) toast(r.error || "失敗"); else poll();
         }}),
-        el("button", {title: "私訊", onclick: () => openChat(f)}, "💬", f.unread ? el("span", {class: "ub", text: f.unread}) : ""),
-        ROOM ? el("button", {title: "邀請到目前的房間", text: "邀請", onclick: async () => { const r = await post("/api/invite", {to: f.id}); toast(r.ok ? "已邀請 " + f.user : (r.error || "邀請失敗"), r.ok ? "ok" : undefined); }}) : "",
+        el("button", {title: f.online ? "私訊" : "對方離線,不能聊天", disabled: !f.online, onclick: () => openChat(f)}, "💬", f.unread ? el("span", {class: "ub", text: f.unread}) : ""),
+        ROOM ? el("button", {title: f.online ? "邀請到目前的房間" : "對方離線,不能邀請", disabled: !f.online, text: "邀請", onclick: async () => { const r = await post("/api/invite", {to: f.id}); toast(r.ok ? "已邀請 " + f.user : (r.error || "邀請失敗"), r.ok ? "ok" : undefined); }}) : "",
         el("button", {title: "刪除好友", text: "🗑", onclick: async () => { if (confirm("確定要刪除好友「" + f.user + "」嗎?")) { await post("/api/friend_remove", {name: f.id}); poll(); } }})));
     }
     if (hadFocus) { inp.focus(); try { inp.setSelectionRange(caret, caret); } catch (e) {} }
@@ -252,7 +253,7 @@
     sel.append(el("option", {value: "room", text: "🏠 房間頻道"}), el("option", {value: "pub", text: "🌐 公共頻道" + (CH.pubUnread ? " (" + CH.pubUnread + ")" : "")}));
     if (fr.length) {
       const g = el("optgroup", {label: "好友私訊"});
-      for (const f of fr) g.append(el("option", {value: "dm:" + f.id, text: "💬 " + (f.remark || f.user) + (f.online ? " ●" : "") + (f.unread ? " (" + f.unread + ")" : "")}));
+      for (const f of fr) g.append(el("option", {value: "dm:" + f.id, disabled: !f.online && CH.cur !== "dm:" + f.id, text: "💬 " + (f.remark || f.user) + (f.online ? " ●" : "") + (f.unread ? " (" + f.unread + ")" : "")}));
       sel.append(g);
     }
     if (![...sel.options].some(o => o.value === CH.cur)) CH.cur = "room";

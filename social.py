@@ -167,6 +167,9 @@ class Social:
             self._save()
         return {"ok": True, "remark": remark}
 
+    def is_online(self, key):
+        return time.time() - self._u(key).get("seen", 0) < ONLINE_WITHIN
+
     def is_friend(self, a, b):
         return b in self._u(a)["fr"]
 
@@ -179,6 +182,8 @@ class Social:
         with self.lock:
             if not self.is_friend(key, to):
                 return {"ok": False, "error": "只能傳給好友"}
+            if not self.is_online(to):
+                return {"ok": False, "error": "對方目前離線,不能傳訊息"}
             if self._limit(key, "dm", 1, 0.5) or self._limit(key, "dm60", 40, 60):
                 return {"ok": False, "error": "說話太快了"}
             L = self.d["dm"].setdefault(self._pair(key, to), [])
@@ -204,6 +209,8 @@ class Social:
         with self.lock:
             if not self.is_friend(key, to):
                 return {"ok": False, "error": "只能邀請好友"}
+            if not self.is_online(to):
+                return {"ok": False, "error": "對方目前離線,不能邀請"}
             if self._limit(key, "inv", 10, 60):
                 return {"ok": False, "error": "邀請太頻繁了"}
             now = time.time()
