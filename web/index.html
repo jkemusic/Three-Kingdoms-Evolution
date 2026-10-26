@@ -348,8 +348,8 @@ button.big{font-size:16px;font-weight:800;padding:10px 38px}
 #tablewrap.pannable{cursor:grab}
 .eq.pk{outline:2px solid #ffd54a;outline-offset:0;box-shadow:0 0 5px 1px #ffd54a;cursor:pointer;animation:pkp 1s ease-in-out infinite;position:relative;z-index:5;padding:0;margin:0;flex:none;max-width:none;background:#0d0f13;gap:0;display:block}@keyframes pkp{50%{box-shadow:0 0 8px 2px #ffd54a}}
 #status:empty{display:none}
-#members{position:fixed;top:44px;left:150px;z-index:9000;min-width:220px;max-width:min(360px,92vw);background:#0b1a30;border:1px solid #24557d;border-radius:10px;padding:8px 10px;box-shadow:0 10px 30px rgba(0,0,0,.6);display:none}
-#members .mr.clk{cursor:pointer;border-radius:8px}#members .mr.clk:hover{background:rgba(63,210,255,.12)}#members.on{display:block}#members .mr{display:flex;align-items:center;gap:8px;padding:4px 2px;font-size:13px}#members .mr img{width:26px;height:26px;border-radius:50%;object-fit:cover}#members .mr .av0{width:26px;text-align:center}#members .mr .tg{margin-left:auto;font-size:11px;color:#7fb7dd}#members h4{margin:0 0 4px;color:#3fd2ff;font-size:13px}
+#members{position:fixed;top:44px;left:150px;z-index:9000;min-width:min(330px,92vw);max-width:min(400px,92vw);background:#0b1a30;border:1px solid #24557d;border-radius:10px;padding:8px 10px;box-shadow:0 10px 30px rgba(0,0,0,.6);display:none}
+#members .mr.clk{cursor:pointer;border-radius:8px}#members .mr.clk:hover{background:rgba(63,210,255,.12)}#members.on{display:block}#members .mr{display:flex;align-items:center;gap:8px;padding:4px 2px;font-size:13px}#members .mr img{width:26px;height:26px;border-radius:50%;object-fit:cover}#members .mr .av0{width:26px;text-align:center}#members .mr .tg{font-size:11px;color:#7fb7dd;white-space:nowrap;min-width:46px;text-align:right}#members .mr .mn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#members .mr>*{flex:none}#members .mr>.mn{flex:1 1 auto}#members .mr .mb{padding:1px 7px;font-size:12px;min-height:0;white-space:nowrap}#members h4{margin:0 0 4px;color:#3fd2ff;font-size:13px}
 #waitbar{display:none!important}
 @media(max-width:820px){#bar{position:relative;z-index:30}}
 @media (min-width:821px){body.setup-open #modal .modal{top:var(--toph,48px)}body.setup-open:not(.hide-side) #modal .modal{right:390px}body.setup-open:not(.hide-side) #side{z-index:25}}   /* 新遊戲設定: 右邊的聊天 / 紀錄欄不被蓋住 */
@@ -1427,15 +1427,15 @@ function renderMembers() {   // 👥 房間成員: 每個人都看得到 (不只
   pn.append(h("h4", {text: "房間成員 (" + o.length + ")"}));
   o.forEach(x => pn.append(h("div", {class: "mr" + (x.acc ? " clk" : ""), onclick: x.acc ? () => showPlayer(x.acc) : null},
     avEl(x.avatar, x.style, {}),
-    h("span", {text: (x.host ? "👑 " : "") + (x.name || "未命名") + (x.id === S.myWho ? " (你)" : "")}), rkEl(x.lv), devEl(x.dev),
+    h("span", {class: "mn", title: x.name || "", text: (x.host ? "👑 " : "") + (x.name || "未命名") + (x.id === S.myWho ? " (你)" : "")}), rkEl(x.lv), devEl(x.dev),
     h("span", {class: "tg", text: x.spec ? "👁 觀戰者" : x.seat != null ? "座位 " + x.seat : ""}),
-    S.amHost && x.id !== S.myWho && !x.host ? h("button", {type: "button", text: "👑 讓房主", title: "把房主讓給他", style: {padding: "1px 8px", fontSize: "12px", marginLeft: "6px"}, onclick: async ev => {
+    S.amHost && x.id !== S.myWho && !x.host ? h("button", {type: "button", text: "👑", title: "把房主讓給他", class: "mb", onclick: async ev => {
       ev.stopPropagation();
       if (!confirm(`確定把房主讓給「${x.name || "未命名"}」嗎?你之後就不能操作新遊戲/暫停等功能了。`)) return;
       const r = await api("/api/transfer", {to: x.id});
       if (r.ok) { toast("房主已讓給 " + (r.name || "對方"), "host"); poll(true); } else toast("讓房主失敗: " + r.error);
     }}) : null,
-    S.amHost && x.id !== S.myWho ? h("button", {type: "button", text: "踢出", title: "踢出房間", style: {padding: "1px 8px", fontSize: "12px", marginLeft: "6px"}, onclick: async ev => { ev.stopPropagation();
+    S.amHost && x.id !== S.myWho ? h("button", {type: "button", text: "踢出", title: "踢出房間", class: "mb", onclick: async ev => { ev.stopPropagation();
       if (!confirm("確定要把「" + (x.name || "未命名") + "」踢出房間嗎?")) return;
       const r = await api("/api/kick", {to: x.id});
       toast(r.ok ? "已踢出 " + r.name : "踢人失敗: " + (r.error || ""), r.ok ? "ok" : undefined);

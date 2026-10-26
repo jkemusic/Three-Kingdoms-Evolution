@@ -468,11 +468,12 @@ class Game:
         if nature and tgt.char.immune_nature(self, tgt, nature):
             self.log(f"  {tgt.name} 不受{nature}傷害")
             return
+        qg = via_sha and src is not None and src.has_weapon("青釭劍")   # 青釭劍: 殺無視對方防具 (屬性盾 / 緩衝盾也一樣)
         immune = NATURE_ARMOR.get(nature)
-        if immune and tgt.has_armor(immune):
+        if immune and not qg and tgt.has_armor(immune):
             self.log(f"  {tgt.name} 的{immune}: {nature}傷害無效")
             return
-        if nature == "火" and tgt.has_armor("藤甲"):
+        if nature == "火" and not qg and tgt.has_armor("藤甲"):
             n += 1
         if _bonus and src and src.has_weapon("流星錘"):
             n += 1
@@ -483,7 +484,8 @@ class Game:
                 n *= 2 ** src.dmg_x2   # 強: 該玩家本回合「造成」的傷害 x2
             if src:
                 n //= 2 ** src.dmg_half   # 弱: 該玩家本回合「造成」的傷害 ÷2 (無條件捨去)
-        n -= tgt.armor_names().count("緩衝盾")
+        if not qg:
+            n -= tgt.armor_names().count("緩衝盾")
         n = tgt.char.cap_damage(self, tgt, n)
         if n > 0:
             n = tgt.char.pre_damage(self, tgt, src, n, nature)
