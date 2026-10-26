@@ -160,6 +160,18 @@ html.px .dlg,html.px .ci{background:var(--pxbg);border:4px solid var(--pxfg);box
 html.px .dlg h3,html.px .ci h3{color:var(--pxacc);text-shadow:2px 2px 0 var(--pxbtn)}
 html.px .modal{background:rgba(0,0,0,.72)}
 html.px .pickbar{background:var(--pxbg);border:3px solid var(--pxacc);box-shadow:0 0 0 3px #000,6px 6px 0 3px rgba(0,0,0,.6)}
+/* 方形頭像下的特效: 旋轉改成 90 度一格一格跳 (方形轉完還是方形,不會角突出來),放射狀 / 對稱圖樣另外處理 */
+@keyframes pxblink{0%,49%{opacity:1}50%,100%{opacity:.3}}
+@keyframes pxinv{50%{filter:invert(1)}}
+@keyframes pxhue{to{filter:hue-rotate(360deg)}}
+html.px .avw::before,html.px .avw::after,html.px .avw>i{animation-timing-function:steps(4)}
+html.px .fr-6::before{animation:pxhue 3s steps(12) infinite}
+html.px .avw.fr-storm::before{animation:pxinv .6s steps(1) infinite}
+html.px .fx-ring::after{animation:pxblink .8s steps(1) infinite}
+html.px .fx-aurora::after,html.px .fx-rainbow::after{animation:pxhue 4s steps(12) infinite}
+html.px .fx-sun>.fxa{animation:frspin 16s steps(24) infinite}
+html.px .fx-sun::after{animation:frspin 22s steps(24) infinite reverse}
+html.px .fx-comet>.fxa{-webkit-mask:none;mask:none;clip-path:polygon(evenodd,0 0,100% 0,100% 100%,0 100%,0 0,8px 8px,8px calc(100% - 8px),calc(100% - 8px) calc(100% - 8px),calc(100% - 8px) 8px,8px 8px)}
 @font-face{font-family:"SGS Pixel TW";src:url(/fonts/pixel-tw.woff2) format("woff2");font-display:swap}
 @font-face{font-family:"SGS Pixel JA";src:url(/fonts/pixel-ja.woff2) format("woff2");font-display:swap}
 `;
