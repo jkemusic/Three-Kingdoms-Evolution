@@ -697,8 +697,8 @@ function bindCharPrev(e, p) {   // 滑鼠移到場上武將牌: 跟卡牌一樣�
     const P = $("#prev"); P.textContent = "";
     if (c.img) P.append(h("img", {src: c.img}));
     const st = [`體力 ${p.hp}/${p.maxhp}`, `手牌 ${p.hand_n}`]; if (p.role !== "?" && p.role !== "無") st.push(p.role);
-    P.append(h("h4", {text: `${c.faction} ${c.name}`}), note ? h("p", {style: {color: "var(--gold)", fontWeight: 700}, text: note}) : null, h("p", {class: "meta", text: st.join(" / ")}),
-      ...(c.skills || []).map((t, i) => h("p", {text: /^\d+[.、]/.test(t) || c.skills.length < 2 ? t : (i + 1) + ". " + t})));
+    P.append(...[h("h4", {text: `${c.faction} ${c.name}`}), note ? h("p", {style: {color: "var(--gold)", fontWeight: 700}, text: note}) : null, h("p", {class: "meta", text: st.join(" / ")}),
+      ...(c.skills || []).map((t, i) => h("p", {text: /^\d+[.、]/.test(t) || c.skills.length < 2 ? t : (i + 1) + ". " + t}))].filter(Boolean));   // 不能把 null 直接丟給 append (會顯示成文字 null)
     P.style.display = "block";
   });
   e.addEventListener("mouseleave", () => { $("#prev").style.display = "none"; });

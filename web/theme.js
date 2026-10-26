@@ -1107,6 +1107,16 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
     + Array.from({ length: 12 }, (_, i) => `<polygon points="-3.4,-30 3.4,-30 0,-49.5" fill="url(#sg)" transform="rotate(${i * 30})"/>`).join("")
     + Array.from({ length: 12 }, (_, i) => `<polygon points="-2.4,-30 2.4,-30 0,-41" fill="#ffc83a" opacity=".85" transform="rotate(${i * 30 + 15})"/>`).join("")
     + `<circle r="29.5" fill="none" stroke="#ffe27a" stroke-width="1.6"/><circle r="31" fill="none" stroke="#ffb02e" stroke-width="3.5" opacity=".3"/>`);
+  const orbitKf = (name, alpha, beta, rev) => {   // 星軌: 3D 傾斜的圓軌道投影到畫面,星星在背面時躲到頭像後面、轉到正面時蓋在頭像前面,近大遠小
+    const N = 48, A = alpha * Math.PI / 180, B = beta * Math.PI / 180; let o = `@keyframes ${name}{`;
+    for (let i = 0; i <= N; i++) {
+      const t = (rev ? -1 : 1) * i / N * Math.PI * 2, x = Math.cos(t), y = Math.sin(t) * Math.cos(A), z = Math.sin(t) * Math.sin(A);
+      const X = x * Math.cos(B) - y * Math.sin(B), Y = x * Math.sin(B) + y * Math.cos(B);
+      o += `${(i / N * 100).toFixed(2)}%{left:${(50 + 50 * X).toFixed(1)}%;top:${(50 + 50 * Y).toFixed(1)}%;transform:scale(${(1 + .45 * z).toFixed(2)});opacity:${(.5 + .5 * (z + 1) / 2).toFixed(2)};z-index:${z > 0 ? 3 : -1}}`;
+    }
+    return o + "}";
+  };
+  const ORBIT_CSS = orbitKf("orbA", 66, -28, false) + orbitKf("orbB", 50, 42, true);
   const st = document.createElement("style");
   st.textContent = `
 /* 鍵盤焦點: 只在用鍵盤操作時顯示,不影響滑鼠點擊 */
@@ -1153,6 +1163,13 @@ html.px .fx-ring::after{inset:-14%}html.px .fx-ice>.fxa{inset:-16%}html.px .fx-v
 .fx-sun>.fxb{inset:-10%;background:radial-gradient(closest-side,transparent 80%,rgba(255,226,110,.55) 92%,transparent 100%);animation:fxglow2 2.6s ease-in-out infinite}
 /* 光柱: 從頭像正上方往下打的一束光 (上窄下寬,罩住頭像),固定不抖動 */
 .fx-beam>.fxa{left:-30%;right:-30%;top:-150%;bottom:35%;background:linear-gradient(180deg,rgba(255,250,200,.95),rgba(255,244,170,.55) 40%,rgba(255,240,150,.18) 85%,transparent);clip-path:polygon(40% 0,60% 0,100% 100%,0 100%);animation:none}
+/* 星軌: 兩顆星各走一條傾斜角度不同的 3D 軌道 (不平行也不垂直),從頭像後面繞到前面 */
+.fx-orbit>.fxa,.fx-orbit>.fxb{inset:-24%;border-radius:0;z-index:auto;animation:none}
+.fx-orbit>.fxa::before,.fx-orbit>.fxb::before{content:"";position:absolute;left:50%;top:50%;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;background:#fff;box-shadow:0 0 6px 2px #7ff0ff,0 0 12px 4px rgba(127,240,255,.55);animation:orbA 3.4s linear infinite}
+.fx-orbit>.fxb::before{background:#ffe9a0;box-shadow:0 0 6px 2px #ffd24a,0 0 12px 4px rgba(255,210,74,.55);width:6px;height:6px;margin:-3px 0 0 -3px;animation:orbB 5.2s linear infinite}
+.fx-orbit>.fxa::after,.fx-orbit>.fxb::after{content:"";position:absolute;inset:0;border-radius:50%;border:1px solid rgba(127,240,255,.35);transform:rotate(-28deg) scaleY(.4);z-index:-1}
+.fx-orbit>.fxb::after{border-color:rgba(255,210,74,.32);transform:rotate(42deg) scaleY(.64)}
+${ORBIT_CSS}
 .avw.fr-yinyang::before{background:conic-gradient(#fff 0,#fff 12%,#000 38%,#000 62%,#fff 88%,#fff 100%)}
 `;
   document.head.appendChild(st);
