@@ -665,7 +665,7 @@ class Manager:
         if tok:
             now = time.time()
             if tok not in self.seen:
-                self._event(f"➡ {self._name_of(tok)} 進入房間", "info")
+                self._event(f"➡ {self._name_of(tok)} 進入房間", "ok", tok)
             self.seen[tok] = now
             if not self.host and not self.host_cleared and not self.public:   # 最先連線的人成為房主 (公共房間沒有房主)
                 self.host = tok
@@ -716,7 +716,7 @@ class Manager:
             self.seen.pop(target, None)
             self.alive.pop(target, None)
             self.kicked[target] = True
-            self._event(f"🚪 {name} 被房主踢出了房間", "warn")
+            self._event(f"🚪 {name} 被房主踢出了房間", "bad")
         return {"ok": True, "name": name}
 
     def leave(self, tok):
@@ -727,7 +727,7 @@ class Manager:
             now = time.time()
             self.seen.pop(tok, None)
             self.alive.pop(tok, None)
-            self._event(f"⬅ {self._name_of(tok)} 離開了房間", "info")
+            self._event(f"⬅ {self._name_of(tok)} 離開了房間", "bad", tok)
             if tok == self.host:
                 if self.public:
                     self.host, self.host_cleared = None, True
@@ -737,9 +737,9 @@ class Manager:
                         self.host = random.choice(cand)
                         self._event(f"👑 房主離開了,房主已隨機讓給 {self.nicks.get(self.host) or '未命名'}", "host")
 
-    def _event(self, text, kind="info"):
+    def _event(self, text, kind="info", actor=None):   # actor: 這件事的當事人 (自己不用被通知)
         self.ev_id += 1
-        self.events.append({"id": self.ev_id, "text": text, "kind": kind})
+        self.events.append({"id": self.ev_id, "text": text, "kind": kind, "who": self.pid(actor) if actor else None})
         del self.events[:-30]
 
     def _who(self, tok):

@@ -299,6 +299,7 @@ button.big{font-size:16px;font-weight:800;padding:10px 38px}
 #toasts{position:fixed;left:50%;top:64px;transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none}
 .toast{background:#5a1f1f;color:#ffd0d0;padding:8px 18px;border-radius:4px;box-shadow:0 6px 20px #000a;animation:tin .25s}
 .toast.warn{background:#5a3a10;color:#ffe2b0;border:1px solid #c98a2a}
+.toast.bad{background:#5a1620;color:#ffd6dc;border:1px solid #ff5d73}
 .toast.ok{background:#0f4a36;color:#c9ffe8;border:1px solid #46e0a0}
 .toast.host{background:#1a2f5a;color:#d6e8ff;border:1px solid var(--gold)}
 @keyframes tin{from{opacity:0;transform:translateY(-8px)}}
@@ -1397,7 +1398,7 @@ function handleEvents(evs) {   // 斷線 / 重連 / 換房主 通知 (第一次�
   if (!evs) return;
   const mx = evs.length ? evs[evs.length - 1].id : 0;
   if (S.evSeen == null) { S.evSeen = mx; return; }
-  evs.filter(e => e.id > S.evSeen).forEach(e => toast(e.text, e.kind));
+  evs.filter(e => e.id > S.evSeen && !(e.who && e.who === S.myWho)).forEach(e => toast(e.text, e.kind));
   S.evSeen = Math.max(S.evSeen, mx);
 }
 function showHostBar(snap) {
@@ -2143,7 +2144,8 @@ function openSolo() {   // 單人模式: 開一個不公開的房間,直接和�
     body.append(h("div", {style: {fontWeight: 700}, text: "人數 (你 + 電腦)"}),
       seg([2, 3, 4, 5, 6, 7, 8, 9, 10].filter(x => st.ranked !== "ranked" || x >= 4).map(x => [x, x + " 人"]), st.n, v => { st.n = v; }),
       h("div", {style: {fontWeight: 700}, text: "電腦難度"}),
-      seg(diffLabels().map((t, k) => [k + 1, "🤖 " + t]), st.diff, v => { st.diff = v; }),
+      st.ranked === "ranked" ? h("div", {class: "meta", style: {margin: "4px 0 12px"}, text: "段位模式的電腦難度不能自己選,跟著你的段位走 (青銅 弱 / 白銀·黃金 中 / 白金·鑽石 強 / 大師·傳說 很強)"})
+        : seg(diffLabels().map((t, k) => [k + 1, "🤖 " + t]), st.diff, v => { st.diff = v; }),
       h("div", {style: {fontWeight: 700}, text: "模式"}),
       seg([["casual", "🎮 休閒模式"], ["ranked", "🏅 段位模式"]], st.ranked, v => { st.ranked = v; if (v === "ranked" && st.n < 4) st.n = 4; }),
       h("div", {class: "meta", text: "你坐座位 0,其他座位都是電腦;房間不公開,離開就會結束對局。"}),
