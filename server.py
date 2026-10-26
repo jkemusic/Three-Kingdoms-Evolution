@@ -608,6 +608,23 @@ class Manager:
 
     OFFLINE_AFTER = 25   # 超過幾秒沒連線視為斷線
 
+    def leave(self, tok):
+        """主動離開房間 (回大廳): 不算斷線,不通知房內其他人;房主離開時交給別人。"""
+        with self.plock:
+            if tok not in self.seen:
+                return
+            now = time.time()
+            self.seen.pop(tok, None)
+            self.alive.pop(tok, None)
+            if tok == self.host:
+                if self.public:
+                    self.host, self.host_cleared = None, True
+                else:
+                    cand = [t for t, x in self.seen.items() if now - x < self.OFFLINE_AFTER]
+                    if cand:
+                        self.host = random.choice(cand)
+                        self._event(f"👑 房主離開了,房主已隨機讓給 {self.nicks.get(self.host) or '未命名'}", "host")
+
     def _event(self, text, kind="info"):
         self.ev_id += 1
         self.events.append({"id": self.ev_id, "text": text, "kind": kind})
@@ -1354,6 +1371,9 @@ class Handler(BaseHTTPRequestHandler):
             M = ROOMS.get(data.get("room") or "main")
             if M is None:
                 return self._send(200, {"ok": False, "gone": True, "error": "房間已不存在"})
+            if path == "/api/leave":
+                M.leave(data.get("tok"))
+                return self._send(200, {"ok": True})
             if path == "/api/rematch":
                 return self._send(200, M.rematch(data.get("tok")))
             if path == "/api/new":

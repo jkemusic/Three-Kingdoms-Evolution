@@ -1500,7 +1500,7 @@ function openSetup() {
     if (!on) return;
     const pct = p.rp_next == null ? 100 : Math.max(0, Math.min(100, (p.rp - p.rp_lo) / (p.rp_next - p.rp_lo) * 100));
     rkIn.append("我的段位 ", rkEl(p.rank), " · 積分 " + p.rp + " · " + (p.rp_next == null ? "已達最高段位" : "再 " + (p.rp_next - p.rp) + " 分升到 " + p.next_rank));
-    rkSide.append(h("div", {class: "meta", text: "我的段位"}), h("div", {style: {margin: "6px 0"}}, rkEl(p.rank, true)),
+    rkSide.append(h("div", {class: "meta", text: "我的段位"}), h("div", {style: {margin: "6px 0"}}, rkEl(p.rank, true), devEl(p.dev)),
       h("div", {class: "meta", text: "積分 " + p.rp}),
       h("div", {class: "rkbar"}, h("i", {style: {width: pct + "%"}})),
       h("div", {class: "meta", text: p.rp_next == null ? "已達最高段位" : "再 " + (p.rp_next - p.rp) + " 分升到 " + p.next_rank}));
@@ -1847,7 +1847,7 @@ async function showProfile() {
   const chars = (p.chars || []).map(([n, g, w]) => h("div", {style: {display: "flex", justifyContent: "space-between", padding: "3px 0", borderBottom: "1px solid #17304f"}},
     h("span", {text: n}), h("span", {class: "meta", text: g + " 場 · " + w + " 勝 · " + rate(w, g)})));
   M.append(h("div", {class: "modal", onclick: e => { if (e.target.classList.contains("modal")) close(); }}, h("div", {class: "dlg", style: {maxWidth: "460px"}},
-    h("div", {class: "dh"}, h("div", {}, h("h3", {text: "玩家資訊"}), devEl(p.dev)), h("button", {class: "x", text: "✕", onclick: close})),
+    h("div", {class: "dh"}, h("div", {}, h("h3", {text: "玩家資訊"})), h("button", {class: "x", text: "✕", onclick: close})),
     h("div", {class: "dbody"},
       h("div", {style: {display: "flex", alignItems: "center", gap: "14px"}},
         avEl(p.avatar, {fr: p.sel && p.sel.frame, fx: p.sel && p.sel.fx}, {id: "avbig", style: {width: "72px", height: "72px", borderRadius: "50%", objectFit: "cover", border: "2px solid #3fd2ff"}}, "big"),
@@ -1855,7 +1855,7 @@ async function showProfile() {
           h("div", {style: {display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap"}},
             h("div", {style: {fontSize: "28px", fontWeight: 800, lineHeight: 1.15, wordBreak: "break-all"}, text: myNick() || "未命名"}),
             S.nickLocked ? null : h("button", {text: "✎", title: "改暱稱", style: {padding: "3px 10px"}, onclick: () => { close(); showNickGate(true); }})),
-          h("div", {style: {margin: "6px 0"}}, rkEl(p.rank, true)),
+          h("div", {style: {margin: "6px 0"}}, rkEl(p.rank, true), devEl(p.dev)),
           h("div", {style: {display: "flex", gap: "6px", flexWrap: "wrap"}},
             h("button", {text: "上傳頭貼", style: {whiteSpace: "nowrap"}, onclick: () => $("#avfile").click()}),
             p.avatar ? h("button", {text: "移除", style: {whiteSpace: "nowrap"}, onclick: async () => { await api("/api/avatar", {data: ""}); showProfile(); }}) : null,
@@ -1926,15 +1926,16 @@ async function showBoard() {
     for (const k of Object.keys(SORTS)) tabs.append(h("button", {text: "依" + k, class: k === key ? "primary" : "", onclick: () => { key = k; draw(); }}));
     body.append(tabs);
     if (!rows.length) body.append(h("div", {class: "meta", text: "還沒有玩家資料"}));
-    rows.slice().sort(SORTS[key]).slice(0, 50).forEach((x, i) => {
-      const me = x.me;
-      body.append(h("div", {style: {display: "flex", alignItems: "center", gap: "10px", padding: "6px 4px", borderBottom: "1px solid #17304f", background: me ? "#12335a" : ""}},
-        h("span", {style: {width: "28px", textAlign: "center", fontWeight: 700, color: i < 3 ? "#ffd24a" : "#8fb4d8"}, text: i < 3 ? ["🥇", "🥈", "🥉"][i] : String(i + 1)}),
-        avEl(x.avatar, x.style, {style: {width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover"}}),
-        h("span", {style: {flex: 1}}, h("div", {}, x.name, devEl(x.dev))),
-        h("span", {style: {textAlign: "right"}}, h("div", {}, rkEl(x.lv), h("span", {class: "meta", text: " " + (x.rp || 0) + " 分"})),
-          h("div", {class: "meta", text: x.games ? `${x.wins} 勝 / ${x.games} 場 · ${Math.round(rate(x) * 100)}%` : "尚無對局"}))));
-    });
+    const line = (x, i) => h("div", {style: {display: "flex", alignItems: "center", gap: "10px", padding: "6px 4px", borderBottom: "1px solid #17304f", background: x.me ? "#12335a" : ""}},
+      h("span", {style: {width: "28px", textAlign: "center", fontWeight: 700, color: i < 3 ? "#ffd24a" : "#8fb4d8"}, text: i < 3 ? ["🥇", "🥈", "🥉"][i] : String(i + 1)}),
+      avEl(x.avatar, x.style, {style: {width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover"}}),
+      h("span", {style: {flex: 1}}, h("div", {}, x.name, devEl(x.dev))),
+      h("span", {style: {textAlign: "right"}}, h("div", {}, rkEl(x.lv), h("span", {class: "meta", text: " " + (x.rp || 0) + " 分"})),
+        h("div", {class: "meta", text: x.games ? `${x.wins} 勝 / ${x.games} 場 · ${Math.round(rate(x) * 100)}%` : "尚無對局"})));
+    const sorted = rows.slice().sort(SORTS[key]);
+    sorted.slice(0, 10).forEach((x, i) => body.append(line(x, i)));
+    const mi = sorted.findIndex(x => x.me);
+    if (mi >= 10) body.append(h("div", {class: "meta", style: {textAlign: "center", padding: "2px"}, text: "⋮"}), line(sorted[mi], mi));
   };
   M.append(h("div", {class: "modal", onclick: e => { if (e.target.classList.contains("modal")) close(); }}, h("div", {class: "dlg", style: {maxWidth: "460px"}},
     h("div", {class: "dh"}, h("div", {}, h("h3", {text: "玩家排行榜"})), h("button", {class: "x", text: "✕", onclick: close})), body)));
@@ -1978,6 +1979,7 @@ function enterRoom(id, name) {
   poll(true);
 }
 function leaveRoom(msg) {
+  if (ROOM && !(msg && /不存在|刪除/.test(msg))) { try { fetch("/api/leave", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({tok: TOK, room: ROOM})}); } catch (e) {} }   // 告訴伺服器是主動離開,不是斷線
   ROOM = ""; try { sessionStorage.removeItem("sgs_room"); } catch (e) {}
   const u = new URL(location.href); u.searchParams.delete("room"); history.replaceState(null, "", u);
   resetRoomState(); $("#roomname").textContent = "";
