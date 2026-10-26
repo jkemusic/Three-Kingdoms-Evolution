@@ -116,6 +116,7 @@ class Profiles:
         rp = p.get("rp", 0)
         nm, sub, lo, hi = self.rank(rp)
         return {"uuid": self.uid(tok), "dev": self.dev(tok), "rank": self.rank_label(rp), "next_rank": self.rank_label(hi) if hi is not None else None, "tier": nm, "rp": rp, "rp_lo": lo, "rp_next": hi,
+                "rstreak": p.get("rstreak", 0), "streak_bonus": min(self.STREAK_CAP, p.get("rstreak", 0) * self.STREAK_STEP), "streak_cap": self.STREAK_CAP, "streak_step": self.STREAK_STEP,
                 "rgames": p.get("rgames", 0), "rwins": p.get("rwins", 0), "rank_note": p.get("rank_note"), "level": lv, "xp": p["xp"], "xp_cur": self.xp_for(lv), "xp_next": self.xp_for(lv + 1),
                 "games": p["games"], "wins": p["wins"], "playtime": p.get("playtime", 0), "avatar": self.avatar_url(tok),
                 "chars": sorted(([n, v[0], v[1]] for n, v in p.get("chars", {}).items()), key=lambda x: (-x[1], -x[2]))[:3],
