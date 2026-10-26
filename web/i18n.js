@@ -361,10 +361,11 @@ function build() {
   nameMap.set("顏良", lang === "en" ? "Yan Liang" : "顔良"); nameMap.set("文醜", lang === "en" ? "Wen Chou" : "文醜"); nameMap.set("郭圖", lang === "en" ? "Guo Tu" : "郭図"); nameMap.set("逢紀", lang === "en" ? "Pang Ji" : "逢紀");
   namesRe = new RegExp([...nameMap.keys()].sort((a, b) => b.length - a.length).map(esc).join("|"), "g");
   const k = lang === "en" ? 1 : 2;
+  uiTpls = (window.SGS_UI_TPL || []).map(e => [new RegExp("^" + esc(e[0].trim()).replace(/\\{\\}/g, "(.+?)") + "$"), e[lang === "en" ? 1 : 2], e[0].length]).sort((a, b) => b[2] - a[2]);
   tpls = (window.SGS_LOG_TPL || []).map(e => [new RegExp("^" + esc(e[0].trim()).replace(/\\{\\}/g, "(.+?)") + "$"), e[k], e[0].length])
     .sort((a, b) => b[2] - a[2]);
 }
-let tpls = [];
+let tpls = [], uiTpls = [];   // uiTpls: 介面樣板 (需要 {} / 成就「{}」…),{} 抓到的部分會再遞迴翻一次
 function ja(s) { let o = ""; for (const c of s) o += JA_CHARS[c] || c; return o; }
 const SHORT = {   // 戰報裡的牌名簡稱 -> [English, 日本語]
   "殺": ["Slash", "殺"], "閃": ["Dodge", "閃"], "桃": ["Peach", "桃"], "酒": ["Wine", "酒"], "順": ["Steal", "順手牽羊"], "過": ["Dismantle", "過河拆橋"],
@@ -410,16 +411,26 @@ function protect(t, store) {
   t = t.replace(shortRe2, (m, v, sp, nm) => v + sp + tok(shortOf(nm)[k]));
   return t;
 }
-function tr(s) {
+const FACTION = { en: { "魏": "Wei", "蜀": "Shu", "吳": "Wu", "群": "Qun", "晉": "Jin" }, ja: { "魏": "魏", "蜀": "蜀", "吳": "呉", "群": "群", "晉": "晋" } };
+function tr(s) {   // 勢力字 (魏蜀吳群晉) 在句首時一併翻譯
+  const r = tr0(s);
+  if (lang === "zh" || !r) return r;
+  return r.replace(/^(\s*)([魏蜀吳群晉])(?= )/, (m, sp, f) => sp + FACTION[lang][f]);
+}
+function tr0(s) {
   if (lang === "zh" || !s) return s;
   const t = s.trim();
   if (!t || !/[㐀-鿿]/.test(t)) return s;
   const lead = s.slice(0, s.indexOf(t)), trail = s.slice(s.indexOf(t) + t.length);
-  if (exact[t]) return lead + exact[t] + trail;
+  if (exact[t]) return lead + names(exact[t]) + trail;
   { const m = t.match(/^([^㐀-鿿A-Za-z0-9]+)([㐀-鿿].*)$/s);   // 前面的符號 / 圖示 (「• 」「🔒 」「✔ 」…) 先拿掉,剩下的整句再查一次
     if (m && (exact[m[2]] || exact[m[2].replace(/[：:。！!…]+$/, "")])) return lead + m[1] + (exact[m[2]] || exact[m[2].replace(/[：:。！!…]+$/, "")]) + trail; }
   for (const [re, o] of tpls) { const m = t.match(re); if (m) return lead + names(o.replace(/\{(\d+)\}/g, (x, i) => m[+i] == null ? "" : word(m[+i]))) + trail; }
   for (const [re, f] of pats) { const m = t.match(re); if (m) return lead + f(...m.map((x, i) => i && typeof x === "string" ? word(x) : x)) + trail; }
+  if (/^[^、]+「[^」]+」(、[^、]+「[^」]+」)+$/.test(t)) return lead + t.split("、").map(tr).join("、") + trail;   // 解鎖清單: 頭像框「A」、特效「B」
+  for (const [re, o] of uiTpls) { const m = t.match(re); if (m) return lead + o.replace(/\{(\d+)\}/g, (x, i) => m[+i] == null ? "" : tr(m[+i])) + trail; }
+  { const m = t.match(/^([^㐀-鿿A-Za-z0-9]+)([㐀-鿿].*)$/s);   // 前面的符號 (🔒 / 🤖 …) 拿掉,剩下的遞迴翻譯
+    if (m) { const r = tr(m[2]); if (r !== m[2]) return lead + m[1] + r + trail; } }
   return lead + word(t) + trail;
 }
 function names(t) {   // 只翻 [武將名] 等括號與殘留的武將名 (模板輸出已是目標語言,不能再套整本詞典)

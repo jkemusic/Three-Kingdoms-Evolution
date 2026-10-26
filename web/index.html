@@ -480,7 +480,7 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
   max-width:none;padding:1px 8px 1px 7px;background:rgba(6,16,32,.92);border:1px solid #24557d;border-radius:6px;font-size:13px;z-index:8;box-shadow:0 2px 8px rgba(0,0,0,.5)}
 .pl .nm .pn{overflow:visible!important;text-overflow:clip!important;white-space:nowrap!important;word-break:normal!important;flex:0 0 auto}
 .pl .nm .role{margin-left:0}
-.pl .nm .winb{position:static!important;transform:none!important;border-radius:99px!important}
+.pl .nm .winb{position:absolute!important;transform:none!important;top:-10px!important;right:-8px!important;left:auto!important;border-radius:99px!important}
 .pl.cur::after{left:auto!important;right:14px!important}
 .pl.waiting .nm::after{content:" ⏳"}
 .bubble{bottom:calc(100% + 36px)!important}
@@ -494,7 +494,7 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
 .pl .inf>.nr{display:flex;align-items:center;gap:4px;min-width:0;font-weight:700;font-size:14px;color:#fff;white-space:nowrap}
 .pl .inf>.nr .pn{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:0 1 auto}
 .pl .inf>.nr .role,.pl .inf>.nr .winb{flex:0 0 auto;border-radius:99px}
-.pl .inf>.nr .winb{position:static!important;transform:none!important;top:auto!important;left:auto!important;margin-left:2px;padding:0 6px}   /* 名字標籤改放框內 */
+.pl .inf>.nr .winb{position:absolute!important;transform:none!important;top:-10px!important;right:-8px!important;left:auto!important;margin:0;padding:1px 7px;border-radius:99px!important;box-shadow:0 1px 4px rgba(0,0,0,.45)}   /* 勝利標籤貼在玩家框右上角邊上,不佔名字的位置 */
 .tag.bd{font-weight:700;white-space:normal;max-width:100%;line-height:1.35;border-radius:6px}.tag.bd-ren{background:#1f6b4a;color:#c9ffe6}.tag.bd-shi{background:#7a2230;color:#ffd0d6}.tag.bd-mk{background:#7a5b10;color:#ffe9a8;box-shadow:0 0 8px rgba(255,210,74,.6)}
 .tag.bd-cnt{background:#1c4a7a;color:#cfe8ff}.tag.bd-once{background:#3a3f4d;color:#d6dbe6}.tag.bd-st{background:#6b3b8a;color:#f1d9ff;box-shadow:0 0 6px rgba(190,120,255,.5)}
 .pile .card .lab,.sitem .card .lab{white-space:nowrap;padding-left:0;padding-right:0}.pile .card .lab{font-size:10px}
@@ -1242,11 +1242,12 @@ function addLogs(lines) {
   if (hd) hd.addEventListener("wheel", e => { if (hd.scrollWidth <= hd.clientWidth) return; const d = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX; hd.scrollLeft += d; e.preventDefault(); }, {passive: false}); }
 S.cat = null;
 fetch("/api/cardcat").then(r => r.json()).then(c => {
-  const names = Object.keys(c).filter(k => !/^[火冰雷]殺$/.test(k)).sort((a, b) => b.length - a.length).map(k => k.replace(/[+*?^$.()|{}\[\]\-]/g, m => "\\" + m));
+  S.fullKey = {}; for (const [k, v] of Object.entries(c)) if (v.full && v.full !== k && !c[v.full]) S.fullKey[v.full] = k;   // 全名 → 短名 (「五穀豐登」找到「五」的圖)
+  const names = Object.keys(c).concat(Object.keys(S.fullKey)).filter(k => !/^[火冰雷]殺$/.test(k)).sort((a, b) => b.length - a.length).map(k => k.replace(/[+*?^$.()|{}\[\]\-]/g, m => "\\" + m));
   S.cat = c; S.catRe = new RegExp("(紅|黑)(火|冰|雷)?(" + names.join("|") + ")|(" + names.filter(n => n.length > 1).join("|") + ")|(?:使用|打出|裝備|發動|棄置?|亮出) ?(" + names.join("|") + ")(?![\u4e00-\u9fff])", "g");
 }).catch(() => {});
 function catCard(color, nat, name) {
-  const e = S.cat[nat ? nat + name : name] || S.cat[name]; if (!e) return null;
+  const e = S.cat[nat ? nat + name : name] || S.cat[name] || S.cat[(S.fullKey || {})[name]]; if (!e) return null;
   const col = color || "紅";
   return {name, full: e.full || name, color: col, img: e.img[col] || e.img["紅"] || e.img["黑"], desc: e.desc, text: (color || "") + (nat || "") + (e.full || name)};
 }
@@ -1266,7 +1267,7 @@ function fullTxt(t) {   // 箭頭文字: 簡稱 → 花色 + 全名
 function cardNodes(str) {
   if (!S.cat || !S.catRe) return [str];
   const t0 = str.trim();
-  if (S.cat[t0] && !/^[火冰雷]殺$/.test(t0)) { const c = catCard("", "", t0); if (c && c.img) { const im = h("img", {class: "lc" + (DELAYED.has(c.name) ? " dl" : ""), src: c.img, title: c.text, onclick: () => showCardInfo(c)}); bindPrev(im, c); return [lcw(im, c)]; } }
+  if ((S.cat[t0] || (S.fullKey || {})[t0]) && !/^[火冰雷]殺$/.test(t0)) { const c = catCard("", "", t0); if (c && c.img) { const im = h("img", {class: "lc" + (DELAYED.has(c.name) ? " dl" : ""), src: c.img, title: c.text, onclick: () => showCardInfo(c)}); bindPrev(im, c); return [lcw(im, c)]; } }
   const out = []; let last = 0; S.catRe.lastIndex = 0; let m;
   while ((m = S.catRe.exec(str))) {
     let c = null;
