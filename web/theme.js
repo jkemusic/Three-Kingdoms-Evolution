@@ -678,6 +678,10 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
     pts.push("100% 100%"); return `polygon(${pts.join(",")})`;
   };
   const HILL_FAR = hillClip(1.2, 7, 38), HILL_NEAR = hillClip(4, 9, 58);
+  const lavaTex = (seed, bf, op) => {   // 液態岩漿: 雜訊貼圖 (只算一次) 經色階映射成 暗紅→橘→亮黃,整張貼圖橫向無縫捲動
+    const f = `lt${seed}`, one = `<svg viewBox="0 0 240 100" preserveAspectRatio="none" style="position:relative;display:block;width:50%;height:100%"><defs><filter id="${f}" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="${bf}" numOctaves="3" seed="${seed}" stitchTiles="stitch"/><feColorMatrix values="3 0 0 0 -1.05  3 0 0 0 -1.05  3 0 0 0 -1.05  0 0 0 0 1"/><feComponentTransfer><feFuncR type="table" tableValues=".32 .62 .95 1 1"/><feFuncG type="table" tableValues="0 .04 .3 .75 .98"/><feFuncB type="table" tableValues="0 0 0 .05 .4"/></feComponentTransfer></filter></defs><rect width="240" height="100" filter="url(#${f})"/></svg>`;
+    return `<div class="lt" style="--op:${op};animation-duration:${seed % 2 ? 46 : 34}s;animation-direction:${seed % 2 ? "reverse" : "normal"}">${one}${one}</div>`;
+  };
   const lavaPlates = () => {   // 熔岩湖面: 暗色冷卻殼板漂移,殼板之間露出發亮的橘黃岩漿 (縫隙隨板子移動忽寬忽窄)
     const C = 8, Rw = 4, W = 240 / C, H = 100 / Rw, P = [];
     for (let r = 0; r <= Rw; r++) for (let c = 0; c <= C; c++) { const k = r * 9 + c; P.push([c * W + (c % C ? (R(k, 1) - .5) * W * .7 : 0), r * H + (r % Rw ? (R(k, 2) - .5) * H * .7 : 0)]); }
@@ -704,7 +708,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
       + rng(9).map(i => `<i class="sn" style="left:${(R(i, 4) * 60).toFixed(0)}%;top:${(R(i, 5) * 40).toFixed(0)}%;--t:${(3 + R(i, 6) * 2).toFixed(1)}s;--dl:${(-R(i, 7) * 4).toFixed(1)}s"></i>`).join(""),
     gold: () => `<i class="lq a" style="--t:16s;background:linear-gradient(105deg,${goldStops()})"></i><i class="lq b" style="--t:23s;background:linear-gradient(78deg,${goldStops()})"></i><i class="lq g" style="--t:11s"></i>`,
     jade: () => `<i class="ms a" style="--t:42s"></i><i class="ms b" style="--t:58s"></i>` + rng(5).map(i => `<i class="gs jg" style="left:${(R(i, 1) * 92 + 4).toFixed(0)}%;top:${(R(i, 2) * 84 + 8).toFixed(0)}%;width:2.5px;height:2.5px;--t:${(2.5 + R(i, 3) * 3).toFixed(1)}s;--dl:${(-R(i, 4) * 4).toFixed(1)}s"></i>`).join(""),
-    lava: () => `<i class="lvbg"></i>` + lavaPlates() + rng(6).map(i => `<i class="bb" style="left:${(6 + R(i, 1) * 88).toFixed(0)}%;--s:${(4 + R(i, 2) * 4).toFixed(1)}px;--t:${(3.5 + R(i, 3) * 3).toFixed(1)}s;--dl:${(-R(i, 4) * 6).toFixed(1)}s"></i>`).join(""),
+    lava: () => `<i class="lvbg"></i>` + lavaTex(3, ".010 .035", 1) + lavaTex(8, ".016 .05", .5) + rng(6).map(i => `<i class="bb" style="left:${(6 + R(i, 1) * 88).toFixed(0)}%;--s:${(4 + R(i, 2) * 4).toFixed(1)}px;--t:${(3.5 + R(i, 3) * 3).toFixed(1)}s;--dl:${(-R(i, 4) * 6).toFixed(1)}s"></i>`).join(""),
     px_grass: () => `<i class="sky"></i>` + [[14, 38, -3], [34, 56, -26]].map(([y, t, d]) => `<i class="cd2" style="top:${y}%;--t:${t}s;--dl:${d}s"></i>`).join("") + `<i class="gt2"></i><i class="gt"></i>` + rng(11).map(i => `<i class="tu" style="left:${(R(i, 1) * 94).toFixed(0)}%;--d:${(2.6 + R(i, 2) * 2.4).toFixed(1)}s;--o:${(-R(i, 3) * 4).toFixed(1)}s"></i>`).join("") + rng(9).map(i => `<i class="fw2" style="left:${(R(i + 40, 1) * 94 + 1).toFixed(1)}%;bottom:${(R(i + 40, 2) * 22 + 1).toFixed(0)}px;background-image:url(${FLOWER(["#ff5d73", "#fff1e8", "#ffd23f", "#b58cff", "#ff9bd2", "#7fd6ff"][Math.floor(R(i + 40, 3) * 6)])});zoom:${(.7 + R(i + 40, 4) * .6).toFixed(2)};--d:${(3 + R(i + 40, 5) * 2.5).toFixed(1)}s;--o:${(-R(i + 40, 6) * 4).toFixed(1)}s"></i>`).join(""),
     px_dungeon: () => `<i class="br"></i>` + [[10, 34, 0], [29, 26, -.5], [49, 36, -.2], [68, 27, -.8], [88, 35, -.35]].map(([x, y, d]) => `<b class="tc" style="left:${x}%;top:${y}%"><i class="tg" style="--dl:${d - 0.3}s"></i><i class="tf a" style="--dl:${d}s"></i><i class="tf b" style="--dl:${d}s"></i><i class="tkh"></i></b>`).join("") + `<b class="bt" style="--dl:-3s"><i class="up"></i><i class="dn"></i></b>`,
     zen: () => `<i class="rk"></i><i class="rg" style="left:20%;top:62%;--dl:0s"></i><i class="rg" style="left:20%;top:62%;--dl:-3s"></i><i class="rg" style="left:20%;top:62%;--dl:-6s"></i><i class="sto" style="left:20%;top:62%;width:30px;height:17px"></i><i class="sto" style="left:8%;top:80%;width:16px;height:9px"></i>`,
@@ -735,8 +739,8 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
         + `<rect width="240" height="100" fill="url(#smg)"/><circle cx="168" cy="34" r="22" fill="url(#smm)"/>`
         + `<ellipse cx="120" cy="80" rx="150" ry="14" fill="#d8d6cd" opacity=".32" filter="url(#smw)"/><g filter="url(#smw)" opacity=".5"><path d="M-10,70 L20,46 L44,62 L78,34 L108,60 L140,40 L176,64 L210,44 L250,66 L250,100 L-10,100Z" fill="#4a4a48"/></g>`
         + `<g filter="url(#smr)">${far}${mid}${lv}</g>`
-        + `<g class="sx-lo"><polygon points="${rough([[164, 100], [164.4, 52], [172, 41], [172.6, 100]], 11, .5, 9)}" fill="url(#smi)"/><path d="M165,70 L165.4,96 M167,60 L167.2,90 M170,56 L170.4,92" stroke="#6a6a66" stroke-width=".35" opacity=".5"/></g>`
-        + `<g class="sx-up"><polygon points="${rough([[164.4, 50], [164, 0], [172.4, 0], [172, 40]], 23, .5, 9)}" fill="url(#smi)"/><path d="M165,6 L165.2,44 M168,2 L168.4,36" stroke="#6a6a66" stroke-width=".35" opacity=".5"/>${leaf(172, 12, -35, 12, .85)}${leaf(164, 18, 200, 11, .8)}</g>`
+        + `<g class="sx-lo"><polygon points="${rough([[164, 100], [164, 52.4], [172.4, 41.2], [172.4, 100]], 11, .25, 9)}" fill="url(#smi)"/><path d="M165,70 L165.4,96 M167,60 L167.2,90 M170,56 L170.4,92" stroke="#6a6a66" stroke-width=".35" opacity=".5"/></g>`
+        + `<g class="sx-up"><polygon points="${rough([[164, 0], [172.4, 0], [172.4, 42.2], [164, 53.4]], 23, .25, 9)}" fill="url(#smi)"/><path d="M165,6 L165.2,44 M168,2 L168.4,36" stroke="#6a6a66" stroke-width=".35" opacity=".5"/>${leaf(172, 12, -35, 12, .85)}${leaf(164, 18, 200, 11, .8)}</g>`
         + `<g class="sx-sam"><polygon points="${rough([[43, 92], [46, 74], [47, 58], [56, 56], [60, 74], [63, 92]], 31, .8, 7)}" fill="url(#smi)"/><polygon points="${rough([[44, 58], [46, 46], [48, 44], [56, 43], [58, 50], [58, 58]], 41, .6, 5)}" fill="#060606"/><polygon points="${rough([[57, 50], [64, 52], [67, 57], [61, 57], [56, 56]], 47, .5, 4)}" fill="#060606"/><ellipse cx="52" cy="39.5" rx="3.6" ry="4" fill="#060606"/><polygon points="${rough([[37, 40], [44, 31], [52, 25], [60, 31], [67, 40], [52, 36]], 53, .7, 6)}" fill="#050505"/><path d="M47,88 L48,66 M52,90 L52.6,64 M57,88 L56.4,66 M40,38 L52,28" stroke="#8a8a85" stroke-width=".4" opacity=".28"/><g class="sx-sw"><path d="M56,56 L86,55.4" stroke="#f2f2f2" stroke-width="1" stroke-linecap="round"/><rect x="54" y="54.6" width="3" height="2.6" fill="#050505"/></g></g>`
         + `<path d="M0,92 Q60,88 120,92 T240,91 L240,100 L0,100Z" fill="#0a0a0a" opacity=".9"/>`
         + `<g class="sx-sl"><polygon points="${rough([[70, 63], [124, 40], [182, 32], [126, 47]], 61, 1, 9)}" fill="url(#sml)"/><path d="M76,61 Q126,41 178,33 M82,62 Q128,46 170,36 M96,57 Q132,45 160,40" stroke="#fff" stroke-width=".5" fill="none" opacity=".55" stroke-dasharray="14 5 6 7"/><circle cx="186" cy="30" r=".9" fill="#f4f2ea" opacity=".8"/><circle cx="190" cy="34" r=".6" fill="#f4f2ea" opacity=".7"/><circle cx="184" cy="36" r=".5" fill="#f4f2ea" opacity=".6"/></g></svg><i class="fg a"></i><i class="fg b"></i><i class="sxf"></i>`;
@@ -879,10 +883,11 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 /* 像素金幣: 滿滿的金幣堆,金光閃閃、偶爾有金幣掉下來 */
 .bxfx .cp{inset:0;image-rendering:pixelated}
 .bxfx .gl{width:5px;height:5px;background:#fff;clip-path:polygon(40% 0,60% 0,60% 40%,100% 40%,100% 60%,60% 60%,60% 100%,40% 100%,40% 60%,0 60%,0 40%,40% 40%);animation:bxblink2 var(--t) steps(1) var(--dl) infinite}
-.bxfx .fc{top:-16px;width:var(--s);height:var(--s);background:url(${COIN_URI}) 0 0/100% 100%;image-rendering:pixelated;animation:bxcoinfall var(--t) cubic-bezier(.45,.05,.85,.6) var(--dl) infinite,bxcoinroll var(--t) linear var(--dl) infinite,bxcoinflip var(--fl) ease-in-out var(--dl) infinite alternate;will-change:transform,translate,rotate}
-@keyframes bxcoinfall{0%{translate:0 0}35%{translate:var(--x1) 50px}70%{translate:var(--x2) 100px}100%{translate:calc(var(--x1) + var(--x2)) 150px}}
+.bxfx .fc{top:-16px;width:var(--s);height:var(--s);background:url(${COIN_URI}) 0 0/100% 100%;image-rendering:pixelated;animation:bxcoinfall var(--t) cubic-bezier(.3,0,.9,.75) var(--dl) infinite,bxcoinroll var(--t) linear var(--dl) infinite,bxcoinflip var(--fl) ease-in-out var(--dl) infinite alternate,bxcoinsway calc(var(--fl) * 3) ease-in-out var(--dl) infinite alternate;will-change:transform,translate,rotate,scale}
+@keyframes bxcoinfall{from{translate:0 0}to{translate:0 170px}}   /* 只有 2 個關鍵格: 每一格各自套緩動的話會一段一段停頓 (像撞到東西),所以落下用單段加速 */
 @keyframes bxcoinroll{to{rotate:var(--rt)}}
-@keyframes bxcoinflip{from{transform:scaleX(1)}to{transform:scaleX(.2)}}
+@keyframes bxcoinflip{from{scale:1 1}to{scale:.2 1}}
+@keyframes bxcoinsway{from{transform:translateX(var(--x1))}to{transform:translateX(var(--x2))}}
 /* 竹林: 竹子左右擺動,竹葉另外隨風搖 */
 .bxfx .sk{animation:bxstalk var(--d) ease-in-out var(--o) infinite alternate}
 @keyframes bxstalk{from{transform:rotate(calc(var(--a)*-1))}to{transform:rotate(var(--a))}}
@@ -894,6 +899,8 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 @keyframes bxlavap{from{opacity:.82}to{opacity:1}}
 .bxfx .lp{animation:bxplate var(--t) ease-in-out var(--dl) infinite alternate}
 @keyframes bxplate{from{transform:translate(0,0)}to{transform:translate(var(--dx),var(--dy))}}
+.bxfx .lt{top:0;bottom:0;left:0;width:200%;display:flex;opacity:var(--op);animation:bxflow 34s linear infinite;will-change:transform}
+
 /* 武士: 黑白竹林,拔刀一閃,竹子斜斷落下 (8 秒一輪) */
 .bxfx .sx-lo,.bxfx .sx-up,.bxfx .sx-sam,.bxfx .sx-sw,.bxfx .sx-sl{transform-box:view-box}
 .bxfx .sx-sam{animation:sxsam 8s ease-in-out infinite}
@@ -1140,9 +1147,8 @@ html.px .fx-ring::after{inset:-14%}html.px .fx-ice>.fxa{inset:-16%}html.px .fx-v
 .fx-sun>.fxa{inset:-40%;background:${SUN_RAYS} center/100% 100% no-repeat;-webkit-mask:none;mask:none;animation:frspin 20s linear infinite}
 .fx-sun::after{background:none;-webkit-mask:none;mask:none;animation:none}
 .fx-sun>.fxb{inset:-10%;background:radial-gradient(closest-side,transparent 80%,rgba(255,226,110,.55) 92%,transparent 100%);animation:fxglow2 2.6s ease-in-out infinite}
-/* 光柱: 像閃光燈,從頭像上方打出一大束光,微微抖動閃爍 */
-.fx-beam>.fxa{left:-30%;right:-30%;top:-150%;bottom:40%;background:linear-gradient(0deg,rgba(255,250,200,.95),rgba(255,244,170,.5) 45%,rgba(255,240,150,.08) 90%,transparent);clip-path:polygon(40% 100%,60% 100%,100% 0,0 0);transform-origin:50% 100%;animation:fxflash 1.1s steps(1) infinite}
-@keyframes fxflash{0%{transform:rotate(-3deg);opacity:.95}18%{transform:rotate(2.5deg);opacity:.65}33%{transform:rotate(-1.5deg);opacity:1}52%{transform:rotate(3.5deg);opacity:.7}70%{transform:rotate(-3.5deg);opacity:.95}85%{transform:rotate(1deg);opacity:.6}}
+/* 光柱: 從頭像正上方往下打的一束光 (上窄下寬,罩住頭像),固定不抖動 */
+.fx-beam>.fxa{left:-30%;right:-30%;top:-150%;bottom:35%;background:linear-gradient(180deg,rgba(255,250,200,.95),rgba(255,244,170,.55) 40%,rgba(255,240,150,.18) 85%,transparent);clip-path:polygon(40% 0,60% 0,100% 100%,0 100%);animation:none}
 .avw.fr-yinyang::before{background:conic-gradient(#fff 0,#fff 12%,#000 38%,#000 62%,#fff 88%,#fff 100%)}
 `;
   document.head.appendChild(st);
