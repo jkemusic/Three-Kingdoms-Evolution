@@ -1150,8 +1150,8 @@ def friend_where(fkey):
     t, now = a["uuid"], time.time()
     for m in list(ROOMS.values()):
         if now - m.seen.get(t, 0) < 8:
-            playing = m.game_active() and t in m.claims.values()
-            return ("對戰中 · " if playing else "") + (m.room_name or "房間")
+            tag = "" if not m.game_active() else "對戰中 · " if t in m.claims.values() else "觀戰中 · "
+            return tag + (m.room_name or "房間")
     return ""
 
 

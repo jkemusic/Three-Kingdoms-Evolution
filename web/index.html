@@ -28,6 +28,7 @@ input[type=range]{accent-color:var(--accent);padding:0}
 #status{margin-left:0;color:var(--dim);background:var(--panel2);padding:3px 12px;border-radius:99px;border:1px solid var(--line);font-size:13px}
 #mid{display:grid;grid-template-columns:1fr 390px;min-height:0}
 #tablewrap{position:relative;min-height:0;overflow:hidden;margin:12px}
+#tablewrap.pannable{touch-action:none}
 #tablewrap::before{content:"";position:absolute;inset:6% 5%;border-radius:50%;
   background:radial-gradient(ellipse at 50% 40%,var(--felt1) 0,var(--felt2) 78%);
   border:14px solid var(--wood);box-shadow:0 0 0 3px #7b5233,0 0 0 6px var(--wood2),inset 0 0 60px rgba(0,0,0,.65),0 18px 40px rgba(0,0,0,.55)}
@@ -1894,15 +1895,18 @@ function closeHandView() {   // 點空白處 / Esc: 取消釘住並收起別人�
   const W = $("#tablewrap"), DY = 28; let st = null, px = 0, py = DY;   // 預設檢視往下移一點點
   const apply = () => { W.style.setProperty("--px", px + "px"); W.style.setProperty("--py", py + "px"); };
   W.classList.add("pannable"); apply();
-  W.addEventListener("mousedown", e => {
-    if (e.button !== 0 || window.innerWidth <= 820 || e.target.closest(".pl, button, input, select, a")) return;
-    st = {x: e.clientX, y: e.clientY, px, py}; W.classList.add("dragging"); e.preventDefault();
+  W.addEventListener("pointerdown", e => {   // 滑鼠 / 手指 (iPad) 都能拖
+    if ((e.pointerType === "mouse" && e.button !== 0) || window.innerWidth <= 820 || e.target.closest(".pl, button, input, select, a")) return;
+    st = {x: e.clientX, y: e.clientY, px, py, id: e.pointerId}; W.classList.add("dragging"); try { W.setPointerCapture(e.pointerId); } catch (x) {} e.preventDefault();
   });
-  window.addEventListener("mousemove", e => {
-    if (!st) return;
+  W.addEventListener("pointermove", e => {
+    if (!st || e.pointerId !== st.id) return;
     px = Math.max(-500, Math.min(500, st.px + e.clientX - st.x)); py = Math.max(-500, Math.min(500, st.py + e.clientY - st.y)); apply();
   });
-  window.addEventListener("mouseup", () => { st = null; W.classList.remove("dragging"); });
+  const end = () => { st = null; W.classList.remove("dragging"); };
+  W.addEventListener("pointerup", end); W.addEventListener("pointercancel", end);
+  let lastTap = 0;   // 手指連點兩下還原 (觸控不一定會送 dblclick)
+  W.addEventListener("pointerup", e => { if (e.pointerType === "touch" && !e.target.closest(".pl")) { const t = Date.now(); if (t - lastTap < 350) { px = 0; py = DY; apply(); } lastTap = t; } });
   W.addEventListener("dblclick", e => { if (!e.target.closest(".pl")) { px = 0; py = DY; apply(); } });
 })();
 document.addEventListener("click", e => { const hh = e.target.closest(".modal.soft .dlg h3"); if (hh) hh.parentElement.classList.toggle("mini");
