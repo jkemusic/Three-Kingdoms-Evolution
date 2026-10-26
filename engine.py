@@ -1107,7 +1107,7 @@ class Game:
         if trick != "突":
             for q in valid:   # 每位被指定的人先有機會接連鎖用 ⚡弱 / 降雷 (例如替自己弱化飢餓的傷害)
                 if q.alive and p.alive:
-                    self.sha_window(p, q, SimpleNamespace(name=trick), f"使用了{ {"南": "南蠻入侵", "萬": "萬箭齊發", "突": "突襲"}.get(trick, trick) }")
+                    self.sha_window(p, q, SimpleNamespace(name=trick), "使用了" + {"南": "南蠻入侵", "萬": "萬箭齊發", "突": "突襲"}.get(trick, trick))
         for q in valid:
             if not q.alive or not p.alive:
                 continue

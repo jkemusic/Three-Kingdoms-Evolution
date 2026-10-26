@@ -1590,7 +1590,7 @@ class 蔣幹(Char):
             return
         self.last = g.round
         user.turn_flags["skip_rest"] = True
-        g.log(f"  {p.name}[蔣幹] {user.name} 使用 {__import__("view").full_name(card.name)},他的回合直接跳過")
+        g.log(f"  {p.name}[蔣幹] {user.name} 使用 {__import__('view').full_name(card.name)},他的回合直接跳過")
 
     def on_other_draw(self, g, p, cur):  # 別人抽牌階段,我也抽 2 張
         g.draw_phase(p, 2)
