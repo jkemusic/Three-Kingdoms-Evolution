@@ -95,7 +95,7 @@ window.SGS_LOG_TPL = (window.SGS_LOG_TPL || []).concat([
 ["公共房間 · 沒有房主,任何人都可以操作", "Public room · No host, anyone can operate", "公開ルーム · ホストなし、誰でも操作可"],
 ["公共頻道: 所有人都看得到", "Public channel: visible to everyone", "公開チャンネル: 全員に見えます"],
 ["公共頻道: 所有登入的玩家都看得到,不分房間。", "Public channel: visible to every logged-in player, across all rooms.", "公開チャンネル: ルームを問わず、ログイン中の全プレイヤーに見えます。"],
-["共同好友 ", "Mutual friends ", "共通の友達 "], ["再 ", "", ""], ["再輸入一次新密碼", "Re-enter the new password", "新しいパスワードをもう一度入力"],
+["共同好友 ", "Mutual friends ", "共通の友達 "], ["再 ", "", "あと "], ["再輸入一次新密碼", "Re-enter the new password", "新しいパスワードをもう一度入力"],
 ["刪除好友", "Remove friend", "友達を削除"], ["剛剛", "just now", "たった今"], ["加入失敗", "Failed to join", "参加失敗"], ["單人模式", "Solo mode", "ソロモード"],
 ["回到大廳 (段位局進行中離開 = 棄賽,扣段位積分)", "Back to lobby (leaving a ranked game = forfeit, rank points deducted)", "ロビーへ戻る(ランク対局中の退出 = 棄権、ランクポイント減)"],
 ["好友私訊", "Friend messages", "友達メッセージ"], ["密碼已更新", "Password updated", "パスワードを更新しました"], ["對方已經在這個房間裡", "They are already in this room", "相手はすでにこのルームにいます"],

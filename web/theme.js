@@ -561,7 +561,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
     px_coin:    { px: 1, c: ["#b07a00", "#6e4800"], bd: "#fff1b0", gl: "#fff1b0" },
     px_lava:    { px: 1, c: ["#c9301a", "#7e1d0e"], bd: "#ffa300", gl: "#ffa300" },
     px_night:   { px: 1, c: ["#101640", "#05071a"], bd: "#ffec27", gl: "#ffec27" },
-    felt:    { c: ["#1f6b52", "#0b2f25"], bd: "#c89b5e", gl: "#c89b5e", fl: dots("rgba(255,255,255,.1)", 10), mv: [1, 0.5] },
+    felt:    { c: ["#1f6b52", "#0b2f25"], bd: "#c89b5e", gl: "#c89b5e", fl: dots("rgba(255,255,255,.1)", 10), mv: [1, 1] },
     charcoal:{ c: ["#3a3f47", "#14171b"], bd: "#aeb8c6", gl: "#aeb8c6", fl: `linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px) 0 0/14px 14px,linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px) 0 0/14px 14px`, mv: [1, 1] },
     jade:    { c: ["#1b8a63", "#06291f"], bd: "#5fe8b0", gl: "#46e0a0" },
     ink:     { c: ["#7d8c90", "#46545a"], bd: "#1d2326", gl: "#aeb9bc" },
@@ -809,8 +809,9 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 /* 熔岩流動紋路 */
 .bxfx .fw{left:0;top:0;width:200%;height:100%;animation:bxflow 11s linear infinite;will-change:transform}
 /* 像素熔岩: 像素格的岩漿波紋,平滑流動 */
-.bxfx .pl1,.bxfx .pl2{top:0;left:0;width:200%;height:100%;background-size:96px 64px;image-rendering:pixelated;animation:bxflow 12s linear infinite;will-change:transform}
-.bxfx .pl2{opacity:.55;background-size:72px 48px;animation-direction:reverse;animation-duration:19s}
+@keyframes bxpa{to{background-position:-96px 0}}@keyframes bxpb{to{background-position:-72px 0}}   /* 像素熔岩: 圖樣整整移動一格 (寬度不管多少都無縫循環) */
+.bxfx .pl1,.bxfx .pl2{top:0;left:0;width:100%;height:100%;background-size:96px 64px;image-rendering:pixelated;animation:bxpa 12s linear infinite}
+.bxfx .pl2{opacity:.55;background-size:72px 48px;animation-name:bxpb;animation-direction:reverse;animation-duration:19s}
 .bxfx .pb{bottom:-6px;width:5px;height:5px;background:#ffd23f;box-shadow:0 0 0 1px #ff7a1a;opacity:0;animation:bxrise var(--t) linear var(--dl) infinite}
 /* 像素草地: 草叢與花隨風擺動 */
 .bxfx .pcl{left:0;width:64px;height:24px;background:url(${CLOUD}) 0 0/100% 100%;image-rendering:pixelated;opacity:.95;animation:bxdrift var(--t) linear var(--dl) infinite;will-change:transform}
@@ -869,8 +870,8 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 .bxfx .st.y{background:#ffec27}.bxfx .st.c{background:#29adff}
 .bxfx .sx{width:3px;height:3px;background:#fff;box-shadow:3px 0 #fff,-3px 0 #fff,0 3px #fff,0 -3px #fff;animation:bxblink2 var(--t) steps(1) var(--dl) infinite}
 @keyframes bxblink2{0%{opacity:1}50%{opacity:.08}100%{opacity:1}}
-.bxfx .mo{right:12%;top:12%;width:48px;height:48px;background:url(${MOON_URI}) 0 0/48px 48px;image-rendering:pixelated}
-.bxfx .mh{right:calc(12% - 8px);top:calc(12% - 8px);width:64px;height:64px;background:url(${MOON_HALO}) 0 0/64px 64px;image-rendering:pixelated;opacity:.16;animation:bxblink3 2.4s steps(1) infinite}
+.bxfx .mo{z-index:2;right:12%;top:12%;width:48px;height:48px;background:url(${MOON_URI}) 0 0/48px 48px;image-rendering:pixelated}
+.bxfx .mh{z-index:2;right:calc(12% - 8px);top:calc(12% - 8px);width:64px;height:64px;background:url(${MOON_HALO}) 0 0/64px 64px;image-rendering:pixelated;opacity:.16;animation:bxblink3 2.4s steps(1) infinite}
 @keyframes bxblink3{0%{opacity:1}50%{opacity:.4}100%{opacity:1}}
 .bxfx .ss{left:0;top:6%;width:4px;height:4px;background:#ffec27;box-shadow:-4px -2px #fff1e8,-8px -4px #ffa300,-12px -6px rgba(255,163,0,.6);opacity:0;animation:bxshoot var(--t) steps(14) var(--dl) infinite}
 @keyframes bxshoot{0%{transform:translate(0,0);opacity:0}6%{opacity:1}28%{transform:translate(260px,90px);opacity:1}30%,100%{transform:translate(264px,92px);opacity:0}}
