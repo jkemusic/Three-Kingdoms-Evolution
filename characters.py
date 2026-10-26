@@ -141,7 +141,7 @@ class Combo:
 
     事件類掛鉤 (on_*) 每個武將都會呼叫;清單類掛鉤合併;布林類任一為真即成立;
     數值修正串接;其餘以本尊優先 (本尊沒覆寫才用借來的)。"""
-    EVENTS_EXTRA = {"after_draw", "after_discard", "end_turn"}
+    EVENTS_EXTRA = {"after_draw", "after_discard", "end_turn", "after_damage"}
     LIST_MERGE = {"skill_options", "offturn_options", "views"}
     OR_HOOKS = {"no_range", "blocks_target", "blocks_card", "as_card", "virtual_bagua", "virtual_renwang",
                 "plain_immune", "immune_nature", "skip_discard", "takes_dead_cards", "replace_draw"}
@@ -1503,7 +1503,7 @@ class 曹沖(Char):
             return
         p._char, user._char = user._char, p._char
         for q in (p, user):
-            q.borrow, q.alias, q.disguise = [], [], []   # 換了武將: 原本複製 / 化身 / 偽裝的狀態不帶過去
+            q.borrow, q.borrow2, q.alias, q.disguise = [], [], [], []   # 換了武將: 原本複製 / 化身 / 偽裝的狀態不帶過去
             q.maxhp = q._char.maxhp
             q.hp = max(1, min(q.hp, q.maxhp))
         g.log(f"  交換完成: {p.name} / {user.name}")
@@ -2115,26 +2115,26 @@ class 陳群(Char):
                 return i
 
     def _borrow(self, g, p):   # 2 點體力: 複製另一位玩家的技能 (直接選,不再問要不要)
-        if any(q.alive and q is not p for q in p.borrow):
+        if any(q.alive and q is not p for q in p.borrow2):
             return
         cands = [q for q in g.others(p) if q._char.name != "陳群"]
         if not cands:
             return
         t = _borrow_pick(g, p, cands, "陳群-借技能")
-        p.borrow = [t]
+        p.borrow2 = [t]
         g.log(f"  {p.name}[陳群] 2 點體力: 擁有 {t.name} 的技能 (直到他死亡)")
 
     def on_turn_start(self, g, p):  # 依回合開始時的體力取得不同能力
         if p.hp == 2:  # 2 點體力: 擁有另一位玩家的技能
             self._borrow(g, p)
         else:
-            p.borrow = []
+            p.borrow2 = []
 
     def on_healed(self, g, p):   # 血量變成 2 時馬上選要複製誰;離開 2 血就失去
         if p.hp == 2 and p.alive:
             self._borrow(g, p)
         else:
-            p.borrow = []
+            p.borrow2 = []
 
     ask = False
 
@@ -2143,7 +2143,7 @@ class 陳群(Char):
             self.ask = True
         elif p.alive:
             self.ask = False
-            p.borrow = []
+            p.borrow2 = []
 
     def after_damage(self, g, p):
         if self.ask and p.alive and p.hp == 2:
@@ -2163,16 +2163,16 @@ class 韓當(Char):
     def _pick(self, g, p):
         cands = [q for q in g.others(p) if q._char.faction == "吳"]
         if not cands:
-            p.borrow = []
+            p.borrow2 = []
             return
         t = _borrow_pick(g, p, cands, "韓當-借技能")
-        p.borrow = [t]
+        p.borrow2 = [t]
         g.log(f"  {p.name}[韓當] 獲得吳勢力 {t.name} 的技能 (他死後失效)")
 
     def on_game_start(self, g, p): self._pick(g, p)   # 開局就選好要複製誰的技能
 
     def on_turn_start(self, g, p):   # 對象死了 (或還沒有對象): 回合開始重新選一位吳勢力
-        if not any(q.alive and q is not p for q in p.borrow):
+        if not any(q.alive and q is not p for q in p.borrow2):
             self._pick(g, p)
         self._tax(g, p, p)
 

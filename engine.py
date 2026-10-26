@@ -96,7 +96,8 @@ class Player:
         self.fa_debt = 0              # 發: 回合結束需棄的張數
         self.g = None                 # 所屬 Game (Game.__init__ 設定)
         self.skip_turn = False        # 下個自己的回合整個跳過 (劉禪)
-        self.borrow: list = []        # 借用技能的對象 (馬謖/陳群/韓當): 對方死亡即失效
+        self.borrow: list = []        # 馬謖複製技能的對象: 對方死亡即失效
+        self.borrow2: list = []       # 陳群 (2 血) / 韓當 複製技能的對象 (和馬謖分開存,否則被馬謖複製時會互相洗掉)
         self.alias: list = []         # 化身 / 暫時獲得的武將 (左慈/公孫淵)
         self.disguise: list = []      # 偽裝成的武將 (一回合)
         self.dg_flip = False          # 偽裝的那張武將牌是否翻面 (本尊是否翻面看 flipped)
@@ -115,7 +116,7 @@ class Player:
                 return NO_SKILL
         elif self.flipped:
             return NO_SKILL
-        extras = [q._char for q in self.borrow if q.alive and q is not self] + list(self.alias)
+        extras = [q._char for q in self.borrow + self.borrow2 if q.alive and q is not self] + list(self.alias)
         if self.disguise:   # 偽裝: 技能完全取代 (李儒保留自己的「偽裝時殺=閃=桃」)
             if getattr(self._char, "keep_disguised", False) and not self.flipped:
                 extras.append(self._char)
@@ -1669,7 +1670,7 @@ class Game:
         nm = self.rng.choice(pool)
         old, new = p._char, ROSTER[nm]()
         missing = p.maxhp - p.hp
-        p._char, p.borrow, p.alias, p.disguise = new, [], [], []
+        p._char, p.borrow, p.borrow2, p.alias, p.disguise = new, [], [], [], []
         p.maxhp = max(1, new.maxhp + self.hp_offset) + (self.lord_bonus if p is self.lord else 0)
         p.hp = max(1, p.maxhp - missing)
         self.log(f"  🔀 {p.idx} 號位的武將從 {old.name} 換成 {nm} (體力 {p.hp}/{p.maxhp})")
@@ -1776,7 +1777,7 @@ class Game:
                     q.flipped = q.thunder[1]
                 q.thunder = None
             if q.disguise and q._char.name not in ("馬謖", "陳群", "韓當"):
-                q.borrow = []   # 偽裝成馬謖/陳群/韓當時複製的技能,偽裝結束就失效
+                q.borrow, q.borrow2 = [], []   # 偽裝成馬謖/陳群/韓當時複製的技能,偽裝結束就失效
             q.disguise = []
             q.dg_flip = False
         for q in self.players:   # 鐵索橫置最多只到這個回合結束: 這回合橫置的人回合結束就轉回來

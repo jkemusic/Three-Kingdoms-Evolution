@@ -151,47 +151,52 @@ def _badges(g, p, c=None):
         out.append({"t": t, "k": k})
     sub = c is not None   # 偽裝 / 化身成別的武將: 只顯示那個新武將的標記
     c = c or p._char
-    n = c.name
-    if n == "劉備":
-        add(f"仁 ×{getattr(c, 'ren', 0)}", "ren")
-    elif n == "曹操":
-        add(f"弒 ×{getattr(c, 'shi', 0)}", "shi")
-    elif n == "張松" and getattr(c, "mark", None) is not None:
-        add(f"🎯 指定 P{c.mark}", "mk")
-    elif n == "呂布":
-        add("無效 (已用)" if c.used else "無效 (可用)", "once")
-        if g.void and g.cur is p:
-            add("⚡ 本回合全場無效", "st")
-    elif n == "劉禪" and c.used:
-        add("令棄牌 (已用)", "once")
-    elif n == "楊修":
-        if getattr(c, "armed", -1) == g.turn_id and g.cur is p:
-            add(f"吸收傷害中 {getattr(c, 'acc', 0)}", "st")
-        add("吸傷 (已用)" if c.used else "吸傷 (可用)", "once")
-    elif n == "陳群":
-        add({4: "4血: 手牌當突襲", 3: "3血: 無距離限制", 2: "2血: 複製技能", 1: "1血: 手牌當占卜"}.get(p.hp, f"{p.hp}血"), "st")
-    elif n == "崔琰":
-        add("技能無效 (到下個自己回合)" if c.off else f"跟抽 {c.cnt}/3", "st" if c.off else "cnt")
-    elif n == "曹真":
-        add("阻擋 (本回合已用)" if c.used == g.turn_id else "阻擋 (可用)", "once")
-    elif n == "司馬昭" and (c.next_double or (g.cur is p and p.turn_flags.get("sm_double"))):
-        add("下回合傷害 ×2" if c.next_double else "本回合傷害 ×2", "st")
-    elif n == "姜維" and getattr(c, "bonus", 0):
-        add(f"下回合多抽 ×{c.bonus}", "st")
-    elif n == "張飛":
-        add(f"本回合已扣血 {p.dmg_turn}/2", "cnt")
-    elif n == "諸葛亮" and not p.equip.get("armor") and not p.equip.get("armor2"):
-        add("無防具: 視為八卦陣", "st")
-    elif n == "曹植":
-        add(f"第 {g.round}/7 輪", "cnt")
-    elif n == "虞翻" and c.base is not None:
-        add(f"全場殺 {g.sha_total - c.base}/7", "cnt")
-    elif n == "郭圖&逢紀" and c.next_char:
-        add(f"下回合變成 {c.next_char}", "st")
-    elif n == "公孫淵" and c.pending is not None and c.pending.alive:
-        add(f"下回合獲得 P{c.pending.idx} 的技能", "st")
-    elif n == "左慈" and c.used:
-        add(f"化身 ×{len(c.used)}", "cnt")
+    def chars_badges(c):   # 武將專屬標記 (馬謖 / 陳群 / 韓當複製技能時,連複製來源的標記也一起顯示)
+        n = c.name
+        if n == "劉備":
+            add(f"仁 ×{getattr(c, 'ren', 0)}", "ren")
+        elif n == "曹操":
+            add(f"弒 ×{getattr(c, 'shi', 0)}", "shi")
+        elif n == "張松" and getattr(c, "mark", None) is not None:
+            add(f"🎯 指定 P{c.mark}", "mk")
+        elif n == "呂布":
+            add("無效 (已用)" if c.used else "無效 (可用)", "once")
+            if g.void and g.cur is p:
+                add("⚡ 本回合全場無效", "st")
+        elif n == "劉禪" and c.used:
+            add("令棄牌 (已用)", "once")
+        elif n == "楊修":
+            if getattr(c, "armed", -1) == g.turn_id and g.cur is p:
+                add(f"吸收傷害中 {getattr(c, 'acc', 0)}", "st")
+            add("吸傷 (已用)" if c.used else "吸傷 (可用)", "once")
+        elif n == "陳群":
+            add({4: "4血: 手牌當突襲", 3: "3血: 無距離限制", 2: "2血: 複製技能", 1: "1血: 手牌當占卜"}.get(p.hp, f"{p.hp}血"), "st")
+        elif n == "崔琰":
+            add("技能無效 (到下個自己回合)" if c.off else f"跟抽 {c.cnt}/3", "st" if c.off else "cnt")
+        elif n == "曹真":
+            add("阻擋 (本回合已用)" if c.used == g.turn_id else "阻擋 (可用)", "once")
+        elif n == "司馬昭" and (c.next_double or (g.cur is p and p.turn_flags.get("sm_double"))):
+            add("下回合傷害 ×2" if c.next_double else "本回合傷害 ×2", "st")
+        elif n == "姜維" and getattr(c, "bonus", 0):
+            add(f"下回合多抽 ×{c.bonus}", "st")
+        elif n == "張飛":
+            add(f"本回合已扣血 {p.dmg_turn}/2", "cnt")
+        elif n == "諸葛亮" and not p.equip.get("armor") and not p.equip.get("armor2"):
+            add("無防具: 視為八卦陣", "st")
+        elif n == "曹植":
+            add(f"第 {g.round}/7 輪", "cnt")
+        elif n == "虞翻" and c.base is not None:
+            add(f"全場殺 {g.sha_total - c.base}/7", "cnt")
+        elif n == "郭圖&逢紀" and c.next_char:
+            add(f"下回合變成 {c.next_char}", "st")
+        elif n == "公孫淵" and c.pending is not None and c.pending.alive:
+            add(f"下回合獲得 P{c.pending.idx} 的技能", "st")
+        elif n == "左慈" and c.used:
+            add(f"化身 ×{len(c.used)}", "cnt")
+    chars_badges(c)
+    for q in p.borrow + p.borrow2:   # 複製技能: 標記也照抄 (狀態用原本武將那張的)
+        if q is not p and q.alive and not sub and q._char.name != c.name:
+            chars_badges(q._char)
     if p.skip_turn:   # 被劉禪指定: 下個自己的回合整個跳過
         add("⏭ 下回合被跳過", "st")
     if p.dmg_x2 or p.dmg_half:   # 強 / 弱: 這回合「造成」的傷害倍率
@@ -204,7 +209,7 @@ def _badges(g, p, c=None):
         return out
     for a in p.alias:   # 左慈等「化身」: 現在變成哪個武將
         add(f"化身為 {a.name}", "st")
-    for q in p.borrow:   # 馬謖/陳群/韓當: 複製了誰的技能
+    for q in p.borrow + p.borrow2:   # 馬謖/陳群/韓當: 複製了誰的技能
         if q is p:
             continue
         if q.alive:
