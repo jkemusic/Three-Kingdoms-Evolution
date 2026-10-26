@@ -367,7 +367,7 @@ button.big{font-size:16px;font-weight:800;padding:10px 38px}
 .pl .ph .wei{position:absolute;right:-3px;top:-6px;z-index:3;background:#b8862b;color:#fff;font-size:11px;font-weight:700;padding:0 5px;border-radius:2px}
 #cc{display:none;flex-direction:column;padding:0}.pane#cc.on{display:flex}
 #cl{flex:1;overflow:auto;padding:10px;min-height:0}
-.cm{margin-bottom:8px;line-height:1.45}.cm .cn{display:block;font-size:12px;color:#7fb7dd}.cm.mine .cn{color:var(--gold)}.cm .ct{display:inline-block;background:rgba(63,210,255,.1);border:1px solid #24557d;border-radius:4px;padding:3px 9px;word-break:break-all}.cm.mine .ct{background:rgba(233,191,98,.12);border-color:#8a6a1c}
+.cm{margin-bottom:8px;line-height:1.45}.cm .cn{display:block;font-size:12px;color:#7fb7dd}.cm.mine{text-align:right}.cm.mine .cn{color:var(--gold)}.cm .ct{display:inline-block;background:rgba(63,210,255,.1);border:1px solid #24557d;border-radius:4px;padding:3px 9px;word-break:break-all}.cm.mine .ct{background:rgba(233,191,98,.12);border-color:#8a6a1c}
 #cin{display:flex;gap:6px;padding:8px;border-top:1px solid #16304c}#cin input{flex:1;min-width:0}
 #cbadge{color:#ff5d73}
 @media (max-width:820px){
@@ -1441,12 +1441,24 @@ function renderOnlineList() {
     avEl(x.avatar, x.style, {style: {width: "36px", height: "36px", borderRadius: "50%", objectFit: "cover", flex: "none"}}),
     h("div", {style: {flex: 1, minWidth: 0}},
       h("div", {style: {fontWeight: 600}}, (x.host ? "👑 " : "") + (x.name || "未命名") + (x.id === S.myWho ? " (你)" : ""), " ", rkEl(x.lv), devEl(x.dev)),
-      h("div", {class: "meta", text: x.spec ? "👁 觀戰者" : x.seat != null ? "座位 " + x.seat : "尚未入座"})),
+      x.spec || x.seat != null ? h("div", {class: "meta", text: x.spec ? "👁 觀戰者" : "座位 " + x.seat}) : null),
+    x.id !== S.myWho && x.acc && window.SGS_FRIENDS ? friendBtn(x) : null,
     S.amHost && x.id !== S.myWho ? h("button", {type: "button", text: "踢出", style: {padding: "2px 9px", fontSize: "12px"}, onclick: async () => {
       if (!confirm("確定要把「" + (x.name || "未命名") + "」踢出房間嗎?")) return;
       const r = await api("/api/kick", {to: x.id});
       toast(r.ok ? "已踢出 " + r.name : "踢人失敗: " + (r.error || ""), r.ok ? "ok" : undefined);
     }}) : null)));
+}
+function friendBtn(x) {   // 在線列表: 已是好友顯示「好友」,已送出請求顯示「已邀請」,否則可加好友
+  const d = window.SGS_FRIENDS.data() || {friends: [], req_out: []};
+  const st = {padding: "2px 9px", fontSize: "12px"};
+  if (d.friends.some(f => f.id === x.acc)) return h("span", {class: "meta", text: "✓ 好友"});
+  if ((d.req_out || []).some(f => f.id === x.acc)) return h("span", {class: "meta", text: "已送出請求"});
+  return h("button", {type: "button", text: "➕ 加好友", style: st, onclick: async () => {
+    const r = await SGS_FRIENDS.add(x.acc);
+    toast(r.ok ? (r.msg || "已送出好友請求") : (r.error || "失敗"), r.ok ? "ok" : undefined);
+    renderOnlineList();
+  }});
 }
 function openOnlineList() {
   if (document.getElementById("onlist")) return;

@@ -738,7 +738,7 @@ class Manager:
 
     def online(self):
         now = time.time()
-        return [{"id": self.pid(t), "name": self.nicks.get(t, ""), "host": t == self.host, "lv": PROFILES.lv(t), "dev": PROFILES.dev(t), "avatar": PROFILES.avatar_url(t), "style": PROFILES.style(t),
+        return [{"id": self.pid(t), "name": self.nicks.get(t, ""), "host": t == self.host, "lv": PROFILES.lv(t), "dev": PROFILES.dev(t), "acc": ACCOUNTS.uuids.get(t), "avatar": PROFILES.avatar_url(t), "style": PROFILES.style(t),
                  "seat": self.seat_of(t), "spec": self._is_spec(t)}
                 for t, ts in self.seen.items() if now - ts < 6]
 
