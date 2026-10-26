@@ -180,4 +180,13 @@ window.SGS_LOG_TPL = (window.SGS_LOG_TPL || []).concat([
 ["好友、私訊、邀請朋友進房間", "Friends, messages, invite friends to the room", "フレンド、メッセージ、ルームへ招待"],
 ["藤甲: {} 不受{}影響", "Rattan Armor: {1} is unaffected by {2}", "藤甲: {1} は{2}の影響を受けない"],
 ["👥 邀請朋友", "👥 Invite friends", "👥 フレンドを招待"], ["打開好友列表,邀請在線的朋友進這個房間", "Open the friends list and invite online friends to this room", "フレンド一覧を開き、オンラインのフレンドをこのルームに招待"],
+["[曹沖] {} 這回合第 {} 張錦囊,超過 1 張,扣 1 點體力 (可閃)", "[Cao Chong] {1} used trick #{2} this turn (over 1): loses 1 HP (dodgeable)", "[曹沖] {1} は今ターン{2}枚目の錦囊(1枚超過): 体力-1(閃で防げる)"],
+["{}[陳群] 複製蔣幹: 體力變成 1,離開 2 點體力,複製失效", "{1}[Chen Qun] copied Jiang Gan: HP became 1, no longer at 2 HP; copied skills lost", "{1}[陳群] 蒋幹をコピー: 体力が1になり、体力2から外れたためコピー失効"],
+["{}[{}] 複製蔣幹: 體力變成 1,離開 2 點體力,複製失效", "{1}[{2}] copied Jiang Gan: HP became 1, no longer at 2 HP; copied skills lost", "{1}[{2}] 蒋幹をコピー: 体力が1になり、体力2から外れたためコピー失効"],
+["{} 複製蔣幹: 體力變成 1,離開 2 點體力,複製失效", "{1} copied Jiang Gan: HP became 1, no longer at 2 HP; copied skills lost", "{1} 蒋幹をコピー: 体力が1になり、体力2から外れたためコピー失効"],
+["{} 判定區 {} 生效", "{1}'s judgement zone: {2} takes effect", "{1} の判定エリアの {2} が発動"],
+["{} 使用 無懈 ({})", "{1} uses Nullify ({2})", "{1} が無懈可撃を使用 ({2})"],
+["{} 使用 {} 當作 {}", "{1} uses {2} as {3}", "{1} が {2} を {3} として使用"],
+["{} 使用 〈丁奉-棄裝備抽牌〉", "{1} uses 〈Ding Feng – discard equipment & draw〉", "{1} が 〈丁奉-装備を捨てて引く〉 を使用"],
+["〈丁奉-棄裝備抽牌〉", "〈Ding Feng – discard equipment & draw〉", "〈丁奉-装備を捨てて引く〉"],
 ]);

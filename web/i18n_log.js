@@ -141,7 +141,7 @@ window.SGS_LOG_TPL = [
 ["寒冰劍: 不造成傷害,改棄掉 {} 兩張牌", "Frost Sword: no damage; discards two of {1}'s cards instead", "寒氷剣: ダメージの代わりに {1} のカードを2枚捨てさせる"],
 ["抽 {} 張,-1 點體力", "Draws {1}, -1 HP", "{1}枚引き、体力-1"],
 ["抽 {} 張", "Draws {1}", "{1}枚引く"],
-["方天畫戟: 同時攻擊 ", "Sky Piercer: attacks at once: ", "方天画戟: 同時に攻撃: "],
+["方天畫戟: 同時攻擊 {}", "Sky Piercer: attacks {1} simultaneously", "方天画戟: {1} を同時に攻撃"],
 ["{} 棄置 {} 的 {}", "{1} discards {3} of {2}", "{1} が {2} の {3} を捨てさせる"],
 ["棄置所有手牌,回復至 體力 {}", "Discards all hand cards, restores to HP {1}", "手札を全て捨て、体力 {1} まで回復"],
 ["樂: 跳過出牌階段", "Complacency: skips the play phase", "楽不思蜀: 出牌フェイズを飛ばす"],

@@ -182,8 +182,6 @@ html.px .fx-ring::after{background:repeating-conic-gradient(from var(--pxa),rgba
 html.px .fx-ice>.fxa{background:repeating-conic-gradient(from var(--pxa),rgba(190,240,255,.95) 0 6deg,transparent 6deg 18deg);animation-duration:6s}
 html.px .fx-vortex>.fxb{background:repeating-conic-gradient(from var(--pxa),rgba(200,140,255,.95) 0 10deg,transparent 10deg 24deg);animation-direction:reverse}
 html.px .fx-orbit>.fxa,html.px .fx-orbit>.fxb{animation:none}
-html.px .fx-orbit>.fxa::before,html.px .fx-orbit>.fxb::before{left:0;top:0;margin:-3px 0 0 -3px;box-shadow:none;animation:pxorb 2.6s linear infinite}
-html.px .fx-orbit>.fxb::before{animation-duration:4.2s;animation-direction:reverse}
 html.px .fr-6::before{background:conic-gradient(from var(--pxa),#ff5d73,#ffd24a,#46e0a0,#3fd2ff,#9b6bff,#ff5d73)!important;animation:pxrot 4s linear infinite}
 html.px .fx-aurora::after{inset:-8px;padding:6px;background:conic-gradient(from var(--pxa),#46e0a0,#3fd2ff,#9b6bff,#46e0a0);opacity:.75;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);animation:pxrot 6s linear infinite reverse}
 html.px .fx-rainbow::after{inset:-4px;padding:3px;background:conic-gradient(from var(--pxa),#ff5d73,#ffd24a,#46e0a0,#3fd2ff,#9b6bff,#ff5d73);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);animation:pxrot 2s linear infinite}
@@ -1169,6 +1167,7 @@ html.px .fx-ring::after{inset:-14%}html.px .fx-ice>.fxa{inset:-16%}html.px .fx-v
 .fx-orbit>.fxb::before{background:#ffe9a0;box-shadow:0 0 6px 2px #ffd24a,0 0 12px 4px rgba(255,210,74,.55);width:6px;height:6px;margin:-3px 0 0 -3px;animation:orbB 5.2s linear infinite}
 .fx-orbit>.fxa::after,.fx-orbit>.fxb::after{content:"";position:absolute;inset:0;border-radius:50%;border:1px solid rgba(127,240,255,.35);transform:rotate(-28deg) scaleY(.4);z-index:-1}
 .fx-orbit>.fxb::after{border-color:rgba(255,210,74,.32);transform:rotate(42deg) scaleY(.64)}
+html.px .fx-orbit>.fxa::after,html.px .fx-orbit>.fxb::after{border-radius:50%!important}   /* 像素主題: 軌道圈維持橢圓 (不被統一成方形),星星保持像素方塊 */
 ${ORBIT_CSS}
 .avw.fr-yinyang::before{background:conic-gradient(#fff 0,#fff 12%,#000 38%,#000 62%,#fff 88%,#fff 100%)}
 `;
