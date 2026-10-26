@@ -404,6 +404,10 @@ class Accounts:
             tmp = self.PATH + ".tmp"
             json.dump(self.d, open(tmp, "w", encoding="utf-8"), ensure_ascii=False)
             os.replace(tmp, self.PATH)
+            try:
+                os.chmod(self.PATH, 0o600)   # 密碼雜湊檔只有擁有者能讀
+            except OSError:
+                pass
         except OSError:
             pass
 

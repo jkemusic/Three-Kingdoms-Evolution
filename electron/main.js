@@ -130,7 +130,7 @@ async function createWindow() {
     if (url && await probe(url)) remote = url;
   }
   if (!remote) startServer();
-  win = new BrowserWindow({ width: 1280, height: 860, title: "三國殺模擬器", backgroundColor: "#0e0f11", webPreferences: { contextIsolation: true } });
+  win = new BrowserWindow({ width: 1280, height: 860, title: "三國殺重製版", backgroundColor: "#0e0f11", webPreferences: { contextIsolation: true } });
   Menu.setApplicationMenu(buildMenu());
   win.webContents.setWindowOpenHandler(({ url }) => { shell.openExternal(url); return { action: "deny" }; });
   try {
