@@ -77,6 +77,7 @@ class Char:
     def immune_nature(self, g, p, nature): return False  # 屬性傷害對你無效
     def cap_damage(self, g, p, n): return n
     def on_damaged(self, g, p, src, n): pass
+    def after_damage(self, g, p): pass   # 一次傷害完整結算後 (含連鎖、麒麟弓等)
     def on_other_wu(self, g, p, user): pass
     def on_le_placed(self, g, p, owner): pass
     def peach_heal(self, g, p): return 1
@@ -2135,11 +2136,21 @@ class 陳群(Char):
         else:
             p.borrow = []
 
-    def on_damaged(self, g, p, src, n):
+    ask = False
+
+    def on_damaged(self, g, p, src, n):   # 掉到 2 血: 先記著,等這次傷害結算完才問要複製誰;離開 2 血就失去
         if p.hp == 2 and p.alive:
-            self._borrow(g, p)
+            self.ask = True
         elif p.alive:
+            self.ask = False
             p.borrow = []
+
+    def after_damage(self, g, p):
+        if self.ask and p.alive and p.hp == 2:
+            self.ask = False
+            self._borrow(g, p)
+        elif self.ask and p.hp != 2:
+            self.ask = False
 
     def views(self, g, p, c): return ["突"] if p.hp == 4 and c.name != "突" else []  # 4 點體力: 手牌當突襲
     def no_range(self, g, p): return p.hp == 3                                      # 3 點體力: 沒有距離限制

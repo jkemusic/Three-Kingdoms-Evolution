@@ -533,6 +533,8 @@ class Game:
                 if q is not tgt and q.alive:
                     self.log(f"  鐵索連環: {q.name} 同受{nature or ''}傷害")
                     self.damage(src, q, n, nature=nature, _bonus=False, _chain=True, _mods=False)
+        if tgt.alive:
+            tgt.char.after_damage(self, tgt)   # 這次傷害全部結算完 (含瀕死、連鎖) 才跳出的選擇
 
     def damage_reactions(self, src, tgt, n, nature):
         """⚡ 反/調/占: 要受到傷害時使用。回傳實際要承受的傷害 (0=被抵銷或轉移)。"""
