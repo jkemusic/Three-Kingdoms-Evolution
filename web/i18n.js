@@ -128,7 +128,7 @@ const W = [
   ["未雨綢繆", "Plan Ahead", "未雨綢繆"], ["笑裏藏刀", "Hidden Dagger", "笑裏蔵刀"], ["隔岸觀火", "Watch the Fire", "隔岸観火"], ["投桃報李", "Return the Favor", "投桃報李"],
   ["拋磚引玉", "Lure with Brick", "拋磚引玉"], ["出其不意", "Surprise Move", "出其不意"], ["聲東擊西", "Feint", "聲東撃西"], ["增兵", "Reinforce", "増援"],
   ["火焰", "Fire", "火"], ["火殺", "Fire Slash", "火殺"], ["冰殺", "Ice Slash", "氷殺"], ["雷殺", "Thunder Slash", "雷殺"],
-  ["反擊", "Counter", "反撃"], ["調虎離山", "Divert the Tiger", "調虎離山"], ["占卜", "Divination", "占卜"],
+  ["反擊", "Counter", "反撃"], ["飢餓", "Famine", "飢餓"], ["當作 調", "as Divert the Tiger", "調虎離山として"], ["當作 占", "as Divination", "占卜として"], ["重鑄酒", "recast Wine", "酒を再鋳造"], ["重鑄閃", "recast Dodge", "閃を再鋳造"], ["棄兩張殺", "discard two Slash", "殺2枚を捨てる"], ["雙牌當殺", "two cards as Slash", "2枚を殺として"], ["換2張牌", "swap 2 cards", "2枚交換"], ["突襲", "Raid", "突襲"], ["調虎離山", "Divert the Tiger", "調虎離山"], ["占卜", "Divination", "占卜"],
   ["無來源", "none", "なし"],
   ["魏國", "Wei", "魏"], ["蜀國", "Shu", "蜀"], ["吳國", "Wu", "呉"], ["群雄", "Qun", "群雄"], ["晉國", "Jin", "晋"],
   ["轉移", "Swap", "装備交換"], ["增兵減灶", "Reinforce", "増援"], ["增援", "Reinforce", "増援"], ["笑裡藏刀", "Hidden Dagger", "笑裏蔵刀"],
@@ -361,8 +361,8 @@ function build() {
   nameMap.set("顏良", lang === "en" ? "Yan Liang" : "顔良"); nameMap.set("文醜", lang === "en" ? "Wen Chou" : "文醜"); nameMap.set("郭圖", lang === "en" ? "Guo Tu" : "郭図"); nameMap.set("逢紀", lang === "en" ? "Pang Ji" : "逢紀");
   namesRe = new RegExp([...nameMap.keys()].sort((a, b) => b.length - a.length).map(esc).join("|"), "g");
   const k = lang === "en" ? 1 : 2;
-  uiTpls = (window.SGS_UI_TPL || []).map(e => [new RegExp("^" + esc(e[0].trim()).replace(/\\{\\}/g, "(.+?)") + "$"), e[lang === "en" ? 1 : 2], e[0].length]).sort((a, b) => b[2] - a[2]);
-  tpls = (window.SGS_LOG_TPL || []).map(e => [new RegExp("^" + esc(e[0].trim()).replace(/\\{\\}/g, "(.+?)") + "$"), e[k], e[0].length])
+  uiTpls = (window.SGS_UI_TPL || []).map(e => [new RegExp("^" + esc(e[0].trim()).replace(/\\{\\}/g, "(.+?)").replace(/,\s*/g, ",\\s*") + "$"), e[lang === "en" ? 1 : 2], e[0].length]).sort((a, b) => b[2] - a[2]);
+  tpls = (window.SGS_LOG_TPL || []).map(e => [new RegExp("^" + esc(e[0].trim()).replace(/\\{\\}/g, "(.+?)").replace(/,\s*/g, ",\\s*") + "$"), e[k], e[0].length])
     .sort((a, b) => b[2] - a[2]);
 }
 let tpls = [], uiTpls = [];   // uiTpls: 介面樣板 (需要 {} / 成就「{}」…),{} 抓到的部分會再遞迴翻一次
@@ -403,7 +403,7 @@ function protect(t, store) {
   const nat = c => !c ? "" : ({ 火: ["fire ", "火"], 冰: ["ice ", "氷"], 雷: ["thunder ", "雷"] })[c][k];
   t = t.replace(/\((無)(?=[\/)])/g, () => "(" + tok(k ? "役職なし" : "No role"));   // 玩家名稱裡的「無」是沒有身分,不是無中生有
   t = t.replace(/〈([^〉-]+)-([^〉]+)〉/g, (m, n, l) => {
-    for (const [re, e, j] of SKILLS) if (re.test(n + "-" + l)) return tok("〈" + word(n) + "-" + (n + "-" + l).replace(re, k ? j : e) + "〉");
+    for (const [re, e, j] of SKILLS) if (re.test(n + "-" + l)) return tok("〈" + word(n) + "-" + skillText(re, e, j, n + "-" + l, k) + "〉");
     return m;
   });
   if (!shortRe1 || (S.cat && !Object.keys(FULL2SHORT).length)) { const n = shortNames(); shortRe1 = new RegExp("(紅|黑)(火|冰|雷)?(" + n + ")(?![㐀-鿿])", "g"); shortRe2 = new RegExp("(使用|打出|判定區|判定|亮出|展示|棄置|裝備|放入|將|⚡|\\(|\\/|: ?)( ?)(" + n + ")(?![㐀-鿿])", "g"); }
@@ -414,7 +414,7 @@ function protect(t, store) {
 const FACTION = { en: { "魏": "Wei", "蜀": "Shu", "吳": "Wu", "群": "Qun", "晉": "Jin" }, ja: { "魏": "魏", "蜀": "蜀", "吳": "呉", "群": "群", "晉": "晋" } };
 function tr(s) {   // 勢力字 (魏蜀吳群晉) 在句首時一併翻譯
   const r = tr0(s);
-  if (lang === "zh" || !r) return r;
+  if (lang === "zh" || !r || !wre) return r;   // 詞典還沒建好時不動 (否則先翻一半會擋住之後的完整翻譯)
   return r.replace(/^(\s*)([魏蜀吳群晉])(?= )/, (m, sp, f) => sp + FACTION[lang][f]);
 }
 function tr0(s) {
@@ -425,12 +425,16 @@ function tr0(s) {
   if (exact[t]) return lead + names(exact[t]) + trail;
   { const m = t.match(/^([^㐀-鿿A-Za-z0-9]+)([㐀-鿿].*)$/s);   // 前面的符號 / 圖示 (「• 」「🔒 」「✔ 」…) 先拿掉,剩下的整句再查一次
     if (m && (exact[m[2]] || exact[m[2].replace(/[：:。！!…]+$/, "")])) return lead + m[1] + (exact[m[2]] || exact[m[2].replace(/[：:。！!…]+$/, "")]) + trail; }
-  for (const [re, o] of tpls) { const m = t.match(re); if (m) return lead + names(o.replace(/\{(\d+)\}/g, (x, i) => m[+i] == null ? "" : word(m[+i]))) + trail; }
+  { let tm = null, um = null, tl = -1;   // 戰報樣板 (tpls) 與介面樣板 (uiTpls) 都對得上時,取原文較長 (較具體) 的那個
+    for (const [re, o, len] of tpls) { const m = t.match(re); if (m) { tm = [m, o]; tl = len; break; } }
+    for (const [re, o, len] of uiTpls) { const m = t.match(re); if (m) { if (len > tl) um = [m, o]; break; } }
+    if (um) return lead + um[1].replace(/\{(\d+)\}/g, (x, i) => um[0][+i] == null ? "" : tr(um[0][+i])) + trail;
+    if (tm) return lead + names(tm[1].replace(/\{(\d+)\}/g, (x, i) => tm[0][+i] == null ? "" : //.test(tm[0][+i]) ? tr(tm[0][+i]) : word(tm[0][+i]))) + trail; }
   for (const [re, f] of pats) { const m = t.match(re); if (m) return lead + f(...m.map((x, i) => i && typeof x === "string" ? word(x) : x)) + trail; }
   if (/^[^、]+「[^」]+」(、[^、]+「[^」]+」)+$/.test(t)) return lead + t.split("、").map(tr).join("、") + trail;   // 解鎖清單: 頭像框「A」、特效「B」
   for (const [re, o] of uiTpls) { const m = t.match(re); if (m) return lead + o.replace(/\{(\d+)\}/g, (x, i) => m[+i] == null ? "" : tr(m[+i])) + trail; }
   { const m = t.match(/^([^㐀-鿿A-Za-z0-9]+)([㐀-鿿].*)$/s);   // 前面的符號 (🔒 / 🤖 …) 拿掉,剩下的遞迴翻譯
-    if (m) { const r = tr(m[2]); if (r !== m[2]) return lead + m[1] + r + trail; } }
+    if (m && !/[〈〉「」]/.test(m[1])) { const r = tr(m[2]); if (r !== m[2]) return lead + m[1] + r + trail; } }
   return lead + word(t) + trail;
 }
 function names(t) {   // 只翻 [武將名] 等括號與殘留的武將名 (模板輸出已是目標語言,不能再套整本詞典)
@@ -438,7 +442,10 @@ function names(t) {   // 只翻 [武將名] 等括號與殘留的武將名 (模�
   return t.replace(namesRe, w => nameMap.get(w));
 }
 let namesRe = null, nameMap = new Map();
+function skillText(re, e, j, t, k) { return t.replace(re, (m0, g1) => (k ? j : e).replace("$1", g1 ? word(g1) : "")); }   // 技能名裡的 $1 (例如「棄兩張殺」的牌名) 也要翻
 function word(t) {
+  { const tt0 = t.trim(); const mm = tt0.match(/^([^〈〉-]+)-([^〈〉]+)$/);   // 樣板只抓到「武將-技能」(括號在樣板上): 一樣查技能表
+    if (mm) for (const [re, e, j] of SKILLS) if (re.test(tt0)) return t.replace(tt0, word(mm[1]) + "-" + skillText(re, e, j, tt0, lang === "en" ? 0 : 1)); }
   if (!wre) return t;
   const map = W.map_, store = [];
   const tt = t.trim();
@@ -527,6 +534,7 @@ async function setLang(l) {
   const sel = document.getElementById("langsel"); if (sel) sel.value = l;
   const tb = document.getElementById("bTut"); if (tb) { tb.textContent = TUT[l].btn; }
   if (typeof S !== "undefined" && S.snap) { try { S.handKey = null; } catch (e) {} }
+  document.dispatchEvent(new CustomEvent("sgs-lang"));
 }
 
 /* ---------- 教學 ---------- */
@@ -729,6 +737,7 @@ function init() {
   setInterval(updHint, 400);
   try { if (!localStorage.getItem("sgs_tut_seen")) { localStorage.setItem("sgs_tut_seen", "1"); } } catch (e) {}
 }
-window.SGS_I18N = { setLang, tr, openTut, get lang() { return lang; } };
+function mark(n) { orig.set(n, { zh: n.nodeValue, out: n.nodeValue }); return n; }   // 已經翻好的文字節點: 不要讓逐節點翻譯再碰一次
+window.SGS_I18N = { setLang, tr, mark, openTut, get lang() { return lang; } };
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
 })();

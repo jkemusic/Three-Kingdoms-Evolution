@@ -1209,6 +1209,7 @@ function renderPrompt0(snap) {
 }
 
 /* ---------- 紀錄 / 思考 ---------- */
+document.addEventListener("sgs-lang", () => { for (const el of document.querySelectorAll("#log > [data-zh]")) { try { el.replaceChildren(...logNodes(el.dataset.zh)); } catch (e) {} } });   // 換語言: 戰報整行重畫
 function addLogs(lines) {
   const L = $("#log"), follow = $("#follow").checked;
   const quiet = lines.length > 60;   // 中途加入 / 一次補大量紀錄時不播音效動畫
@@ -1228,7 +1229,7 @@ function addLogs(lines) {
     const pm = S.prevChain;   // 「↳ P0 使用 X」緊接著「P0 裝備/使用 X…」: 兩行是同一件事,留後者
     if (!isChain && pm && pm.el.isConnected && s.trim().startsWith(pm.pl) && pm.card && s.includes(pm.card)) pm.el.remove();
     S.prevChain = null;
-    const el = h("div", {class: cls.trim()}, ...logNodes(s));
+    const el = h("div", {class: cls.trim()}, ...logNodes(s)); el.dataset.zh = s;
     L.append(el);
     const cm = isChain && s.trim().match(/^↳+ (P\d+\([^)]*\)) 使用 (\S+)$/);
     if (cm) S.prevChain = {el, pl: cm[1], card: cm[2].replace(/^[紅黑]/, "")};
@@ -1279,14 +1280,49 @@ function cardNodes(str) {
     if (m[5]) { start = end - m[5].length; }
     if (start > last) out.push(str.slice(last, start));
     const im = h("img", {class: "lc" + (DELAYED.has(c.name) ? " dl" : ""), src: c.img, title: c.text, onclick: () => showCardInfo(c)}); bindPrev(im, c);
-    out.push(lcw(im, c)); last = end;
+    const cw = lcw(im, c); cw.dataset.zh = str.slice(start, end); out.push(cw); last = end;
   }
   if (last < str.length) out.push(str.slice(last));
   return out.length ? out : [str];
 }
+function ctxNodes(nodes) {   // 戰報: 玩家標籤 / 箭頭 / 牌圖把一行切成幾段文字,逐段翻不出句子。外語時: 牌圖 (與玩家標籤) 先換成記號 + 原本的中文,整行 (A) 或以玩家標籤分段 (B) 兩種方式各翻一次,留下中文殘留較少的,再把圖放回去
+  const I = window.SGS_I18N; if (!I || I.lang === "zh") return nodes;
+  const CJK = I.lang === "ja" ? /[張令扣棄抽體點個給這還對將並與為麼無]/g : /[\u3400-\u9fff]/g, RE = /\uE010(\d+)\uE011([^\uE010\uE011\uE012]*?)\uE012/g;
+  const run = chipInline => {
+    const out = []; let seg = [], bad = 0;
+    const inl = n => typeof n === "string" || (n.dataset && n.dataset.zh && (chipInline || !n.dataset.chip));
+    const build = (txt, toks, tr) => {
+      const res = [], re = new RegExp(RE.source, "g"); let last = 0, m;
+      const T = t => tr ? I.mark(document.createTextNode(t)) : t;
+      while ((m = re.exec(txt))) { if (m.index > last) res.push(T(txt.slice(last, m.index))); res.push(toks[+m[1]]); last = m.index + m[0].length; }
+      if (last < txt.length) res.push(T(txt.slice(last)));
+      return res;
+    };
+    const flush = () => {
+      if (!seg.length) return;
+      const toks = []; let txt = "";
+      for (const n of seg) { if (typeof n === "string") txt += n; else { toks.push(n); txt += "\uE010" + (toks.length - 1) + "\uE011" + n.dataset.zh + "\uE012"; } }
+      seg = [];
+      const drop = new Set();   // 〈武將-技能名〉 裡的牌圖還原成文字,技能名才翻得出來
+      txt = txt.replace(/〈[^〉]*〉/g, sk => sk.replace(new RegExp(RE.source, "g"), (mm, i, z) => { if (toks[+i].dataset.chip) return mm; drop.add(+i); return z; }));
+      if (!/[\u3400-\u9fff]/.test(txt)) { out.push(...build(txt, toks, false)); return; }
+      const tr = I.tr(txt), have = new Set(); let m; const re = new RegExp(RE.source, "g");
+      while ((m = re.exec(tr))) have.add(+m[1]);
+      if (have.size !== toks.length - drop.size) { out.push(...build(txt, toks, false)); bad += 99; return; }
+      bad += (tr.replace(new RegExp(RE.source, "g"), "").match(CJK) || []).length;
+      out.push(...build(tr, toks, true));
+    };
+    for (const n of nodes) { if (inl(n)) seg.push(n); else { flush(); out.push(n); } }
+    flush();
+    return {out, bad};
+  };
+  const A = run(true), B = run(false);
+  return (A.bad <= B.bad ? A : B).out;
+}
+const cardNodesT = s => ctxNodes(cardNodes(s));
 function pchip(i, par) {
   const nm = (par.includes("/") ? par.split("/").pop() : par).replace(/^[主忠反內][公臣賊奸]$/, "");
-  return h("span", {class: "pc", text: "P" + i + (nm && nm !== "?" ? " " + nm : "")});
+  return h("span", {class: "pc", "data-zh": "P" + i + "(" + par + ")", "data-chip": "1", text: "P" + i + (nm && nm !== "?" ? " " + nm : "")});
 }
 function arrow(mid, harm) {   // 圖像化箭頭: ──[牌]──▶
   return h("span", {class: "arw " + (harm ? "harm" : "help")}, h("i", {class: "ln"}), ...mid, h("i", {class: "ln"}), h("i", {class: "ah"}));
@@ -1305,18 +1341,19 @@ function richNodes(str) {   // 一般文字: 牌名換成圖、玩家換成標�
   if (last < str.length) out.push(...cardNodes(str.slice(last)));
   return out;
 }
-function logNodes(s) {
+const logNodes = s => ctxNodes(logNodes0(s));
+function logNodes0(s) {
   if (!S.cat) return [s];
   let m = s.match(/^(\s*(?:↳+ )?)P(\d+)\(([^)]*)\) 對 P(\d+)\(([^)]*)\) 使用 (.*?)[,,] ?目標 P(\d+)\(([^)]*)\)\s*$/);
-  if (m) return [m[1], pchip(m[2], m[3]), arrow(cardNodes(m[6]), true), pchip(m[4], m[5]), arrow([h("span", {class: "dmgb", text: "殺"})], true), pchip(m[7], m[8])];   // 借刀殺人: A —借→ B —殺→ C
+  if (m) return [m[1], pchip(m[2], m[3]), arrow(cardNodesT(m[6]), true), pchip(m[4], m[5]), arrow([h("span", {class: "dmgb", text: "殺"})], true), pchip(m[7], m[8])];   // 借刀殺人: A —借→ B —殺→ C
   m = s.match(/^(\s*(?:↳+ )?)P(\d+)\(([^)]*)\) 對 P(\d+)\(([^)]*)\) (?:使用|發動) (.*)$/);
-  if (m) return [m[1], pchip(m[2], m[3]), arrow(cardNodes(m[6]), HARM_RE.test(m[6])), pchip(m[4], m[5])];
+  if (m) return [m[1], pchip(m[2], m[3]), arrow(cardNodesT(m[6]), HARM_RE.test(m[6])), pchip(m[4], m[5])];
   m = s.match(/^(\s*(?:↳+ )?)P(\d+)\(([^)]*)\) 受到 (\d+) 點(\S*?)傷害 \(來源 P(\d+)\(([^)]*)\)\)(.*)$/);
-  if (m) return [m[1], pchip(m[6], m[7]), arrow([h("span", {class: "dmgb", text: "💥 -" + m[4] + (m[5] ? " " + m[5] : "")})], true), pchip(m[2], m[3]), ...cardNodes(m[8])];
+  if (m) return [m[1], pchip(m[6], m[7]), arrow([h("span", {class: "dmgb", text: "💥 -" + m[4] + (m[5] ? " " + m[5] : "")})], true), pchip(m[2], m[3]), ...cardNodesT(m[8])];
   m = s.match(/^(\s*(?:↳+ )?)P(\d+)\(([^)]*)\) (?:使用|打出) (.*)$/);
   if (m) {
-    if (GROUP_RE.test(m[4])) return [m[1], pchip(m[2], m[3]), arrow(cardNodes(m[4]), GROUP_HARM.test(m[4])), h("span", {class: "pc", text: "全體"})];   // 群體牌: 箭頭指向全體
-    return [m[1], pchip(m[2], m[3]), arrow(cardNodes(m[4]), HARM_RE.test(m[4]))];
+    if (GROUP_RE.test(m[4])) return [m[1], pchip(m[2], m[3]), arrow(cardNodesT(m[4]), GROUP_HARM.test(m[4])), h("span", {class: "pc", text: "全體"})];   // 群體牌: 箭頭指向全體
+    return [m[1], pchip(m[2], m[3]), arrow(cardNodesT(m[4]), HARM_RE.test(m[4]))];
   }
   return richNodes(s);
 }
