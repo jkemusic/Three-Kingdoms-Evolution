@@ -1932,7 +1932,8 @@ function syncRanked(snap) {   // 段位局進行中: 不能開新遊戲,參戰�
   const me = (snap.players || []).some(p => p.is_viewer);
   $("#bForfeit").hidden = !(live && me);
   const inGame = !!(snap.locked && !snap.over && me);   // 自己正在對局中: 不能回大廳 (觀戰的人可以)
-  const br = $("#bRooms"); br.disabled = inGame; br.title = inGame ? "遊戲進行中不能回到大廳" : "回到大廳,選擇或創建房間";
+  S.rankedLive = !!(live && me);   // 段位局進行中: 可以回大廳,但算棄賽
+  const br = $("#bRooms"); br.disabled = inGame && !S.rankedLive; br.title = S.rankedLive ? "回到大廳 (段位局進行中離開 = 棄賽,扣段位積分)" : inGame ? "遊戲進行中不能回到大廳" : "回到大廳,選擇或創建房間";
 }
 $("#bForfeit").onclick = async () => {
   if (!confirm("確定要棄賽嗎?\n直接算輸,並扣除段位積分。")) return;
@@ -2208,6 +2209,7 @@ async function roomDelete() {
 }
 $("#bRooms").onclick = () => {
   if ($("#bRooms").disabled) return;
+  if (S.rankedLive && !confirm("段位局還沒打完,現在回到大廳會算棄賽:直接算輸,並扣除段位積分。\n確定要離開嗎?")) return;
   const others = (S.online || []).filter(x => x.id !== S.myWho).length;
   if (S.amHost && others > 0 && !confirm("你是房主,離開後房主會自動交給房間裡的其他人。確定要回到大廳嗎?")) return;
   leaveRoom();

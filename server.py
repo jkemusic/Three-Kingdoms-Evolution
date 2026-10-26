@@ -720,7 +720,9 @@ class Manager:
         return {"ok": True, "name": name}
 
     def leave(self, tok):
-        """主動離開房間 (回大廳): 不算斷線,不通知房內其他人;房主離開時交給別人。"""
+        """主動離開房間 (回大廳): 不算斷線,不通知房內其他人;房主離開時交給別人。段位局打到一半離開 = 棄賽。"""
+        if tok and (self.cfg or {}).get("ranked") and self.game_active() and self.seat_of(tok) is not None:
+            self.forfeit(tok)
         with self.plock:
             if tok not in self.seen:
                 return
