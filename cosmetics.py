@@ -125,7 +125,7 @@ EFFECTS = [
     {"id": "dust", "n": "金粉", "req": A("chain11")},
     {"id": "snow", "n": "飄雪", "req": A("first_win")},
     {"id": "heart", "n": "心動", "req": A("ranked1")},
-    {"id": "firefly", "n": "螢火", "req": A("games50")},
+    {"id": "firefly", "n": "螢火", "req": dict(A("wei5"), alt="games50")},   # 已經靠「資深玩家」解鎖的人保留,
     {"id": "ice", "n": "冰晶", "req": A("streak3")},
     {"id": "pulse", "n": "脈衝", "req": A("ranked100")},
     {"id": "toxic", "n": "毒霧", "req": A("no_sha")},
@@ -162,7 +162,7 @@ def is_unlocked(req, tier, achs):
         return True
     if req["t"] == "tier":
         return tier >= req["v"]
-    return req["v"] in achs
+    return req["v"] in achs or (req.get("alt") in achs if req.get("alt") else False)
 
 
 def unlocked_ids(tier, achs):
