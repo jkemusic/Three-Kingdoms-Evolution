@@ -345,6 +345,7 @@ window.SGS_UI_TPL = [
 ["主題「{}」", "Theme “{1}”", "テーマ「{1}」"],
 ["特效「{}」", "Effect “{1}”", "エフェクト「{1}」"],
 ["玩家框「{}」", "Player box “{1}”", "プレイヤー枠「{1}」"],
+["{} 除了他以外全部人的手牌 (不含裝備) 隨機交換", "{1} randomly swaps the hand cards (not equipment) of everyone except themselves", "{1} 自分以外の全員の手札(装備除く)をランダムに交換"],
 ["{} 連勝", "{1}-win streak", "{1} 連勝"],
 ["沒有連勝", "No streak", "連勝なし"],
 ["下一場勝利多 +{} 分 (最高 +{})", "next win +{1} bonus points (max +{2})", "次の勝利でボーナス +{1} pt (最大 +{2})"],
