@@ -221,6 +221,7 @@ class Profiles:
         p = self.d.get(tok)
         return self.rank_label(p.get("rp", 0)) if p else self.rank_label(0)
 
+    STREAK_STEP, STREAK_CAP = 3, 15
     WIN_XP = {1: 15, 2: 30, 3: 45, 4: 70}   # 電腦難度 弱/中/強/很強: 打贏給的經驗值
 
     def award(self, tok, won, char=None, role=None, win_xp=None, ranked=False, win_rp=None, facts=None, loss_rp=None):
@@ -232,10 +233,13 @@ class Profiles:
         before = self.rank_label(p.get("rp", 0))
         with self.lock:
             p["xp"] += gain; p["games"] += 1; p["wins"] += 1 if won else 0
-            delta = 0
+            delta = 0; bonus = 0
             if ranked:
                 old = p.get("rp", 0)
-                p["rp"] = max(0, old + ((win_rp or 25) if won else -(loss_rp or self.LOSS_RP)))
+                rs = p.get("rstreak", 0)   # 段位連勝: 連勝中每多贏一場,下一場多給 3 分 (最多 +15);輸一場就歸零
+                bonus = min(self.STREAK_CAP, rs * self.STREAK_STEP) if won else 0
+                p["rstreak"] = rs + 1 if won else 0
+                p["rp"] = max(0, old + ((win_rp or 25) + bonus if won else -(loss_rp or self.LOSS_RP)))
                 delta = p["rp"] - old
                 p["rgames"] = p.get("rgames", 0) + 1; p["rwins"] = p.get("rwins", 0) + (1 if won else 0)
             p["peak_rp"] = max(p.get("peak_rp", 0), p.get("rp", 0))
@@ -245,7 +249,7 @@ class Profiles:
             _, _, _, nxt = self.rank(p.get("rp", 0))
             # 每場結束都留一則結果通知 (積分變化 / 升降段 / 離下一段還差多少),玩家的瀏覽器讀到就跳出視窗
             p["rank_note"] = {"from": before, "to": after, "delta": delta, "rp": p.get("rp", 0), "up": delta > 0, "changed": after != before,
-                              "ranked": bool(ranked), "won": bool(won), "next": self.rank_label(nxt) if nxt is not None else None,
+                              "ranked": bool(ranked), "won": bool(won), "streak": p.get("rstreak", 0) if ranked else 0, "bonus": bonus if ranked else 0, "next": self.rank_label(nxt) if nxt is not None else None,
                               "need": (nxt - p.get("rp", 0)) if nxt is not None else 0, "id": int(time.time() * 1000)}
             if char:
                 c = p.setdefault("chars", {}).setdefault(char, [0, 0]); c[0] += 1; c[1] += 1 if won else 0

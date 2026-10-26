@@ -319,15 +319,16 @@ button.big{font-size:16px;font-weight:800;padding:10px 38px}
 /* ===== 桌面版: 手牌欄收在螢幕底部,滑鼠移上去才升起 (出牌輪到你時自動升起) ===== */
 @media (min-width:821px){
   #app{grid-template-rows:auto minmax(0,1fr)}
-  #mid{margin-bottom:48px}
+  html,body{overflow:hidden}   /* 桌面版整頁剛好一個畫面,不出現整頁捲軸 */
+  #mid{margin-bottom:0}   /* 手牌列蓋在牌桌上,不再另外留一條黑色底 */
   body:has(#bottom.spec) #mid{margin-bottom:0}   /* 旁觀者沒有手牌列: 牌桌延伸到最下面,不留黑條 */
   #bottom{position:fixed;left:0;right:0;bottom:0;z-index:12;display:flex;flex-direction:column-reverse;min-height:0;padding:0 0 4px;background:none;border:0;box-shadow:none;pointer-events:none}
   #bottom>*{pointer-events:auto}
   #bottom{right:390px}body.hide-side #bottom{right:0}   /* 側欄一路延伸到右下角 */
-  #side{margin-bottom:-48px;position:relative;z-index:13}
+  #side{position:relative;z-index:13}
   #hand{transform:translateY(152px);transition:transform .25s ease}
   #hand:hover,#bottom.open #hand,#bottom:has(#bar:hover) #hand{transform:none}
-  #hand{height:200px;min-height:0;padding:14px 12px 0;background:linear-gradient(180deg,rgba(8,20,40,.35),rgba(5,11,23,.92));border-top:1px solid #1f4468;box-shadow:0 -6px 18px rgba(0,0,0,.4);align-items:flex-start;width:max-content;max-width:100%;margin:0 auto;border-radius:6px 6px 0 0}
+  #hand{height:200px;min-height:0;padding:14px 12px 0;background:none;border:0;box-shadow:none;align-items:flex-start;width:max-content;max-width:100%;margin:0 auto;border-radius:6px 6px 0 0}
   #bar{position:absolute;left:50%;bottom:68px;transform:translateX(-50%);z-index:3;margin:0;width:max-content;max-width:92vw;background:rgba(5,11,23,.92);padding:4px 12px;border-radius:4px;box-shadow:0 0 14px rgba(0,0,0,.6)}   /* 固定在手牌露出的邊上方,不隨手牌升降 */
   #bar:empty{display:none}
   #bar{z-index:30}   /* 確定 / 使用等按鈕永遠在手牌 (含滑過放大的牌) 上面 */
@@ -1959,7 +1960,7 @@ function showRankNote(n) {   // 升段 / 降段 視窗
       h("div", {class: "rkicon", text: n.changed ? (n.up ? "🎉" : "📉") : n.won ? "🏆" : "🏳"}),
       h("h3", {text: n.changed ? (n.up ? "段位提升!" : "段位下降") : n.won ? "勝利" : "落敗"}),
       n.changed ? h("div", {class: "rkflow"}, rkEl(n.from, true), h("span", {class: "rkarr", text: "➜"}), rkEl(n.to, true)) : h("div", {class: "rkflow"}, rkEl(n.to, true)),
-      n.ranked ? h("div", {class: "rkdelta " + (n.delta > 0 ? "plus" : n.delta < 0 ? "minus" : ""), text: `段位積分 ${n.delta > 0 ? "+" : ""}${n.delta}`})
+      n.ranked ? h("div", {class: "rkdelta " + (n.delta > 0 ? "plus" : n.delta < 0 ? "minus" : ""), text: `段位積分 ${n.delta > 0 ? "+" : ""}${n.delta}` + (n.bonus ? ` (含連勝獎勵 +${n.bonus})` : "") + (n.won && n.streak > 1 ? ` · ${n.streak} 連勝` : "")})
                : h("div", {class: "rkdelta", text: "休閒模式 · 積分不變"}),
       h("div", {class: "meta", style: {margin: "6px 0 14px"}, text: `目前 ${n.rp} 分` + (n.next ? ` · 距離 ${n.next} 還差 ${n.need} 分` : " · 已是最高段位")}),
       h("button", {class: "primary big", text: "確定", onclick: close}))));
