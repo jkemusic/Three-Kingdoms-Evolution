@@ -57,8 +57,9 @@ def A(a): return {"t": "ach", "v": a}
 
 # 顏色主題 (a 主色 / b 底色)、頭像框 (id 對應前端 CSS fr-<id>)、頭像特效 (fx-<id>)
 THEMES = [
-    {"id": "default", "n": "預設", "a": None, "b": None, "req": F()},
-    {"id": "guofeng", "n": "古風三國", "a": "#d4a64a", "b": "#1b120c", "req": F()},
+    {"id": "default", "n": "古風三國", "a": None, "b": None, "req": F()},
+    {"id": "pixel", "n": "像素", "a": "#ff77a8", "b": "#1d2b53", "req": F()},
+    {"id": "classic", "n": "電競藍", "a": "#3fd2ff", "b": "#0c1830", "req": F()},
     {"id": "graphite", "n": "石墨", "a": "#c3ccd8", "b": "#14161a", "req": F()},
     {"id": "jade", "n": "翡翠", "a": "#46e0a0", "b": "#0a1f1a", "req": T(1)},
     {"id": "amethyst", "n": "紫晶", "a": "#b58cff", "b": "#150f2e", "req": T(2)},

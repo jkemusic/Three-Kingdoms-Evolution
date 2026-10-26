@@ -1458,6 +1458,8 @@ class Handler(BaseHTTPRequestHandler):
                     snap["ai_lv"] = [M._level(M.cfg, i) for i in range(len(snap["players"]))]
                 snap.update(M.chat_since(int(q.get("chat", ["0"])[0]), tok))
                 return self._send(200, snap)
+            if path in ("/fonts/pixel-tw.woff2", "/fonts/pixel-ja.woff2"):   # 像素主題的字體 (Fusion Pixel Font, OFL 授權)
+                return self._file(os.path.join(WEB, "fonts", path[len("/fonts/"):]))
             if path in ("/i18n.js", "/i18n_log.js", "/i18n_ui.js", "/i18n_log2.js", "/i18n_new.js", "/fx.js", "/theme.js", "/friends.js"):
                 return self._file(os.path.join(WEB, path[1:]))
             if path == "/api/about":

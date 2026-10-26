@@ -47,7 +47,7 @@ window.SGS_LOG_TPL = (window.SGS_LOG_TPL || []).concat([
 ["漩渦", "Vortex", "渦"], ["光柱", "Light Pillar", "光の柱"], ["烈陽", "Blazing Sun", "烈日"], ["星河", "Galaxy", "天の川"], ["流星", "Meteor", "流星"],
 // --- 主題 ---
 ["薄荷", "Mint", "ミント"], ["深海", "Deep Sea", "深海"], ["冰藍", "Ice Blue", "アイスブルー"], ["咖啡", "Coffee", "コーヒー"], ["森林", "Forest", "森"],
-["灰燼", "Ashes", "灰燼"], ["古風三國", "Ancient Kingdoms", "古風三國"], ["緋紅", "Scarlet", "緋色"], ["夕陽", "Sunset", "夕陽"], ["毒綠", "Toxic Green", "毒緑"], ["賽博", "Cyber", "サイバー"],
+["灰燼", "Ashes", "灰燼"], ["古風三國", "Ancient Kingdoms", "古風三國"], ["電競藍", "Esports Blue", "eスポーツブルー"], ["像素", "Pixel", "ピクセル"], ["緋紅", "Scarlet", "緋色"], ["夕陽", "Sunset", "夕陽"], ["毒綠", "Toxic Green", "毒緑"], ["賽博", "Cyber", "サイバー"],
 ["黑白", "Monochrome", "モノクロ"], ["薰衣草", "Lavender", "ラベンダー"], ["皇家", "Royal", "ロイヤル"],
 // --- 好友 / 房間 / 密碼 ---
 ["  (把這組 UID 給朋友,他就能加你)", "  (Give this UID to a friend so they can add you)", "  (このUIDを友達に教えると追加してもらえます)"],

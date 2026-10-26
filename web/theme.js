@@ -33,10 +33,10 @@
     };
   }
   /* ---------- 古風三國 外觀: 絳紅 / 墨黑 / 金線,整個牌桌換成書卷風 (主題選「古風三國」時啟用) ---------- */
-  const GF_A = "#d4a64a";
+  const GF_A = "#d4a64a", GF_B = "#1b120c";   // 預設主題 = 古風三國
   const gf = document.createElement("style"); gf.dataset.cos = "1";
   gf.textContent = `
-html.gf{--gold:#d9ad4f;--red:#d2412f;--felt1:#3a281a;--felt2:#140d08;--ser:"Noto Serif TC","Source Han Serif TC","Songti TC","STSong","PMingLiU","MingLiU",serif}
+html.gf{--gold:#d9ad4f;--red:#d2412f;--felt1:#3a281a;--felt2:#140d08;--ser:var(--ff,serif)}
 html.gf,html.gf body{background:radial-gradient(ellipse at 50% -10%,#3a2316 0,#150d08 62%)}
 html.gf #top{background:linear-gradient(90deg,#1c120b,#26180e 50%,#1c120b);border-bottom:1px solid #8a6a30;box-shadow:0 1px 0 rgba(217,173,79,.3),0 4px 18px rgba(0,0,0,.55)}
 html.gf #top .title{font-family:var(--ser);letter-spacing:.3em;color:#e8c872;text-shadow:0 0 12px rgba(217,173,79,.45)}
@@ -80,13 +80,87 @@ html.gf .modal{background:rgba(10,5,2,.72)}
 html.gf .pickbar{background:linear-gradient(160deg,#2c2016,#17100b);border:1px solid #d9ad4f;box-shadow:0 0 24px rgba(217,173,79,.35)}
 `;
   document.head.appendChild(gf);
+  /* ---------- 每個主題自己的字體 (只用系統內建字體,不下載): 依主題色對應字體,再依語言挑中 / 日 / 英的字型 ---------- */
+  const FONT_OF = {"#d4a64a": "ming", "#3fd2ff": "tech", "#c3ccd8": "hei", "#46e0a0": "kai", "#b58cff": "round", "#ff8fc0": "kai", "#ff7a45": "bold", "#f0c95c": "ming", "#9b8cff": "tech", "#7fffd4": "round", "#4d8dff": "hei", "#bfe9ff": "round", "#d9a066": "kai", "#7ed957": "kai", "#b8c0cc": "mono", "#ff5d73": "bold", "#ffb347": "round", "#b6ff3a": "mono", "#ff4de0": "tech", "#ffffff": "mono", "#c9a7ff": "round", "#ffd700": "ming", "#ff77a8": "pixel"};
+  const FAM = {
+    ming:  ['"Noto Serif TC","Source Han Serif TC","Songti TC","STSong","PMingLiU","MingLiU",serif', '"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP","MS PMincho",serif', 'Georgia,"Times New Roman","Noto Serif",serif'],
+    kai:   ['"DFKai-SB","BiauKai","Kaiti TC","KaiTi","STKaiti","Noto Serif TC",serif', '"Yu Kyokasho","Hiragino Mincho ProN","Yu Mincho",serif', '"Palatino Linotype","Book Antiqua",Palatino,Georgia,serif'],
+    round: ['"Yuanti TC","Microsoft JhengHei UI","Microsoft JhengHei","PingFang TC","Noto Sans TC",sans-serif', '"Hiragino Maru Gothic ProN","Yu Gothic UI","Meiryo","Noto Sans JP",sans-serif', '"Varela Round",Nunito,"Trebuchet MS","Segoe UI",sans-serif'],
+    tech:  ['"Segoe UI","Microsoft JhengHei","PingFang TC","Noto Sans TC",sans-serif', '"Yu Gothic UI","Hiragino Sans","Meiryo","Noto Sans JP",sans-serif', 'Bahnschrift,"Segoe UI","Roboto Condensed",Roboto,"Helvetica Neue",sans-serif'],
+    bold:  ['"Microsoft JhengHei","PingFang TC","Noto Sans TC",sans-serif', '"Yu Gothic","Hiragino Sans","Meiryo","Noto Sans JP",sans-serif', '"Arial Black",Impact,"Segoe UI",sans-serif'],
+    mono:  ['"Cascadia Mono",Consolas,"Microsoft JhengHei","PingFang TC","Noto Sans TC",monospace', '"Cascadia Mono",Consolas,"Yu Gothic UI","Hiragino Sans",monospace', '"Cascadia Mono",Consolas,"SF Mono",Menlo,"Courier New",monospace'],
+    pixel: ['"SGS Pixel TW","Microsoft JhengHei",monospace', '"SGS Pixel JA","Yu Gothic UI",monospace', '"SGS Pixel TW","Courier New",monospace'],
+    hei:   ['-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI","Microsoft JhengHei","PingFang TC","Noto Sans TC",sans-serif', '"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic",Meiryo,"Noto Sans JP",sans-serif', '-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Inter,Roboto,"Helvetica Neue",Arial,sans-serif'],
+  };
+  const fontCss = document.createElement("style"); fontCss.dataset.cos = "1";
+  fontCss.textContent = Object.entries(FAM).map(([k, [zh, ja, en]]) => `html[data-font=${k}]{--ff:${zh}}
+html[data-font=${k}]:lang(ja){--ff:${ja}}
+html[data-font=${k}]:lang(en){--ff:${en}}`).join(" ")
+    + " html[data-font],html[data-font] body,html[data-font] button,html[data-font] input,html[data-font] select,html[data-font] textarea{font-family:var(--ff)}";
+  document.head.appendChild(fontCss);
+  const fontOn = t => { document.documentElement.dataset.font = FONT_OF[(t.a || "").toLowerCase()] || "hei"; };
+  /* ---------- 像素主題: 方角、硬陰影、像素字體 (字體: Fusion Pixel Font,OFL 授權,檔案隨程式附上) ---------- */
+  const PX_A = "#ff77a8";
+  const px = document.createElement("style"); px.dataset.cos = "1";
+  px.textContent = `
+html.px{--gold:#ffec27;--red:#ff004d;--green:#00e436;--blue:#29adff;--accent:#ffec27;--text:#fff1e8;--dim:#c2c3c7}
+html.px,html.px body{background:#1d2b53 linear-gradient(45deg,rgba(255,255,255,.035) 25%,transparent 25% 75%,rgba(255,255,255,.035) 75%) 0 0/8px 8px;color:#fff1e8;-webkit-font-smoothing:none;text-rendering:optimizeSpeed}
+html.px *{border-radius:0!important;transition:none!important}
+html.px .av,html.px .ph,html.px .avw>img,html.px .hp img,html.px .eq img{image-rendering:pixelated}
+html.px #top{background:#000;border-bottom:4px solid #fff1e8;box-shadow:0 4px 0 #7e2553}
+html.px #top .title{color:#ffec27;letter-spacing:.2em;text-shadow:2px 2px 0 #7e2553}
+html.px #tablewrap::before{border:8px solid #fff1e8;background:#008751 linear-gradient(45deg,rgba(0,0,0,.12) 25%,transparent 25% 75%,rgba(0,0,0,.12) 75%) 0 0/16px 16px;box-shadow:0 0 0 4px #000,8px 8px 0 4px rgba(0,0,0,.55);border-radius:0}
+html.px #tablewrap::after{box-shadow:inset 0 0 0 2px rgba(255,241,232,.35);border-radius:0}
+html.px #center .big{color:#ffec27;text-shadow:3px 3px 0 #7e2553}
+html.px #center{color:#fff1e8}
+html.px #roundtag{color:#ffec27;text-shadow:2px 2px 0 #000}
+html.px #roundtag .rtdeck{color:#fff1e8}
+html.px .pl{background:#1d2b53;box-shadow:inset 0 0 0 3px #fff1e8,0 0 0 3px #000,6px 6px 0 3px rgba(0,0,0,.55);animation:none}
+html.px .pl:hover{box-shadow:inset 0 0 0 3px #29adff,0 0 0 3px #000,6px 6px 0 3px rgba(0,0,0,.55)}
+html.px .pl.cur{box-shadow:inset 0 0 0 3px #ffec27,0 0 0 3px #000,6px 6px 0 3px rgba(0,0,0,.55);animation:none}
+html.px .pl.cur::after{content:"出牌";color:#000;background:#ffec27;box-shadow:0 0 0 2px #000;letter-spacing:.1em}
+html.px .pl.sel{box-shadow:inset 0 0 0 3px #ffa300,0 0 0 3px #000}
+html.px .pl .ph{border:2px solid #fff1e8;box-shadow:0 0 0 2px #000}
+html.px .pl .nm{color:#fff1e8}
+html.px .role{box-shadow:0 0 0 2px #000;padding:0 6px}
+html.px .hp{color:#ff004d;text-shadow:2px 2px 0 #000}
+html.px .tag{background:#7e2553;border:2px solid #000}
+html.px .bubble{background:#fff1e8;color:#1d2b53;border:3px solid #000;box-shadow:4px 4px 0 rgba(0,0,0,.5)}
+html.px .bubble::after{border-top-color:#000}
+html.px .pl.bb .bubble::after{border-bottom-color:#000}
+html.px .card{border:3px solid #000;box-shadow:0 0 0 2px #fff1e8,4px 4px 0 2px rgba(0,0,0,.55)}
+html.px .card.ok{border:3px solid #00e436;box-shadow:0 0 0 2px #fff1e8,4px 4px 0 2px rgba(0,0,0,.55)}
+html.px .card.picked{border-color:#ffec27;box-shadow:0 0 0 2px #fff1e8,6px 6px 0 2px rgba(0,0,0,.55)}
+html.px #side{background:#1d2b53;border-left:4px solid #fff1e8}
+html.px #tabs{background:#000}
+html.px #tabs button.on{background:#7e2553;color:#ffec27;box-shadow:inset 0 -4px 0 #ffec27}
+html.px #log .turn{background:#7e2553;color:#ffec27;border-left:4px solid #ffec27}
+html.px .th,html.px .cc{background:#2a3a78;border:2px solid #000;box-shadow:inset 0 0 0 2px #5f6fb0}
+html.px #bottom{background:#000;border-top:4px solid #fff1e8;box-shadow:0 -4px 0 #7e2553}
+html.px #bar .pr{color:#ffec27;text-shadow:2px 2px 0 #000}
+html.px button{background:#7e2553;color:#fff1e8;border:0;box-shadow:inset 0 0 0 3px #fff1e8,0 0 0 2px #000,3px 3px 0 2px #000}
+html.px button:hover{background:#ab5236;box-shadow:inset 0 0 0 3px #ffec27,0 0 0 2px #000,3px 3px 0 2px #000}
+html.px button:not(:disabled):active{transform:translate(3px,3px);box-shadow:inset 0 0 0 3px #ffec27,0 0 0 2px #000}
+html.px button.primary{background:#00e436;color:#000;box-shadow:inset 0 0 0 3px #fff1e8,0 0 0 2px #000,3px 3px 0 2px #000}
+html.px input,html.px select,html.px textarea{background:#000;color:#fff1e8;border:3px solid #fff1e8}
+html.px #status{background:#000;color:#ffec27;border:2px solid #fff1e8}
+html.px .dlg,html.px .ci{background:#1d2b53;border:4px solid #fff1e8;box-shadow:0 0 0 3px #000,8px 8px 0 3px rgba(0,0,0,.6)}
+html.px .dlg h3,html.px .ci h3{color:#ffec27;text-shadow:2px 2px 0 #7e2553}
+html.px .modal{background:rgba(0,0,0,.72)}
+html.px .pickbar{background:#1d2b53;border:3px solid #ffec27;box-shadow:0 0 0 3px #000,6px 6px 0 3px rgba(0,0,0,.6)}
+@font-face{font-family:"SGS Pixel TW";src:url(/fonts/pixel-tw.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"SGS Pixel JA";src:url(/fonts/pixel-ja.woff2) format("woff2");font-display:swap}
+`;
+  document.head.appendChild(px);
+  const pxOn = t => document.documentElement.classList.toggle("px", !!(t && t.a && t.a.toLowerCase() === PX_A));
   const gfOn = t => document.documentElement.classList.toggle("gf", !!(t && t.a && t.a.toLowerCase() === GF_A));
 
   const origs = new WeakMap();
   function apply(t) {
-    gfOn(t);
     const els = [...document.querySelectorAll("style")].filter(e => !e.dataset.cos);
-    const off = !t || !t.a || !t.b || (t.a.toLowerCase() === DEF.a && t.b.toLowerCase() === DEF.b);
+    t = t && t.a && t.b ? t : { a: GF_A, b: GF_B };   // 沒選主題 = 預設的古風三國
+    gfOn(t); pxOn(t); fontOn(t);
+    const off = t.a.toLowerCase() === DEF.a && t.b.toLowerCase() === DEF.b;   // 「電競藍」就是頁面原本的顏色
     const mp = off ? null : mapper(t), hx = v => v.toString(16).padStart(2, "0");
     curMp = mp;
     for (const el of els) {
@@ -403,7 +477,7 @@ html.gf .pickbar{background:linear-gradient(160deg,#2c2016,#17100b);border:1px s
           return h("button", {
             class: "tile" + (ok ? "" : " lock"), title: ok ? x.n : x.req_text,
             onclick: () => { if (!ok) return; if (!x.a) { save(null); } else { save({ a: x.a, b: x.b }); } render(); },
-          }, h("span", { "data-nm": "1", style: { width: "58px", height: "40px", borderRadius: "9px", background: `linear-gradient(135deg,${x.b || DEF.b} 50%,${x.a || DEF.a} 50%)`, boxShadow: "inset 0 0 0 1px rgba(255,255,255,.2)" } }),
+          }, h("span", { "data-nm": "1", style: { width: "58px", height: "40px", borderRadius: "9px", background: `linear-gradient(135deg,${x.b || GF_B} 50%,${x.a || GF_A} 50%)`, boxShadow: "inset 0 0 0 1px rgba(255,255,255,.2)" } }),
           h("span", { class: "tn", text: (ok ? "" : "🔒 ") + x.n }), ok ? null : h("span", { class: "rq", text: "需要 " + x.req_text }));
         });
         body = h("div", {}, h("div", { class: "grid" }, ...sw),
