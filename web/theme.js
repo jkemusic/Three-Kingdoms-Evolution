@@ -100,6 +100,8 @@
 .avw[class*=" fr-"]>img{border:0!important}
 .profchip .avw>img.av{margin:0!important;vertical-align:baseline!important}
 .profchip .avw{margin:-4px 6px -4px -4px;flex:0 0 auto;vertical-align:middle}
+/* 小頭貼 (上方個人資訊、聊天室、成員列表): 特效半徑照比例縮小,不要超出去 */
+.profchip .avw>i,.profchip .avw::before,.profchip .avw::after,.cm .avw>i,.cm .avw::before,.cm .avw::after,.mr .avw>i,.mr .avw::before,.mr .avw::after{zoom:.55}
 .who .avw>img.av{margin:0!important}
 .avw[class*=" fr-"]::before{content:"";position:absolute;inset:0;border-radius:50%;background:var(--fb);z-index:-1}
 .fr-0{--fb:linear-gradient(135deg,#e29a58,#7a4a1c)}

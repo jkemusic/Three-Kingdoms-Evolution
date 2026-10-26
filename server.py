@@ -492,7 +492,7 @@ def leaderboard(me=""):
         p = PROFILES.d.get(t)
         if not p:
             continue
-        rows.append({"name": acc["user"], "me": t == me, "lv": PROFILES.rank_label(p.get("rp", 0)), "rp": p.get("rp", 0), "rp_next": PROFILES.rank(p.get("rp", 0))[3], "xp": p["xp"],
+        rows.append({"name": acc["user"], "acc": acc["user"].lower(), "me": t == me, "lv": PROFILES.rank_label(p.get("rp", 0)), "rp": p.get("rp", 0), "rp_next": PROFILES.rank(p.get("rp", 0))[3], "xp": p["xp"],
                      "games": p["games"], "wins": p["wins"], "avatar": PROFILES.avatar_url(t), "style": PROFILES.style(t), "dev": PROFILES.dev(t)})
     return {"rows": rows}
 OPEN_API = {"/api/about", "/api/rooms", "/api/cardcat", "/api/cosmetics", "/api/i18n", "/api/roster", "/api/me", "/api/login", "/api/register"}
@@ -1182,12 +1182,31 @@ def join_room(tok, rid, password, ip=""):
     return {"ok": True}
 
 
+def set_room_password(tok, rid, password):
+    """房主 / 建立者設定、修改或移除 (留空) 房間密碼;目前在房間裡的人不受影響。"""
+    m = ROOMS.get(rid)
+    if rid == "main" or m is None:
+        return {"ok": False, "error": "這個房間不能設密碼"}
+    if m.solo:
+        return {"ok": False, "error": "單人模式的房間不能設密碼"}
+    if tok not in (m.owner, m.host):
+        return {"ok": False, "error": "只有房主可以設定房間密碼"}
+    password = str(password or "")[:20]
+    if password:
+        m.pw = Accounts._mk(password)
+        now = time.time()
+        m.allowed |= {t for t, ts in m.seen.items() if now - ts < 60}   # 現在在房間裡的人不用重新輸入
+    else:
+        m.pw = None
+    return {"ok": True, "locked": bool(m.pw)}
+
+
 def delete_room(tok, rid):
     m = ROOMS.get(rid)
     if rid == "main" or m is None:
         return {"ok": False, "error": "這個房間不能刪除"}
-    if tok not in (m.owner, m.host):
-        return {"ok": False, "error": "只有房主可以刪除房間"}
+    if not tok or tok != m.host:
+        return {"ok": False, "error": "只有房主可以刪除房間 (在房間的「新遊戲」畫面裡)"}
     m.abort = True; m._ans_ev.set(); m._step_ev.set()
     with ROOMS_LOCK:
         ROOMS.pop(rid, None)
@@ -1398,6 +1417,7 @@ class Handler(BaseHTTPRequestHandler):
                                 q.get("peek", ["0"])[0] == "1" and (len(M.humans) <= 1 or M.is_host(tok)))   # 多人遊戲只有房主能偷看
                 snap["room_name"] = M.room_name
                 snap["can_manage"] = tok_can_manage(M, tok)
+                snap["room_locked"] = bool(M.pw)
                 snap["is_host"] = M.is_host(tok)
                 snap["online"] = M.online()
                 snap["host_name"] = M.host_name()
@@ -1503,20 +1523,19 @@ class Handler(BaseHTTPRequestHandler):
                         return self._send(200, {"ok": False, "error": "你不在這個房間裡"})
                     if m.solo:
                         return self._send(200, {"ok": False, "error": "單人模式的房間不能邀請別人"})
-                    r = SOCIAL.invite(key, data.get("to"), rid, m.room_name or "房間")
-                    if r.get("ok") and m.pw:   # 被邀請的人不用再輸入密碼
-                        acc = ACCOUNTS.d.get((data.get("to") or "").strip().lower())
-                        if acc:
-                            m.allowed.add(acc["uuid"])
-                    return self._send(200, r)
+                    return self._send(200, SOCIAL.invite(key, data.get("to"), rid, m.room_name or "房間"))
                 if path == "/api/invite_reply":
                     r = SOCIAL.reply(key, int(data.get("id") or 0), bool(data.get("accept")))
                     if r.get("room") and ROOMS.get(r["room"]) is None:
                         return self._send(200, {"ok": False, "error": "那個房間已經不存在了"})
+                    if r.get("room"):   # 接受邀請才算數: 之後進這個房間不用輸入密碼 (拒絕的人還是要輸入)
+                        ROOMS[r["room"]].allowed.add(data.get("tok"))
                     return self._send(200, r)
                 return self._send(404, {"error": "not found"})
             if path == "/api/room_rename":
                 return self._send(200, rename_room(data.get("tok"), data.get("target"), data.get("name")))
+            if path == "/api/room_password":
+                return self._send(200, set_room_password(data.get("tok"), data.get("target"), data.get("password")))
             if path == "/api/room_delete":
                 return self._send(200, delete_room(data.get("tok"), data.get("target")))
             if path == "/api/room_create" and not ACCOUNTS.is_account(data.get("tok")):
