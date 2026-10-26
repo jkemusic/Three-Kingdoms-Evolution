@@ -1385,9 +1385,15 @@ function boxRow(bx, ...kids) {   // 玩家資訊: 頭貼+名字那一排套上�
   if (bx && window.SGS_BOX) SGS_BOX.apply(r, bx);
   return r;
 }
-function streakLine(p) {   // 自己的段位資訊: 目前段位連勝 (連勝中每多贏一場,下一場多給分)
+function streakLine(p) {   // 自己 / 別人的段位連勝: 徽章 (文字 + 圖示,不只靠顏色) + 加分進度點 (每點一場,點滿 = 加分達上限)
   if (p.rstreak == null) return null;
-  return h("div", {class: "meta", text: p.rstreak > 0 ? "🔥 目前 " + p.rstreak + " 連勝 · 下一場勝利多 +" + p.streak_bonus + " 分" : "目前沒有連勝 · 贏一場就開始累積連勝加分"});
+  const step = p.streak_step || 3, cap = p.streak_cap || 15, pips = Math.round(cap / step), n = p.rstreak || 0;
+  const on = n > 0;
+  const pip = k => h("i", {style: {width: "10px", height: "10px", borderRadius: "50%", background: k < n ? "#ff9d2e" : "#17304f", border: "1px solid " + (k < n ? "#ffd24a" : "#24496f")}});
+  return h("div", {role: "group", "aria-label": on ? "連勝 " + n : "沒有連勝", style: {display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap", margin: "8px 0"}},
+    h("span", {style: {display: "inline-flex", alignItems: "center", gap: "4px", padding: "3px 10px", borderRadius: "99px", fontWeight: 700, background: on ? "#5a2a08" : "#10243f", color: on ? "#ffd9a0" : "#8fb4d8", border: "1px solid " + (on ? "#ff9d2e" : "#24496f")}}, on ? "🔥 " : "", h("span", {text: on ? n + " 連勝" : "沒有連勝"})),
+    h("span", {style: {display: "inline-flex", gap: "4px"}}, ...Array.from({length: pips}, (_, k) => pip(k))),
+    h("span", {class: "meta", text: on ? "下一場勝利多 +" + p.streak_bonus + " 分 (最高 +" + cap + ")" : "贏一場就開始累積連勝加分"}));
 }
 function drawArrow(a, b, harm, label) {
   const A = playerPos(a), B = playerPos(b), svg = $("#arrows");
@@ -1580,8 +1586,7 @@ async function showPlayer(key) {   // 看別人的個人資訊 (在線列表 / �
             h("div", {style: {fontSize: "28px", fontWeight: 800, lineHeight: 1.15, wordBreak: "break-all"}}, p.user, " ", devEl(p.dev)),
             h("div", {class: "meta", style: {userSelect: "all"}, text: "UID " + p.uid}),
             h("div", {style: {margin: "6px 0"}}, rkEl(p.rank, true)))),
-        h("div", {style: {height: "10px", background: "#0e2442", borderRadius: "99px", overflow: "hidden", margin: "6px 0"}}, h("div", {style: {width: pct + "%", height: "100%", background: "linear-gradient(90deg,#3fd2ff,#2a7de1)"}})),
-        h("div", {class: "meta", text: `段位積分 ${p.rp}` + (p.rp_next != null ? ` / ${p.rp_next} · 距離下一段 (${p.next_rank}) 還差 ${p.rp_next - p.rp} 分` : " (最高段位)")}),
+        ...rkProgress(p),
         streakLine(p),
         h("div", {style: {display: "flex", gap: "8px", flexWrap: "wrap", margin: "12px 0"}}, stat("總場數", p.games), stat("勝場", p.wins), stat("勝率", rate(p.wins, p.games)), stat("段位場", p.rgames), stat("段位勝率", rate(p.rwins, p.rgames)), stat("遊玩時間", fmtPlay(p.playtime))),
         mutualBox(p),
@@ -2078,8 +2083,7 @@ async function showProfile() {
             h("button", {text: "🎨 外觀", style: {whiteSpace: "nowrap", padding: "6px 10px"}, onclick: () => { close(); SGS_THEME.open("theme"); }}),
             p.avatar ? h("button", {text: "移除", style: {whiteSpace: "nowrap", padding: "6px 10px"}, onclick: async () => { await api("/api/avatar", {data: ""}); showProfile(); }}) : null)),
         h("input", {id: "avfile", type: "file", accept: "image/*", style: {display: "none"}, onchange: e => uploadAvatar(e.target.files[0])})),
-      h("div", {style: {height: "10px", background: "#0e2442", borderRadius: "99px", overflow: "hidden", margin: "6px 0"}}, h("div", {style: {width: pct + "%", height: "100%", background: "linear-gradient(90deg,#3fd2ff,#2a7de1)"}})),
-      h("div", {class: "meta", text: `段位積分 ${p.rp}` + (p.rp_next != null ? ` / ${p.rp_next} · 距離下一段 (${p.next_rank}) 還差 ${p.rp_next - p.rp} 分` : " (最高段位)")}),
+      ...rkProgress(p),
         streakLine(p),
       h("div", {style: {display: "flex", gap: "8px", flexWrap: "wrap", margin: "12px 0"}}, stat("總場數", p.games), stat("勝場", p.wins), stat("勝率", rate(p.wins, p.games)), stat("段位場", p.rgames || 0), stat("段位勝率", rate(p.rwins || 0, p.rgames || 0)), stat("遊玩時間", fmtPlay(p.playtime))),
       h("div", {style: {fontWeight: 700, margin: "10px 0 4px"}, text: "最常使用的武將"}),
@@ -2133,6 +2137,15 @@ function uploadAvatar(file) {   // 縮成 128x128 JPEG (置中裁切) 再上傳
 }
 $("#bProf").onclick = showProfile;
 const fmtPlay = sec => { const m = Math.floor((sec || 0) / 60); return m >= 60 ? `${Math.floor(m / 60)} 小時 ${m % 60} 分鐘` : `${m} 分鐘`; };   // 累計遊玩時間
+function rkProgress(p) {   // 段位進度: 長條代表「這一段」的進度,兩端標出段位名與分數,文字也用同一個基準,不再讓「113 / 150」看起來像 75% 但長條只有 26%
+  const top = p.rp_next == null, span = top ? 0 : p.rp_next - p.rp_lo, got = Math.max(0, p.rp - p.rp_lo), pct = top ? 100 : Math.max(0, Math.min(100, got / span * 100));
+  const bar = h("div", {role: "progressbar", "aria-valuemin": 0, "aria-valuemax": 100, "aria-valuenow": Math.round(pct), style: {height: "10px", background: "#0e2442", borderRadius: "99px", overflow: "hidden", margin: "6px 0 2px"}},
+    h("div", {style: {width: pct + "%", height: "100%", background: "linear-gradient(90deg,#3fd2ff,#2a7de1)"}}));
+  if (top) return [bar, h("div", {class: "meta", text: `段位積分 ${p.rp} (最高段位)`})];
+  return [bar,
+    h("div", {class: "meta", style: {display: "flex", justifyContent: "space-between", fontSize: "12px"}}, h("span", {}, h("span", {text: p.rank}), " · " + p.rp_lo), h("span", {}, h("span", {text: p.next_rank}), " · " + p.rp_next)),
+    h("div", {class: "meta", style: {marginTop: "4px"}, text: `段位積分 ${p.rp} · 本段 ${got} / ${span} · 距離 ${p.next_rank} 還差 ${p.rp_next - p.rp} 分`})];
+}
 async function showBoard() {
   const M = $("#modal"); S.modalOpen = "board"; M.textContent = "";
   const close = () => { M.textContent = ""; S.modalOpen = null; };
