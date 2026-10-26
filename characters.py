@@ -114,6 +114,7 @@ class Char:
     single_to_all = False                           # 單一對象錦囊對其他所有人有效 (關興)
     basic_as_trick = False                          # 全場基本牌的種類也算錦囊 (魯肅)
     def blocks_card(self, g, p, card): return False  # 這張牌你不能使用
+    def trick_lock(self, g, p): return False         # 你 (沒手牌) 讓別人不能使用錦囊牌 (鐘繇)
     def range_floor(self, g, p): return 0           # 攻擊距離至少為
     def on_hand_empty(self, g, p): pass             # 失去最後一張手牌
     def on_turn_end(self, g, p, cur): pass          # 任何人的回合結束
@@ -144,7 +145,7 @@ class Combo:
     EVENTS_EXTRA = {"after_draw", "after_discard", "end_turn", "after_damage"}
     LIST_MERGE = {"skill_options", "offturn_options", "views"}
     OR_HOOKS = {"no_range", "blocks_target", "blocks_card", "as_card", "virtual_bagua", "virtual_renwang",
-                "plain_immune", "immune_nature", "skip_discard", "takes_dead_cards", "replace_draw"}
+                "plain_immune", "immune_nature", "trick_lock", "skip_discard", "takes_dead_cards", "replace_draw"}
     CHAIN = {"sha_targets": 2, "cap_damage": 2, "discard_amount": 2, "pre_damage": 3, "dmg_dealt_mod": 3}
     SUM = {"dist_mod", "dist_in", "range_floor"}
 
@@ -1106,7 +1107,7 @@ class 鐘繇(Char):
     name, faction = "鐘繇", "魏"
     bans = frozenset({"強", "弱", "反"})  # 全場禁用,翻面時亦同
 
-    def blocks_target(self, g, p, card): return card.kind == "trick" and not p.hand
+    def trick_lock(self, g, p): return not p.hand   # 若你沒有手牌,別人無法使用錦囊牌
 
 
 class 張嶷(Char):

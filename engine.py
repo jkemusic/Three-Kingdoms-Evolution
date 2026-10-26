@@ -543,6 +543,8 @@ class Game:
             banned = self.banned()
             cands = [c for c in tgt.hand if (c.name in ("反", "調", "占") and c.name not in banned)
                      or ("調" not in banned and tgt.char.as_card(self, tgt, c, "調"))]
+            if self.trick_locked(tgt):   # 鐘繇沒手牌: 反 / 調 / 占 也是錦囊,不能用
+                cands = []
             if not cands:
                 break
             c = tgt.agent.respond(self, tgt, "受傷響應", cands, {"src": src, "n": n, "nature": nature})
@@ -693,6 +695,10 @@ class Game:
             raise GameOver()
 
     # ---------- 無懈 / 響應 ----------
+    def trick_locked(self, user):
+        """鐘繇: 他沒有手牌時,別人 (不含他自己) 不能使用錦囊牌 (無懈 / ⚡ 也算)。"""
+        return any(q.alive and q is not user and q.char.trick_lock(self, q) for q in self.players)
+
     def wuxie_contest(self, src, tgt, trick_name, harmful, targets=None):
         """回傳 True 代表此錦囊對 tgt 被無效。"""
         negated = False
@@ -701,7 +707,7 @@ class Game:
             played = False
             for q in self.order_from(self.cur):
                 cands = [c for c in q.hand if c.name == "無懈"]
-                if not cands:
+                if not cands or self.trick_locked(q):
                     continue
                 ctx = {"trick": trick_name, "source": src, "target": tgt, "targets": targets, "harmful": harmful,
                        "negated": negated, "last_wuxie_by": last_by}
@@ -1028,7 +1034,8 @@ class Game:
         if can_sha and p.has_weapon("丈八蛇矛") and len(p.hand) >= 2:
             opts += [(SkillAct("丈八蛇矛-雙牌當殺", self._zhangba), t) for t in reach]
         opts += p.char.skill_options(self, p)
-        opts = [o for o in opts if self.target_ok(p, o) and not p.char.blocks_card(self, p, o[0])]
+        opts = [o for o in opts if self.target_ok(p, o) and not p.char.blocks_card(self, p, o[0])
+                and not (getattr(o[0], "kind", "") == "trick" and self.trick_locked(p))]   # 鐘繇沒手牌: 別人不能用錦囊牌
         if not any(getattr(o[0], "name", "") == "殺" and isinstance(o[1], Player) for o in opts):   # 酒不能平常單獨打出: 要有能打出的殺才能喝
             opts = [o for o in opts if not (getattr(o[0], "name", "") == "酒" and o[1] is None)]
         if self.aura("one_card") and not hasattr(p.agent, "respond_race") and self.tricks_this_turn(p) >= 1:   # 曹沖: 電腦不會自己多出錦囊來扣血
