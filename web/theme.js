@@ -187,7 +187,7 @@ html.px .fx-orbit>.fxb::before{animation-duration:4.2s;animation-direction:rever
 html.px .fr-6::before{background:conic-gradient(from var(--pxa),#ff5d73,#ffd24a,#46e0a0,#3fd2ff,#9b6bff,#ff5d73)!important;animation:pxrot 4s linear infinite}
 html.px .fx-aurora::after{inset:-8px;padding:6px;background:conic-gradient(from var(--pxa),#46e0a0,#3fd2ff,#9b6bff,#46e0a0);opacity:.75;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);animation:pxrot 6s linear infinite reverse}
 html.px .fx-rainbow::after{inset:-4px;padding:3px;background:conic-gradient(from var(--pxa),#ff5d73,#ffd24a,#46e0a0,#3fd2ff,#9b6bff,#ff5d73);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);animation:pxrot 2s linear infinite}
-html.px .fx-vortex>.fxa{inset:-10px;padding:7px;background:conic-gradient(from var(--pxa),#14002a,#b04bff,#14002a 25%,#b04bff 50%,#14002a 75%,#b04bff);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);filter:none;animation:pxrot 1.6s linear infinite}
+html.px .fx-vortex>.fxa{inset:-10px;padding:7px;background:repeating-conic-gradient(from var(--pxa),rgba(40,0,90,0) 0deg,rgba(150,60,240,.65) 34deg,rgba(225,150,255,.95) 58deg,rgba(40,0,90,0) 60deg);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);filter:none;animation:pxrot 2.4s linear infinite}
 html.px .fx-radar>.fxa{background:conic-gradient(from var(--pxa),transparent 0 70%,rgba(110,255,190,.75) 100%);animation:pxrot 2.2s linear infinite}
 html.px .fx-comet>.fxa{background:conic-gradient(from var(--pxa),transparent 0 78%,rgba(120,220,255,.1) 84%,rgba(255,255,255,.95) 100%);animation:pxrot 1.8s linear infinite}
 html.px .fx-sun>.fxa{background:repeating-conic-gradient(from var(--pxa),#fff2a8 0 3deg,#ffc83a 3deg 6deg,transparent 6deg 30deg);animation:pxrot 16s linear infinite}
@@ -315,7 +315,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
   }
   function inl(el) {
     if (!el.getAttribute) return;
-    if (el.hasAttribute("data-nm")) return;   // 主題色塊預覽: 顯示它自己的顏色,不隨目前主題變色
+    if (el.hasAttribute("data-nm") || el.hasAttribute("data-bx") || (el.closest && el.closest(".bxfx"))) return;   // 主題色塊預覽 / 玩家框 (含動畫圖層): 顯示它自己的顏色,不隨目前主題變色
     const cur0 = el.getAttribute("style");
     if (!cur0 && el.dataset.ost == null) return;
     if (el.dataset.ost != null && el.dataset.osm !== cur0) { /* 被程式改過: 以新值為準 */ delete el.dataset.ost; }
@@ -548,29 +548,186 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
     classic: null,
     px_grass:   { px: 1, c: ["#2e8b3a", "#1f6a2c"], bd: "#8b5a2b", gl: "#8b5a2b", fl: pxc("rgba(0,0,0,.14)", 16) },
     px_dungeon: { px: 1, c: ["#5b5f6b", "#43464f"], bd: "#c2c3c7", gl: "#c2c3c7", fl: `linear-gradient(rgba(0,0,0,.28) 2px,transparent 2px) 0 0/32px 16px,linear-gradient(90deg,rgba(0,0,0,.28) 2px,transparent 2px) 0 0/32px 16px` },
-    px_coin:    { px: 1, c: ["#e8b923", "#b8860b"], bd: "#fff1b0", gl: "#fff1b0", fl: pxc("rgba(255,255,255,.16)", 12) },
+    px_coin:    { px: 1, c: ["#c98a00", "#8a5a00"], bd: "#fff1b0", gl: "#fff1b0" },
     px_lava:    { px: 1, c: ["#d9381e", "#7a1408"], bd: "#ffa300", gl: "#ffa300", fl: pxc("rgba(255,163,0,.22)", 16) },
-    px_night:   { px: 1, c: ["#0a0e1f", "#000000"], bd: "#ffec27", gl: "#ffec27", fl: `linear-gradient(45deg,#ffec27 10%,transparent 10% 90%,#ffec27 90%) 0 0/36px 36px,linear-gradient(-45deg,rgba(255,255,255,.5) 8%,transparent 8% 92%,rgba(255,255,255,.5) 92%) 18px 18px/36px 36px` },
+    px_night:   { px: 1, c: ["#101640", "#05071a"], bd: "#ffec27", gl: "#ffec27" },
     felt:    { c: ["#1f6b52", "#0b2f25"], bd: "#c89b5e", gl: "#c89b5e", fl: dots("rgba(255,255,255,.1)", 10), mv: [1, 0.5] },
     wine:    { c: ["#6a1b2c", "#2a0a12"], bd: "#e5b26b", gl: "#e5b26b", fl: strp("rgba(229,178,107,.08)", 36), mv: [1, 0] },
     charcoal:{ c: ["#3a3f47", "#14171b"], bd: "#aeb8c6", gl: "#aeb8c6", fl: `linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px) 0 0/14px 14px,linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px) 0 0/14px 14px`, mv: [1, 1] },
-    jade:    { c: ["#177a5a", "#073328"], bd: "#46e0a0", gl: "#46e0a0", fl: strp("rgba(70,224,160,.1)", 44) + ",linear-gradient(180deg,rgba(70,224,160,.14),transparent 40%)", mv: [1, 0] },
-    ink:     { c: ["#5a5850", "#26241f"], bd: "#d9d3c0", gl: "#d9d3c0", fl: `repeating-linear-gradient(0deg,rgba(255,255,255,.06) 0 2px,transparent 2px 9px) 0 0/60px 9px`, mv: [0, -1] },
+    jade:    { c: ["#1b8a63", "#06291f"], bd: "#5fe8b0", gl: "#46e0a0" },
+    ink:     { c: ["#7d8c90", "#46545a"], bd: "#1d2326", gl: "#aeb9bc" },
     tatami:  { c: ["#7d6d3f", "#2e2714"], bd: "#86b36f", gl: "#86b36f", fl: `linear-gradient(rgba(63,107,58,.25) 1px,transparent 1px) 0 0/22px 22px,linear-gradient(90deg,rgba(63,107,58,.25) 1px,transparent 1px) 0 0/22px 22px`, mv: [1, 1] },
-    gold:    { c: ["#6b5314", "#241b05"], bd: "#f0c95c", gl: "#f0c95c", fl: dots("rgba(255,226,140,.55)", 16) + "," + dots("rgba(255,240,190,.4)", 11) + ",linear-gradient(180deg,rgba(240,201,92,.18),transparent 45%)", mv: [0, -1] },
-    sakura:  { c: ["#8f3a62", "#33142a"], bd: "#ff8fc0", gl: "#ff8fc0", fl: dots("rgba(255,143,192,.4)", 18), mv: [-1, 1] },
-    thunder: { c: ["#2c2a6e", "#0c0b26"], bd: "#ffe14d", gl: "#ffe14d", fl: `linear-gradient(135deg,rgba(255,225,77,.3) 25%,transparent 25%) -12px 0/24px 24px,linear-gradient(225deg,rgba(255,225,77,.3) 25%,transparent 25%) -12px 0/24px 24px`, mv: [-1, 0] },
-    ice:     { c: ["#2f6a8f", "#12304a"], bd: "#dff4ff", gl: "#bfe9ff", fl: dots("rgba(255,255,255,.45)", 16), mv: [0, 1] },
-    lava:    { c: ["#7a2410", "#2a0c04"], bd: "#ff7a45", gl: "#ff5a2a", fl: dots("rgba(255,170,70,.75)", 26) + "," + dots("rgba(255,120,40,.6)", 17) + ",linear-gradient(0deg,rgba(255,90,42,.28),transparent 55%)", mv: [0, -1] },
-    royal:   { c: ["#4a2c86", "#170d33"], bd: "#f0c95c", gl: "#b58cff", fl: strp("rgba(240,201,92,.1)", 56) + ",linear-gradient(135deg,rgba(240,201,92,.12),transparent 50%)", mv: [1, 0] },
+    gold:    { c: ["#6b5314", "#241b05"], bd: "#f0c95c", gl: "#f0c95c" },
+    sakura:  { c: ["#8f3a62", "#33142a"], bd: "#ff8fc0", gl: "#ff8fc0" },
+    thunder: { c: ["#2c2a6e", "#0c0b26"], bd: "#ffe14d", gl: "#ffe14d" },
+    ice:     { c: ["#3d7fa8", "#1b3f5e"], bd: "#dff4ff", gl: "#bfe9ff" },
+    lava:    { c: ["#5a1408", "#1d0502"], bd: "#ff7a45", gl: "#ff5a2a" },
+    royal:   { c: ["#4a2c86", "#170d33"], bd: "#f0c95c", gl: "#b58cff" },
     sunset:  { c: ["#a04a2a", "#321638"], bd: "#ffb36b", gl: "#ff8f5a", fl: `repeating-linear-gradient(0deg,rgba(255,179,107,.15) 0 6px,transparent 6px 22px) 0 0/40px 22px,linear-gradient(180deg,rgba(255,179,107,.2),transparent 55%)`, mv: [0, 1] },
     crystal: { c: ["#1f7694", "#0b3040"], bd: "#9ff0ff", gl: "#5fe0ff", fl: `linear-gradient(45deg,rgba(159,240,255,.12) 25%,transparent 25% 75%,rgba(159,240,255,.12) 75%) 0 0/20px 20px`, mv: [1, 1] },
-    galaxy:  { c: ["#3a2a8a", "#0a0828"], bd: "#c3b8ff", gl: "#9b8cff", fl: dots("rgba(255,255,255,.6)", 23) + "," + dots("rgba(195,184,255,.45)", 13), mv: [1, 0] },
-    bamboo:  { c: ["#3f7a45", "#112a17"], bd: "#a6d38c", gl: "#7fc77a", fl: `repeating-linear-gradient(90deg,rgba(166,211,140,.14) 0 4px,transparent 4px 22px) 0 0/22px 40px`, mv: [1, 0] },
+    galaxy:  { c: ["#2a1d6a", "#070620"], bd: "#c3b8ff", gl: "#9b8cff", fl: `radial-gradient(ellipse at 30% 40%,rgba(140,90,255,.38),transparent 55%),radial-gradient(ellipse at 75% 70%,rgba(60,140,255,.3),transparent 55%)` },
+    bamboo:  { c: ["#2f6b3a", "#0f2a17"], bd: "#a6d38c", gl: "#7fc77a" },
     scroll:  { c: ["#8d7140", "#33270f"], bd: "#5b3a22", gl: "#8d6a3a", fl: `linear-gradient(90deg,rgba(91,58,34,.14) 1px,transparent 1px) 0 0/18px 18px,linear-gradient(rgba(91,58,34,.14) 1px,transparent 1px) 0 0/18px 18px,linear-gradient(180deg,rgba(255,240,200,.18),transparent 50%)`, mv: [1, 0] },
     zen:     { c: ["#7a705a", "#2a251a"], bd: "#7a6f55", gl: "#9a9078", fl: `repeating-radial-gradient(circle at 50% 50%,rgba(255,255,255,.1) 0 2px,transparent 2px 16px) 0 0/64px 64px`, mv: [1, 1] },
     neon:    { c: ["#1a0a3a", "#06020f"], bd: "#ff3df0", gl: "#3dfff0", fl: `linear-gradient(rgba(61,255,240,.14) 1px,transparent 1px) 0 0/16px 16px,linear-gradient(90deg,rgba(255,61,240,.14) 1px,transparent 1px) 0 0/16px 16px`, mv: [0, 1] },
   };
+  /* ---------- 玩家框場景動畫: 用獨立圖層 (只動 transform / opacity,不會重繪整個框) 做出有故事的畫面 ---------- */
+  const R = (i, k) => { const x = Math.sin(i * 127.1 + k * 311.7) * 43758.5453; return x - Math.floor(x); };   // 固定的假亂數: 每次重畫位置都一樣
+  const rng = n => Array.from({ length: n }, (_, i) => i);
+  const goldStops = () => ["#3d2a06 0%", "#c9961e 8%", "#ffe9a6 14%", "#a8791a 22%", "#5a3f0a 30%", "#e8bb4a 38%", "#fff0b8 44%", "#3d2a06 50%", "#c9961e 58%", "#ffe9a6 64%", "#a8791a 72%", "#5a3f0a 80%", "#e8bb4a 88%", "#fff0b8 94%", "#3d2a06 100%"].join(",");
+  const COIN_ROWS = ["..oooo..", ".oyyyyo.", "oyhhyyyo", "oyhyyyso", "oyyyyyso", "oyyyysso", ".oyssso.", "..oooo.."];
+  const COIN_COL = { o: "#8a5a00", y: "#ffd23f", h: "#fff3a6", s: "#d89a00" };
+  const COIN_URI = "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8" shape-rendering="crispEdges">${COIN_ROWS.map((r, y) => [...r].map((c, x) => c === "." ? "" : `<rect x="${x}" y="${y}" width="1" height="1" fill="${COIN_COL[c]}"/>`).join("")).join("")}</svg>`);
+  const MOON_ROWS = ["..dddooo..", ".ddddyyyo.", "dddddyhyyo", "dddddyyyyo", "dddddyyyso", "dddddyyyyo", "dddddyysyo", "dddddyyyyo", ".ddddyyyo.", "..dddooo.."];   // 上弦月: 右半邊亮,左半邊是暗面
+  const MOON_COL = { o: "#c9a94f", y: "#fff1a8", h: "#ffffff", s: "#e6cf7a", d: "#232a62" };
+  const MOON_URI = "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" shape-rendering="crispEdges">${MOON_ROWS.map((r, y) => [...r].map((c, x) => c === "." ? "" : `<rect x="${x}" y="${y}" width="1" height="1" fill="${MOON_COL[c]}"/>`).join("")).join("")}</svg>`);
+  const bambooSvg = () => {
+    const XS = [11, 33, 58, 70, 104, 127, 149, 181, 206, 229];   // 竹子位置: 刻意不等距
+    let g = "", st = "";
+    XS.forEach((x, i) => {
+      const w = 4.5 + R(i, 1) * 3, shade = ["#4f9b4a", "#3f8a43", "#5fae52", "#357a3d"][i % 4];
+      st += `<rect x="${(x - w / 2).toFixed(1)}" y="-2" width="${w.toFixed(1)}" height="106" fill="${shade}"/><rect x="${(x - w / 2).toFixed(1)}" y="-2" width="1.3" height="106" fill="rgba(255,255,255,.28)"/>`;
+      let y = 6 + R(i, 2) * 16;
+      while (y < 100) {
+        st += `<rect x="${(x - w / 2 - 1).toFixed(1)}" y="${y.toFixed(1)}" width="${(w + 2).toFixed(1)}" height="1.8" fill="#244d27"/>`;
+        const n = R(i + y, 3) < .25 ? 0 : R(i + y, 4) < .5 ? 1 : 2;   // 有的節沒長葉子,有的一邊、有的兩邊
+        for (let k = 0; k < n; k++) {
+          const dir = n === 1 ? (R(i + y, 5) > .5 ? 1 : -1) : (k ? 1 : -1), ang = dir * (18 + R(i + y, 6 + k) * 55) - 90 + (dir > 0 ? 90 : -90) * 0, len = 11 + R(i + y, 8 + k) * 12;
+          const rot = dir > 0 ? -(10 + R(i + y, 9 + k) * 50) : 180 + (10 + R(i + y, 9 + k) * 50), col = ["#6fc15a", "#58ad4c", "#7fd062", "#4a9a45"][(i + k + Math.floor(y)) % 4], dur = (3 + R(i + y, 11) * 3).toFixed(1);
+          g += `<g class="lf" style="transform-origin:${x}px ${y.toFixed(1)}px;--d:${dur}s;--o:${(-R(i + y, 12) * 4).toFixed(1)}s"><path d="M${x},${y.toFixed(1)} q${(len * .5).toFixed(1)},-${(len * .32).toFixed(1)} ${len.toFixed(1)},0 q-${(len * .5).toFixed(1)},${(len * .3).toFixed(1)} -${len.toFixed(1)},0z" fill="${col}" transform="rotate(${rot.toFixed(0)} ${x} ${y.toFixed(1)})"/></g>`;
+        }
+        y += 15 + R(i + y, 13) * 17;
+      }
+    });
+    return `<svg class="bm" viewBox="0 0 240 100" preserveAspectRatio="xMidYMid slice">${st}${g}</svg>`;
+  };
+  const crustSvg = () => {   // 岩殼: 不規則的深色板塊,板塊之間的縫隙露出底下流動的岩漿 (左右兩份相接,才能無縫循環)
+    const cols = 6, rows = 4, cw = 40, ch = 25;
+    const one = ox => { let o = ""; for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+      const i = r * cols + c, cx = (c + .5) * cw + (R(i, 1) - .5) * 8, cy = (r + .5) * ch + (R(i, 2) - .5) * 8;
+      const pts = [[c * cw, r * ch], [(c + 1) * cw, r * ch], [(c + 1) * cw, (r + 1) * ch], [c * cw, (r + 1) * ch]].map(([x, y], k) => { const jx = x + (R(i, 3 + k) - .5) * 14, jy = y + (R(i, 7 + k) - .5) * 12; return [(cx + (jx - cx) * .8 + ox).toFixed(1), (cy + (jy - cy) * .8).toFixed(1)]; });
+      o += `<polygon points="${pts.map(q => q.join(",")).join(" ")}" fill="${["#2a110a", "#231009", "#32160c"][i % 3]}" stroke="rgba(255,122,26,.55)" stroke-width="1"/>`; } return o; };
+    return `<svg class="cr2" viewBox="0 0 480 100" preserveAspectRatio="none">${one(0)}${one(240)}</svg>`;
+  };
+  const jadeVeins = () => { const one = ox => `<g transform="translate(${ox} 0)"><path d="M0,30 C20,8 40,52 60,30 S100,8 120,30" stroke="rgba(225,255,242,.55)" stroke-width="1.3" fill="none"/><path d="M0,72 C25,54 45,88 70,68 S105,58 120,72" stroke="rgba(200,255,230,.4)" stroke-width="1" fill="none"/><path d="M60,30 C68,44 56,56 64,69" stroke="rgba(225,255,242,.32)" stroke-width=".8" fill="none"/><path d="M20,19 C14,10 24,4 18,-2" stroke="rgba(225,255,242,.3)" stroke-width=".8" fill="none"/></g>`; return `<svg class="vn" viewBox="0 0 240 100" preserveAspectRatio="none">${one(0)}${one(120)}</svg>`; };
+  const SCENE = {
+    sakura: () => rng(11).map(i => { const w = 7 + R(i, 1) * 5, t = 5 + R(i, 2) * 4, dx = (R(i, 3) > .5 ? 1 : -1) * (30 + R(i, 4) * 80); return `<i class="pt" style="left:${(R(i, 5) * 100).toFixed(1)}%;width:${w.toFixed(1)}px;height:${(w * .65).toFixed(1)}px;--t:${t.toFixed(1)}s;--dl:${(-R(i, 6) * t).toFixed(1)}s;--dx:${dx.toFixed(0)}px"></i>`; }).join(""),
+    ink: () => [[20, 50, 6.5, 0], [52, 38, 7.5, -2.6], [80, 56, 6, -4.2]].map(([x, y, t, d]) => `<b class="ik" style="left:${x}%;top:${y}%;--t:${t}s;--dl:${d}s"><i class="cl"></i><i class="rp"></i><i class="dr"></i></b>`).join(""),
+    thunder: () => `<i class="cd"></i>` + [[18, 5, -0.5], [58, 6.5, -3.2], [84, 7.5, -5.1]].map(([x, t, d]) => `<svg class="bl" viewBox="0 0 30 100" preserveAspectRatio="none" style="left:${x}%;--t:${t}s;--dl:${d}s"><polyline points="18,0 9,40 19,40 6,100" fill="none" stroke="#ffe14d" stroke-width="5" stroke-linejoin="round" opacity=".5"/><polyline points="18,0 9,40 19,40 6,100" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg>`).join("") + `<i class="fl" style="--t:5s;--dl:-0.5s"></i>`,
+    ice: () => `<svg class="mt" viewBox="0 0 240 60" preserveAspectRatio="none" style="height:62%"><polygon points="0,60 0,34 28,10 52,30 78,16 112,42 142,6 178,36 208,18 240,38 240,60" fill="#8fb9d6"/><polygon points="28,10 20,22 28,19 36,23" fill="#fff"/><polygon points="142,6 133,20 141,16 150,21" fill="#fff"/></svg><svg class="mt" viewBox="0 0 240 60" preserveAspectRatio="none" style="height:42%"><polygon points="0,60 0,40 40,18 70,40 105,24 150,46 190,22 240,44 240,60" fill="#4f84a8"/><polygon points="40,18 33,29 40,26 47,30" fill="#e9f6ff"/><polygon points="190,22 183,32 190,29 197,33" fill="#e9f6ff"/></svg>`
+      + [[10, 30, -2], [26, 52, -19], [6, 40, -9]].map(([y, t, d]) => `<i class="cd2" style="top:${y}%;--t:${t}s;--dl:${d}s"></i>`).join("")
+      + rng(5).map(i => `<i class="wd" style="top:${(18 + R(i, 1) * 55).toFixed(0)}%;--t:${(1.8 + R(i, 2) * 1.6).toFixed(1)}s;--dl:${(-R(i, 3) * 3).toFixed(1)}s"></i>`).join("")
+      + rng(9).map(i => `<i class="sn" style="left:${(R(i, 4) * 60).toFixed(0)}%;top:${(R(i, 5) * 40).toFixed(0)}%;--t:${(3 + R(i, 6) * 2).toFixed(1)}s;--dl:${(-R(i, 7) * 4).toFixed(1)}s"></i>`).join(""),
+    gold: () => `<i class="lq a" style="--t:16s;background:linear-gradient(105deg,${goldStops()})"></i><i class="lq b" style="--t:23s;background:linear-gradient(78deg,${goldStops()})"></i><i class="lq g" style="--t:11s"></i>`,
+    jade: () => `<i class="ms a" style="--t:42s"></i><i class="ms b" style="--t:58s"></i>` + jadeVeins() + rng(5).map(i => `<i class="gs jg" style="left:${(R(i, 1) * 92 + 4).toFixed(0)}%;top:${(R(i, 2) * 84 + 8).toFixed(0)}%;width:2.5px;height:2.5px;--t:${(2.5 + R(i, 3) * 3).toFixed(1)}s;--dl:${(-R(i, 4) * 4).toFixed(1)}s"></i>`).join(""),
+    lava: () => `<i class="lv a" style="--t:13s"></i><i class="lv b" style="--t:19s"></i>` + crustSvg() + rng(7).map(i => `<i class="bb" style="left:${(6 + R(i, 1) * 88).toFixed(0)}%;--s:${(4 + R(i, 2) * 4).toFixed(1)}px;--t:${(3.5 + R(i, 3) * 3).toFixed(1)}s;--dl:${(-R(i, 4) * 6).toFixed(1)}s"></i>`).join(""),
+    px_night: () => `<i class="mh"></i><i class="mo"></i>` + rng(22).map(i => `<i class="st ${["", "y", "c", ""][i % 4]}" style="left:${(R(i, 1) * 96 + 1).toFixed(0)}%;top:${(R(i, 2) * 92 + 2).toFixed(0)}%;--t:${(1.2 + R(i, 3) * 2.4).toFixed(1)}s;--dl:${(-R(i, 4) * 3).toFixed(1)}s"></i>`).join("")
+      + [[16, 28], [62, 60], [86, 22]].map(([x, y], i) => `<i class="sx" style="left:${x}%;top:${y}%;--t:${2 + i * .7}s;--dl:${-i * .9}s"></i>`).join("") + `<i class="ss" style="--t:7s;--dl:-2s"></i>`,
+    galaxy: () => rng(26).map(i => `<i class="gs" style="left:${(R(i, 1) * 97 + 1).toFixed(0)}%;top:${(R(i, 2) * 94 + 2).toFixed(0)}%;width:${(1 + R(i, 3) * 1.4).toFixed(1)}px;height:${(1 + R(i, 3) * 1.4).toFixed(1)}px;--t:${(2 + R(i, 4) * 3).toFixed(1)}s;--dl:${(-R(i, 5) * 4).toFixed(1)}s"></i>`).join("")
+      + [[14, 30], [48, 68], [76, 24], [92, 70]].map(([x, y], i) => `<i class="gb" style="left:${x}%;top:${y}%;--t:${3 + i * .6}s;--dl:${-i * 1.1}s"></i>`).join("")
+      + [[8, 9, -1], [30, 12.5, -7]].map(([y, t, d]) => `<i class="cm" style="top:${y}%;--t:${t}s;--dl:${d}s"></i>`).join(""),
+    px_coin: () => `<i class="cp" style="background:url(${COIN_URI}) 0 0/24px 24px,url(${COIN_URI}) 12px 12px/24px 24px,#c98a00"></i>` + rng(7).map(i => `<i class="gl" style="left:${(R(i, 1) * 94 + 2).toFixed(0)}%;top:${(R(i, 2) * 84 + 6).toFixed(0)}%;--t:${(1.6 + R(i, 3) * 2).toFixed(1)}s;--dl:${(-R(i, 4) * 3).toFixed(1)}s"></i>`).join("") + `<i class="fc" style="left:22%;--t:4s;--dl:-1s"></i><i class="fc" style="left:68%;--t:5.2s;--dl:-3s"></i>`,
+    bamboo: () => bambooSvg() + rng(3).map(i => `<i class="pt bl2" style="left:${(10 + R(i, 1) * 80).toFixed(0)}%;width:11px;height:5px;--t:${(6 + R(i, 2) * 3).toFixed(1)}s;--dl:${(-R(i, 3) * 8).toFixed(1)}s;--dx:${(R(i, 4) > .5 ? 1 : -1) * 50}px"></i>`).join(""),
+    royal: () => `<i class="ry"></i><i class="cu l"></i><i class="cu r"></i><svg class="cr" viewBox="0 0 40 28"><defs><linearGradient id="gc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff0b8"/><stop offset="1" stop-color="#c9961e"/></linearGradient></defs><path d="M3,24 L5,7 L13,16 L20,3 L27,16 L35,7 L37,24 Z" fill="url(#gc)"/><rect x="3" y="24" width="34" height="3" rx="1" fill="#e8bb4a"/><circle cx="5" cy="6" r="2" fill="#ff5d73"/><circle cx="20" cy="2.5" r="2.3" fill="#7fd6ff"/><circle cx="35" cy="6" r="2" fill="#ff5d73"/><circle cx="20" cy="19" r="2" fill="#b58cff"/></svg>`
+      + rng(10).map(i => `<i class="sp" style="left:${(R(i, 1) * 90 + 4).toFixed(0)}%;--t:${(4 + R(i, 2) * 4).toFixed(1)}s;--dl:${(-R(i, 3) * 6).toFixed(1)}s;--s:${(5 + R(i, 4) * 5).toFixed(0)}px"></i>`).join(""),
+  };
+  const SCENE_TPL = {};
+  const sceneNode = id => {
+    if (!SCENE_TPL[id]) { const d = document.createElement("div"); d.className = "bxfx"; d.dataset.s = id; d.innerHTML = SCENE[id](); SCENE_TPL[id] = d; }
+    return SCENE_TPL[id].cloneNode(true);
+  };
+  const SCENE_CSS = `
+[data-bx]{isolation:isolate}
+.pvseat[data-bx]{position:relative}
+.pl[data-bx] .inf,.pvseat[data-bx] .pvt{text-shadow:0 1px 3px rgba(0,0,0,.9)}
+.bxfx{position:absolute;inset:var(--bx-bw,1px);border-radius:inherit;overflow:hidden;pointer-events:none;z-index:-1}
+.bxfx *{position:absolute;pointer-events:none;display:block}
+.bxfx::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.26)}   /* 暗幕: 白字對比要夠 (4.5:1) */
+.bxfx i,.bxfx b{font-style:normal}
+/* 櫻花 / 竹葉: 花瓣隨風飄落 */
+.bxfx .pt{top:-12px;background:linear-gradient(135deg,#ffd9ea,#ff8fc0);border-radius:100% 0 100% 0;opacity:0;animation:bxpetal var(--t) linear var(--dl) infinite;will-change:transform}
+.bxfx .pt.bl2{background:linear-gradient(135deg,#a6e08a,#4a9a45)}
+@keyframes bxpetal{0%{transform:translate(0,0) rotate(0);opacity:0}10%{opacity:.95}50%{transform:translate(calc(var(--dx)*.25),75px) rotate(190deg)}90%{opacity:.95}100%{transform:translate(var(--dx),155px) rotate(390deg);opacity:0}}
+/* 水墨: 墨滴落入水中,漣漪擴散、墨暈化開 */
+.bxfx .ik{width:0;height:0}
+.bxfx .ik .dr{left:0;top:0;width:6px;height:9px;background:#0b0b0b;border-radius:50% 50% 50% 50%/62% 62% 38% 38%;opacity:0;animation:bxdrop var(--t) ease-in var(--dl) infinite}
+.bxfx .ik .rp{left:0;top:0;width:46px;height:16px;border:1.5px solid rgba(0,0,0,.6);border-radius:50%;opacity:0;animation:bxrip var(--t) ease-out var(--dl) infinite}
+.bxfx .ik .cl{left:0;top:0;width:66px;height:46px;background:radial-gradient(closest-side,rgba(6,6,6,.9),rgba(6,6,6,.45) 45%,transparent 100%);border-radius:50%;opacity:0;animation:bxcloud var(--t) ease-out var(--dl) infinite}
+@keyframes bxdrop{0%{transform:translate(-50%,-80px) scaleY(1.7);opacity:0}4%{opacity:1}12%{transform:translate(-50%,-4px) scaleY(1);opacity:1}13%,100%{transform:translate(-50%,0) scale(.2);opacity:0}}
+@keyframes bxrip{0%,12%{transform:translate(-50%,-50%) scale(0);opacity:0}14%{opacity:.8}62%{transform:translate(-50%,-50%) scale(1.5);opacity:0}100%{transform:translate(-50%,-50%) scale(1.5);opacity:0}}
+@keyframes bxcloud{0%,12%{transform:translate(-50%,-50%) scale(.1);opacity:0}16%{opacity:.9}72%{transform:translate(-50%,-50%) scale(1.7,1.25);opacity:.12}100%{transform:translate(-50%,-50%) scale(1.8,1.3);opacity:0}}
+/* 雷霆: 烏雲飄動,閃電打下 */
+.bxfx .cd{left:-20%;top:-35%;width:75%;height:70%;background:radial-gradient(closest-side,rgba(8,8,32,.85),transparent);animation:bxcloud2 14s linear infinite alternate}
+@keyframes bxcloud2{from{transform:translateX(0)}to{transform:translateX(75%)}}
+.bxfx .bl{top:0;height:100%;width:28px;opacity:0;animation:bxbolt var(--t) linear var(--dl) infinite;filter:drop-shadow(0 0 4px #ffe14d)}
+@keyframes bxbolt{0%,86%{opacity:0}87%{opacity:1}89%{opacity:.15}91%{opacity:1}96%,100%{opacity:0}}
+.bxfx .fl{inset:0;background:#fff;opacity:0;animation:bxflash var(--t) linear var(--dl) infinite}
+@keyframes bxflash{0%,86%{opacity:0}87%{opacity:.3}89%{opacity:0}91%{opacity:.38}96%,100%{opacity:0}}
+/* 冰原: 遠山近山、雲飄、風吹雪 */
+.bxfx .mt{left:0;right:0;bottom:0;width:100%}
+.bxfx .cd2{left:0;width:44px;height:11px;background:rgba(255,255,255,.8);border-radius:99px;box-shadow:13px -5px 0 -1px rgba(255,255,255,.8),-11px -3px 0 -2px rgba(255,255,255,.7);opacity:.85;animation:bxdrift var(--t) linear var(--dl) infinite;will-change:transform}
+@keyframes bxdrift{from{transform:translateX(-70px)}to{transform:translateX(300px)}}
+.bxfx .wd{left:0;width:36px;height:1.5px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.95),transparent);opacity:0;animation:bxwind var(--t) linear var(--dl) infinite}
+@keyframes bxwind{0%{transform:translateX(-40px);opacity:0}15%,85%{opacity:.9}100%{transform:translateX(290px);opacity:0}}
+.bxfx .sn{width:2.5px;height:2.5px;border-radius:50%;background:#fff;opacity:0;animation:bxsnow var(--t) linear var(--dl) infinite}
+@keyframes bxsnow{0%{transform:translate(0,0);opacity:0}15%{opacity:.95}100%{transform:translate(230px,80px);opacity:0}}
+/* 鎏金 / 熔岩: 液體緩緩流動 */
+.bxfx .lq,.bxfx .lv{top:-8%;bottom:-8%;left:0;width:200%;animation:bxflow var(--t) linear infinite;will-change:transform}
+.bxfx .lq.a{opacity:.82}
+.bxfx .lq.b{opacity:.42;animation-direction:reverse}
+.bxfx .lq.g{background:radial-gradient(ellipse 14% 40% at 25% 50%,rgba(255,250,210,.6),transparent 70%) 0 0/50% 100% repeat-x;opacity:.8}
+@keyframes bxflow{to{transform:translateX(-50%)}}
+.bxfx .lv.a{background:radial-gradient(ellipse 24% 46% at 18% 62%,rgba(255,140,30,.95),transparent 72%),radial-gradient(ellipse 20% 36% at 68% 32%,rgba(255,214,80,.85),transparent 72%),radial-gradient(ellipse 28% 40% at 48% 92%,rgba(255,70,20,.95),transparent 72%);background-size:50% 100%;background-repeat:repeat-x}
+.bxfx .lv.b{background:radial-gradient(ellipse 22% 40% at 30% 30%,rgba(255,110,30,.7),transparent 72%),radial-gradient(ellipse 26% 44% at 78% 70%,rgba(255,180,50,.7),transparent 72%);background-size:50% 100%;background-repeat:repeat-x;animation-direction:reverse}
+.bxfx .bb{bottom:-8px;width:var(--s);height:var(--s);border-radius:50%;background:radial-gradient(circle,#fff0a0,#ff8a2a 60%,#ff4a10);opacity:0;animation:bxrise var(--t) ease-in var(--dl) infinite}
+@keyframes bxrise{0%{transform:translateY(0) scale(.6);opacity:0}15%{opacity:.95}100%{transform:translateY(-105px) scale(1.15);opacity:0}}
+/* 熔岩: 深色岩殼緩慢漂移,縫隙露出流動的岩漿 */
+.bxfx .cr2{left:0;top:0;width:200%;height:100%;animation:bxflow 46s linear infinite;will-change:transform}
+/* 玉: 雲霧流動、玉紋緩緩移動、偶爾閃一點光 */
+.bxfx .ms{top:-6%;bottom:-6%;left:0;width:200%;animation:bxflow var(--t) linear infinite;will-change:transform}
+.bxfx .ms.a{background:radial-gradient(ellipse 22% 40% at 25% 45%,rgba(190,255,225,.5),transparent 72%),radial-gradient(ellipse 18% 32% at 72% 68%,rgba(110,225,175,.45),transparent 72%);background-size:50% 100%;background-repeat:repeat-x}
+.bxfx .ms.b{background:radial-gradient(ellipse 26% 36% at 55% 30%,rgba(240,255,250,.28),transparent 72%),radial-gradient(ellipse 16% 30% at 12% 75%,rgba(60,190,140,.4),transparent 72%);background-size:50% 100%;background-repeat:repeat-x;animation-direction:reverse}
+.bxfx .vn{left:0;top:0;width:200%;height:100%;animation:bxflow 70s linear infinite;will-change:transform}
+.bxfx .jg{background:#eafff6;box-shadow:0 0 5px 2px rgba(190,255,230,.8)}
+/* 像素星空: 一格一格閃爍 */
+.bxfx .st{width:2px;height:2px;background:#fff;animation:bxblink2 var(--t) steps(1) var(--dl) infinite}
+.bxfx .st.y{background:#ffec27}.bxfx .st.c{background:#29adff}
+.bxfx .sx{width:3px;height:3px;background:#fff;box-shadow:3px 0 #fff,-3px 0 #fff,0 3px #fff,0 -3px #fff;animation:bxblink2 var(--t) steps(1) var(--dl) infinite}
+@keyframes bxblink2{0%{opacity:1}50%{opacity:.08}100%{opacity:1}}
+.bxfx .mo{right:12%;top:14%;width:30px;height:30px;background:url(${MOON_URI}) 0 0/30px 30px;image-rendering:pixelated}
+.bxfx .mh{right:calc(12% - 8px);top:calc(14% - 8px);width:46px;height:46px;background:rgba(255,241,168,.16);animation:bxblink3 2.4s steps(1) infinite}
+@keyframes bxblink3{0%{opacity:1}50%{opacity:.4}100%{opacity:1}}
+.bxfx .ss{left:0;top:6%;width:4px;height:4px;background:#ffec27;box-shadow:-4px -2px #fff1e8,-8px -4px #ffa300,-12px -6px rgba(255,163,0,.6);opacity:0;animation:bxshoot var(--t) steps(14) var(--dl) infinite}
+@keyframes bxshoot{0%{transform:translate(0,0);opacity:0}6%{opacity:1}28%{transform:translate(260px,90px);opacity:1}30%,100%{transform:translate(264px,92px);opacity:0}}
+/* 星河: 星星閃爍、彗星劃過 */
+.bxfx .gs{border-radius:50%;background:#fff;animation:bxtwk var(--t) ease-in-out var(--dl) infinite}
+.bxfx .gb{width:3px;height:3px;border-radius:50%;background:#fff;box-shadow:0 0 6px 2px rgba(190,180,255,.9);animation:bxtwk var(--t) ease-in-out var(--dl) infinite}
+@keyframes bxtwk{0%,100%{opacity:.25;transform:scale(.6)}50%{opacity:1;transform:scale(1.3)}}
+.bxfx .cm{left:0;width:70px;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,rgba(180,190,255,.55) 60%,#fff);opacity:0;animation:bxcomet var(--t) linear var(--dl) infinite}
+.bxfx .cm::after{content:"";position:absolute;right:-2px;top:-2px;width:6px;height:6px;border-radius:50%;background:#fff;box-shadow:0 0 6px 3px rgba(190,200,255,.85)}
+@keyframes bxcomet{0%{transform:translate(-100px,0) rotate(17deg);opacity:0}4%{opacity:1}26%{transform:translate(330px,100px) rotate(17deg);opacity:1}30%,100%{transform:translate(345px,105px) rotate(17deg);opacity:0}}
+/* 像素金幣: 滿滿的金幣堆,金光閃閃、偶爾有金幣掉下來 */
+.bxfx .cp{inset:0;image-rendering:pixelated}
+.bxfx .gl{width:5px;height:5px;background:#fff;clip-path:polygon(40% 0,60% 0,60% 40%,100% 40%,100% 60%,60% 60%,60% 100%,40% 100%,40% 60%,0 60%,0 40%,40% 40%);animation:bxblink2 var(--t) steps(1) var(--dl) infinite}
+.bxfx .fc{top:-10px;width:9px;height:9px;background:url(${COIN_URI}) 0 0/9px 9px;image-rendering:pixelated;animation:bxcoinfall var(--t) steps(10) var(--dl) infinite}
+@keyframes bxcoinfall{0%{transform:translateY(0) scaleX(1);opacity:1}25%{transform:translateY(30px) scaleX(.2)}50%{transform:translateY(60px) scaleX(1)}75%{transform:translateY(90px) scaleX(.2)}100%{transform:translateY(125px) scaleX(1);opacity:1}}
+/* 竹林: 竹葉隨風搖 */
+.bxfx .bm{inset:0;width:100%;height:100%}
+.bxfx .lf{animation:bxsway var(--d) ease-in-out var(--o) infinite alternate}
+@keyframes bxsway{from{transform:rotate(-7deg)}to{transform:rotate(7deg)}}
+/* 皇家: 王冠與放射的光、絲絨帷幕、飄起的金色星屑 */
+.bxfx .ry{left:50%;top:50%;width:340px;height:340px;margin:-170px 0 0 -170px;background:repeating-conic-gradient(rgba(255,215,100,0) 0 7deg,rgba(255,215,100,.2) 7deg 14deg);-webkit-mask:radial-gradient(closest-side,#000 10%,transparent 100%);mask:radial-gradient(closest-side,#000 10%,transparent 100%);animation:bxspin 60s linear infinite}
+@keyframes bxspin{to{transform:rotate(360deg)}}
+.bxfx .cr{left:50%;top:50%;width:92px;height:64px;margin:-32px 0 0 -46px;opacity:.34;filter:drop-shadow(0 0 6px rgba(255,215,100,.8));animation:bxglow 3.2s ease-in-out infinite alternate}
+@keyframes bxglow{from{opacity:.2}to{opacity:.5}}
+.bxfx .cu{top:0;bottom:0;width:15%;background:repeating-linear-gradient(90deg,#2b1058 0 5px,#6d3fc2 8px,#2b1058 12px);border:0 solid #f0c95c;transform-origin:top;animation:bxcurt 5s ease-in-out infinite alternate}
+.bxfx .cu.l{left:0;border-right-width:2px}
+.bxfx .cu.r{right:0;border-left-width:2px;animation-delay:-2.5s}
+@keyframes bxcurt{from{transform:scaleX(.94)}to{transform:scaleX(1.05)}}
+.bxfx .sp{bottom:-10px;width:var(--s);height:var(--s);background:#ffe9a6;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);opacity:0;animation:bxsparkle var(--t) ease-in-out var(--dl) infinite}
+@keyframes bxsparkle{0%{transform:translateY(0) scale(.4) rotate(0);opacity:0}20%{opacity:.95}60%{opacity:.8;transform:translateY(-55px) scale(1) rotate(90deg)}100%{transform:translateY(-110px) scale(.5) rotate(180deg);opacity:0}}
+@media (prefers-reduced-motion:reduce){.bxfx *{animation:none!important}}
+`;
   let boxStyle = null;
   function applyBox(el, id) {   // 給牌桌上的座位方塊 (.pl) 套上玩家框
     const sp = BOX[id]; if (!el) return;
@@ -584,8 +741,9 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 .pl[data-bxm],.pvseat[data-bxm]{animation:bxmove var(--bx-dur,12s) linear infinite!important}
 @media (prefers-reduced-motion:reduce){.pl[data-bx],.pvseat[data-bx]{animation:none!important}}`;
       document.head.appendChild(boxStyle);
+      const scs = document.createElement("style"); scs.textContent = SCENE_CSS; document.head.appendChild(scs);
     }
-    if (!sp) { el.removeAttribute("data-bx"); delete el.dataset.bxpx; delete el.dataset.bxm; return; }
+    if (!sp) { el.removeAttribute("data-bx"); delete el.dataset.bxpx; delete el.dataset.bxm; const o0 = el.querySelector(":scope > .bxfx"); if (o0) o0.remove(); return; }
     el.dataset.bx = id;
     if (sp.px) el.dataset.bxpx = "1"; else delete el.dataset.bxpx;
     const st = el.style;
@@ -601,6 +759,8 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
     imgs.push(`linear-gradient(160deg,${sp.c[0]}f2,${sp.c[1]}f5)`); szs.push("auto"); p0.push("0 0"); p1.push("0 0");
     st.setProperty("--bx-img", imgs.join(",")); st.setProperty("--bx-sz", szs.join(",")); st.setProperty("--bx-p0", p0.join(",")); st.setProperty("--bx-p1", p1.join(","));
     if (moves) { st.setProperty("--bx-dur", (sp.px ? 6 : 12) + "s"); el.dataset.bxm = "1"; } else delete el.dataset.bxm;
+    st.setProperty("--bx-bw", sp.px ? "3px" : "1px");
+    { const old = el.querySelector(":scope > .bxfx"); if (SCENE[id]) { if (!old || old.dataset.s !== id) { if (old) old.remove(); el.prepend(sceneNode(id)); } } else if (old) old.remove(); }
     st.setProperty("--bx-sh", sp.px ? `inset 0 0 0 3px ${sp.bd},0 0 0 3px #000,5px 5px 0 3px rgba(0,0,0,.5)` : `inset 0 0 0 1px ${sp.bd},inset 0 0 22px ${sp.gl}33,0 0 14px ${sp.gl}40`);
   }
   window.SGS_BOX = { apply: applyBox, spec: BOX };
@@ -746,7 +906,8 @@ button:disabled{cursor:not-allowed}
 /* 極光 / 虹彩: 拿掉模糊後不能再是實心圓盤。極光 = 外圈柔和的光暈 (綠藍紫,反向慢轉); 虹彩 = 頭像外一圈細細的彩虹環 (正轉較快) */
 .fx-aurora::after{inset:-12px;background:conic-gradient(#46e0a0,#3fd2ff,#9b6bff,#ff7ad9,#46e0a0);opacity:.9;-webkit-mask:radial-gradient(closest-side,#000 50%,rgba(0,0,0,.55) 72%,transparent 100%);mask:radial-gradient(closest-side,#000 50%,rgba(0,0,0,.55) 72%,transparent 100%);animation:frspin 6s linear infinite reverse}
 .fx-rainbow::after{inset:-11px;background:conic-gradient(#ff5d73,#ffd24a,#46e0a0,#3fd2ff,#9b6bff,#ff5d73);opacity:1;-webkit-mask:radial-gradient(closest-side,#000 55%,rgba(0,0,0,.55) 76%,transparent 100%);mask:radial-gradient(closest-side,#000 55%,rgba(0,0,0,.55) 76%,transparent 100%);animation:frspin 2.2s linear infinite}
-.fx-vortex>.fxa{inset:-13px;background:conic-gradient(rgba(10,0,30,.95),rgba(170,70,255,.9),rgba(10,0,30,.95) 25%,rgba(170,70,255,.9) 50%,rgba(10,0,30,.95) 75%,rgba(170,70,255,.9));-webkit-mask:radial-gradient(closest-side,#000 48%,rgba(0,0,0,.55) 70%,transparent 100%);mask:radial-gradient(closest-side,#000 48%,rgba(0,0,0,.55) 70%,transparent 100%)}
+.fx-vortex>.fxa{inset:-14px;background:repeating-conic-gradient(rgba(40,0,90,0) 0deg,rgba(150,60,240,.65) 34deg,rgba(225,150,255,.95) 58deg,rgba(40,0,90,0) 60deg);-webkit-mask:radial-gradient(closest-side,transparent 40%,#000 62%,rgba(0,0,0,.7) 80%,transparent 100%);mask:radial-gradient(closest-side,transparent 40%,#000 62%,rgba(0,0,0,.7) 80%,transparent 100%);animation:frspin 2.4s linear infinite}
+.fx-vortex>.fxb{inset:-7px;border:0;background:repeating-conic-gradient(rgba(90,200,255,0) 0deg,rgba(150,230,255,.95) 28deg,rgba(90,200,255,0) 30deg);-webkit-mask:radial-gradient(closest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));mask:radial-gradient(closest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));animation:frspin 3.6s linear infinite reverse}
 @keyframes fxglow2{0%,100%{opacity:.35;transform:scale(.96)}50%{opacity:1;transform:scale(1.04)}}
 @keyframes frember{from{opacity:.8}to{opacity:1}}
 @keyframes frtw{from{opacity:.75}to{opacity:1}}
