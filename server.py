@@ -223,7 +223,7 @@ class Profiles:
 
     WIN_XP = {1: 15, 2: 30, 3: 45, 4: 70}   # 電腦難度 弱/中/強/很強: 打贏給的經驗值
 
-    def award(self, tok, won, char=None, role=None, win_xp=None, ranked=False, win_rp=None, facts=None):
+    def award(self, tok, won, char=None, role=None, win_xp=None, ranked=False, win_rp=None, facts=None, loss_rp=None):
         """回傳 (段位積分變化, 之前段位, 之後段位);休閒模式積分不變 (變化 0)。"""
         p = self.get(tok)
         if not p:
@@ -235,7 +235,7 @@ class Profiles:
             delta = 0
             if ranked:
                 old = p.get("rp", 0)
-                p["rp"] = max(0, old + ((win_rp or 25) if won else -self.LOSS_RP))
+                p["rp"] = max(0, old + ((win_rp or 25) if won else -(loss_rp or self.LOSS_RP)))
                 delta = p["rp"] - old
                 p["rgames"] = p.get("rgames", 0) + 1; p["rwins"] = p.get("rwins", 0) + (1 if won else 0)
             p["peak_rp"] = max(p.get("peak_rp", 0), p.get("rp", 0))
@@ -945,6 +945,7 @@ class Manager:
         w = g.winner
         camp = lambda r: "主公陣營" if r in ("主公", "忠臣") else r
         noroles = getattr(g, "noroles", False)
+        rps = {t: (PROFILES.get(t) or {}).get("rp", 0) for s, t in self.claims.items() if s in self.humans and s < len(g.players)}   # 結算前各真人的積分
         for seat, tok in self.claims.items():
             if seat in self.humans and seat < len(g.players):
                 pl = g.players[seat]
@@ -953,10 +954,16 @@ class Manager:
                 wx = Profiles.WIN_XP.get(round(sum(lv) / len(lv)), 45) if ai_present else None   # 電腦難度取平均
                 wrp = Profiles.WIN_RP.get(round(sum(lv) / len(lv)), 25) if ai_present else 25
                 ranked = bool(self.cfg.get("ranked"))
+                lrp = None
+                others = [v for t, v in rps.items() if t != tok]
+                if others:   # 有其他真人: 對手平均段位比我高 → 贏得多、輸扣得少;比我低 → 贏得少、輸扣得多 (±50%)
+                    diff = sum(others) / len(others) - rps.get(tok, 0)
+                    wrp = round(wrp * max(0.5, min(1.5, 1 + diff / 400)))
+                    lrp = round(Profiles.LOSS_RP * max(0.5, min(1.5, 1 - diff / 400)))
                 if len(g.players) <= 3:   # 2~3 人 (沒有隊友,只能靠自己): 贏的經驗加倍
                     wx = 2 * (wx if wx is not None else Profiles.XP_WIN)
                 r = PROFILES.award(tok, (w == f"P{pl.idx}") if noroles else (camp(pl.role) == w and (pl.role != "內奸" or pl.alive)), pl._char.name, pl.role, wx, ranked, wrp, {"practice": bool(self.cfg.get("practice")), "hp": pl.hp, "alive": pl.alive, "rounds": g.round, "n": len(g.players), "noroles": noroles, "dmg": pl.dmg_total, "sha": pl.sha_n,
-                                                                                                                  "maxhand": pl.max_hand, "chain11": pl.chain11, "same": len(g.players) >= 2 and len({q._char.name for q in g.players}) == 1})
+                                                                                                                  "maxhand": pl.max_hand, "chain11": pl.chain11, "same": len(g.players) >= 2 and len({q._char.name for q in g.players}) == 1}, lrp)
                 if r:
                     d, b, a = r
                     who = self.nicks.get(tok) or '未命名'
