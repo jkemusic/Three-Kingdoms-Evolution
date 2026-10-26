@@ -14,6 +14,8 @@
 }
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;background:radial-gradient(circle at 50% 0%,#17222d 0,var(--bg) 60%);color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue","Segoe UI","Microsoft JhengHei","微軟正黑體","PingFang TC","Noto Sans TC",sans-serif}
+:lang(ja),:lang(ja) body,:lang(ja) button,:lang(ja) input,:lang(ja) select,:lang(ja) textarea{font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic",Meiryo,"Noto Sans JP",sans-serif}
+:lang(en),:lang(en) body,:lang(en) button,:lang(en) input,:lang(en) select,:lang(en) textarea{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Inter,Roboto,"Helvetica Neue",Arial,sans-serif}
 ::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:#2f3d4e;border-radius:4px}::-webkit-scrollbar-track{background:transparent}
 button{font:inherit;color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 14px;cursor:pointer;transition:.15s}
 button:hover{border-color:var(--accent);transform:translateY(-1px)}
@@ -898,6 +900,7 @@ function renderTable0(snap) {
     if (p.hand && p.hand.length && snap.viewer == null) inf.append(h("div", {class: "mini"}, p.hand.map(miniEl)));
     const el = h("div", {"data-idx": p.idx, class: "pl" + (snap.cur === p.idx && !snap.over ? " cur" : "") + (winners.has(p.idx) ? " win" : "") + (p.is_viewer ? " me" : "") + (snap.waiting === p.idx && !snap.over ? " waiting" : "") + (p.alive ? "" : " dead") + (S.sel === p.idx ? " sel" : "") + (targetIdx.has(p.idx) ? " target" : "") + (pickMode && S.tgtPick.chosen && S.tgtPick.chosen.includes(p.idx) ? " tp1" : "") + (pickMode && !targetIdx.has(p.idx) ? " dimmed" : ""),
                          style: rp ? {left: rp[0] + "px", top: rp[1] + "px", order: k} : {left: `clamp(var(--hw),${x}%,calc(100% - var(--hw)))`, top: `clamp(var(--hh),${y}%,calc(100% - var(--hh)))`, order: k}, onclick: () => { if (pickMode) { tpClick(S.tgtPick, p.idx, pend); return; } S.sel = S.sel === p.idx ? null : p.idx; $("#thf").value = S.sel == null ? "" : String(S.sel); renderThoughts(); renderTable(S.snap); }}, ph, inf);
+    { const bx = ((snap.avstyles || {})[p.idx] || {}).bx; if (bx && window.SGS_BOX) SGS_BOX.apply(el, bx); }   // 玩家框
     const t = S.lastTh[p.idx];
     const age = t && t._ts ? (Date.now() - t._ts) / 1000 : 99;
     if (t && age < 3.2 && !/不發動|不出|不響應|不使用|不用|放棄|跳過/.test(t.title) && snap.thoughts_visible && p.alive && snap.viewer !== p.idx)
@@ -1750,7 +1753,7 @@ function renderPicking(snap) {   // 隨機武將: 每人抽 3 張選 1,大家同
       h("button", {class: "primary", text: "選這位", onclick: async () => { await api("/api/pick", {name: c.name}); S.lobbyKey = null; poll(true); }}))));
     dlg.append(row);
   } else {
-    dlg.append(h("h3", {text: "你已選好武將"}), h("div", {class: "meta"}, "等待還沒選的玩家: ", whoList(snap.pick_wait || [])));
+    dlg.append(h("h3", {text: snap.pick_spec ? "玩家選擇武將中" : "你已選好武將"}), h("div", {class: "meta"}, "等待還沒選的玩家: ", whoList(snap.pick_wait || [])));
   }
   if ((snap.pick_wait || []).length && snap.pick) dlg.append(h("div", {class: "meta"}, "還沒選: ", whoList(snap.pick_wait)));
   dlg.append(h("div", {style: {marginTop: "8px"}}, inviteFriendsBtn()));
@@ -2241,6 +2244,7 @@ $("#rname").onkeydown = e => { if (e.key === "Enter") $("#rcreate").click(); };
 <script src="/i18n_log.js"></script>
 <script src="/i18n_ui.js"></script>
 <script src="/i18n_log2.js"></script>
+<script src="/i18n_new.js"></script>
 <script src="/i18n.js"></script>
 </body>
 </html>

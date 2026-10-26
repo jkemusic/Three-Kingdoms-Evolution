@@ -70,6 +70,7 @@ THEMES = [
     {"id": "ice", "n": "冰藍", "a": "#bfe9ff", "b": "#0c1a28", "req": A("ranked10")},
     {"id": "coffee", "n": "咖啡", "a": "#d9a066", "b": "#21160e", "req": A("games100")},
     {"id": "forest", "n": "森林", "a": "#7ed957", "b": "#0c1f10", "req": A("chars30")},
+    {"id": "ash", "n": "灰燼", "a": "#b8c0cc", "b": "#15181d", "req": A("losses50")},
     {"id": "crimson", "n": "緋紅", "a": "#ff5d73", "b": "#240c12", "req": A("wins25")},
     {"id": "sunset", "n": "夕陽", "a": "#ffb347", "b": "#26160a", "req": T(3)},
     {"id": "toxic", "n": "毒綠", "a": "#b6ff3a", "b": "#0f1a08", "req": A("chain11")},
@@ -150,11 +151,36 @@ def req_text(r):
     return "成就「" + ACH_NAME.get(r["v"], r["v"]) + "」"
 
 
+# 玩家框 (牌桌上自己座位方塊的外觀,所有人都看得到;前端 theme.js 依 id 畫出來): 4 種免費,16 種要成就解鎖
+BOXES = [
+    {"id": "classic", "n": "經典", "req": F()},
+    {"id": "felt", "n": "綠絨", "req": F()},
+    {"id": "wine", "n": "酒紅絨", "req": F()},
+    {"id": "charcoal", "n": "炭灰", "req": F()},
+    {"id": "jade", "n": "翡翠", "req": A("first_win")},
+    {"id": "ink", "n": "水墨", "req": A("games50")},
+    {"id": "tatami", "n": "榻榻米", "req": A("games100")},
+    {"id": "gold", "n": "鎏金", "req": A("wins25")},
+    {"id": "sakura", "n": "櫻花", "req": A("streak3")},
+    {"id": "thunder", "n": "雷霆", "req": A("streak5")},
+    {"id": "ice", "n": "冰原", "req": A("ranked10")},
+    {"id": "lava", "n": "熔岩", "req": A("ranked30")},
+    {"id": "royal", "n": "皇家", "req": A("ranked100")},
+    {"id": "sunset", "n": "黃昏", "req": A("tier_gold")},
+    {"id": "crystal", "n": "水晶", "req": A("tier_dia")},
+    {"id": "galaxy", "n": "星河", "req": A("tier_legend")},
+    {"id": "bamboo", "n": "竹林", "req": A("roles4")},
+    {"id": "scroll", "n": "卷軸", "req": A("chars30")},
+    {"id": "zen", "n": "禪意", "req": A("no_sha")},
+    {"id": "neon", "n": "霓虹網格", "req": A("hand20")},
+]
+
+
 def catalog():
     """前端用的目錄 (不含玩家資料)。"""
     def pack(L):
         return [dict(x, req_text=req_text(x["req"])) for x in L]
-    return {"tiers": TIER_NAMES, "themes": pack(THEMES), "frames": pack(FRAMES), "fx": pack(EFFECTS),
+    return {"tiers": TIER_NAMES, "themes": pack(THEMES), "frames": pack(FRAMES), "fx": pack(EFFECTS), "boxes": pack(BOXES),
             "achs": [{"id": a[0], "n": a[1], "d": a[2]} for a in ACHIEVEMENTS]}
 
 
@@ -167,7 +193,7 @@ def is_unlocked(req, tier, achs):
 
 
 def unlocked_ids(tier, achs):
-    return {k: [x["id"] for x in L if is_unlocked(x["req"], tier, achs)] for k, L in (("themes", THEMES), ("frames", FRAMES), ("fx", EFFECTS))}
+    return {k: [x["id"] for x in L if is_unlocked(x["req"], tier, achs)] for k, L in (("themes", THEMES), ("frames", FRAMES), ("fx", EFFECTS), ("boxes", BOXES))}
 
 
 def check_achievements(p, level, peak_tier, facts):

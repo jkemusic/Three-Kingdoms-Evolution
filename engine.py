@@ -616,6 +616,13 @@ class Game:
         self.log(f"  {tgt.name} 瀕死 (體力 {tgt.hp})")
         tgt.char.on_dying(self, tgt)
         while tgt.hp <= 0 and tgt.alive:
+            for q in self.order_from(tgt):   # 劉備: 仁可以救瀕死的人
+                if tgt.hp > 0 or not tgt.alive:
+                    break
+                if q.alive:
+                    q.char.on_dying_help(self, q, tgt)
+            if tgt.hp > 0 or not tgt.alive:
+                break
             saved = False
             self.log("  依序詢問 " + "、".join(q.name for q in self.order_from(tgt)) + f" 是否出桃/酒救 {tgt.name}")
             entries = []
@@ -744,7 +751,7 @@ class Game:
         cands = [c for c in p.hand if c.name == name or p.char.as_card(self, p, c, name)]
         if name == "殺" and p.has_weapon("丈八蛇矛") and len(p.hand) >= 2:  # 兩張手牌當一張殺打出
             low = sorted(p.hand, key=lambda x: _CV.get(x.name, 3 if x.kind == "trick" else 2))[:4]
-            cands += [PairView("殺", a.color, "basic", a, extra=b) for a, b in itertools.combinations(low, 2)]
+            cands += [PairView("殺", "", "basic", a, extra=b) for a, b in itertools.combinations(low, 2)]
         if not cands:
             return False
         c = p.agent.respond(self, p, name, cands, ctx)
@@ -1057,7 +1064,7 @@ class Game:
         for c in cs:
             p.hand.remove(c)
             self.discard.append(c)
-        view = ViewCard("殺", cs[0].color, "basic", cs[0])
+        view = ViewCard("殺", "", "basic", cs[0])   # 兩張牌合成的殺無色 (仁王盾擋不住)
         self.log(f"  丈八蛇矛: {cs[0]} + {cs[1]} 當作殺")
         self.cur_card, self.cur_user = view, p
         self.use_sha(p, t, view)

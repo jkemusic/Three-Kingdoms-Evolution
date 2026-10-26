@@ -52,6 +52,7 @@ class Char:
     def lose_marks(self, g, p): pass   # 被降雷翻成背面後 (整條連鎖結算完還是背面),身上的標記全部消失
     def on_flip_change(self, g_or_p, flipped=None): pass   # 翻面狀態改變時 (p, 是否翻面)
     def on_dying(self, g, p): pass
+    def on_dying_help(self, g, p, tgt): pass   # 別人 (或自己) 瀕死時,p 有機會幫忙 (劉備: 用仁回血)
     def on_deal_damage(self, g, p, tgt, n): pass    # p 對別人造成傷害後
     def on_any_damaged(self, g, p, tgt, n): pass    # 任何人受傷後
     def takes_dead_cards(self, g, p): return False  # 角色死亡時獲得其所有牌
@@ -837,6 +838,10 @@ class 劉備(Char):
         g.discard_card(p, c)
         self.ren += 1
         g.log(f"  {p.name}[劉備] 棄 {c},獲得 1 個仁 (共 {self.ren})")
+
+    def on_dying_help(self, g, p, tgt):   # 瀕死的人 (自己或其他玩家) 也可以用仁救,每次 -1 仁 +1 體力
+        while self.ren > 0 and p.alive and tgt.alive and tgt.hp <= 0 and p.agent.choose_skill(g, p, f"劉備-仁救 {tgt.name}"):
+            self._heal(g, p, tgt)
 
     def _heal(self, g, p, t):
         self.ren -= 1

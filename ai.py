@@ -552,6 +552,9 @@ class HeuristicAgent(RandomAgent):
         if skill == "寒冰劍-棄牌":
             t = g.cur_sha_target
             return t is not None and t.hp > 1 and len(t.all_cards()) >= 2
+        if skill.startswith("劉備-仁救 "):
+            t = next((q for q in g.alive_players() if q.hp <= 0 and q.name == skill[len("劉備-仁救 "):]), None)
+            return t is not None and (t is p or self.attitude(g, p, t) >= 1)
         if skill == "沮授-轉移":
             return len(g.others(p)) > 0 and (p.hp <= 2 or p.hand and len(p.hand) >= 3)
         if skill == "周魴-換血":

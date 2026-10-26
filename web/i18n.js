@@ -63,7 +63,7 @@ const W = [
   ["勝利: ", "Winner: ", "勝利: "], ["理由: ", "Reason: ", "理由: "],
   ["選擇武將中", "Choosing generals", "武将選択中"], ["選擇你的武將 (三選一)", "Choose your general (1 of 3)", "武将を選択(3択)"],
   ["大家同時選;這三張是專屬抽給你的,不會和其他人重複。選了什麼要到開局才會公開。", "Everyone picks at the same time; these three are dealt only to you, no overlap with others. Picks are revealed at the start.", "全員同時に選択。この3枚はあなた専用で他と重複しません。選択は開始時に公開されます。"],
-  ["你已選好武將", "You have picked", "武将を選択済み"], ["還沒選: ", "Not yet picked: ", "未選択: "],
+  ["你已選好武將", "You have picked", "武将を選択済み"], ["玩家選擇武將中", "Players are picking characters", "プレイヤーが武将を選択中"], ["還沒選: ", "Not yet picked: ", "未選択: "],
   ["等待還沒選的玩家: ", "Waiting for: ", "未選択のプレイヤーを待っています: "], ["選這位", "Pick this", "これにする"],
   ["觀戰模式: 可在左上調整速度、暫停、單步;右側 AI 思考可看每個決定的理由。", "Spectator mode: adjust speed, pause and step at top-left; the AI thoughts tab shows reasons for each decision.", "観戦モード: 左上で速度・一時停止・コマ送りを調整。右のAI思考で各判断の理由を確認できます。"],
   ["考慮過的選項:", "Options considered:", "検討した選択肢:"], ["身分推理:", "Role inference:", "役職推理:"], ["疑似反賊分", "Rebel score", "反賊らしさ"],

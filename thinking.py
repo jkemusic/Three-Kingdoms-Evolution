@@ -5,7 +5,7 @@ Observed 包住任何代理 (HeuristicAgent / 其他代理),每次決策都記�
 GUI 的「AI 思考」面板就是讀這些紀錄。
 """
 from engine import Player
-from view import ctext
+from view import ctext, full_name
 from characters import SkillAct
 
 CARD_REASON = {"降雷": "翻轉目標的武將牌", "偽": "偽裝成另一位武將,獲得他的技能", 
@@ -112,7 +112,7 @@ class Observed:
             if isinstance(ctx.get(k), Player):
                 who = f" (相關: {ctx[k].name})"
                 break
-        title = f"響應 {need}{who}: " + (f"打出 {c!r}" if c else "不出")
+        title = f"響應 {full_name(need)}{who}: " + (f"打出 {ctext(c)}" if c else "不出")   # 對話框裡的牌名都用全名
         self.rec.add(g, p, "respond", title, getattr(self.inner, "last_reason", None) or "", [repr(x) for x in cands],
                      cands.index(c) if c in cands else None, belief_table(g, p, self.inner))
         return c
@@ -127,7 +127,7 @@ class Observed:
 
     def choose_discard(self, g, p, n, cands, msg=None):
         r = self.inner.choose_discard(g, p, n, cands)
-        self.rec.add(g, p, "discard", f"選擇棄 {n} 張: " + " ".join(repr(c) for c in r),
+        self.rec.add(g, p, "discard", f"選擇棄 {n} 張: " + " ".join(ctext(c) for c in r),
                      "棄掉價值最低的牌", [repr(c) for c in cands])
         return r
 
@@ -160,5 +160,5 @@ class Observed:
 
     def pick_pile(self, g, p, pile):
         r = self.inner.pick_pile(g, p, pile)
-        self.rec.add(g, p, "pile", f"五穀豐登: 拿 {r!r}", "選價值最高的牌", [repr(c) for c in pile])
+        self.rec.add(g, p, "pile", f"五穀豐登: 拿 {ctext(r) if r else '不拿'}", "選價值最高的牌", [repr(c) for c in pile])
         return r

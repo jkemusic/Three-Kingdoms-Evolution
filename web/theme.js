@@ -194,7 +194,7 @@
 .fx-arc>.fxb{inset:-8px;border-radius:50%;border:1.5px solid transparent;border-left-color:#fff;z-index:3;filter:drop-shadow(0 0 3px #bfe9ff);animation:frspin 1.5s linear infinite reverse}
 @keyframes fxarc{50%{opacity:.45}}
 .fx-ice>.fxa{inset:-6px;border-radius:50%;border:3px dotted rgba(190,240,255,.95);z-index:3;animation:frspin 6s linear infinite;filter:drop-shadow(0 0 4px #7fe0ff)}
-.fx-ice>.fxb{inset:-2px;border-radius:50%;z-index:-1;box-shadow:0 0 10px 3px rgba(150,230,255,.7);animation:fxglow 2s ease-in-out infinite}
+.fx-ice>.fxb{inset:-2px;border-radius:50%;z-index:-1;box-shadow:0 0 10px 3px rgba(150,230,255,.7);animation:fxglow2 2s ease-in-out infinite}
 .fx-toxic>.fxa,.fx-toxic>.fxb{left:-4px;right:-4px;top:-6px;bottom:-2px;border-radius:50%;overflow:hidden;z-index:3;background:radial-gradient(circle,rgba(160,255,120,.9) 0 2px,rgba(80,200,60,.3) 3.5px,transparent 4.5px) 20% 100%/24px 24px no-repeat,radial-gradient(circle,rgba(190,120,255,.9) 0 1.5px,rgba(130,60,200,.3) 3px,transparent 4px) 62% 100%/28px 28px no-repeat,radial-gradient(circle,rgba(160,255,120,.9) 0 1.5px,transparent 3px) 88% 100%/20px 20px no-repeat;animation:fxdu 2.6s linear infinite}
 .fx-toxic>.fxb{animation-delay:-1.3s;background-position:45% 100%,80% 100%,8% 100%}
 .fx-heart>.fxa,.fx-heart>.fxb{inset:0;z-index:3}
@@ -218,10 +218,10 @@
 .fx-comet>.fxa{inset:-7px;border-radius:50%;z-index:3;animation:frspin 1.8s linear infinite;background:conic-gradient(from 0deg,transparent 0 78%,rgba(120,220,255,.1) 84%,rgba(255,255,255,.95) 100%);-webkit-mask:radial-gradient(circle,transparent 62%,#000 64%,#000 72%,transparent 74%);mask:radial-gradient(circle,transparent 62%,#000 64%,#000 72%,transparent 74%)}
 .fx-comet>.fxb{inset:0;border-radius:50%;z-index:-1;box-shadow:0 0 8px 2px rgba(120,220,255,.5)}
 .fx-beam>.fxa{left:18%;right:18%;top:-70%;bottom:50%;z-index:-1;background:linear-gradient(0deg,rgba(255,240,170,.9),rgba(255,240,170,.15) 70%,transparent);filter:blur(2px);animation:fxbm 2.4s ease-in-out infinite}
-.fx-beam>.fxb{inset:-2px;border-radius:50%;z-index:-1;box-shadow:0 0 12px 3px rgba(255,235,150,.8);animation:fxglow 2.4s ease-in-out infinite}
+.fx-beam>.fxb{inset:-2px;border-radius:50%;z-index:-1;box-shadow:0 0 12px 3px rgba(255,235,150,.8);animation:fxglow2 2.4s ease-in-out infinite}
 @keyframes fxbm{0%,100%{opacity:.55;transform:scaleY(.85)}50%{opacity:1;transform:scaleY(1.1)}}
 .fx-sun>.fxa{inset:-11px;border-radius:50%;z-index:-1;background:repeating-conic-gradient(rgba(255,210,70,.95) 0 5deg,transparent 5deg 15deg);-webkit-mask:radial-gradient(circle,transparent 40%,#000 44%);mask:radial-gradient(circle,transparent 40%,#000 44%);animation:frspin 9s linear infinite}
-.fx-sun>.fxb{inset:-3px;border-radius:50%;z-index:-1;box-shadow:0 0 12px 4px rgba(255,200,60,.7);animation:fxglow 2s ease-in-out infinite}
+.fx-sun>.fxb{inset:-3px;border-radius:50%;z-index:-1;box-shadow:0 0 12px 4px rgba(255,200,60,.7);animation:fxglow2 2s ease-in-out infinite}
 .fx-ki>.fxa{inset:-8px;z-index:-1;border-radius:50% 50% 45% 45%;background:radial-gradient(ellipse at 50% 80%,#fff6a8 0,#ffd23a 40%,rgba(255,170,0,0) 75%);filter:blur(2px);animation:fxki .35s ease-in-out infinite alternate}
 .fx-ki>.fxb{inset:-4px;z-index:-1;border-radius:50%;box-shadow:0 0 10px 3px rgba(255,220,70,.9);animation:fxki .5s ease-in-out infinite alternate-reverse}
 @keyframes fxki{from{transform:scale(.94,.9);opacity:.75}to{transform:scale(1.08,1.16) translateY(-2px);opacity:1}}
@@ -240,6 +240,10 @@
 #cosdlg .grid{display:flex;gap:10px;flex-wrap:wrap}
 #cosdlg .tile{width:92px;padding:10px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;border-radius:10px;position:relative}
 #cosdlg .tile.sel{box-shadow:inset 0 0 0 2px var(--accent)}
+#cosdlg .tile.sel::after{content:"✓";position:absolute;top:4px;right:6px;font-size:12px;font-weight:800;color:var(--accent)}
+#cosdlg .tile.pvd{box-shadow:inset 0 0 0 2px var(--gold)}
+#cosdlg .pv{margin:0 0 12px}
+#cosdlg .pvseat{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:8px;background:rgba(18,40,72,.9);box-shadow:inset 0 0 0 1px #24557d}
 #cosdlg .tile.lock{opacity:.5}
 #cosdlg .tile .tn{font-size:12px;line-height:1.25}
 #cosdlg .tile .rq{font-size:10px;color:var(--dim);line-height:1.2}
@@ -258,7 +262,7 @@
   const unlockOf = id => {   // 這個成就會解鎖哪些外觀
     if (!CAT) return [];
     const out = [];
-    [["themes", "主題"], ["frames", "頭像框"], ["fx", "特效"]].forEach(([k, lab]) => CAT[k].forEach(x => { if (x.req.t === "ach" && x.req.v === id) out.push(lab + "「" + x.n + "」"); }));
+    [["themes", "主題"], ["frames", "頭像框"], ["fx", "特效"], ["boxes", "玩家框"]].forEach(([k, lab]) => (CAT[k] || []).forEach(x => { if (x.req.t === "ach" && x.req.v === id) out.push(lab + "「" + x.n + "」"); }));
     return out;
   };
   async function post(body) {
@@ -271,16 +275,73 @@
       h("div", { style: { flex: 1, height: "6px", background: "rgba(120,160,200,.2)", borderRadius: "99px", overflow: "hidden" } }, h("div", { style: { width: pct + "%", height: "100%", background: "var(--accent)" } })),
       h("span", { class: "meta", style: { fontSize: "11px", whiteSpace: "nowrap" }, text: pg[0] + " / " + pg[1] }));
   }
+  /* ---------- 玩家框 (牌桌上座位方塊的外觀,所有人都看得到): id 對應伺服器 cosmetics.BOXES ---------- */
+  // c: 方塊底色 (上 / 下), bd: 邊線, gl: 光暈色, fl: 疊在底色上的花紋 (可省略)
+  const dots = (col, sz) => `radial-gradient(${col} 1px,transparent 1.5px) 0 0/${sz}px ${sz}px`;
+  const BOX = {
+    classic: null,
+    felt:    { c: ["#1f6b52", "#0b2f25"], bd: "#c89b5e", gl: "#c89b5e" },
+    wine:    { c: ["#6a1b2c", "#2a0a12"], bd: "#e5b26b", gl: "#e5b26b" },
+    charcoal:{ c: ["#3a3f47", "#14171b"], bd: "#aeb8c6", gl: "#aeb8c6" },
+    jade:    { c: ["#177a5a", "#073328"], bd: "#46e0a0", gl: "#46e0a0", fl: `linear-gradient(180deg,rgba(70,224,160,.14),transparent 40%)` },
+    ink:     { c: ["#5a5850", "#26241f"], bd: "#d9d3c0", gl: "#d9d3c0", fl: `repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 2px,transparent 2px 9px)` },
+    tatami:  { c: ["#7d6d3f", "#2e2714"], bd: "#86b36f", gl: "#86b36f", fl: `linear-gradient(rgba(63,107,58,.25) 1px,transparent 1px) 0 0/22px 22px,linear-gradient(90deg,rgba(63,107,58,.25) 1px,transparent 1px) 0 0/22px 22px` },
+    gold:    { c: ["#6b5314", "#241b05"], bd: "#f0c95c", gl: "#f0c95c", fl: `linear-gradient(180deg,rgba(240,201,92,.18),transparent 45%)` },
+    sakura:  { c: ["#8f3a62", "#33142a"], bd: "#ff8fc0", gl: "#ff8fc0", fl: dots("rgba(255,143,192,.4)", 18) },
+    thunder: { c: ["#2c2a6e", "#0c0b26"], bd: "#ffe14d", gl: "#ffe14d", fl: `repeating-linear-gradient(115deg,rgba(255,225,77,.1) 0 2px,transparent 2px 26px)` },
+    ice:     { c: ["#2f6a8f", "#12304a"], bd: "#dff4ff", gl: "#bfe9ff", fl: dots("rgba(255,255,255,.45)", 16) },
+    lava:    { c: ["#7a2410", "#2a0c04"], bd: "#ff7a45", gl: "#ff5a2a", fl: `linear-gradient(0deg,rgba(255,90,42,.28),transparent 55%)` },
+    royal:   { c: ["#4a2c86", "#170d33"], bd: "#f0c95c", gl: "#b58cff", fl: `linear-gradient(135deg,rgba(240,201,92,.12),transparent 50%)` },
+    sunset:  { c: ["#a04a2a", "#321638"], bd: "#ffb36b", gl: "#ff8f5a", fl: `linear-gradient(180deg,rgba(255,179,107,.2),transparent 55%)` },
+    crystal: { c: ["#1f7694", "#0b3040"], bd: "#9ff0ff", gl: "#5fe0ff", fl: `linear-gradient(45deg,rgba(159,240,255,.12) 25%,transparent 25% 75%,rgba(159,240,255,.12) 75%) 0 0/20px 20px` },
+    galaxy:  { c: ["#3a2a8a", "#0a0828"], bd: "#c3b8ff", gl: "#9b8cff", fl: dots("rgba(255,255,255,.6)", 23) + "," + dots("rgba(195,184,255,.45)", 13) },
+    bamboo:  { c: ["#3f7a45", "#112a17"], bd: "#a6d38c", gl: "#7fc77a", fl: `repeating-linear-gradient(90deg,rgba(166,211,140,.12) 0 4px,transparent 4px 22px)` },
+    scroll:  { c: ["#8d7140", "#33270f"], bd: "#5b3a22", gl: "#8d6a3a", fl: `linear-gradient(180deg,rgba(255,240,200,.18),transparent 50%)` },
+    zen:     { c: ["#7a705a", "#2a251a"], bd: "#7a6f55", gl: "#9a9078", fl: `repeating-radial-gradient(circle at 20% 50%,rgba(255,255,255,.1) 0 2px,transparent 2px 16px)` },
+    neon:    { c: ["#1a0a3a", "#06020f"], bd: "#ff3df0", gl: "#3dfff0", fl: `linear-gradient(rgba(61,255,240,.14) 1px,transparent 1px) 0 0/16px 16px,linear-gradient(90deg,rgba(255,61,240,.14) 1px,transparent 1px) 0 0/16px 16px` },
+  };
+  let boxStyle = null;
+  function applyBox(el, id) {   // 給牌桌上的座位方塊 (.pl) 套上玩家框
+    const sp = BOX[id]; if (!el) return;
+    if (!boxStyle) {
+      boxStyle = document.createElement("style");
+      boxStyle.textContent = `.pl[data-bx],.pvseat[data-bx]{background:var(--bx-bg)!important}
+.pl[data-bx]:not(.cur),.pvseat[data-bx]{box-shadow:var(--bx-sh)!important}
+.pl[data-bx].cur{background:var(--bx-bg)!important}`;
+      document.head.appendChild(boxStyle);
+    }
+    if (!sp) { el.removeAttribute("data-bx"); return; }
+    el.dataset.bx = id;
+    const st = el.style;
+    st.setProperty("--bx-bg", `${sp.fl ? sp.fl + "," : ""}linear-gradient(160deg,${sp.c[0]}f2,${sp.c[1]}f5)`);
+    st.setProperty("--bx-sh", `inset 0 0 0 1px ${sp.bd},inset 0 0 22px ${sp.gl}33,0 0 14px ${sp.gl}40`);
+  }
+  window.SGS_BOX = { apply: applyBox, spec: BOX };
+  function pickBox(id) {
+    if (CAT && typeof api === "function" && prof()) api("/api/cosmetic", { box: id }).then(r => { if (r && r.sel && prof()) S.prof.sel = r.sel; }).catch(() => {});
+  }
+
   function openDlg(tab) {
     const M = document.getElementById("modal"); if (!M) return;
     const mode = tab === "ach" ? "ach" : "look";
-    tab = tab === "ach" ? "ach" : (tab === "frame" || tab === "fx") ? tab : "theme";
+    tab = tab === "ach" ? "ach" : (tab === "frame" || tab === "fx" || tab === "box") ? tab : "theme";
+    let pv = null;   // 預覽: 點到還沒解鎖的項目時,只預覽、不套用
     const render = () => {
       M.textContent = ""; if (typeof S !== "undefined") S.modalOpen = "theme";
       const close = () => { M.textContent = ""; if (typeof S !== "undefined") S.modalOpen = null; };
       const p = prof() || {}, sel = p.sel || {}, mine = p.avatar || null;
       const achMode = mode === "ach";   // 成就和外觀是兩個分開的視窗
-      const tabs = achMode ? [] : [["theme", "🎨 主題"], ["frame", "🖼 頭像框"], ["fx", "✨ 頭像特效"]];
+      const preview = () => {
+        const g = k => (pv && pv[k] != null ? pv[k] : sel[k === "box" ? "box" : k]) || "";
+        const seat = h("div", { class: "pvseat" }, avEl(mine, { fr: g("frame"), fx: g("fx") }, { style: { width: "54px", height: "54px", borderRadius: "50%", objectFit: "cover" } }),
+          h("div", {}, h("div", { style: { fontWeight: 700 }, text: "預覽" }), h("div", { class: "meta", text: "頭像框、特效、玩家框的樣子" })));
+        if (window.SGS_BOX) SGS_BOX.apply(seat, g("box"));
+        return h("div", { class: "pv" }, seat, pv && pv.need ? h("div", { class: "meta", style: { color: "var(--gold)", marginTop: "6px" }, text: "🔒 還沒解鎖:需要 " + pv.need }) : null);
+      };
+      const lockProg = x => { const pg = x.req && x.req.t === "ach" ? (p.ach_prog || {})[x.req.v] : null; return pg ? progBar(pg) : null; };
+      const ordered = L => [...L].sort((a, b) => (has(kindOf(L), b.id) ? 1 : 0) - (has(kindOf(L), a.id) ? 1 : 0));
+      const kindOf = L => (L === CAT.boxes ? "boxes" : L === CAT.fx ? "fx" : "frames");
+      const tabs = achMode ? [] : [["theme", "🎨 主題"], ["box", "🪟 玩家框"], ["frame", "🖼 頭像框"], ["fx", "✨ 頭像特效"]];
       let body;
       if (!CAT) body = h("div", { class: "meta", text: "載入中…" });
       else if (tab === "theme") {
@@ -294,6 +355,18 @@
         });
         body = h("div", {}, h("div", { class: "grid" }, ...sw),
           h("div", { style: { display: "flex", justifyContent: "flex-end" } }, h("button", { text: "恢復預設", onclick: () => { save(null); render(); } })));
+      } else if (tab === "box") {
+        const curb = sel.box || "";
+        const sw = ordered(CAT.boxes || []).map(x => {
+          const ok = has("boxes", x.id), sp = BOX[x.id], on = (curb || "classic") === x.id;
+          const bg = sp ? `${sp.fl ? sp.fl + "," : ""}linear-gradient(160deg,${sp.c[0]},${sp.c[1]})` : "linear-gradient(160deg,#12284a,#08122a)";
+          return h("button", {
+            class: "tile" + (ok ? "" : " lock") + (on ? " sel" : "") + (pv && pv.box === x.id ? " pvd" : ""), title: ok ? x.n : "需要 " + x.req_text, "aria-pressed": on ? "true" : "false",
+            onclick: async () => { if (!ok) { pv = { box: x.id, need: x.req_text }; render(); return; } pv = null; const id = x.id === "classic" ? "" : x.id; sel.box = id; pickBox(id); render(); },
+          }, h("span", { style: { width: "64px", height: "40px", borderRadius: "6px", background: bg, boxShadow: `inset 0 0 0 1px ${sp ? sp.bd : "#24557d"},0 0 8px ${sp ? sp.gl + "55" : "rgba(63,210,255,.25)"}` } }),
+          h("span", { class: "tn", text: (ok ? "" : "🔒 ") + x.n }), ok ? null : h("span", { class: "rq", text: "需要 " + x.req_text }), ok ? null : lockProg(x));
+        });
+        body = h("div", {}, h("div", { class: "meta", style: { marginBottom: "6px" }, text: `已解鎖 ${(CAT.boxes || []).filter(x => has("boxes", x.id)).length} / ${(CAT.boxes || []).length}` }), h("div", { class: "grid" }, ...sw), h("div", { class: "meta", style: { marginTop: "10px" }, text: "玩家框是牌桌上你的座位方塊外觀,所有玩家都看得到。有些要成就解鎖。" }));
       } else if (tab === "ach") {
         const got = p.ach || {}, list = CAT.achs;
         body = h("div", {}, h("div", { class: "meta", style: { marginBottom: "6px" }, text: `已完成 ${list.filter(a => got[a.id]).length} / ${list.length}` }),
@@ -305,20 +378,21 @@
           }));
       } else {
         const isFx = tab === "fx", L = isFx ? CAT.fx : CAT.frames, kind = isFx ? "fx" : "frames", curv = isFx ? (sel.fx || "") : (sel.frame || "");
-        body = h("div", {}, h("div", { class: "grid" }, ...L.map(x => {
+        body = h("div", {}, h("div", { class: "meta", style: { marginBottom: "6px" }, text: `已解鎖 ${L.filter(x => has(kind, x.id)).length} / ${L.length}` }), h("div", { class: "grid" }, ...ordered(L).map(x => {
           const ok = has(kind, x.id), st = isFx ? { fr: sel.frame, fx: x.id } : { fr: x.id, fx: sel.fx };
           return h("button", {
-            class: "tile" + (ok ? "" : " lock") + (curv === x.id ? " sel" : ""), title: ok ? x.n : "需要 " + x.req_text,
-            onclick: async () => { if (!ok) return; await post(isFx ? { fx: x.id } : { frame: x.id }); render(); },
+            class: "tile" + (ok ? "" : " lock") + (curv === x.id ? " sel" : "") + (pv && (isFx ? pv.fx : pv.frame) === x.id ? " pvd" : ""), title: ok ? x.n : "需要 " + x.req_text, "aria-pressed": curv === x.id ? "true" : "false",
+            onclick: async () => { if (!ok) { pv = isFx ? { fx: x.id, need: x.req_text } : { frame: x.id, need: x.req_text }; render(); return; } pv = null; await post(isFx ? { fx: x.id } : { frame: x.id }); render(); },
           }, h("span", { style: { padding: "6px" } }, avEl(mine, st, { style: { width: "44px", height: "44px", borderRadius: "50%", objectFit: "cover" } })),
-          h("span", { class: "tn", text: (ok ? "" : "🔒 ") + x.n }), ok ? null : h("span", { class: "rq", text: "需要 " + x.req_text }));
+          h("span", { class: "tn", text: (ok ? "" : "🔒 ") + x.n }), ok ? null : h("span", { class: "rq", text: "需要 " + x.req_text }), ok ? null : lockProg(x));
         })), h("div", { class: "meta", style: { marginTop: "10px" }, text: "頭像框和特效會顯示在座位、聊天室、排行榜上,所有玩家都看得到。" }));
       }
       M.append(h("div", { class: "modal", onclick: e => { if (e.target.classList.contains("modal")) close(); } },
         h("div", { class: "dlg", id: "cosdlg", style: { maxWidth: "520px" } },
           h("div", { class: "dh" }, h("div", {}, h("h3", { text: achMode ? "🏅 成就" : "🎨 外觀" }), h("div", { class: "meta", text: achMode ? "完成成就可以解鎖主題、頭像框與特效" : "主題 / 頭像框 / 特效,有些要段位或成就解鎖" })), h("button", { class: "x", text: "✕", onclick: close })),
           h("div", { style: { padding: "6px 22px 18px", maxHeight: "70vh", overflowY: "auto" } },
-            achMode ? null : h("div", { class: "tabs" }, ...tabs.map(([k, n]) => h("button", { class: k === tab ? "on" : "", text: n, onclick: () => { tab = k; render(); } }))),
+            achMode || tab === "theme" ? null : preview(),
+            achMode ? null : h("div", { class: "tabs" }, ...tabs.map(([k, n]) => h("button", { class: k === tab ? "on" : "", text: n, onclick: () => { tab = k; pv = null; render(); } }))),
             body, h("div", { style: { display: "flex", justifyContent: "flex-end", marginTop: "14px" } }, h("button", { class: "primary", text: "完成", onclick: close }))))));
     };
     render();
@@ -359,5 +433,57 @@
       const c = document.createElement("button"); c.id = "bAch"; c.textContent = "🏅 成就"; c.title = "成就與解鎖進度";
       c.onclick = () => openDlg("ach"); board.after(c);
     }
+  });
+})();
+
+/* ---------- 介面可用性補強 (依 ui-ux-pro-max 檢查): 鍵盤焦點 / 減少動態 / 觸控目標 / 視窗關閉 / 螢幕閱讀器標籤 ---------- */
+(function () {
+  const st = document.createElement("style");
+  st.textContent = `
+/* 鍵盤焦點: 只在用鍵盤操作時顯示,不影響滑鼠點擊 */
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent,#3fd2ff);outline-offset:2px}
+/* 按下回饋 (只用 transform,不改版面) + 去掉觸控 300ms 延遲 */
+button,select,.tile{touch-action:manipulation}
+button:not(:disabled):active{transform:scale(.97)}
+button:disabled{cursor:not-allowed}
+/* 觸控螢幕 (iPad 等): 視窗裡的按鈕 / 輸入框至少 40px 高,避免點錯 */
+@media (pointer:coarse){.dlg button,.dlg select,.dlg input:not([type=checkbox]):not([type=radio]),#members .mr button{min-height:40px}}
+/* 系統設定了「減少動態效果」: 關掉無限循環動畫和過場 */
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}`;
+  st.textContent += `
+/* 頭像動畫只動 opacity / transform (不動 box-shadow / filter),人多時才不會卡 */
+.fx-glow::after{box-shadow:0 0 12px 4px rgba(120,230,255,.9);animation:fxglow2 2.2s ease-in-out infinite}
+@keyframes fxglow2{0%,100%{opacity:.35;transform:scale(.96)}50%{opacity:1;transform:scale(1.04)}}
+@keyframes frember{from{opacity:.8}to{opacity:1}}
+@keyframes frtw{from{opacity:.75}to{opacity:1}}
+/* 清單 (聊天室 / 成員 / 好友 / 排行榜) 裡一次出現很多頭像: 動畫先停住,滑鼠移上去那一列才動 (一個畫面只讓重點在動) */
+.cm .avw::before,.cm .avw::after,.mr .avw::before,.mr .avw::after,.frow .avw::before,.frow .avw::after,.lbrow .avw::before,.lbrow .avw::after{animation-play-state:paused}
+.cm:hover .avw::before,.cm:hover .avw::after,.mr:hover .avw::before,.mr:hover .avw::after,.frow:hover .avw::before,.frow:hover .avw::after,.lbrow:hover .avw::before,.lbrow:hover .avw::after{animation-play-state:running}`;
+  document.head.appendChild(st);
+
+  const label = () => {
+    const L = (window.SGS_I18N && SGS_I18N.lang) || "zh";
+    return L === "en" ? "Close" : L === "ja" ? "閉じる" : "關閉";
+  };
+  function tag(root) {   // 螢幕閱讀器: 關閉鈕有名字、對話框有角色
+    if (!root.querySelectorAll) return;
+    const bs = root.matches && root.matches("button.x") ? [root] : [];
+    root.querySelectorAll("button.x").forEach(b => bs.push(b));
+    bs.forEach(b => { if (!b.getAttribute("aria-label")) b.setAttribute("aria-label", label()); });
+    const ds = root.matches && root.matches(".dlg") ? [root] : [];
+    root.querySelectorAll(".dlg").forEach(d => ds.push(d));
+    ds.forEach(d => { if (!d.getAttribute("role")) { d.setAttribute("role", "dialog"); d.setAttribute("aria-modal", "true"); } });
+  }
+  tag(document.body);
+  new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => { if (n.nodeType === 1) tag(n); }))).observe(document.body, { childList: true, subtree: true });
+
+  // Esc 關閉最上層的視窗 (有「✕」的才關,選武將 / 必須回答的提示不會被關掉)
+  document.addEventListener("keydown", e => {
+    if (e.key !== "Escape" || e.defaultPrevented) return;
+    const t = e.target;
+    if (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) && t.value) return;   // 正在輸入時不要吃掉 Esc
+    const mods = [...document.querySelectorAll(".modal")].filter(m => m.querySelector("button.x"));
+    const top = mods[mods.length - 1];
+    if (top) { top.querySelector("button.x").click(); e.preventDefault(); }
   });
 })();

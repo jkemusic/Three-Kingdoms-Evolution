@@ -142,21 +142,22 @@ class Profiles:
                 self._save()
         tier, achs = self.peak_tier(p), p.get("ach", {})
         st = self.style(tok)
-        return {"cos": cosmetics.unlocked_ids(tier, achs), "sel": {"frame": st["fr"], "fx": st["fx"], "theme": p.get("theme")},
+        return {"cos": cosmetics.unlocked_ids(tier, achs), "sel": {"frame": st["fr"], "fx": st["fx"], "theme": p.get("theme"), "box": st["bx"]},
                 "ach": achs, "ach_new": list(p.get("ach_new", [])), "peak_tier": tier, "ach_prog": cosmetics.progress(p, self.level(p["xp"]), max(p.get("peak_rp", 0), p.get("rp", 0)))}
 
     def style(self, tok):
         """目前使用的頭像框 / 特效 (沒選過: 頭像框自動用最高段位的框)。"""
         p = self.d.get(tok)
         if not p:
-            return {"fr": "", "fx": ""}
+            return {"fr": "", "fx": "", "bx": ""}
         tier, achs, sel = self.peak_tier(p), p.get("ach", {}), p.get("sel", {})
         ok = lambda L, v: any(x["id"] == v and cosmetics.is_unlocked(x["req"], tier, achs) for x in L)
         fr = sel["frame"] if "frame" in sel and ok(cosmetics.FRAMES, sel["frame"]) else cosmetics.auto_frame(tier)
         fx = sel.get("fx", "") if ok(cosmetics.EFFECTS, sel.get("fx", "")) else ""
-        return {"fr": fr, "fx": fx}
+        bx = sel.get("box", "") if ok(cosmetics.BOXES, sel.get("box", "")) else ""
+        return {"fr": fr, "fx": fx, "bx": bx}
 
-    def set_style(self, tok, frame, fx, theme=None):
+    def set_style(self, tok, frame, fx, theme=None, box=None):
         p = self.get(tok)
         tier, achs = self.peak_tier(p), p.get("ach", {})
         ok = lambda L, v: any(x["id"] == v and cosmetics.is_unlocked(x["req"], tier, achs) for x in L)
@@ -166,6 +167,8 @@ class Profiles:
                 sel["frame"] = frame
             if fx is not None and ok(cosmetics.EFFECTS, fx):
                 sel["fx"] = fx
+            if box is not None and (box == "" or ok(cosmetics.BOXES, box)):
+                sel["box"] = box
             if theme is not None:
                 p["theme"] = theme if (theme == "" or ok(cosmetics.THEMES, theme)) else p.get("theme")
             self._save()
@@ -516,7 +519,7 @@ class Manager:
         self.thread = None
         self.rec = Recorder()
         self.humans = set()
-        self.claims = {}
+        self.claims = {}; self.ips = {}
         self.seen = {}    # tok -> 最後一次連線時間 (算目前在線人數)
         self.kicked = {}  # tok -> 解除時間 (被房主踢出)
         self.solo = False  # 單人模式房間: 只有建立者進得去,不顯示在大廳,離開就刪除
@@ -838,7 +841,7 @@ class Manager:
     def seat_names(self):
         return {s: self.nicks[t] for s, t in self.claims.items() if t in self.nicks}
 
-    def claim(self, tok, seat, name=None):
+    def claim(self, tok, seat, name=None, ip=""):
         if name is not None:
             self.set_nick(tok, name)
         if not tok or not self.lobby or self.game is not None or self.picking:
@@ -850,6 +853,8 @@ class Manager:
             if seat not in self.humans or seat in self.claims:
                 return {"ok": False, "error": "seat unavailable"}
             self.claims[seat] = tok
+            if ip:
+                self.ips[tok] = ip   # 段位局防刷: 記下入座者的連線 IP
         return {"ok": True}
 
     def start(self, tok, force=False):
@@ -912,6 +917,7 @@ class Manager:
         data = {d["name"]: d for d in ROSTER_DATA}
         out = {"picking": True, "pick_wait": sorted(i for i in self.offers if i not in self.picks),
                "pick_left": max(0, round(getattr(self, "pick_deadline", None) - time.time(), 1)) if getattr(self, "pick_deadline", None) else None}
+        out["pick_spec"] = seat is None   # 沒入座的旁觀者: 畫面不要寫「你已選好武將」
         if seat is not None and seat in self.offers and seat not in self.picks:
             out["pick"] = {"seat": seat, "offers": [data[n] for n in self.offers[seat] if n in data]}
         return out
@@ -965,6 +971,9 @@ class Manager:
                 wx = Profiles.WIN_XP.get(round(sum(lv) / len(lv)), 45) if ai_present else None   # 電腦難度取平均
                 wrp = Profiles.WIN_RP.get(round(sum(lv) / len(lv)), 25) if ai_present else 25
                 ranked = bool(self.cfg.get("ranked"))
+                if ranked and self.ips.get(tok) and sum(1 for s2, t2 in self.claims.items() if s2 in self.humans and self.ips.get(t2) == self.ips.get(tok)) > 1:
+                    ranked = False   # 同一個 IP 有兩個以上帳號在同一場段位局: 不計段位分 (防止開小帳互相送分)
+                    self._event(f"⚠ {self.nicks.get(tok) or '未命名'}: 同一個網路有多個帳號在這場段位局,這場不計段位積分", "warn")
                 lrp = None
                 others = [v for t, v in rps.items() if t != tok]
                 if others:   # 有其他真人: 對手平均段位比我高 → 贏得多、輸扣得少;比我低 → 贏得少、輸扣得多 (±50%)
@@ -1436,7 +1445,7 @@ class Handler(BaseHTTPRequestHandler):
                                             **M.pick_view(tok), **M.chat_since(int(q.get("chat", ["0"])[0]), tok)})
                 snap = snapshot(M, viewer, int(q.get("log", ["0"])[0]),
                                 int(q.get("th", ["0"])[0]),
-                                q.get("peek", ["0"])[0] == "1" and (len(M.humans) <= 1 or M.is_host(tok)))   # 多人遊戲只有房主能偷看
+                                q.get("peek", ["0"])[0] == "1" and not (M.cfg or {}).get("ranked") and (len(M.humans) <= 1 or M.is_host(tok)))   # 多人遊戲只有房主能偷看
                 snap["room_name"] = M.room_name
                 snap["can_manage"] = tok_can_manage(M, tok)
                 snap["room_locked"] = bool(M.pw)
@@ -1449,7 +1458,7 @@ class Handler(BaseHTTPRequestHandler):
                     snap["ai_lv"] = [M._level(M.cfg, i) for i in range(len(snap["players"]))]
                 snap.update(M.chat_since(int(q.get("chat", ["0"])[0]), tok))
                 return self._send(200, snap)
-            if path in ("/i18n.js", "/i18n_log.js", "/i18n_ui.js", "/i18n_log2.js", "/fx.js", "/theme.js", "/friends.js"):
+            if path in ("/i18n.js", "/i18n_log.js", "/i18n_ui.js", "/i18n_log2.js", "/i18n_new.js", "/fx.js", "/theme.js", "/friends.js"):
                 return self._file(os.path.join(WEB, path[1:]))
             if path == "/api/about":
                 from version import VERSION, REPO
@@ -1507,7 +1516,7 @@ class Handler(BaseHTTPRequestHandler):
             if path == "/api/ach_ack":
                 return self._send(200, PROFILES.ack_ach(data.get("tok")))
             if path == "/api/cosmetic":
-                return self._send(200, PROFILES.set_style(data.get("tok"), data.get("frame"), data.get("fx"), data.get("theme")))
+                return self._send(200, PROFILES.set_style(data.get("tok"), data.get("frame"), data.get("fx"), data.get("theme"), data.get("box")))
             if path == "/api/rank_ack":
                 return self._send(200, PROFILES.ack_rank(data.get("tok"), data.get("id")))
             if path == "/api/avatar":
@@ -1598,7 +1607,7 @@ class Handler(BaseHTTPRequestHandler):
             if path == "/api/answer":
                 return self._send(200, M.answer(data.get("id"), data.get("choice", []), data.get("tok")))
             if path == "/api/claim":
-                return self._send(200, M.claim(data.get("tok"), data.get("seat"), data.get("name")))
+                return self._send(200, M.claim(data.get("tok"), data.get("seat"), data.get("name"), self._ip()))
             if path == "/api/forfeit":
                 return self._send(200, M.forfeit(data.get("tok")))
             if path == "/api/transfer":
