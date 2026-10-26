@@ -561,7 +561,7 @@ class Game:
                 if victims:
                     v = tgt.agent.choose_target(self, tgt, "反", victims)
                     self.log(f"  傷害轉移給 {v.name}")
-                    self.damage(tgt, v, n * (2 if tgt.char.fan_double else 1), nature=nature)   # 反擊: 傷害來源改成使用者,所以吃流星錘 +1 和強化 / 弱化
+                    self.damage(tgt, v, n * (2 if tgt.char.fan_double else 1), nature=None)   # 反擊: 轉出去的傷害變成無屬性; 傷害來源改成使用者,所以吃流星錘 +1 和強化 / 弱化
                     return 0
             elif cname == "占":
                 j = self.flip_judge(tgt)
@@ -573,7 +573,7 @@ class Game:
                 order = self.side_order(tgt, self.pick_side(tgt))
                 for q in order:
                     if q.alive and not self.need_response(q, "閃", {"attacker": tgt}):
-                        self.damage(tgt, q, n, nature=nature, _bonus=False, _mods=False)
+                        self.damage(tgt, q, n, nature=None, _bonus=False, _mods=False)   # 轉出去的傷害變成無屬性
                         return 0   # 調虎離山: 有人沒出閃受到傷害,結算就停止,原本的傷害也抵銷
         return n
 

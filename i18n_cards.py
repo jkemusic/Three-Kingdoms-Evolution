@@ -8,7 +8,7 @@ EN = {
     "酒": "Used with a Slash it deals 2 damage; when dying, restore 2 HP to yourself or another player.",
     "順": "Take one card (hand or equipment) from a player at distance 1.",
     "過": "Discard one card of any player.",
-    "反": "⚡ When you are about to take damage, transfer it to another player.",
+    "反": "⚡ When you are about to take damage, transfer it to another player (the transferred damage becomes non-elemental).",
     "調": "⚡ When you are about to take damage, starting from your left or right each player in turn plays a Dodge; whoever does not takes the same damage, and the resolution stops as soon as someone takes damage.",
     "占": "⚡ Divination: when you are about to take damage you may judge: a trick card cancels the damage, otherwise you still take it.",
     "南": "Barbarians: every other player must play a Slash or lose 1 HP.",
