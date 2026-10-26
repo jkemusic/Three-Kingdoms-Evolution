@@ -908,7 +908,17 @@ class Game:
             self.cur_sha_target = tgt
             if p.agent.choose_skill(self, p, "寒冰劍-棄牌"):
                 self.log(f"  寒冰劍: 不造成傷害,改棄掉 {tgt.name} 兩張牌")
-                for _ in range(2):
+                eqs = [] if tgt.char.equip_safe else tgt.equip_cards()
+                if tgt.hand and eqs:   # 對方手牌和裝備都有: 一張裝備 (自己選) + 一張手牌 (看不到,隨機)
+                    e = p.agent.choose_from(self, p, tgt, eqs)
+                    if e not in eqs:
+                        e = self.rng.choice(eqs)
+                    h = self.rng.choice(tgt.hand)
+                    for c in (e, h):
+                        self.discard_card(tgt, c)
+                        self.log(f"  {p.name} 棄置 {tgt.name} 的 {c}")
+                    return
+                for _ in range(2):   # 只有手牌或只有裝備: 照一般方式棄兩張
                     if not self.takeable(tgt):
                         break
                     c = self.pick_card(p, tgt)
