@@ -473,7 +473,7 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
 .cm.ai .ct{color:#9fe0ff}
 #center .rematch{background:linear-gradient(#ffd24a,#d9971a)!important;color:#2a1800!important;border:1px solid #ffe38a!important;font-weight:800;font-size:16px;padding:10px 22px;border-radius:10px;cursor:pointer;box-shadow:0 0 16px rgba(255,210,74,.45);text-shadow:none}
 #center .rematch:hover{filter:brightness(1.1)}
-.pl .nm{flex-wrap:wrap;overflow:visible;row-gap:1px;white-space:normal}.pl .nm .pn{white-space:normal;overflow:visible;text-overflow:clip;word-break:break-all;line-height:1.2}
+.pl .nm{flex-wrap:wrap;overflow:visible;row-gap:1px;white-space:normal}.pl .nm{position:relative;top:-3px;margin-bottom:1px}   /* 名字那排往上移一點,才不會碰到下一行 */.pl .nm .pn{white-space:normal;overflow:visible;text-overflow:clip;word-break:break-all;line-height:1.2}
 .cd{margin-left:10px;font-size:15px;font-weight:800;color:#ffd24a;white-space:nowrap}.cd.urgent{color:#ff5d73;animation:cdb .6s infinite alternate}@keyframes cdb{to{opacity:.45}}
 /* 玩家名字 / 身分: 放在框框外面的上方 */
 .pl .nm{position:absolute!important;left:6px;bottom:calc(100% + 2px);display:flex!important;align-items:center;gap:4px;flex-wrap:nowrap!important;white-space:nowrap!important;overflow:visible!important;
@@ -844,7 +844,7 @@ function tpText(tp) {
   return `${tp.label} — ${h2[tp.chosen.length]} (${tp.chosen.length + 1}/2)`;
 }
 function syncAnims(root) {   // 牌桌每次重畫都會重建元素,循環動畫 (頭貼特效等) 會從頭播;全部對齊到文件時間軸,重畫後就不會被重置
-  try { for (const a of root.getAnimations({subtree: true})) if (a.effect && a.effect.getComputedTiming().iterations === Infinity) a.startTime = 0; } catch (e) {}
+  try { for (const a of root.getAnimations({subtree: true})) if (a.effect && a.startTime !== 0 && a.effect.getComputedTiming().iterations === Infinity) a.startTime = 0;   // 已經對齊的不要再動 (重設時間軸會讓動畫卡頓) } catch (e) {}
 }
 function renderTable(snap) {
   renderTable0(snap); syncAnims($("#table"));

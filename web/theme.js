@@ -185,9 +185,9 @@ html.px .fx-orbit>.fxa,html.px .fx-orbit>.fxb{animation:none}
 html.px .fx-orbit>.fxa::before,html.px .fx-orbit>.fxb::before{left:0;top:0;margin:-3px 0 0 -3px;box-shadow:none;animation:pxorb 2.6s linear infinite}
 html.px .fx-orbit>.fxb::before{animation-duration:4.2s;animation-direction:reverse}
 html.px .fr-6::before{background:conic-gradient(from var(--pxa),#ff5d73,#ffd24a,#46e0a0,#3fd2ff,#9b6bff,#ff5d73)!important;animation:pxrot 4s linear infinite}
-html.px .fx-aurora::after{background:conic-gradient(from var(--pxa),#46e0a0,#3fd2ff,#9b6bff,#ff7ad9,#46e0a0);filter:none;animation:pxrot 3.4s linear infinite}
-html.px .fx-rainbow::after{background:conic-gradient(from var(--pxa),#ff5d73,#ffd24a,#46e0a0,#3fd2ff,#9b6bff,#ff5d73);filter:none;animation:pxrot 2.2s linear infinite}
-html.px .fx-vortex>.fxa{background:conic-gradient(from var(--pxa),rgba(10,0,30,.95),rgba(150,60,255,.8),rgba(10,0,30,.95) 50%,rgba(150,60,255,.8),rgba(10,0,30,.95));filter:none;animation:pxrot 1.6s linear infinite}
+html.px .fx-aurora::after{inset:-8px;padding:6px;background:conic-gradient(from var(--pxa),#46e0a0,#3fd2ff,#9b6bff,#46e0a0);opacity:.75;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);animation:pxrot 6s linear infinite reverse}
+html.px .fx-rainbow::after{inset:-4px;padding:3px;background:conic-gradient(from var(--pxa),#ff5d73,#ffd24a,#46e0a0,#3fd2ff,#9b6bff,#ff5d73);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);animation:pxrot 2s linear infinite}
+html.px .fx-vortex>.fxa{inset:-10px;padding:7px;background:conic-gradient(from var(--pxa),#14002a,#b04bff,#14002a 25%,#b04bff 50%,#14002a 75%,#b04bff);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);filter:none;animation:pxrot 1.6s linear infinite}
 html.px .fx-radar>.fxa{background:conic-gradient(from var(--pxa),transparent 0 70%,rgba(110,255,190,.75) 100%);animation:pxrot 2.2s linear infinite}
 html.px .fx-comet>.fxa{background:conic-gradient(from var(--pxa),transparent 0 78%,rgba(120,220,255,.1) 84%,rgba(255,255,255,.95) 100%);animation:pxrot 1.8s linear infinite}
 html.px .fx-sun>.fxa{background:repeating-conic-gradient(from var(--pxa),#fff2a8 0 3deg,#ffc83a 3deg 6deg,transparent 6deg 30deg);animation:pxrot 16s linear infinite}
@@ -387,7 +387,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 .fx-rainbow::after{inset:-7px;z-index:-1;background:conic-gradient(#ff5d73,#ffd24a,#46e0a0,#3fd2ff,#9b6bff,#ff5d73);filter:blur(5px);opacity:1;animation:frspin 2.2s linear infinite}
 .fx-bolt::after{inset:-4px;z-index:2;border:2px solid rgba(255,240,120,.95);box-shadow:0 0 8px #ffe45a,inset 0 0 6px #ffe45a;animation:fxbolt 1.8s steps(1) infinite}
 @keyframes fxbolt{0%,62%,70%,78%,100%{opacity:0}64%,74%{opacity:1}}
-.fx-petal::after{inset:-8px;z-index:2;background:radial-gradient(circle,#ffb7d5 0 2px,transparent 3px) 15% 0/30px 30px no-repeat,radial-gradient(circle,#ff8fc0 0 1.6px,transparent 2.6px) 78% 0/34px 34px no-repeat,radial-gradient(circle,#ffd0e4 0 1.4px,transparent 2.4px) 45% 0/38px 38px no-repeat;animation:fxpt 2.6s linear infinite;border-radius:0}
+.fx-petal::after{inset:-8px;z-index:2;background:radial-gradient(circle,#ffb7d5 0 2px,transparent 3px) 15% 0/30px 30px no-repeat,radial-gradient(circle,#ff8fc0 0 1.6px,transparent 2.6px) 78% 0/34px 34px no-repeat,radial-gradient(circle,#ffd0e4 0 1.4px,transparent 2.4px) 45% 0/38px 38px no-repeat;animation:fxsn 2.6s linear infinite;border-radius:0;will-change:transform,opacity}
 @keyframes fxpt{from{background-position:15% -8%,78% -40%,45% -70%}to{background-position:15% 108%,78% 80%,45% 54%}}
 
 .avw>i{position:absolute;pointer-events:none;display:block}
@@ -414,7 +414,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 .fx-shadow>.fxb{inset:-4px;border-radius:50%;z-index:2;border:1.5px solid rgba(170,90,255,.85);box-shadow:0 0 8px #8a2be2,inset 0 0 6px rgba(140,60,220,.8);animation:fxsh2 2.6s ease-in-out infinite}
 @keyframes fxsh{0%,100%{transform:scale(.92);opacity:.7}50%{transform:scale(1.1);opacity:1}}
 @keyframes fxsh2{0%,100%{opacity:.35}50%{opacity:.95}}
-.fx-dust>.fxa,.fx-dust>.fxb{left:-6px;right:-6px;top:-8px;bottom:-4px;border-radius:50%;z-index:3;overflow:hidden;background:radial-gradient(circle,#ffe27a 0 1.6px,transparent 2.6px) 14% 100%/22px 22px no-repeat,radial-gradient(circle,#fff6c4 0 1.3px,transparent 2.3px) 52% 100%/26px 26px no-repeat,radial-gradient(circle,#ffd24a 0 1.5px,transparent 2.5px) 86% 100%/20px 20px no-repeat;animation:fxdu 2.2s linear infinite}
+.fx-dust>.fxa,.fx-dust>.fxb{left:-6px;right:-6px;top:-8px;bottom:-4px;z-index:3;background:radial-gradient(circle,#ffe27a 0 1.6px,transparent 2.6px) 14% 100%/22px 22px no-repeat,radial-gradient(circle,#fff6c4 0 1.3px,transparent 2.3px) 52% 100%/26px 26px no-repeat,radial-gradient(circle,#ffd24a 0 1.5px,transparent 2.5px) 86% 100%/20px 20px no-repeat;animation:fxdu 2.2s linear infinite;will-change:transform,opacity}
 .fx-dust>.fxb{animation-delay:-1.1s;background-position:30% 100%,70% 100%,96% 100%}
 @keyframes fxdu{from{transform:translateY(8px);opacity:1}to{transform:translateY(-22px);opacity:0}}
 /* 內奸標籤的藍色是身分色,不跟著主題變 */
@@ -454,13 +454,13 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 @keyframes fxarc{50%{opacity:.45}}
 .fx-ice>.fxa{inset:-6px;border-radius:50%;border:3px dotted rgba(190,240,255,.95);z-index:3;animation:frspin 6s linear infinite;filter:drop-shadow(0 0 4px #7fe0ff)}
 .fx-ice>.fxb{inset:-2px;border-radius:50%;z-index:-1;box-shadow:0 0 10px 3px rgba(150,230,255,.7);animation:fxglow2 2s ease-in-out infinite}
-.fx-toxic>.fxa,.fx-toxic>.fxb{left:-4px;right:-4px;top:-6px;bottom:-2px;border-radius:50%;overflow:hidden;z-index:3;background:radial-gradient(circle,rgba(160,255,120,.9) 0 2px,rgba(80,200,60,.3) 3.5px,transparent 4.5px) 20% 100%/24px 24px no-repeat,radial-gradient(circle,rgba(190,120,255,.9) 0 1.5px,rgba(130,60,200,.3) 3px,transparent 4px) 62% 100%/28px 28px no-repeat,radial-gradient(circle,rgba(160,255,120,.9) 0 1.5px,transparent 3px) 88% 100%/20px 20px no-repeat;animation:fxdu 2.6s linear infinite}
+.fx-toxic>.fxa,.fx-toxic>.fxb{left:-4px;right:-4px;top:-6px;bottom:-2px;z-index:3;background:radial-gradient(circle,rgba(160,255,120,.9) 0 2px,rgba(80,200,60,.3) 3.5px,transparent 4.5px) 20% 100%/24px 24px no-repeat,radial-gradient(circle,rgba(190,120,255,.9) 0 1.5px,rgba(130,60,200,.3) 3px,transparent 4px) 62% 100%/28px 28px no-repeat,radial-gradient(circle,rgba(160,255,120,.9) 0 1.5px,transparent 3px) 88% 100%/20px 20px no-repeat;animation:fxdu 2.6s linear infinite;will-change:transform,opacity}
 .fx-toxic>.fxb{animation-delay:-1.3s;background-position:45% 100%,80% 100%,8% 100%}
 .fx-heart>.fxa,.fx-heart>.fxb{inset:0;z-index:3}
 .fx-heart>.fxa::before,.fx-heart>.fxb::before{content:"♥";position:absolute;left:12%;bottom:0;font-size:11px;line-height:1;color:#ff6fa8;text-shadow:0 0 5px #ff9ac2;animation:fxheart 2.4s ease-in infinite}
 .fx-heart>.fxb::before{left:68%;font-size:9px;color:#ff8fc0;animation-delay:-1.2s}
 @keyframes fxheart{0%{transform:translateY(4px) scale(.6);opacity:0}25%{opacity:1}100%{transform:translateY(-34px) scale(1.1);opacity:0}}
-.fx-snow>.fxa,.fx-snow>.fxb{left:-6px;right:-6px;top:-10px;bottom:-2px;overflow:hidden;z-index:3;background:radial-gradient(circle,#fff 0 1.6px,transparent 2.6px) 15% 0/22px 22px no-repeat,radial-gradient(circle,#e8f8ff 0 1.3px,transparent 2.3px) 55% 0/26px 26px no-repeat,radial-gradient(circle,#fff 0 1.5px,transparent 2.5px) 90% 0/24px 24px no-repeat;animation:fxsn 2.8s linear infinite}
+.fx-snow>.fxa,.fx-snow>.fxb{left:-6px;right:-6px;top:-10px;bottom:-2px;z-index:3;background:radial-gradient(circle,#fff 0 1.6px,transparent 2.6px) 15% 0/22px 22px no-repeat,radial-gradient(circle,#e8f8ff 0 1.3px,transparent 2.3px) 55% 0/26px 26px no-repeat,radial-gradient(circle,#fff 0 1.5px,transparent 2.5px) 90% 0/24px 24px no-repeat;animation:fxsn 2.8s linear infinite;will-change:transform,opacity}
 .fx-snow>.fxb{animation-delay:-1.4s;background-position:35% 0,75% 0,3% 0}
 @keyframes fxsn{from{transform:translateY(-8px);opacity:1}to{transform:translateY(34px);opacity:0}}
 .fx-firefly>.fxa,.fx-firefly>.fxb{inset:-4px;z-index:3}
@@ -492,9 +492,9 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 @keyframes fxgl{0%,60%,70%,100%{transform:none;filter:none}62%{transform:translate(-2px,0);filter:drop-shadow(2px 0 0 rgba(255,0,90,.85)) drop-shadow(-2px 0 0 rgba(0,255,230,.85))}66%{transform:translate(2px,1px);filter:drop-shadow(-2px 0 0 rgba(255,0,90,.85)) drop-shadow(2px 0 0 rgba(0,255,230,.85))}}
 @keyframes fxgl2{0%,60%,70%,100%{opacity:0}62%,66%{opacity:1}}
 .fx-meteor>.fxa,.fx-meteor>.fxb{left:8%;top:-4%;width:2px;height:10px;z-index:3;border-radius:2px;background:linear-gradient(180deg,rgba(255,255,255,0),#fff);box-shadow:0 0 5px #bfe9ff;transform:rotate(-40deg);opacity:0;animation:fxmt 2.2s ease-in infinite}
-.fx-meteor>.fxb{height:8px;animation-name:fxmt2;animation-delay:-1.1s}
-@keyframes fxmt{0%{left:8%;top:-4%;opacity:0}10%{opacity:1}60%{opacity:1}100%{left:72%;top:60%;opacity:0}}
-@keyframes fxmt2{0%{left:40%;top:-6%;opacity:0}10%{opacity:1}60%{opacity:1}100%{left:92%;top:50%;opacity:0}}
+.fx-meteor>.fxb{height:8px;left:40%;top:-6%;animation-name:fxmt2;animation-delay:-1.1s}
+@keyframes fxmt{0%{transform:translate(0,0) rotate(-40deg);opacity:0}10%{opacity:1}60%{opacity:1}100%{transform:translate(34px,34px) rotate(-40deg);opacity:0}}
+@keyframes fxmt2{0%{transform:translate(0,0) rotate(-40deg);opacity:0}10%{opacity:1}60%{opacity:1}100%{transform:translate(26px,30px) rotate(-40deg);opacity:0}}
 #cosdlg .tabs{display:flex;gap:6px;flex-wrap:nowrap;margin:4px 0 12px}
 #cosdlg .tabs button{flex:1 1 0;min-width:0;padding:6px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #cosdlg .tabs button.on{background:linear-gradient(180deg,#46d6ff,#1b9fd6);color:#021c2a;font-weight:700}
@@ -557,9 +557,9 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
     jade:    { c: ["#177a5a", "#073328"], bd: "#46e0a0", gl: "#46e0a0", fl: strp("rgba(70,224,160,.1)", 44) + ",linear-gradient(180deg,rgba(70,224,160,.14),transparent 40%)", mv: [1, 0] },
     ink:     { c: ["#5a5850", "#26241f"], bd: "#d9d3c0", gl: "#d9d3c0", fl: `repeating-linear-gradient(0deg,rgba(255,255,255,.06) 0 2px,transparent 2px 9px) 0 0/60px 9px`, mv: [0, -1] },
     tatami:  { c: ["#7d6d3f", "#2e2714"], bd: "#86b36f", gl: "#86b36f", fl: `linear-gradient(rgba(63,107,58,.25) 1px,transparent 1px) 0 0/22px 22px,linear-gradient(90deg,rgba(63,107,58,.25) 1px,transparent 1px) 0 0/22px 22px`, mv: [1, 1] },
-    gold:    { c: ["#6b5314", "#241b05"], bd: "#f0c95c", gl: "#f0c95c", fl: strp("rgba(240,201,92,.12)", 90) + ",linear-gradient(180deg,rgba(240,201,92,.18),transparent 45%)", mv: [1, 0] },
+    gold:    { c: ["#6b5314", "#241b05"], bd: "#f0c95c", gl: "#f0c95c", fl: dots("rgba(255,226,140,.55)", 16) + "," + dots("rgba(255,240,190,.4)", 11) + ",linear-gradient(180deg,rgba(240,201,92,.18),transparent 45%)", mv: [0, -1] },
     sakura:  { c: ["#8f3a62", "#33142a"], bd: "#ff8fc0", gl: "#ff8fc0", fl: dots("rgba(255,143,192,.4)", 18), mv: [-1, 1] },
-    thunder: { c: ["#2c2a6e", "#0c0b26"], bd: "#ffe14d", gl: "#ffe14d", fl: strp("rgba(255,225,77,.12)", 40), mv: [-1, 0] },
+    thunder: { c: ["#2c2a6e", "#0c0b26"], bd: "#ffe14d", gl: "#ffe14d", fl: `linear-gradient(135deg,rgba(255,225,77,.3) 25%,transparent 25%) -12px 0/24px 24px,linear-gradient(225deg,rgba(255,225,77,.3) 25%,transparent 25%) -12px 0/24px 24px`, mv: [-1, 0] },
     ice:     { c: ["#2f6a8f", "#12304a"], bd: "#dff4ff", gl: "#bfe9ff", fl: dots("rgba(255,255,255,.45)", 16), mv: [0, 1] },
     lava:    { c: ["#7a2410", "#2a0c04"], bd: "#ff7a45", gl: "#ff5a2a", fl: dots("rgba(255,170,70,.75)", 26) + "," + dots("rgba(255,120,40,.6)", 17) + ",linear-gradient(0deg,rgba(255,90,42,.28),transparent 55%)", mv: [0, -1] },
     royal:   { c: ["#4a2c86", "#170d33"], bd: "#f0c95c", gl: "#b58cff", fl: strp("rgba(240,201,92,.1)", 56) + ",linear-gradient(135deg,rgba(240,201,92,.12),transparent 50%)", mv: [1, 0] },
@@ -576,9 +576,8 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
     const sp = BOX[id]; if (!el) return;
     if (!boxStyle) {
       boxStyle = document.createElement("style");
-      boxStyle.textContent = `.pl[data-bx],.pvseat[data-bx]{background:var(--bx-bg)!important}
+      boxStyle.textContent = `.pl[data-bx],.pvseat[data-bx]{background-image:var(--bx-img)!important;background-size:var(--bx-sz)!important;background-repeat:repeat!important;background-position:var(--bx-p0)}   /* 位置不能加 !important,否則會蓋掉動畫 */
 .pl[data-bx]:not(.cur):not(.target):not(.win),.pvseat[data-bx]{box-shadow:var(--bx-sh)!important}
-.pl[data-bx].cur{background:var(--bx-bg)!important}
 .pl[data-bx][data-bxpx],.pvseat[data-bx][data-bxpx]{border-radius:0!important}
 /* 玩家框會動: 底色漸層角度緩緩擺動,有格紋 / 圓點圖樣的再加上圖樣慢慢飄移 (像素款是一格一格跳) */
 @keyframes bxmove{from{background-position:var(--bx-p0)}to{background-position:var(--bx-p1)}}
@@ -590,15 +589,18 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
     el.dataset.bx = id;
     if (sp.px) el.dataset.bxpx = "1"; else delete el.dataset.bxpx;
     const st = el.style;
-    st.setProperty("--bx-bg", `${sp.fl ? sp.fl + "," : ""}linear-gradient(160deg,${sp.c[0]}f2,${sp.c[1]}f5)`);
-    const layers = []; { let d = 0, cur = ""; for (const ch of (sp.fl || "")) { if (ch === "(") d++; if (ch === ")") d--; if (ch === "," && !d) { layers.push(cur); cur = ""; } else cur += ch; } if (cur.trim()) layers.push(cur); }
-    const szs = layers.map(l => /\/\s*(\d+)px\s+(\d+)px/.exec(l)), mv = sp.mv || [1, 1];   // 花紋依各自大小朝 mv 方向飄移一格,才能無縫循環
-    if (szs.some(Boolean)) {
-      st.setProperty("--bx-p0", szs.map(() => "0 0").concat("0 0").join(","));
-      st.setProperty("--bx-p1", szs.map(m => m ? (mv[0] * m[1]) + "px " + (mv[1] * m[2]) + "px" : "0 0").concat("0 0").join(","));
-      st.setProperty("--bx-dur", (sp.px ? 6 : 12) + "s");
-      el.dataset.bxm = "1";
-    } else { delete el.dataset.bxm; st.removeProperty("--bx-p0"); st.removeProperty("--bx-p1"); }
+    const L = []; { let d = 0, cur = "", f = (sp.fl || ""); for (const ch of f) { if (ch === "(") d++; if (ch === ")") d--; if (ch === "," && !d) { L.push(cur); cur = ""; } else cur += ch; } if (cur.trim()) L.push(cur); }
+    const imgs = [], szs = [], p0 = [], p1 = [], mv = sp.mv || [1, 1]; let moves = false;   // 每一層拆成 圖 / 位置 / 大小,花紋依各自大小朝 mv 方向飄移一格,才能無縫循環
+    for (const l of L) {
+      let d = 0, e = -1; for (let i = 0; i < l.length; i++) { if (l[i] === "(") d++; if (l[i] === ")" && --d === 0) { e = i + 1; break; } }
+      const rest = l.slice(e).trim(), sl = rest.indexOf("/"), pos = (sl < 0 ? rest : rest.slice(0, sl)).replace("no-repeat", "").trim() || "0 0", size = sl < 0 ? "auto" : rest.slice(sl + 1).replace("no-repeat", "").trim();
+      imgs.push(l.slice(0, e)); szs.push(size); p0.push(pos);
+      const m = /^(-?[\d.]+)(?:px)?\s+(-?[\d.]+)(?:px)?$/.exec(pos), z = /^(\d+)px\s+(\d+)px$/.exec(size);
+      if (m && z) { p1.push((+m[1] + mv[0] * z[1]) + "px " + (+m[2] + mv[1] * z[2]) + "px"); moves = true; } else p1.push(pos);
+    }
+    imgs.push(`linear-gradient(160deg,${sp.c[0]}f2,${sp.c[1]}f5)`); szs.push("auto"); p0.push("0 0"); p1.push("0 0");
+    st.setProperty("--bx-img", imgs.join(",")); st.setProperty("--bx-sz", szs.join(",")); st.setProperty("--bx-p0", p0.join(",")); st.setProperty("--bx-p1", p1.join(","));
+    if (moves) { st.setProperty("--bx-dur", (sp.px ? 6 : 12) + "s"); el.dataset.bxm = "1"; } else delete el.dataset.bxm;
     st.setProperty("--bx-sh", sp.px ? `inset 0 0 0 3px ${sp.bd},0 0 0 3px #000,5px 5px 0 3px rgba(0,0,0,.5)` : `inset 0 0 0 1px ${sp.bd},inset 0 0 22px ${sp.gl}33,0 0 14px ${sp.gl}40`);
   }
   window.SGS_BOX = { apply: applyBox, spec: BOX };
@@ -741,6 +743,10 @@ button:disabled{cursor:not-allowed}
 .fx-glow::after{box-shadow:0 0 12px 4px rgba(120,230,255,.9);animation:fxglow2 2.2s ease-in-out infinite}
 /* 效能: 動畫中的模糊 / 陰影濾鏡每一格都要重算,全部拿掉 (用較柔的漸層就夠) */
 .fx-flame::after,.fx-aurora::after,.fx-rainbow::after,.fx-shadow>.fxa,.fx-vortex>.fxa,.fx-beam>.fxa,.fx-ki>.fxa,.fx-arc>.fxa,.fx-arc>.fxb,.fx-ice>.fxa{filter:none!important}
+/* 極光 / 虹彩: 拿掉模糊後不能再是實心圓盤。極光 = 外圈柔和的光暈 (綠藍紫,反向慢轉); 虹彩 = 頭像外一圈細細的彩虹環 (正轉較快) */
+.fx-aurora::after{inset:-12px;background:conic-gradient(#46e0a0,#3fd2ff,#9b6bff,#ff7ad9,#46e0a0);opacity:.9;-webkit-mask:radial-gradient(closest-side,#000 50%,rgba(0,0,0,.55) 72%,transparent 100%);mask:radial-gradient(closest-side,#000 50%,rgba(0,0,0,.55) 72%,transparent 100%);animation:frspin 6s linear infinite reverse}
+.fx-rainbow::after{inset:-11px;background:conic-gradient(#ff5d73,#ffd24a,#46e0a0,#3fd2ff,#9b6bff,#ff5d73);opacity:1;-webkit-mask:radial-gradient(closest-side,#000 55%,rgba(0,0,0,.55) 76%,transparent 100%);mask:radial-gradient(closest-side,#000 55%,rgba(0,0,0,.55) 76%,transparent 100%);animation:frspin 2.2s linear infinite}
+.fx-vortex>.fxa{inset:-13px;background:conic-gradient(rgba(10,0,30,.95),rgba(170,70,255,.9),rgba(10,0,30,.95) 25%,rgba(170,70,255,.9) 50%,rgba(10,0,30,.95) 75%,rgba(170,70,255,.9));-webkit-mask:radial-gradient(closest-side,#000 48%,rgba(0,0,0,.55) 70%,transparent 100%);mask:radial-gradient(closest-side,#000 48%,rgba(0,0,0,.55) 70%,transparent 100%)}
 @keyframes fxglow2{0%,100%{opacity:.35;transform:scale(.96)}50%{opacity:1;transform:scale(1.04)}}
 @keyframes frember{from{opacity:.8}to{opacity:1}}
 @keyframes frtw{from{opacity:.75}to{opacity:1}}
