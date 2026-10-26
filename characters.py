@@ -1467,7 +1467,7 @@ class 張郃(Char):
     def _run(self, g, p, t):
         p.turn_flags["zh"] = True
         g.draw(p, 5)
-        g.log(f"  {p.name}[張郃] 沒有可攻擊的人,抽 5 張並翻面")
+        g.log(f"  {p.name}[張郃] 沒有可殺的人,抽 5 張並翻面")
         g.flip_char(p)
 
     def ai_choose(self, g, p, options): return _skill_idx(options, "張郃-無人可攻擊")

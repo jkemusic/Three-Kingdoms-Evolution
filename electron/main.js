@@ -55,6 +55,34 @@ async function backToLocal() {
   Menu.setApplicationMenu(buildMenu());
 }
 
+// ---------- 檢查更新: 對 GitHub 問最新版本,有新版就提示 (不會自動安裝,按「前往下載」開啟下載頁) ----------
+const REPO = "jkemusic/Threekingdoms";
+function getJson(url) {
+  return new Promise(resolve => {
+    const req = require("https").get(url, { headers: { "User-Agent": "sgs-sim", Accept: "application/vnd.github+json" }, timeout: 8000 }, res => {
+      let b = ""; res.on("data", d => (b += d)); res.on("end", () => { try { resolve(res.statusCode === 200 ? JSON.parse(b) : null); } catch (e) { resolve(null); } });
+    });
+    req.on("error", () => resolve(null)); req.on("timeout", () => { req.destroy(); resolve(null); });
+  });
+}
+function newer(a, b) {   // a 比 b 新? (1.4.10 > 1.4.9)
+  const x = String(a).replace(/^v/, "").split(".").map(n => parseInt(n, 10) || 0), y = String(b).replace(/^v/, "").split(".").map(n => parseInt(n, 10) || 0);
+  for (let i = 0; i < 3; i++) { if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) > (y[i] || 0); }
+  return false;
+}
+async function checkUpdate(manual) {
+  const rel = await getJson("https://api.github.com/repos/" + REPO + "/releases/latest");
+  const tag = rel && rel.tag_name;
+  if (!tag) { if (manual) dialog.showMessageBox(win, { message: "無法檢查更新", detail: "連不上 GitHub,請稍後再試。" }); return; }
+  const cur = app.getVersion();
+  if (!newer(tag, cur)) { if (manual) dialog.showMessageBox(win, { message: "已經是最新版本", detail: "目前版本 v" + cur }); return; }
+  if (!manual && loadCfg().skipVersion === tag) return;
+  const r = await dialog.showMessageBox(win, { type: "info", buttons: ["前往下載", "稍後再說", "略過這個版本"], defaultId: 0, cancelId: 1,
+    message: "有新版本 " + tag, detail: "你目前是 v" + cur + "。\n" + String(rel.body || "").split("\n").slice(0, 8).join("\n") });
+  if (r.response === 0) shell.openExternal(rel.html_url || "https://github.com/" + REPO + "/releases/latest");
+  else if (r.response === 2) saveCfg({ skipVersion: tag });
+}
+
 function freePort(pref) {
   return new Promise(resolve => {
     const s = net.createServer();
@@ -113,6 +141,7 @@ function buildMenu() {
       { type: "separator" },
       { label: "開啟素材資料夾 (放卡牌 / 武將圖片)", click: () => shell.openPath(assetsDir()) },
       { label: "開啟玩家資料夾", click: () => shell.openPath(app.getPath("userData")) },
+      { label: "檢查更新…", click: () => checkUpdate(true) },
       { type: "separator" },
       { role: process.platform === "darwin" ? "close" : "quit", label: "結束" },
     ] },
@@ -136,7 +165,8 @@ async function createWindow() {
   try {
     if (remote) await win.loadURL(remote);
     else { await waitReady(); await win.loadURL("http://127.0.0.1:" + port + "/"); }
-  } catch (e) { dialog.showErrorBox("無法啟動", String(e.message || e)); app.quit(); }
+  } catch (e) { dialog.showErrorBox("無法啟動", String(e.message || e)); app.quit(); return; }
+  if (app.isPackaged) setTimeout(() => checkUpdate(false), 4000);   // 啟動後自動檢查一次 (開發模式不檢查)
 }
 
 const gotLock = app.requestSingleInstanceLock();
