@@ -88,7 +88,7 @@ html.gf .pickbar{background:linear-gradient(160deg,#2c2016,#17100b);border:1px s
     tech:  ['"Segoe UI","Microsoft JhengHei","PingFang TC","Noto Sans TC",sans-serif', '"Yu Gothic UI","Hiragino Sans","Meiryo","Noto Sans JP",sans-serif', 'Bahnschrift,"Segoe UI","Roboto Condensed",Roboto,"Helvetica Neue",sans-serif'],
     bold:  ['"Microsoft JhengHei","PingFang TC","Noto Sans TC",sans-serif', '"Yu Gothic","Hiragino Sans","Meiryo","Noto Sans JP",sans-serif', '"Arial Black",Impact,"Segoe UI",sans-serif'],
     mono:  ['"Cascadia Mono",Consolas,"Microsoft JhengHei","PingFang TC","Noto Sans TC",monospace', '"Cascadia Mono",Consolas,"Yu Gothic UI","Hiragino Sans",monospace', '"Cascadia Mono",Consolas,"SF Mono",Menlo,"Courier New",monospace'],
-    pixel: ['"SGS Pixel TW","Microsoft JhengHei",monospace', '"SGS Pixel JA","Yu Gothic UI",monospace', '"SGS Pixel TW","Courier New",monospace'],
+    pixel: ['"SGS Pixel TW","SGS Pixel JA","Microsoft JhengHei",monospace', '"SGS Pixel JA","SGS Pixel TW","Yu Gothic UI",monospace', '"SGS Pixel TW","SGS Pixel JA","Courier New",monospace'],
     hei:   ['-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI","Microsoft JhengHei","PingFang TC","Noto Sans TC",sans-serif', '"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic",Meiryo,"Noto Sans JP",sans-serif', '-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Inter,Roboto,"Helvetica Neue",Arial,sans-serif'],
   };
   const fontCss = document.createElement("style"); fontCss.dataset.cos = "1";
@@ -479,6 +479,9 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 #cosdlg .grid{display:flex;gap:10px;flex-wrap:wrap}
 #cosdlg .tile{width:92px;padding:10px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;border-radius:10px;position:relative}
 #cosdlg .tile.sel{box-shadow:inset 0 0 0 2px var(--accent)}
+/* 外觀視窗裡一次有幾十個頭像特效在跑會很卡: 只有滑鼠移到的 / 目前選的那一格才動,其他停住 (頭像動畫可以只暫停,不影響外觀) */
+#cosdlg .tile .avw::before,#cosdlg .tile .avw::after,#cosdlg .tile .avw>i{animation-play-state:paused}
+#cosdlg .tile:hover .avw::before,#cosdlg .tile:hover .avw::after,#cosdlg .tile:hover .avw>i,#cosdlg .tile.sel .avw::before,#cosdlg .tile.sel .avw::after,#cosdlg .tile.sel .avw>i,#cosdlg .tile.pvd .avw::before,#cosdlg .tile.pvd .avw::after,#cosdlg .tile.pvd .avw>i{animation-play-state:running}
 #cosdlg .tile.sel::after{content:"✓";position:absolute;top:4px;right:6px;font-size:12px;font-weight:800;color:var(--accent)}
 #cosdlg .tile.pvd{box-shadow:inset 0 0 0 2px var(--gold)}
 #cosdlg .pv{margin:0 0 12px}
@@ -553,14 +556,31 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
       boxStyle.textContent = `.pl[data-bx],.pvseat[data-bx]{background:var(--bx-bg)!important}
 .pl[data-bx]:not(.cur):not(.target):not(.win),.pvseat[data-bx]{box-shadow:var(--bx-sh)!important}
 .pl[data-bx].cur{background:var(--bx-bg)!important}
-.pl[data-bx][data-bxpx],.pvseat[data-bx][data-bxpx]{border-radius:0!important}`;
+.pl[data-bx][data-bxpx],.pvseat[data-bx][data-bxpx]{border-radius:0!important}
+/* 玩家框會動: 底色漸層角度緩緩擺動,有格紋 / 圓點圖樣的再加上圖樣慢慢飄移 (像素款是一格一格跳) */
+@property --bxa{syntax:"<angle>";inherits:false;initial-value:160deg}
+@keyframes bxsweep{from{--bxa:135deg}to{--bxa:205deg}}
+@keyframes bxmove{from{background-position:var(--bx-p0)}to{background-position:var(--bx-p1)}}
+.pl[data-bx],.pvseat[data-bx]{animation:bxsweep 5s ease-in-out infinite alternate!important}
+.pl[data-bxm],.pvseat[data-bxm]{animation:bxsweep 5s ease-in-out infinite alternate,bxmove var(--bx-dur,8s) linear infinite!important}
+.pl[data-bxpx],.pvseat[data-bxpx]{animation:none!important}
+.pl[data-bxpx][data-bxm],.pvseat[data-bxpx][data-bxm]{animation:bxmove var(--bx-dur,4s) steps(8) infinite!important}
+@media (prefers-reduced-motion:reduce){.pl[data-bx],.pvseat[data-bx]{animation:none!important}}`;
       document.head.appendChild(boxStyle);
     }
-    if (!sp) { el.removeAttribute("data-bx"); delete el.dataset.bxpx; return; }
+    if (!sp) { el.removeAttribute("data-bx"); delete el.dataset.bxpx; delete el.dataset.bxm; return; }
     el.dataset.bx = id;
     if (sp.px) el.dataset.bxpx = "1"; else delete el.dataset.bxpx;
     const st = el.style;
-    st.setProperty("--bx-bg", `${sp.fl ? sp.fl + "," : ""}linear-gradient(160deg,${sp.c[0]}f2,${sp.c[1]}f5)`);
+    st.setProperty("--bx-bg", `${sp.fl ? sp.fl + "," : ""}linear-gradient(var(--bxa,160deg),${sp.c[0]}f2,${sp.c[1]}f5)`);
+    const layers = []; { let d = 0, cur = ""; for (const ch of (sp.fl || "")) { if (ch === "(") d++; if (ch === ")") d--; if (ch === "," && !d) { layers.push(cur); cur = ""; } else cur += ch; } if (cur.trim()) layers.push(cur); }
+    const szs = layers.map(l => /\/\s*(\d+)px\s+(\d+)px/.exec(l));   // 有固定大小的圖樣: 每層依自己的大小飄移一格,才能無縫循環
+    if (szs.some(Boolean)) {
+      st.setProperty("--bx-p0", szs.map(() => "0 0").concat("0 0").join(","));
+      st.setProperty("--bx-p1", szs.map(m => m ? m[1] + "px " + m[2] + "px" : "0 0").concat("0 0").join(","));
+      st.setProperty("--bx-dur", (sp.px ? 3 : 9) + "s");
+      el.dataset.bxm = "1";
+    } else { delete el.dataset.bxm; st.removeProperty("--bx-p0"); st.removeProperty("--bx-p1"); }
     st.setProperty("--bx-sh", sp.px ? `inset 0 0 0 3px ${sp.bd},0 0 0 3px #000,5px 5px 0 3px rgba(0,0,0,.5)` : `inset 0 0 0 1px ${sp.bd},inset 0 0 22px ${sp.gl}33,0 0 14px ${sp.gl}40`);
   }
   window.SGS_BOX = { apply: applyBox, spec: BOX };
