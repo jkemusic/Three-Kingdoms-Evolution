@@ -320,6 +320,7 @@ button.big{font-size:16px;font-weight:800;padding:10px 38px}
 @media (min-width:821px){
   #app{grid-template-rows:auto 1fr}
   #mid{margin-bottom:48px}
+  body:has(#bottom.spec) #mid{margin-bottom:0}   /* 旁觀者沒有手牌列: 牌桌延伸到最下面,不留黑條 */
   #bottom{position:fixed;left:0;right:0;bottom:0;z-index:12;display:flex;flex-direction:column-reverse;min-height:0;padding:0 0 4px;background:none;border:0;box-shadow:none;pointer-events:none}
   #bottom>*{pointer-events:auto}
   #bottom{right:390px}body.hide-side #bottom{right:0}   /* 側欄一路延伸到右下角 */
@@ -1634,7 +1635,7 @@ function openSetup() {
   };
   const close = () => { M.textContent = ""; S.modalOpen = null; S.setupOff = S.roomNow; };   // 取消後不要馬上又自動彈出
   const dlg = h("div", {class: "dlg setup"},
-    h("div", {class: "dh"}, h("div", {}, h("h3", {text: "新遊戲"}), h("div", {class: "meta", text: "選好人數與座位,按下開始 (滑鼠移到各項標題旁的 ⓘ 上可看說明)"}), h("div", {id: "onl", class: "onl"}), ROOM && S.canManage ? [h("button", {type: "button", class: "mini-btn", text: "✎ 改房名", onclick: roomRename}), h("button", {type: "button", class: "mini-btn", id: "bRoomPw", text: S.roomLocked ? "🔒 修改 / 移除密碼" : "🔓 設定密碼", onclick: roomPassword}), (S.amHost ? h("button", {type: "button", class: "mini-btn", text: "🗑 刪除房間", onclick: roomDelete}) : null)] : null), h("button", {class: "x", text: "✕", onclick: close})),
+    h("div", {class: "dh"}, h("div", {}, h("h3", {text: "新遊戲"}), h("div", {class: "meta", text: "選好人數與座位,按下開始 (滑鼠移到各項標題旁的 ⓘ 上可看說明)"}), h("div", {id: "onl", class: "onl"}), ROOM && S.canManage ? [h("button", {type: "button", class: "mini-btn", text: "✎ 改房名", onclick: roomRename}), inviteFriendsBtn(), h("button", {type: "button", class: "mini-btn", id: "bRoomPw", text: S.roomLocked ? "🔒 修改 / 移除密碼" : "🔓 設定密碼", onclick: roomPassword}), (S.amHost ? h("button", {type: "button", class: "mini-btn", text: "🗑 刪除房間", onclick: roomDelete}) : null)] : null), h("button", {class: "x", text: "✕", onclick: close})),
     h("div", {class: "dbody"},
       sect("房主", "把房主讓給目前在線的某人", h("div", {id: "handover", class: "seg"})),
       sect("對戰模式", "休閒模式: 段位積分不變;段位模式: 贏了加分、輸了扣分 (依電腦難度,見玩家資訊)", seg([["casual", "🎮 休閒模式"], ["ranked", "🏅 段位模式"]], st.ranked, v => { st.ranked = v; lockRanked(); }), rkIn),
@@ -1717,6 +1718,10 @@ document.querySelectorAll("#tabs button, #mnav button").forEach(b => b.addEventL
 function myNick() { try { return localStorage.getItem("nick") || ""; } catch (e) { return ""; } }
 function setNick(v) { try { localStorage.setItem("nick", v.trim().slice(0, 10)); } catch (e) {} }
 /* ---------- 大廳 (等朋友入座) ---------- */
+function inviteFriendsBtn() {   // 入座 / 選武將 / 新遊戲設定: 直接打開好友視窗,每位在線好友旁有「邀請」
+  if (!ROOM || !window.SGS_FRIENDS || !SGS_FRIENDS.open) return null;
+  return h("button", {type: "button", class: "mini-btn", text: "👥 邀請朋友", title: "打開好友列表,邀請在線的朋友進這個房間", onclick: () => SGS_FRIENDS.open()});
+}
 function renderPicking(snap) {   // 隨機武將: 每人抽 3 張選 1,大家同時選
   const M = $("#modal"); M.textContent = ""; S.modalOpen = "lobby";
   $("#status").textContent = "選擇武將中";
@@ -1740,6 +1745,7 @@ function renderPicking(snap) {   // 隨機武將: 每人抽 3 張選 1,大家同
     dlg.append(h("h3", {text: "你已選好武將"}), h("div", {class: "meta"}, "等待還沒選的玩家: ", whoList(snap.pick_wait || [])));
   }
   if ((snap.pick_wait || []).length && snap.pick) dlg.append(h("div", {class: "meta"}, "還沒選: ", whoList(snap.pick_wait)));
+  dlg.append(h("div", {style: {marginTop: "8px"}}, inviteFriendsBtn()));
   M.append(h("div", {class: "modal"}, dlg));
 }
 function renderRankedLobby(snap) {   // 段位模式大廳: 每個人只能選「參戰」或「觀戰」
@@ -1758,6 +1764,7 @@ function renderRankedLobby(snap) {   // 段位模式大廳: 每個人只能選�
     h("div", {style: {margin: "10px 0"}}, seated
       ? h("button", {type: "button", class: "primary", text: "⚔ 已參戰 (點擊取消)", onclick: watch})
       : h("button", {type: "button", class: "primary", text: "⚔ 我要參戰", onclick: join})),
+    h("div", {style: {margin: "0 0 8px"}}, inviteFriendsBtn()),
     rows,
     snap.host ? h("div", {class: "row"}, h("button", {class: "primary", text: "開始遊戲", onclick: async () => { await api("/api/start", {}); poll(true); }})) :
       h("div", {class: "meta", text: "👑 等待房主按下開始…" + (snap.host_name ? " (房主: " + snap.host_name + ")" : "")}))));
@@ -1789,6 +1796,7 @@ function renderLobby(snap) {
   }
   const dlg = h("div", {class: "dlg"}, h("h3", {text: "等待玩家入座"}),
     h("div", {class: "meta", text: "朋友用瀏覽器開這個網址就能選座位。沒人坐的真人座位開始時會由 AI 接手。"}),
+    h("div", {style: {margin: "0 0 8px"}}, inviteFriendsBtn()),
     rows,
     snap.host ? h("div", {class: "row"}, h("button", {class: "primary", text: "開始遊戲", onclick: async () => { await api("/api/start", {}); poll(true); }})) :
       h("div", {class: "meta", text: "👑 等待房主操作…" + (snap.host_name ? " (房主: " + snap.host_name + ")" : "")}));

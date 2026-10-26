@@ -178,4 +178,5 @@ window.SGS_LOG_TPL = (window.SGS_LOG_TPL || []).concat([
 ["⬇ 下載桌面版", "⬇ Download desktop app", "⬇ デスクトップ版をダウンロード"], ["到 GitHub 下載 Windows / Mac 本地版", "Download the Windows / Mac app from GitHub", "GitHubからWindows / Mac版をダウンロード"],
 ["好友、私訊、邀請朋友進房間", "Friends, messages, invite friends to the room", "フレンド、メッセージ、ルームへ招待"],
 ["藤甲: {} 不受{}影響", "Rattan Armor: {1} is unaffected by {2}", "藤甲: {1} は{2}の影響を受けない"],
+["👥 邀請朋友", "👥 Invite friends", "👥 フレンドを招待"], ["打開好友列表,邀請在線的朋友進這個房間", "Open the friends list and invite online friends to this room", "フレンド一覧を開き、オンラインのフレンドをこのルームに招待"],
 ]);
