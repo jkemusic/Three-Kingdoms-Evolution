@@ -1,0 +1,362 @@
+{
+ "典韋": {
+  "faction": "魏",
+  "image": "三國殺武將卡/jpg/典韋.jpg"
+ },
+ "司馬懿": {
+  "faction": "魏",
+  "image": "三國殺武將卡/jpg/司馬懿.jpg"
+ },
+ "司馬昭": {
+  "faction": "魏",
+  "image": "三國殺武將卡/jpg/司馬昭.jpg"
+ },
+ "夏侯惇": {
+  "faction": "魏",
+  "image": "三國殺武將卡/jpg/夏侯惇.jpg"
+ },
+ "夏侯淵": {
+  "faction": "魏",
+  "image": "三國殺武將卡/jpg/夏侯淵.jpg"
+ },
+ "崔琰": {
+  "faction": "魏",
+  "image": "三國殺武將卡/jpg/崔琰.jpg"
+ },
+ "張遼": {
+  "faction": "魏",
+  "image": "三國殺武將卡/jpg/張遼.jpg"
+ },
+ "張郃": {
+  "faction": "魏",
+  "image": "三國殺武將卡/jpg/張郃.jpg"
+ },
+ "徐晃": {
+  "faction": "魏",
+  "image": "三國殺武將卡/jpg/徐晃.jpg"
+ },
+ "曹丕": {
+  "faction": "魏",
+  "image": "三國殺武將卡/jpg/曹丕.jpg"
+ },
+ "曹仁": {
+  "faction": "魏",
+  "image": "三國殺武將卡/jpg/曹仁.jpg"
+ },
+ "曹休": {
+  "faction": "魏",
+  "image": "三國殺武將卡/jpg/曹休.jpg"
+ },
+ "曹叡": {
+  "faction": "魏",
+  "image": "三國殺武將卡/jpg/曹叡.jpg"
+ },
+ "曹彰": {
+  "faction": "魏",
+  "image": "三國殺武將卡/jpg/曹彰.jpg"
+ },
+ "曹操": {
+  "faction": "魏",
+  "image": "三國殺武將卡/jpg/曹操.jpg"
+ },
+ "曹植": {
+  "faction": "魏",
+  "image": "三國殺武將卡/jpg/曹植.jpg"
+ },
+ "曹沖": {
+  "faction": "魏",
+  "image": "三國殺武將卡/jpg/曹沖.jpg"
+ },
+ "曹洪": {
+  "faction": "魏",
+  "image": "三國殺武將卡/jpg/曹洪.jpg"
+ },
+ "曹真": {
+  "faction": "魏",
+  "image": "三國殺武將卡/jpg/曹真.jpg"
+ },
+ "楊修": {
+  "faction": "魏",
+  "image": "三國殺武將卡/jpg/楊修.jpg"
+ },
+ "滿寵": {
+  "faction": "魏",
+  "image": "三國殺武將卡/jpg/滿寵.jpg"
+ },
+ "荀彧": {
+  "faction": "魏",
+  "image": "三國殺武將卡/jpg/荀彧.jpg"
+ },
+ "蔣幹": {
+  "faction": "魏",
+  "image": "三國殺武將卡/jpg/蔣幹.jpg"
+ },
+ "許褚": {
+  "faction": "魏",
+  "image": "三國殺武將卡/jpg/許褚.jpg"
+ },
+ "邯鄲淳": {
+  "faction": "魏",
+  "image": "三國殺武將卡/jpg/邯鄲淳.jpg"
+ },
+ "郭嘉": {
+  "faction": "魏",
+  "image": "三國殺武將卡/jpg/郭嘉.jpg"
+ },
+ "鄧艾": {
+  "faction": "魏",
+  "image": "三國殺武將卡/jpg/鄧艾.jpg"
+ },
+ "鐘繇": {
+  "faction": "魏",
+  "image": "三國殺武將卡/jpg/鐘繇.jpg"
+ },
+ "陳群": {
+  "faction": "魏",
+  "image": "三國殺武將卡/jpg/陳群.jpg"
+ },
+ "伊籍": {
+  "faction": "蜀",
+  "image": "三國殺武將卡/jpg/伊籍.jpg"
+ },
+ "劉備": {
+  "faction": "蜀",
+  "image": "三國殺武將卡/jpg/劉備.jpg"
+ },
+ "劉禪": {
+  "faction": "蜀",
+  "image": "三國殺武將卡/jpg/劉禪.jpg"
+ },
+ "劉諶": {
+  "faction": "蜀",
+  "image": "三國殺武將卡/jpg/劉諶.jpg"
+ },
+ "吳懿": {
+  "faction": "蜀",
+  "image": "三國殺武將卡/jpg/吳懿.jpg"
+ },
+ "周倉": {
+  "faction": "蜀",
+  "image": "三國殺武將卡/jpg/周倉.jpg"
+ },
+ "姜維": {
+  "faction": "蜀",
+  "image": "三國殺武將卡/jpg/姜維.jpg"
+ },
+ "孟獲": {
+  "faction": "蜀",
+  "image": "三國殺武將卡/jpg/孟獲.jpg"
+ },
+ "張嶷": {
+  "faction": "蜀",
+  "image": "三國殺武將卡/jpg/張嶷.jpg"
+ },
+ "張松": {
+  "faction": "蜀",
+  "image": "三國殺武將卡/jpg/張松.jpg"
+ },
+ "張苞": {
+  "faction": "蜀",
+  "image": "三國殺武將卡/jpg/張苞.jpg"
+ },
+ "張飛": {
+  "faction": "蜀",
+  "image": "三國殺武將卡/jpg/張飛.jpg"
+ },
+ "李嚴": {
+  "faction": "蜀",
+  "image": "三國殺武將卡/jpg/李嚴.jpg"
+ },
+ "諸葛亮": {
+  "faction": "蜀",
+  "image": "三國殺武將卡/jpg/諸葛亮.jpg"
+ },
+ "趙雲": {
+  "faction": "蜀",
+  "image": "三國殺武將卡/jpg/趙雲.jpg"
+ },
+ "關羽": {
+  "faction": "蜀",
+  "image": "三國殺武將卡/jpg/關羽.jpg"
+ },
+ "關興": {
+  "faction": "蜀",
+  "image": "三國殺武將卡/jpg/關興.jpg"
+ },
+ "馬良": {
+  "faction": "蜀",
+  "image": "三國殺武將卡/jpg/馬良.jpg"
+ },
+ "馬謖": {
+  "faction": "蜀",
+  "image": "三國殺武將卡/jpg/馬謖.jpg"
+ },
+ "馬超": {
+  "faction": "蜀",
+  "image": "三國殺武將卡/jpg/馬超.jpg"
+ },
+ "魏延": {
+  "faction": "蜀",
+  "image": "三國殺武將卡/jpg/魏延.jpg"
+ },
+ "黃忠": {
+  "faction": "蜀",
+  "image": "三國殺武將卡/jpg/黃忠.jpg"
+ },
+ "龐統": {
+  "faction": "蜀",
+  "image": "三國殺武將卡/jpg/龐統.jpg"
+ },
+ "丁奉": {
+  "faction": "吳",
+  "image": "三國殺武將卡/jpg/丁奉.jpg"
+ },
+ "呂蒙": {
+  "faction": "吳",
+  "image": "三國殺武將卡/jpg/呂蒙.jpg"
+ },
+ "周瑜": {
+  "faction": "吳",
+  "image": "三國殺武將卡/jpg/周瑜.jpg"
+ },
+ "周胤": {
+  "faction": "吳",
+  "image": "三國殺武將卡/jpg/周胤.jpg"
+ },
+ "周魴": {
+  "faction": "吳",
+  "image": "三國殺武將卡/jpg/周魴.jpg"
+ },
+ "太史慈": {
+  "faction": "吳",
+  "image": "三國殺武將卡/jpg/太史慈.jpg"
+ },
+ "孫堅": {
+  "faction": "吳",
+  "image": "三國殺武將卡/jpg/孫堅.jpg"
+ },
+ "孫權": {
+  "faction": "吳",
+  "image": "三國殺武將卡/jpg/孫權.jpg"
+ },
+ "孫策": {
+  "faction": "吳",
+  "image": "三國殺武將卡/jpg/孫策.jpg"
+ },
+ "張紘": {
+  "faction": "吳",
+  "image": "三國殺武將卡/jpg/張紘.jpg"
+ },
+ "甘寧": {
+  "faction": "吳",
+  "image": "三國殺武將卡/jpg/甘寧.jpg"
+ },
+ "虞翻": {
+  "faction": "吳",
+  "image": "三國殺武將卡/jpg/虞翻.jpg"
+ },
+ "陸遜": {
+  "faction": "吳",
+  "image": "三國殺武將卡/jpg/陸遜.jpg"
+ },
+ "韓當": {
+  "faction": "吳",
+  "image": "三國殺武將卡/jpg/韓當.jpg"
+ },
+ "魯肅": {
+  "faction": "吳",
+  "image": "三國殺武將卡/jpg/魯肅.jpg"
+ },
+ "黃蓋": {
+  "faction": "吳",
+  "image": "三國殺武將卡/jpg/黃蓋.jpg"
+ },
+ "公孫淵": {
+  "faction": "群",
+  "image": "三國殺武將卡/jpg/公孫淵.jpg"
+ },
+ "公孫瓚": {
+  "faction": "群",
+  "image": "三國殺武將卡/jpg/公孫瓚.jpg"
+ },
+ "劉協": {
+  "faction": "群",
+  "image": "三國殺武將卡/jpg/劉協.jpg"
+ },
+ "呂布": {
+  "faction": "群",
+  "image": "三國殺武將卡/jpg/呂布.jpg"
+ },
+ "孔融": {
+  "faction": "群",
+  "image": "三國殺武將卡/jpg/孔融.jpg"
+ },
+ "左慈": {
+  "faction": "群",
+  "image": "三國殺武將卡/jpg/左慈.jpg"
+ },
+ "張昭": {
+  "faction": "群",
+  "image": "三國殺武將卡/jpg/張昭.jpg"
+ },
+ "張角": {
+  "faction": "群",
+  "image": "三國殺武將卡/jpg/張角.jpg"
+ },
+ "李儒": {
+  "faction": "群",
+  "image": "三國殺武將卡/jpg/李儒.jpg"
+ },
+ "沮授": {
+  "faction": "群",
+  "image": "三國殺武將卡/jpg/沮授.jpg"
+ },
+ "王允": {
+  "faction": "群",
+  "image": "三國殺武將卡/jpg/王允.jpg"
+ },
+ "華佗": {
+  "faction": "群",
+  "image": "三國殺武將卡/jpg/華佗.jpg"
+ },
+ "華雄": {
+  "faction": "群",
+  "image": "三國殺武將卡/jpg/華雄.jpg"
+ },
+ "董卓": {
+  "faction": "群",
+  "image": "三國殺武將卡/jpg/董卓.jpg"
+ },
+ "袁紹": {
+  "faction": "群",
+  "image": "三國殺武將卡/jpg/袁紹.jpg"
+ },
+ "袁術": {
+  "faction": "群",
+  "image": "三國殺武將卡/jpg/袁術.jpg"
+ },
+ "賈詡": {
+  "faction": "群",
+  "image": "三國殺武將卡/jpg/賈詡.jpg"
+ },
+ "郭圖&逢紀": {
+  "faction": "群",
+  "image": "三國殺武將卡/jpg/郭圖&逢紀.jpg"
+ },
+ "顏良&文醜": {
+  "faction": "群",
+  "image": "三國殺武將卡/jpg/顏良&文醜.jpg"
+ },
+ "龐德": {
+  "faction": "群",
+  "image": "三國殺武將卡/jpg/龐德.jpg"
+ },
+ "司馬炎": {
+  "faction": "晉",
+  "image": "三國殺武將卡/jpg/司馬炎.jpg"
+ },
+ "羊祜": {
+  "faction": "晉",
+  "image": "三國殺武將卡/jpg/羊祜.jpg"
+ }
+}

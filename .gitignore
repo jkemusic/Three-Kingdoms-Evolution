@@ -1,0 +1,24 @@
+__pycache__/
+*.pyc
+# 玩家資料 / 本機產物
+accounts.json
+profiles.json
+avatars/
+srv_*.txt
+web/cache/
+bak*/
+# 打包產物
+build/
+dist/
+electron/node_modules/
+electron/release/
+# 原版美術素材 (有版權,不放進公開倉庫)
+三國殺牌/
+三國殺武將卡/
+assets/
+
+# 開發用檔案 (不放進公開倉庫)
+DEV_NOTES.md
+rulebook.md
+run.py
+*.bat

@@ -1,0 +1,220 @@
+"""成就 + 外觀解鎖 (顏色主題 / 頭像框 / 頭像特效)。
+
+解鎖條件有三種: free 免費、tier 達到某段位 (看歷史最高積分,降段不會失去)、ach 完成某個成就。
+成就在每場對局結束時依玩家資料檢查 (Profiles.award 呼叫 check_achievements)。
+"""
+import time
+
+TIER_NAMES = ["青銅", "白銀", "黃金", "白金", "鑽石", "大師", "傳說"]
+ROLES4 = ("主公", "忠臣", "反賊", "內奸")
+
+
+def _best_char_wins(p):
+    return max([v[1] for v in p.get("chars", {}).values()] + [0])
+
+
+# (id, 名稱, 說明, 檢查函式 (p, level, peak_tier, facts) -> bool, 進度函式 或 None)
+ACHIEVEMENTS = [
+    ("practice", "新兵報到", "打完一場新手練習局", lambda p, lv, pt, f: bool(f.get("practice"))),
+    ("first_game", "初出茅廬", "完成 1 場對局", lambda p, lv, pt, f: p["games"] >= 1),
+    ("first_win", "首戰告捷", "贏得 1 場勝利", lambda p, lv, pt, f: p["wins"] >= 1),
+    ("games100", "身經百戰", "完成 100 場對局", lambda p, lv, pt, f: p["games"] >= 100),
+    ("wins25", "常勝將軍", "累計 25 場勝利", lambda p, lv, pt, f: p["wins"] >= 25),
+    ("streak3", "三連勝", "連續贏 3 場", lambda p, lv, pt, f: p.get("best_streak", 0) >= 3),
+    ("streak5", "勢如破竹", "連續贏 5 場", lambda p, lv, pt, f: p.get("best_streak", 0) >= 5),
+    ("ranked1", "初入戰場", "完成 1 場段位模式", lambda p, lv, pt, f: p.get("rgames", 0) >= 1),
+    ("ranked10", "段位常客", "段位模式贏 10 場", lambda p, lv, pt, f: p.get("rwins", 0) >= 10),
+    ("roles4", "四方通達", "主公、忠臣、反賊、內奸各贏過一次", lambda p, lv, pt, f: all(p.get("roles", {}).get(r, [0, 0])[1] > 0 for r in ROLES4)),
+    ("chars10", "博覽群雄", "使用過 10 位不同武將", lambda p, lv, pt, f: len(p.get("chars", {})) >= 10),
+    ("chars30", "天下英雄", "使用過 30 位不同武將", lambda p, lv, pt, f: len(p.get("chars", {})) >= 30),
+    ("main10", "一將成名", "同一位武將贏 10 場", lambda p, lv, pt, f: _best_char_wins(p) >= 10),
+    ("games50", "資深玩家", "累計完成 50 場對局", lambda p, lv, pt, f: p["games"] >= 50),
+    ("tier_gold", "黃金之路", "段位達到黃金", lambda p, lv, pt, f: pt >= 2),
+    ("tier_dia", "鑽石之光", "段位達到鑽石", lambda p, lv, pt, f: pt >= 4),
+    ("tier_legend", "名留青史", "段位達到傳說", lambda p, lv, pt, f: pt >= 6),
+    ("clutch", "絕地求生", "以 1 點體力存活並獲勝", lambda p, lv, pt, f: bool(f.get("won") and f.get("alive") and f.get("hp") == 1)),
+    ("speed", "閃電戰", "在第 1 輪內獲勝", lambda p, lv, pt, f: bool(f.get("won") and 0 < f.get("rounds", 99) <= 1)),
+    ("ten_free", "十雄爭霸", "在十人無身分模式下獲勝", lambda p, lv, pt, f: bool(f.get("won") and f.get("n") == 10 and f.get("noroles"))),
+    ("dmg32", "毀天滅地", "單場對其他玩家打出 32 點以上傷害", lambda p, lv, pt, f: f.get("dmg", 0) >= 32),
+    ("no_sha", "君子動口不動手", "整場沒有使用或打出過殺,卻贏得勝利", lambda p, lv, pt, f: bool(f.get("won") and f.get("sha", 1) == 0)),
+    ("comeback", "死而後勝", "先陣亡,但最後取得勝利", lambda p, lv, pt, f: bool(f.get("won") and not f.get("alive", True))),
+    ("hand20", "手牌收藏家", "手牌同時超過 20 張", lambda p, lv, pt, f: f.get("maxhand", 0) > 20),
+    ("chain11", "連鎖大師", "接出第 11 個以上的連鎖", lambda p, lv, pt, f: bool(f.get("chain11"))),
+    ("clones", "千人一面", "在所有人武將都一樣的對局中獲勝", lambda p, lv, pt, f: bool(f.get("won") and f.get("same"))),
+]
+ACH_BY_ID = {a[0]: a for a in ACHIEVEMENTS}
+ACH_NAME = {a[0]: a[1] for a in ACHIEVEMENTS}
+
+
+def F(): return {"t": "free"}
+def T(i): return {"t": "tier", "v": i}
+def A(a): return {"t": "ach", "v": a}
+
+
+# 顏色主題 (a 主色 / b 底色)、頭像框 (id 對應前端 CSS fr-<id>)、頭像特效 (fx-<id>)
+THEMES = [
+    {"id": "default", "n": "預設", "a": None, "b": None, "req": F()},
+    {"id": "graphite", "n": "石墨", "a": "#c3ccd8", "b": "#14161a", "req": F()},
+    {"id": "jade", "n": "翡翠", "a": "#46e0a0", "b": "#0a1f1a", "req": T(1)},
+    {"id": "amethyst", "n": "紫晶", "a": "#b58cff", "b": "#150f2e", "req": T(2)},
+    {"id": "sakura", "n": "櫻花", "a": "#ff8fc0", "b": "#26101e", "req": A("streak3")},
+    {"id": "blaze", "n": "烈焰", "a": "#ff7a45", "b": "#240f0f", "req": A("chars10")},
+    {"id": "gold", "n": "金色", "a": "#f0c95c", "b": "#1d1608", "req": A("roles4")},
+    {"id": "galaxy", "n": "星河", "a": "#9b8cff", "b": "#080824", "req": T(6)},
+    {"id": "mint", "n": "薄荷", "a": "#7fffd4", "b": "#0b1f1d", "req": A("first_win")},
+    {"id": "ocean", "n": "深海", "a": "#4d8dff", "b": "#0a1330", "req": A("games50")},
+    {"id": "ice", "n": "冰藍", "a": "#bfe9ff", "b": "#0c1a28", "req": A("ranked10")},
+    {"id": "coffee", "n": "咖啡", "a": "#d9a066", "b": "#21160e", "req": A("games100")},
+    {"id": "forest", "n": "森林", "a": "#7ed957", "b": "#0c1f10", "req": A("chars30")},
+    {"id": "crimson", "n": "緋紅", "a": "#ff5d73", "b": "#240c12", "req": A("wins25")},
+    {"id": "sunset", "n": "夕陽", "a": "#ffb347", "b": "#26160a", "req": T(3)},
+    {"id": "toxic", "n": "毒綠", "a": "#b6ff3a", "b": "#0f1a08", "req": A("chain11")},
+    {"id": "cyber", "n": "賽博", "a": "#ff4de0", "b": "#1a0828", "req": A("hand20")},
+    {"id": "mono", "n": "黑白", "a": "#ffffff", "b": "#0a0a0a", "req": A("no_sha")},
+    {"id": "lavender", "n": "薰衣草", "a": "#c9a7ff", "b": "#1a1230", "req": T(4)},
+    {"id": "royal", "n": "皇家", "a": "#ffd700", "b": "#1a0f3a", "req": A("tier_dia")},
+]
+FRAMES = [
+    {"id": "", "n": "無框", "req": F()},
+    {"id": "0", "n": "青銅框", "req": F()},
+    {"id": "1", "n": "白銀框", "req": T(1)},
+    {"id": "2", "n": "黃金框", "req": T(2)},
+    {"id": "3", "n": "白金框", "req": T(3)},
+    {"id": "4", "n": "鑽石框", "req": T(4)},
+    {"id": "5", "n": "大師框", "req": T(5)},
+    {"id": "6", "n": "傳說框", "req": T(6)},
+    {"id": "vic", "n": "勝利之框", "req": A("wins25")},
+    {"id": "hund", "n": "百戰之框", "req": A("games100")},
+    {"id": "coll", "n": "群英之框", "req": A("chars30")},
+    {"id": "sam", "n": "武士之框", "req": A("speed")},
+    {"id": "neon", "n": "霓虹框", "req": A("ten_free")},
+    {"id": "rookie", "n": "新兵框", "req": A("practice")},
+    {"id": "ink", "n": "墨玉框", "req": A("first_game")},
+    {"id": "blossom", "n": "櫻花框", "req": A("first_win")},
+    {"id": "frost", "n": "冰霜框", "req": A("ranked1")},
+    {"id": "forest", "n": "翠林框", "req": A("games50")},
+    {"id": "ocean", "n": "海潮框", "req": A("roles4")},
+    {"id": "sunset", "n": "夕陽框", "req": A("streak3")},
+    {"id": "jade", "n": "青玉框", "req": A("ranked10")},
+    {"id": "ember", "n": "赤焰框", "req": A("chars10")},
+    {"id": "storm", "n": "雷鳴框", "req": A("streak5")},
+    {"id": "gear", "n": "齒輪框", "req": A("games100")},
+    {"id": "royal", "n": "皇家紫金框", "req": A("tier_gold")},
+    {"id": "crystal", "n": "水晶框", "req": A("no_sha")},
+    {"id": "galaxy", "n": "星空框", "req": A("hand20")},
+    {"id": "lava", "n": "熔岩框", "req": A("clutch")},
+    {"id": "yinyang", "n": "陰陽框", "req": A("clones")},
+]
+EFFECTS = [
+    {"id": "", "n": "無特效", "req": F()},
+    {"id": "glow", "n": "呼吸光暈", "req": T(1)},
+    {"id": "spark", "n": "星光閃爍", "req": T(2)},
+    {"id": "ring", "n": "旋轉光環", "req": T(3)},
+    {"id": "flame", "n": "烈焰", "req": T(4)},
+    {"id": "aurora", "n": "極光", "req": T(5)},
+    {"id": "rainbow", "n": "虹彩", "req": T(6)},
+    {"id": "bolt", "n": "電光", "req": A("streak5")},
+    {"id": "petal", "n": "落櫻", "req": A("main10")},
+    {"id": "katana", "n": "武士斬", "req": A("dmg32")},
+    {"id": "orbit", "n": "星軌", "req": A("games50")},
+    {"id": "ripple", "n": "漣漪", "req": A("ranked10")},
+    {"id": "shadow", "n": "幽冥", "req": A("comeback")},
+    {"id": "dust", "n": "金粉", "req": A("chain11")},
+    {"id": "snow", "n": "飄雪", "req": A("first_win")},
+    {"id": "heart", "n": "心動", "req": A("ranked1")},
+    {"id": "firefly", "n": "螢火", "req": A("games50")},
+    {"id": "ice", "n": "冰晶", "req": A("streak3")},
+    {"id": "pulse", "n": "脈衝", "req": A("ranked10")},
+    {"id": "toxic", "n": "毒霧", "req": A("no_sha")},
+    {"id": "glitch", "n": "故障", "req": A("hand20")},
+    {"id": "meteor", "n": "流星", "req": A("chars10")},
+    {"id": "arc", "n": "雷環", "req": A("streak5")},
+    {"id": "radar", "n": "雷達", "req": A("tier_gold")},
+    {"id": "ki", "n": "霸氣", "req": A("wins25")},
+    {"id": "comet", "n": "彗星", "req": A("roles4")},
+    {"id": "vortex", "n": "漩渦", "req": A("tier_dia")},
+    {"id": "beam", "n": "光柱", "req": A("tier_legend")},
+    {"id": "sun", "n": "烈陽", "req": A("chars30")},
+]
+
+
+def req_text(r):
+    if r["t"] == "free":
+        return "免費"
+    if r["t"] == "tier":
+        return f"段位達到{TIER_NAMES[r['v']]}"
+    return "成就「" + ACH_NAME.get(r["v"], r["v"]) + "」"
+
+
+def catalog():
+    """前端用的目錄 (不含玩家資料)。"""
+    def pack(L):
+        return [dict(x, req_text=req_text(x["req"])) for x in L]
+    return {"tiers": TIER_NAMES, "themes": pack(THEMES), "frames": pack(FRAMES), "fx": pack(EFFECTS),
+            "achs": [{"id": a[0], "n": a[1], "d": a[2]} for a in ACHIEVEMENTS]}
+
+
+def is_unlocked(req, tier, achs):
+    if req["t"] == "free":
+        return True
+    if req["t"] == "tier":
+        return tier >= req["v"]
+    return req["v"] in achs
+
+
+def unlocked_ids(tier, achs):
+    return {k: [x["id"] for x in L if is_unlocked(x["req"], tier, achs)] for k, L in (("themes", THEMES), ("frames", FRAMES), ("fx", EFFECTS))}
+
+
+def check_achievements(p, level, peak_tier, facts):
+    """依玩家資料檢查成就;回傳這次新解鎖的成就 id 列表 (已寫入 p["ach"])。"""
+    got = p.setdefault("ach", {})
+    new = []
+    for aid, _n, _d, fn, *_ in ACHIEVEMENTS:
+        if aid not in got:
+            try:
+                ok = fn(p, level, peak_tier, facts)
+            except Exception:
+                ok = False
+            if ok:
+                got[aid] = int(time.time())
+                new.append(aid)
+    return new
+
+
+def auto_frame(tier):
+    return str(max(0, min(6, tier)))
+
+
+# 未完成成就的進度: id -> (目前值函式 (p, level, peak_rp), 目標值)。沒列出的 (一次性事件) 不顯示進度條。
+_RP = {"tier_gold": 250, "tier_dia": 700, "tier_legend": 1400}
+PROGRESS = {
+    "first_game": (lambda p, lv, rp: p["games"], 1),
+    "first_win": (lambda p, lv, rp: p["wins"], 1),
+    "games100": (lambda p, lv, rp: p["games"], 100),
+    "wins25": (lambda p, lv, rp: p["wins"], 25),
+    "streak3": (lambda p, lv, rp: p.get("best_streak", 0), 3),
+    "streak5": (lambda p, lv, rp: p.get("best_streak", 0), 5),
+    "ranked1": (lambda p, lv, rp: p.get("rgames", 0), 1),
+    "ranked10": (lambda p, lv, rp: p.get("rwins", 0), 10),
+    "roles4": (lambda p, lv, rp: sum(1 for r in ROLES4 if p.get("roles", {}).get(r, [0, 0])[1] > 0), 4),
+    "chars10": (lambda p, lv, rp: len(p.get("chars", {})), 10),
+    "chars30": (lambda p, lv, rp: len(p.get("chars", {})), 30),
+    "main10": (lambda p, lv, rp: _best_char_wins(p), 10),
+    "games50": (lambda p, lv, rp: p["games"], 50),
+    "tier_gold": (lambda p, lv, rp: rp, 250),
+    "tier_dia": (lambda p, lv, rp: rp, 700),
+    "tier_legend": (lambda p, lv, rp: rp, 1400),
+}
+
+
+def progress(p, level, peak_rp):
+    out = {}
+    for aid, (fn, goal) in PROGRESS.items():
+        if aid in p.get("ach", {}):
+            continue
+        try:
+            out[aid] = [min(int(fn(p, level, peak_rp)), goal), goal]
+        except Exception:
+            pass
+    return out

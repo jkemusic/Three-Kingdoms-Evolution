@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>連線到伺服器</title>
+<style>
+body{margin:0;padding:22px;background:#0e1626;color:#dbe8ff;font:15px/1.5 system-ui,"Microsoft JhengHei",sans-serif}
+h3{margin:0 0 6px;color:#3fd2ff}p{margin:0 0 12px;color:#8fa3c4;font-size:13px}
+input{width:100%;box-sizing:border-box;padding:10px;border-radius:8px;border:1px solid #2a4a7a;background:#0a1220;color:inherit;font-size:15px}
+.row{display:flex;gap:10px;margin-top:14px}button{flex:1;padding:10px;border-radius:8px;border:1px solid #2a4a7a;background:#16264a;color:inherit;font-size:15px;cursor:pointer}
+button.go{background:#2a7be4;border-color:#2a7be4}#err{color:#ff7a7a;min-height:20px;margin-top:8px;font-size:13px}
+</style></head><body>
+<h3>連線到朋友的伺服器</h3>
+<p>輸入主機的網址,例如 <b>192.168.1.20:8765</b>(主機需開啟「區網模式」)</p>
+<input id="u" placeholder="192.168.1.20:8765" autofocus>
+<div id="err"></div>
+<div class="row"><button id="c">取消</button><button class="go" id="g">連線</button></div>
+<script>
+const u = document.getElementById("u"), err = document.getElementById("err");
+sgsConnect.last().then(v => { if (v) u.value = v; u.select(); });
+async function go() { err.textContent = "連線中…"; const r = await sgsConnect.go(u.value); if (r) err.textContent = r; }
+document.getElementById("g").onclick = go;
+document.getElementById("c").onclick = () => sgsConnect.cancel();
+u.onkeydown = e => { if (e.key === "Enter") go(); if (e.key === "Escape") sgsConnect.cancel(); };
+</script></body></html>
