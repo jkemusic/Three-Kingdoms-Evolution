@@ -44,7 +44,7 @@
     const mu = el("span", {class: "mu", title: (f.mutual_names || []).join("、"), text: f.mutual ? " · 共同好友 " + f.mutual : " · 無共同好友"});
     return [avEl(f.avatar, f.style, {style: {width: "38px", height: "38px", borderRadius: "50%", objectFit: "cover", flex: "none"}}),
       el("div", {class: "grow"},
-        el("div", {class: "nm"}, f.remark || f.user, f.remark ? el("span", {class: "lvt", text: " (" + f.user + ")"}) : "", " ", el("span", {class: "lvt", text: "Lv" + (f.level || 1)}), " ", rkEl(f.rank), devEl(f.dev)),
+        el("div", {class: "nm"}, f.remark || f.user, f.remark ? el("span", {class: "lvt", text: " (" + f.user + ")"}) : "", " ", rkEl(f.rank), devEl(f.dev)),
         el("div", {class: "st"}, sub || "", mu))];
   }
 

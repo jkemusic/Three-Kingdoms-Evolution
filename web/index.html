@@ -1429,7 +1429,34 @@ function showOnline() {
   if (!e || !o) return;
   const hb = document.getElementById("handover"); if (hb) renderHandover(hb);
   e.textContent = "";
-  e.append(h("span", {class: "dot"}), `目前 ${o.length} 人在線` + (o.length > 1 ? "(" + o.map(x => (x.host ? "👑" : "") + (x.name || "未命名") + (x.lv ? " " + x.lv : "")).join("、") + ")" : "(只有你)") + "");
+  e.append(h("span", {class: "dot"}), h("button", {type: "button", text: `👥 房間內 ${o.length} 人 ▾`, title: "查看在線的人", style: {padding: "3px 10px"}, onclick: openOnlineList}));
+  if (document.getElementById("onlist")) renderOnlineList();   // 列表開著時跟著更新
+}
+function renderOnlineList() {
+  const box = document.getElementById("onlist-body"); if (!box) return;
+  const o = S.online || [];
+  box.textContent = "";
+  if (!o.length) box.append(h("div", {class: "meta", text: "目前沒有人在線"}));
+  o.forEach(x => box.append(h("div", {style: {display: "flex", alignItems: "center", gap: "8px", padding: "7px 4px", borderBottom: "1px solid #17304f"}},
+    avEl(x.avatar, x.style, {style: {width: "36px", height: "36px", borderRadius: "50%", objectFit: "cover", flex: "none"}}),
+    h("div", {style: {flex: 1, minWidth: 0}},
+      h("div", {style: {fontWeight: 600}}, (x.host ? "👑 " : "") + (x.name || "未命名") + (x.id === S.myWho ? " (你)" : ""), " ", rkEl(x.lv), devEl(x.dev)),
+      h("div", {class: "meta", text: x.spec ? "👁 觀戰者" : x.seat != null ? "座位 " + x.seat : "尚未入座"})),
+    S.amHost && x.id !== S.myWho ? h("button", {type: "button", text: "踢出", style: {padding: "2px 9px", fontSize: "12px"}, onclick: async () => {
+      if (!confirm("確定要把「" + (x.name || "未命名") + "」踢出房間嗎?")) return;
+      const r = await api("/api/kick", {to: x.id});
+      toast(r.ok ? "已踢出 " + r.name : "踢人失敗: " + (r.error || ""), r.ok ? "ok" : undefined);
+    }}) : null)));
+}
+function openOnlineList() {
+  if (document.getElementById("onlist")) return;
+  const close = () => { const m = document.getElementById("onlist"); if (m) m.remove(); };
+  const m = h("div", {class: "modal", id: "onlist", style: {zIndex: 7500}, onclick: e => { if (e.target === m) close(); }},
+    h("div", {class: "dlg", style: {maxWidth: "420px"}},
+      h("div", {class: "dh"}, h("div", {}, h("h3", {text: "👥 在線的人"})), h("button", {class: "x", text: "✕", onclick: close})),
+      h("div", {class: "dbody", id: "onlist-body", style: {maxHeight: "60vh", overflowY: "auto"}})));
+  document.body.append(m);
+  renderOnlineList();
 }
 const diffLabels = () => { const L = (window.SGS_I18N && SGS_I18N.lang) || "zh"; return L === "en" ? ["Easy", "Medium", "Hard", "Expert"] : L === "ja" ? ["弱い", "普通", "強い", "最強"] : ["弱", "中", "強", "很強"]; };
 function openSetup() {
