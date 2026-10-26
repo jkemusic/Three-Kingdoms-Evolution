@@ -351,7 +351,7 @@ button.big{font-size:16px;font-weight:800;padding:10px 38px}
 #members.on{display:block}#members .mr{display:flex;align-items:center;gap:8px;padding:4px 2px;font-size:13px}#members .mr img{width:26px;height:26px;border-radius:50%;object-fit:cover}#members .mr .av0{width:26px;text-align:center}#members .mr .tg{margin-left:auto;font-size:11px;color:#7fb7dd}#members h4{margin:0 0 4px;color:#3fd2ff;font-size:13px}
 #waitbar{display:none!important}
 @media(max-width:820px){#bar{position:relative;z-index:30}}
-@media (min-width:821px){body.setup-open:not(.hide-side) #modal .modal{right:390px}body.setup-open:not(.hide-side) #side{z-index:25}}   /* 新遊戲設定: 右邊的聊天 / 紀錄欄不被蓋住 */
+@media (min-width:821px){body.setup-open #modal .modal{top:var(--toph,48px)}body.setup-open:not(.hide-side) #modal .modal{right:390px}body.setup-open:not(.hide-side) #side{z-index:25}}   /* 新遊戲設定: 右邊的聊天 / 紀錄欄不被蓋住 */
 #waitbar{display:none;pointer-events:none;background:#0c1d36;border:1px solid #24557d;color:var(--accent);border-radius:99px;padding:3px 12px;font-size:13px;white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis;flex:0 1 auto}
 #tablewrap .panhint{position:fixed;left:8px;bottom:4px;z-index:13;font-size:12px;color:#7fb7dd;opacity:.75;pointer-events:none}
 #log .lcw{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 2px}#log .lcn{font-size:11px;color:#c3d6ea;line-height:1.2;margin-top:1px;white-space:nowrap}#log img.lc{display:inline-block;vertical-align:middle;width:44px;height:62px;object-fit:cover;margin:0 2px;border-radius:3px;border:1px solid #2f6f9c;cursor:help}
@@ -1879,7 +1879,7 @@ function applySide(hide) {
   try { localStorage.setItem("hideSide", hide ? "1" : ""); } catch (e) {}
   setTimeout(() => { if (S.snap) renderTable(S.snap); }, 30);   // 牌桌寬度改變,座位要重新排
 }
-new MutationObserver(() => document.body.classList.toggle("setup-open", S.modalOpen === "setup")).observe($("#modal"), {childList: true});
+new MutationObserver(() => { const on = S.modalOpen === "setup"; if (on) document.body.style.setProperty("--toph", ($("#top").offsetHeight || 48) + "px"); document.body.classList.toggle("setup-open", on); }).observe($("#modal"), {childList: true});   // 新遊戲設定: 上方那一排不被蓋住
 $("#bSide").onclick = () => applySide(!document.body.classList.contains("hide-side"));
 try { if (localStorage.getItem("hideSide")) applySide(true); } catch (e) {}
 window.addEventListener("resize", () => { if (S.snap) renderTable(S.snap); });
