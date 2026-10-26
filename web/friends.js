@@ -11,7 +11,7 @@
 #frdlg .frow{display:flex;align-items:center;gap:8px;padding:8px 6px;border-bottom:1px solid var(--line)}
 #frdlg .frow .dot{width:9px;height:9px;border-radius:50%;background:#59657a;flex:none}
 #frdlg .frow .dot.on{background:var(--green);box-shadow:0 0 6px var(--green)}
-#frdlg .frow .nm{font-weight:600}#frdlg .frow .st{font-size:12px;color:var(--dim)}
+#frdlg .frow .lvt{font-size:11px;color:var(--dim);font-weight:400}#frdlg .frow .mu{cursor:default}#frdlg .frow .nm{font-weight:600}#frdlg .frow .st{font-size:12px;color:var(--dim)}
 #frdlg .frow .grow{flex:1;min-width:0}
 #frdlg .frow button{padding:4px 9px;font-size:13px}
 #frdlg .frow .ub{background:#ff5d73;color:#fff;border-radius:9px;font-size:11px;padding:0 6px;margin-left:4px}
@@ -38,6 +38,15 @@
     return Math.floor(d / 86400) + " 天前";
   }
   const fmtTime = t => { const d = new Date(t * 1000); return d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0"); };
+
+  // 一個人的資料: 頭貼 (含框 / 特效) + 名字 + 等級 / 段位 / 開發者 + 共同好友
+  function person(f, sub) {
+    const mu = el("span", {class: "mu", title: (f.mutual_names || []).join("、"), text: f.mutual ? " · 共同好友 " + f.mutual : " · 無共同好友"});
+    return [avEl(f.avatar, f.style, {style: {width: "38px", height: "38px", borderRadius: "50%", objectFit: "cover", flex: "none"}}),
+      el("div", {class: "grow"},
+        el("div", {class: "nm"}, f.user, " ", el("span", {class: "lvt", text: "Lv" + (f.level || 1)}), " ", rkEl(f.rank), devEl(f.dev)),
+        el("div", {class: "st"}, sub || "", mu))];
+  }
 
   // ---------- 按鈕與徽章 ----------
   function mountBtn() {
@@ -121,6 +130,7 @@
     const typing = body.querySelector("input");
     const keep = typing ? typing.value : "";
     const hadFocus = typing && document.activeElement === typing;
+    const caret = typing ? typing.selectionStart : 0;
     body.textContent = "";
     const inp = el("input", {type: "text", maxlength: 20, placeholder: "輸入對方的 UID (8 位數字)", value: keep});
     const add = async () => {
@@ -141,106 +151,30 @@
     if (tab === "in") {
       if (!d.req_in.length) body.append(el("div", {class: "meta", style: {padding: "10px 4px"}, text: "沒有等待審核的好友請求。"}));
       for (const r of d.req_in) {
-        body.append(el("div", {class: "frow"}, el("span", {class: "grow nm", text: r.user}),
+        body.append(el("div", {class: "frow"}, ...person(r, "想加你為好友"),
           el("button", {class: "primary", text: "接受", onclick: async () => { const x = await post("/api/friend_accept", {name: r.id}); if (!x.ok) toast(x.error); poll(); }}),
           el("button", {text: "拒絕", onclick: async () => { await post("/api/friend_decline", {name: r.id}); poll(); }})));
       }
-      if (hadFocus) inp.focus();
+      if (hadFocus) { inp.focus(); try { inp.setSelectionRange(caret, caret); } catch (e) {} }
       return;
     }
     if (tab === "out") {
       if (!(d.req_out || []).length) body.append(el("div", {class: "meta", style: {padding: "10px 4px"}, text: "沒有已送出的好友請求。"}));
-      for (const u of (d.req_out || [])) body.append(el("div", {class: "frow"}, el("span", {class: "grow nm", text: u}), el("span", {class: "st", text: "等對方接受"})));
-      if (hadFocus) inp.focus();
+      for (const u of (d.req_out || [])) body.append(el("div", {class: "frow"}, ...person(u, "等對方接受")));
+      if (hadFocus) { inp.focus(); try { inp.setSelectionRange(caret, caret); } catch (e) {} }
       return;
     }
-    if (!d.friends.length) body.append(el("div", {class: "meta", style: {padding: "10px 4px"}, text: "還沒有好友。輸入朋友的 UID 送出請求吧。"}));
-    for (const f of d.friends) {
-      const prev = F.seenUnread[f.id] || 0;
-      if (f.unread > prev && !(F.chat === f.id && F.dlg)) toast("💬 " + f.user + " 傳來私訊", "host");
-      F.seenUnread[f.id] = f.unread;
-    }
-    if (F.seenReq >= 0 && d.req_in.length > F.seenReq) toast("👥 " + d.req_in[d.req_in.length - 1].user + " 想加你為好友", "host");
-    F.seenReq = d.req_in.length;
-    if (F.dlg) { if (F.chat) refreshChat(false); else renderList(); }
-    // 邀請: 對戰中先不跳出來,對戰結束才問
-    if (d.invites.length && !d.busy && !F.invOpen) showInvite(d.invites[0]);
-  }
-
-  // ---------- 邀請視窗 ----------
-  function showInvite(inv) {
-    F.invOpen = true;
-    const close = () => { const m = document.getElementById("invdlg"); if (m) m.remove(); F.invOpen = false; };
-    const reply = async accept => {
-      const r = await post("/api/invite_reply", {id: inv.id, accept});
-      close();
-      if (!r.ok) { toast(r.error || "邀請已失效"); return; }
-      if (accept && r.room) { const d = document.getElementById("frdlg"); if (d) d.remove(); F.dlg = null; enterRoom(r.room, r.rname); }
-    };
-    const dlg = el("div", {class: "dlg"},
-      el("h3", {text: "🎮 房間邀請"}),
-      el("p", {text: inv.from + " 邀請你加入房間「" + (inv.rname || "房間") + "」,要加入嗎?"}),
-      el("div", {class: "btns"}, el("button", {text: "拒絕", onclick: () => reply(false)}), el("button", {class: "primary", text: "加入", onclick: () => reply(true)})));
-    document.body.append(el("div", {class: "modal", id: "invdlg", style: {zIndex: 7600}}, dlg));
-  }
-
-  // ---------- 好友視窗 ----------
-  function openDlg() {
-    if (F.dlg) return;
-    F.chat = null;
-    const close = () => { const m = document.getElementById("frdlg"); if (m) m.remove(); F.dlg = null; F.chat = null; };
-    const body = el("div", {class: "dbody", id: "frbody"});
-    const dlg = el("div", {class: "dlg"},
-      el("div", {class: "dh"}, el("div", {}, el("h3", {text: "👥 好友"})), el("button", {class: "x", text: "✕", onclick: close})),
-      body);
-    const m = el("div", {class: "modal", id: "frdlg", style: {zIndex: 7500}}, dlg);
-    m.onclick = e => { if (e.target === m) close(); };
-    document.body.append(m);
-    F.dlg = m;
-    renderList(true);
-    poll();
-  }
-
-  function renderList(force) {
-    const body = document.getElementById("frbody"); if (!body || F.chat) return;
-    const d = F.data || {friends: [], req_in: [], req_out: [], now: Date.now() / 1000};
-    const typing = body.querySelector("input");
-    const keep = typing ? typing.value : "";
-    const hadFocus = typing && document.activeElement === typing;
-    body.textContent = "";
-    const inp = el("input", {type: "text", maxlength: 20, placeholder: "輸入對方的 UID (8 位數字)", value: keep});
-    const add = async () => {
-      const r = await post("/api/friend_add", {name: inp.value});
-      if (!r.ok) { toast(r.error || "失敗"); return; }
-      toast(r.msg, "ok"); inp.value = ""; poll();
-    };
-    inp.onkeydown = e => { if (e.key === "Enter") add(); };
-    const myUid = S.prof && S.prof.uuid;
-    if (myUid) body.append(el("div", {class: "meta", style: {marginTop: "8px"}}, "我的 UID: ", el("b", {text: myUid}), " ",
-      el("button", {text: "複製", style: {padding: "1px 8px", fontSize: "12px"}, onclick: e => { const b = e.target, ok = () => { b.textContent = "已複製"; }; if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(myUid).then(ok); else { const t = document.createElement("textarea"); t.value = myUid; document.body.append(t); t.select(); try { document.execCommand("copy"); ok(); } catch (x) {} t.remove(); } }}),
-      "  (把這組 UID 給朋友,他就能加你)"));
-    body.append(el("div", {class: "addrow"}, inp, el("button", {class: "primary", text: "加好友", onclick: add})));
-    if (d.req_in.length) {
-      body.append(el("div", {class: "sec", text: "好友請求"}));
-      for (const r of d.req_in) {
-        body.append(el("div", {class: "frow"}, el("span", {class: "grow nm", text: r.user}),
-          el("button", {class: "primary", text: "接受", onclick: async () => { const x = await post("/api/friend_accept", {name: r.id}); if (!x.ok) toast(x.error); poll(); }}),
-          el("button", {text: "拒絕", onclick: async () => { await post("/api/friend_decline", {name: r.id}); poll(); }})));
-      }
-    }
-    if (d.req_out && d.req_out.length) body.append(el("div", {class: "sec", text: "已送出請求 (等對方接受): " + d.req_out.join("、")}));
-    body.append(el("div", {class: "sec", text: "好友 (" + d.friends.length + ")"}));
     if (!d.friends.length) body.append(el("div", {class: "meta", style: {padding: "10px 4px"}, text: "還沒有好友。輸入朋友的 UID 送出請求吧。"}));
     for (const f of d.friends) {
       const st = f.online ? ("在線" + (f.where ? " · " + f.where : "")) : ("最後上線: " + fmtSeen(f.seen, d.now));
       body.append(el("div", {class: "frow"},
         el("span", {class: "dot" + (f.online ? " on" : "")}),
-        el("div", {class: "grow"}, el("div", {class: "nm"}, f.user, f.dev ? el("span", {class: "rk", style: {background: "#7a3cff", color: "#fff", marginLeft: "4px"}, text: "開發者"}) : ""), el("div", {class: "st", text: st})),
+        ...person(f, st),
         el("button", {title: "私訊", onclick: () => openChat(f)}, "💬", f.unread ? el("span", {class: "ub", text: f.unread}) : ""),
         ROOM ? el("button", {title: "邀請到目前的房間", text: "邀請", onclick: async () => { const r = await post("/api/invite", {to: f.id}); toast(r.ok ? "已邀請 " + f.user : (r.error || "邀請失敗"), r.ok ? "ok" : undefined); }}) : "",
         el("button", {title: "刪除好友", text: "🗑", onclick: async () => { if (confirm("確定要刪除好友「" + f.user + "」嗎?")) { await post("/api/friend_remove", {name: f.id}); poll(); } }})));
     }
-    if (hadFocus) inp.focus();
+    if (hadFocus) { inp.focus(); try { inp.setSelectionRange(caret, caret); } catch (e) {} }
   }
 
   // ---------- 私訊 ----------

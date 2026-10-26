@@ -9,7 +9,6 @@ import time
 ONLINE_WITHIN = 15        # 秒: 最近這麼久有輪詢過就算在線
 INVITE_TTL = 30 * 60      # 邀請有效時間
 MAX_FRIENDS = 100
-DEVS = {"jke", "lonea"}
 DM_KEEP = 200             # 每組對話最多保留幾則
 
 
@@ -27,6 +26,7 @@ class Social:
         self.invites = {}             # 被邀請者 key -> [{id, frm, room, rname, t}]
         self.rate = {}                # (key, 動作) -> [時間]
         self.inv_id = 0
+        self.card = lambda key: {}    # 函式: 帳號 key -> 頭貼 / 段位 / 等級 (由 server 設定)
         self.uid_key = None           # 函式: 8 位數字 UID -> 帳號 key (由 server 設定)
 
     # ---------- 基本 ----------
@@ -210,16 +210,21 @@ class Social:
         now = time.time()
         with self.lock:
             me = self._u(key)
+            mine = set(me["fr"])
+
+            def extra(k):   # 共同好友
+                com = [self._name(x) for x in self._u(k)["fr"] if x in mine and x != key]
+                return dict(self.card(k), mutual=len(com), mutual_names=com[:8])
             fr = []
             for f in me["fr"]:
                 uf = self._u(f)
                 rd = me["read"].get(f, 0)
                 unread = sum(1 for m in self.d["dm"].get(self._pair(key, f), []) if m["f"] == f and m["t"] > rd)
                 on = now - uf.get("seen", 0) < ONLINE_WITHIN
-                fr.append({"user": self._name(f), "id": f, "dev": f in DEVS, "online": on, "seen": int(uf.get("seen", 0)),
-                           "where": where(f) if on else "", "unread": unread})
+                fr.append(dict(extra(f), user=self._name(f), id=f, online=on, seen=int(uf.get("seen", 0)),
+                               where=where(f) if on else "", unread=unread))
             fr.sort(key=lambda x: (not x["online"], -x["seen"]))
             inv = [{"id": i["id"], "from": self._name(i["frm"]), "room": i["room"], "rname": i["rname"]}
                    for i in self.invites.get(key, []) if now - i["t"] < INVITE_TTL]
-            return {"ok": True, "friends": fr, "req_in": [{"user": self._name(x), "id": x} for x in me["in"]],
-                    "req_out": [self._name(x) for x in me["out"]], "invites": inv, "busy": busy, "now": int(now)}
+            return {"ok": True, "friends": fr, "req_in": [dict(extra(x), user=self._name(x), id=x) for x in me["in"]],
+                    "req_out": [dict(extra(x), user=self._name(x), id=x) for x in me["out"]], "invites": inv, "busy": busy, "now": int(now)}

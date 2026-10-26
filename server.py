@@ -428,6 +428,12 @@ MAX_ACCOUNTS = 2000
 MAX_BODY = 400_000   # 請求本文上限 (頭像 base64 約 160KB)
 ACCOUNTS = Accounts()
 SOCIAL = social.Social(os.path.join(DATA, "social.json"), ACCOUNTS)
+def _card(key):   # 好友列表用: 頭貼 / 框 / 特效 / 段位 / 等級
+    a = ACCOUNTS.d.get(key)
+    t = a["uuid"] if a else ""
+    p = PROFILES.d.get(t) or {}
+    return {"avatar": PROFILES.avatar_url(t), "style": PROFILES.style(t), "rank": PROFILES.lv(t), "level": PROFILES.level(p.get("xp", 0)), "dev": PROFILES.dev(t)}
+SOCIAL.card = _card
 SOCIAL.uid_key = lambda uid: next((k for k, a in list(ACCOUNTS.d.items()) if PROFILES.uid(a["uuid"]) == uid), None)
 
 
@@ -460,6 +466,7 @@ class Manager:
         self.humans = set()
         self.claims = {}
         self.seen = {}    # tok -> 最後一次連線時間 (算目前在線人數)
+        self.kicked = {}  # tok -> 解除時間 (被房主踢出)
         self.alive = {}   # tok -> 目前是否視為在線 (斷線偵測用)
         self.events = []  # 給所有人的通知 (斷線 / 重連 / 換房主)
         self.ev_id = 0
@@ -601,12 +608,52 @@ class Manager:
     def touch(self, tok):
         if tok:
             now = time.time()
+            if tok in self.kicked and self.kicked[tok] > now:
+                return
+            if tok not in self.seen:
+                self._event(f"➡ {self._name_of(tok)} 進入房間", "info")
             self.seen[tok] = now
             if not self.host and not self.host_cleared:   # 最先連線的人成為房主 (公共房間房主下線後除外)
                 self.host = tok
             self.presence()
 
     OFFLINE_AFTER = 25   # 超過幾秒沒連線視為斷線
+    KICK_SECS = 600      # 被踢後幾秒內不能再進同一個房間
+
+    def _name_of(self, tok):
+        return self.nicks.get(tok) or ACCOUNTS.username(tok) or "未命名"
+
+    def is_kicked(self, tok):
+        return self.kicked.get(tok, 0) > time.time()
+
+    def kick(self, tok, to_id):
+        """房主踢人: 對方離開房間 (座位交給電腦,遊戲不中斷),一段時間內不能再進來。"""
+        if not tok or tok != self.host:
+            return {"ok": False, "error": "只有房主能踢人"}
+        target = next((t for t in list(self.seen) if self.pid(t) == to_id), None)
+        if target is None:
+            return {"ok": False, "error": "對方已不在房間"}
+        if target == tok:
+            return {"ok": False, "error": "不能踢自己"}
+        name = self._name_of(target)
+        seat = self.seat_of(target)
+        if seat is not None:
+            if self.game_active():
+                pl = self.game.players[seat]
+                del self.claims[seat]
+                pl.agent = Observed(LeveledAgent(self._level(self.cfg, seat)), self.rec)
+                with self.lock:
+                    if self.pending and self.pending.get("seat") == seat:
+                        self._ans = list(getattr(self, "_pend_default", None) or [])
+                        self._ans_ev.set()
+            else:
+                self.claims.pop(seat, None)
+        with self.plock:
+            self.seen.pop(target, None)
+            self.alive.pop(target, None)
+            self.kicked[target] = time.time() + self.KICK_SECS
+            self._event(f"🚪 {name} 被房主踢出了房間", "warn")
+        return {"ok": True, "name": name}
 
     def leave(self, tok):
         """主動離開房間 (回大廳): 不算斷線,不通知房內其他人;房主離開時交給別人。"""
@@ -616,6 +663,7 @@ class Manager:
             now = time.time()
             self.seen.pop(tok, None)
             self.alive.pop(tok, None)
+            self._event(f"⬅ {self._name_of(tok)} 離開了房間", "info")
             if tok == self.host:
                 if self.public:
                     self.host, self.host_cleared = None, True
@@ -1236,6 +1284,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(200, {"chars": ROSTER_DATA, "roles": {str(k): v for k, v in ROLES.items()}})
             if path == "/api/state":
                 tok = q.get("tok", [""])[0]
+                if M.is_kicked(tok):
+                    return self._send(200, {"kicked": True, "ready": False})
                 viewer = M.seat_of(tok)
                 M.touch(tok)
                 nk = q.get("nick", [None])[0]
@@ -1371,6 +1421,8 @@ class Handler(BaseHTTPRequestHandler):
             M = ROOMS.get(data.get("room") or "main")
             if M is None:
                 return self._send(200, {"ok": False, "gone": True, "error": "房間已不存在"})
+            if path == "/api/kick":
+                return self._send(200, M.kick(data.get("tok"), data.get("to")))
             if path == "/api/leave":
                 M.leave(data.get("tok"))
                 return self._send(200, {"ok": True})

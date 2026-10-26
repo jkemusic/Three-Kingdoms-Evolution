@@ -643,6 +643,7 @@ async function api(path, body) {
   const r = await fetch(path, body === undefined ? {} : {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
   const j = await r.json();
   if (j && j.gone && ROOM) leaveRoom("房間已不存在 (太久沒有人,已被刪除)");
+  if (j && j.kicked && ROOM) leaveRoom("你被房主踢出了房間 (10 分鐘內不能再進入)");
   if (j && j.auth === false) showAuth(j.kicked ? "你的帳號已在另一個裝置登入,請重新登入" : "");
   return j;
 }
@@ -1383,7 +1384,8 @@ function handleEvents(evs) {   // 斷線 / 重連 / 換房主 通知 (第一次�
   evs.filter(e => e.id > S.evSeen).forEach(e => toast(e.text, e.kind));
   S.evSeen = Math.max(S.evSeen, mx);
 }
-function showHostBar(snap) {   // 上方標示房主;非房主只能等待
+function showHostBar(snap) {
+  S.amHost = !!snap.is_host;   // 上方標示房主;非房主只能等待
   const e = $("#hostbar");
   if (snap.host_name == null && snap.is_host) { e.textContent = "👑 你是房主"; e.className = "me"; return; }
   if (snap.host_name == null) { e.textContent = "等待房主建立遊戲…"; e.className = "wait"; return; }
@@ -1409,7 +1411,12 @@ function renderMembers() {   // 👥 房間成員: 每個人都看得到 (不只
   o.forEach(x => pn.append(h("div", {class: "mr"},
     avEl(x.avatar, x.style, {}),
     h("span", {text: (x.host ? "👑 " : "") + (x.name || "未命名") + (x.id === S.myWho ? " (你)" : "")}), rkEl(x.lv), devEl(x.dev),
-    h("span", {class: "tg", text: x.spec ? "👁 觀戰者" : x.seat != null ? "座位 " + x.seat : ""}))));
+    h("span", {class: "tg", text: x.spec ? "👁 觀戰者" : x.seat != null ? "座位 " + x.seat : ""}),
+    S.amHost && x.id !== S.myWho ? h("button", {type: "button", text: "踢出", title: "踢出房間", style: {padding: "1px 8px", fontSize: "12px", marginLeft: "6px"}, onclick: async () => {
+      if (!confirm("確定要把「" + (x.name || "未命名") + "」踢出房間嗎?")) return;
+      const r = await api("/api/kick", {to: x.id});
+      toast(r.ok ? "已踢出 " + r.name : "踢人失敗: " + (r.error || ""), r.ok ? "ok" : undefined);
+    }}) : null)));
 }
 (function () {
   const pn = h("div", {id: "members"}); document.body.append(pn);
@@ -1979,7 +1986,7 @@ function enterRoom(id, name) {
   poll(true);
 }
 function leaveRoom(msg) {
-  if (ROOM && !(msg && /不存在|刪除/.test(msg))) { try { fetch("/api/leave", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({tok: TOK, room: ROOM})}); } catch (e) {} }   // 告訴伺服器是主動離開,不是斷線
+  if (ROOM && !(msg && /不存在|刪除|踢出/.test(msg))) { try { fetch("/api/leave", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({tok: TOK, room: ROOM})}); } catch (e) {} }   // 告訴伺服器是主動離開,不是斷線
   ROOM = ""; try { sessionStorage.removeItem("sgs_room"); } catch (e) {}
   const u = new URL(location.href); u.searchParams.delete("room"); history.replaceState(null, "", u);
   resetRoomState(); $("#roomname").textContent = "";
