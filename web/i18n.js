@@ -416,6 +416,8 @@ function tr(s) {
   if (!t || !/[㐀-鿿]/.test(t)) return s;
   const lead = s.slice(0, s.indexOf(t)), trail = s.slice(s.indexOf(t) + t.length);
   if (exact[t]) return lead + exact[t] + trail;
+  { const m = t.match(/^([^㐀-鿿A-Za-z0-9]+)([㐀-鿿].*)$/s);   // 前面的符號 / 圖示 (「• 」「🔒 」「✔ 」…) 先拿掉,剩下的整句再查一次
+    if (m && (exact[m[2]] || exact[m[2].replace(/[：:。！!…]+$/, "")])) return lead + m[1] + (exact[m[2]] || exact[m[2].replace(/[：:。！!…]+$/, "")]) + trail; }
   for (const [re, o] of tpls) { const m = t.match(re); if (m) return lead + names(o.replace(/\{(\d+)\}/g, (x, i) => m[+i] == null ? "" : word(m[+i]))) + trail; }
   for (const [re, f] of pats) { const m = t.match(re); if (m) return lead + f(...m.map((x, i) => i && typeof x === "string" ? word(x) : x)) + trail; }
   return lead + word(t) + trail;

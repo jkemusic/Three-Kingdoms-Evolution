@@ -97,7 +97,7 @@ html.gf .pickbar{background:linear-gradient(160deg,#2c2016,#17100b);border:1px s
   fontCss.textContent = Object.entries(FAM).map(([k, [zh, ja, en]]) => `html[data-font=${k}]{--ff:${zh}}
 html[data-font=${k}]:lang(ja){--ff:${ja}}
 html[data-font=${k}]:lang(en){--ff:${en}}`).join(" ")
-    + " html[data-font],html[data-font] body,html[data-font] button,html[data-font] input,html[data-font] select,html[data-font] textarea{font-family:var(--ff)}";
+    + " html[data-font],html[data-font] body,html[data-font] button,html[data-font] input,html[data-font] select,html[data-font] textarea,html[data-font] #side *,html[data-font] .dlg *,html[data-font] #log *{font-family:var(--ff)}";   // 遊戲紀錄、側邊欄、對話框裡的每個元素都跟著主題字體
   document.head.appendChild(fontCss);
   const fontOn = t => { document.documentElement.dataset.font = FONT_OF[(t.a || "").toLowerCase()] || "hei"; };
   /* ---------- 像素主題: 方角、硬陰影、像素字體 (字體: Fusion Pixel Font,OFL 授權,檔案隨程式附上) ---------- */
@@ -580,28 +580,31 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 .pl[data-bx].cur{background:var(--bx-bg)!important}
 .pl[data-bx][data-bxpx],.pvseat[data-bx][data-bxpx]{border-radius:0!important}
 /* 玩家框會動: 底色漸層角度緩緩擺動,有格紋 / 圓點圖樣的再加上圖樣慢慢飄移 (像素款是一格一格跳) */
-@property --bxa{syntax:"<angle>";inherits:false;initial-value:160deg}
-@keyframes bxsweep{from{--bxa:135deg}to{--bxa:205deg}}
 @keyframes bxmove{from{background-position:var(--bx-p0)}to{background-position:var(--bx-p1)}}
-.pl[data-bx],.pvseat[data-bx]{animation:bxsweep 5s ease-in-out infinite alternate!important}
-.pl[data-bxm],.pvseat[data-bxm]{animation:bxsweep 5s ease-in-out infinite alternate,bxmove var(--bx-dur,8s) linear infinite!important}
-.pl[data-bxpx],.pvseat[data-bxpx]{animation:none!important}
-.pl[data-bxpx][data-bxm],.pvseat[data-bxpx][data-bxm]{animation:bxmove var(--bx-dur,4s) steps(8) infinite!important}
-@media (prefers-reduced-motion:reduce){.pl[data-bx],.pvseat[data-bx]{animation:none!important}}`;
+@keyframes bxslide{from{transform:translateX(-130%) skewX(-18deg)}to{transform:translateX(330%) skewX(-18deg)}}
+.bxsh{position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none;z-index:1}
+.bxsh::before{content:"";position:absolute;top:0;bottom:0;left:0;width:30%;background:linear-gradient(90deg,transparent,var(--bx-hl),transparent);animation:bxslide var(--bx-dur,6s) linear infinite;will-change:transform}
+.pl[data-bxpx] .bxsh::before,.pvseat[data-bxpx] .bxsh::before{background:var(--bx-hl);width:14%;animation-timing-function:steps(10)}
+.pl[data-bxm],.pvseat[data-bxm]{animation:bxmove 3s steps(8) infinite!important}
+@media (prefers-reduced-motion:reduce){.pl[data-bx],.pvseat[data-bx]{animation:none!important}.bxsh{display:none}}`;
       document.head.appendChild(boxStyle);
     }
-    if (!sp) { el.removeAttribute("data-bx"); delete el.dataset.bxpx; delete el.dataset.bxm; return; }
+    if (!sp) { el.removeAttribute("data-bx"); delete el.dataset.bxpx; delete el.dataset.bxm; const o = el.querySelector(":scope > .bxsh"); if (o) o.remove(); return; }
     el.dataset.bx = id;
     if (sp.px) el.dataset.bxpx = "1"; else delete el.dataset.bxpx;
     const st = el.style;
-    const band = sp.px ? "linear-gradient(105deg,transparent 42%,rgba(255,255,255,.2) 42% 54%,transparent 54%) 0% 0/260% 100% no-repeat" : `linear-gradient(105deg,transparent 38%,rgba(255,255,255,.07) 44%,${sp.bd}55 50%,rgba(255,255,255,.07) 56%,transparent 62%) 0% 0/260% 100% no-repeat`;   // 掃過的亮帶: 每個框都有
-    st.setProperty("--bx-bg", `${band},${sp.fl ? sp.fl + "," : ""}linear-gradient(var(--bxa,160deg),${sp.c[0]}f2,${sp.c[1]}f5)`);
+    st.setProperty("--bx-bg", `${sp.fl ? sp.fl + "," : ""}linear-gradient(160deg,${sp.c[0]}f2,${sp.c[1]}f5)`);
     const layers = []; { let d = 0, cur = ""; for (const ch of (sp.fl || "")) { if (ch === "(") d++; if (ch === ")") d--; if (ch === "," && !d) { layers.push(cur); cur = ""; } else cur += ch; } if (cur.trim()) layers.push(cur); }
-    const szs = layers.map(l => /\/\s*(\d+)px\s+(\d+)px/.exec(l));   // 有固定大小的圖樣: 每層依自己的大小飄移一格,才能無縫循環
-    st.setProperty("--bx-p0", ["0% 0"].concat(szs.map(() => "0 0"), "0 0").join(","));
-    st.setProperty("--bx-p1", ["100% 0"].concat(szs.map(m => m ? m[1] + "px " + m[2] + "px" : "0 0"), "0 0").join(","));
+    const szs = layers.map(l => /\/\s*(\d+)px\s+(\d+)px/.exec(l));   // 像素款: 圖樣依各自大小一格一格飄移 (無縫)
+    if (sp.px && szs.some(Boolean)) {
+      st.setProperty("--bx-p0", szs.map(() => "0 0").concat("0 0").join(","));
+      st.setProperty("--bx-p1", szs.map(m => m ? m[1] + "px " + m[2] + "px" : "0 0").concat("0 0").join(","));
+      el.dataset.bxm = "1";
+    } else delete el.dataset.bxm;
+    // 掃過的亮帶: 獨立圖層只用 transform 動 (不重繪整個框,不卡)
+    st.setProperty("--bx-hl", sp.px ? "rgba(255,255,255,.14)" : `${sp.bd}33`);
     st.setProperty("--bx-dur", (sp.px ? 3 : 6) + "s");
-    el.dataset.bxm = "1";
+    if (!el.querySelector(":scope > .bxsh")) { const sh = document.createElement("span"); sh.className = "bxsh"; el.appendChild(sh); }
     st.setProperty("--bx-sh", sp.px ? `inset 0 0 0 3px ${sp.bd},0 0 0 3px #000,5px 5px 0 3px rgba(0,0,0,.5)` : `inset 0 0 0 1px ${sp.bd},inset 0 0 22px ${sp.gl}33,0 0 14px ${sp.gl}40`);
   }
   window.SGS_BOX = { apply: applyBox, spec: BOX };
@@ -742,6 +745,8 @@ button:disabled{cursor:not-allowed}
   st.textContent += `
 /* 頭像動畫只動 opacity / transform (不動 box-shadow / filter),人多時才不會卡 */
 .fx-glow::after{box-shadow:0 0 12px 4px rgba(120,230,255,.9);animation:fxglow2 2.2s ease-in-out infinite}
+/* 效能: 動畫中的模糊 / 陰影濾鏡每一格都要重算,全部拿掉 (用較柔的漸層就夠) */
+.fx-flame::after,.fx-aurora::after,.fx-rainbow::after,.fx-shadow>.fxa,.fx-vortex>.fxa,.fx-beam>.fxa,.fx-ki>.fxa,.fx-arc>.fxa,.fx-arc>.fxb,.fx-ice>.fxa{filter:none!important}
 @keyframes fxglow2{0%,100%{opacity:.35;transform:scale(.96)}50%{opacity:1;transform:scale(1.04)}}
 @keyframes frember{from{opacity:.8}to{opacity:1}}
 @keyframes frtw{from{opacity:.75}to{opacity:1}}
