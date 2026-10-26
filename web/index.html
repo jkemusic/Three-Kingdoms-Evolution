@@ -1471,6 +1471,15 @@ function renderOnlineList() {
       toast(r.ok ? "已踢出 " + r.name : "踢人失敗: " + (r.error || ""), r.ok ? "ok" : undefined);
     }}) : null)));
 }
+function mutualBox(p) {   // 共同好友: 按「檢視」展開列表,每個人可以再點開個人資訊
+  const list = p.mutual || [];
+  if (p.self) return null;   // 看自己不用顯示
+  const box = h("div", {style: {display: "none", margin: "6px 0"}});
+  list.forEach(f => box.append(h("div", {class: "lbrow", style: {display: "flex", alignItems: "center", gap: "8px", padding: "4px", cursor: "pointer", borderRadius: "8px"}, onclick: () => showPlayer(f.id)},
+    avEl(f.avatar, f.style, {style: {width: "26px", height: "26px", borderRadius: "50%", objectFit: "cover"}}), h("span", {style: {flex: 1}}, f.name, devEl(f.dev)), rkEl(f.rank))));
+  const btn = h("button", {type: "button", text: "檢視", style: {padding: "2px 10px", fontSize: "12px"}, disabled: !list.length, onclick: () => { const on = box.style.display === "none"; box.style.display = on ? "block" : "none"; btn.textContent = on ? "收起" : "檢視"; }});
+  return h("div", {style: {margin: "10px 0 0"}}, h("div", {style: {display: "flex", alignItems: "center", justifyContent: "space-between"}}, h("span", {style: {fontWeight: 700}, text: "共同好友 " + list.length + " 位"}), btn), box);
+}
 async function showPlayer(key) {   // 看別人的個人資訊 (在線列表 / 好友列表點開)
   let p;
   try { p = await (await fetch("/api/player?tok=" + encodeURIComponent(TOK) + "&name=" + encodeURIComponent(key))).json(); } catch (e) { return; }
@@ -1488,11 +1497,12 @@ async function showPlayer(key) {   // 看別人的個人資訊 (在線列表 / �
         h("div", {style: {display: "flex", alignItems: "center", gap: "14px"}},
           avEl(p.avatar, p.style, {style: {width: "72px", height: "72px", borderRadius: "50%", objectFit: "cover", border: "2px solid #3fd2ff"}}, "big"),
           h("div", {style: {flex: 1, minWidth: 0}},
-            h("div", {style: {fontSize: "28px", fontWeight: 800, lineHeight: 1.15, wordBreak: "break-all"}, text: p.user}),
-            h("div", {style: {margin: "6px 0"}}, rkEl(p.rank, true), devEl(p.dev)))),
+            h("div", {style: {fontSize: "28px", fontWeight: 800, lineHeight: 1.15, wordBreak: "break-all"}}, p.user, " ", devEl(p.dev)),
+            h("div", {style: {margin: "6px 0"}}, rkEl(p.rank, true)))),
         h("div", {style: {height: "10px", background: "#0e2442", borderRadius: "99px", overflow: "hidden", margin: "6px 0"}}, h("div", {style: {width: pct + "%", height: "100%", background: "linear-gradient(90deg,#3fd2ff,#2a7de1)"}})),
         h("div", {class: "meta", text: `段位積分 ${p.rp}` + (p.rp_next != null ? ` / ${p.rp_next} · 距離下一段 (${p.next_rank}) 還差 ${p.rp_next - p.rp} 分` : " (最高段位)")}),
         h("div", {style: {display: "flex", gap: "8px", flexWrap: "wrap", margin: "12px 0"}}, stat("總場數", p.games), stat("勝場", p.wins), stat("勝率", rate(p.wins, p.games)), stat("段位場", p.rgames), stat("段位勝率", rate(p.rwins, p.rgames))),
+        mutualBox(p),
         h("div", {style: {fontWeight: 700, margin: "10px 0 4px"}, text: "最常使用的武將"}),
         p.chars.length ? h("div", {}, p.chars.map(([n, g, w]) => h("div", {style: {display: "flex", justifyContent: "space-between", padding: "3px 0", borderBottom: "1px solid #17304f"}},
           h("span", {text: n}), h("span", {class: "meta", text: g + " 場 · " + w + " 勝 · " + rate(w, g)})))) : h("div", {class: "meta", text: "還沒有紀錄"}))));

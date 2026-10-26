@@ -1364,7 +1364,12 @@ class Handler(BaseHTTPRequestHandler):
                 SOCIAL.touch(key)
                 return self._send(200, SOCIAL.overview(key, friend_where, is_playing(tk)))
             if path == "/api/player":
-                return self._send(200, player_public(q.get("name", [""])[0]))
+                r = player_public(q.get("name", [""])[0])
+                if r.get("ok"):   # 共同好友 (我和他都有加的人)
+                    me_k = SOCIAL.key_of(q.get("tok", [""])[0])
+                    r["self"] = me_k == r["user"].lower()
+                    r["mutual"] = [dict(_card(k), id=k, name=(ACCOUNTS.d.get(k) or {}).get("user", k)) for k in SOCIAL.mutual(me_k, r["user"].lower())]
+                return self._send(200, r)
             if path == "/api/gchat":
                 try:
                     n = int(q.get("since", ["0"])[0])

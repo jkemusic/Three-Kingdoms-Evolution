@@ -170,6 +170,14 @@ class Social:
     def is_online(self, key):
         return time.time() - self._u(key).get("seen", 0) < ONLINE_WITHIN
 
+    def mutual(self, a, b):
+        """a 和 b 的共同好友 (帳號 key 列表)。"""
+        with self.lock:
+            if not a or not b or a == b:
+                return []
+            mine = set(self._u(a)["fr"])
+            return [x for x in self._u(b)["fr"] if x in mine and x not in (a, b)]
+
     def is_friend(self, a, b):
         return b in self._u(a)["fr"]
 
