@@ -561,7 +561,7 @@ class Manager:
         if self.game_active() and (self.cfg or {}).get("ranked"):
             return {"ok": False, "error": "ranked game in progress"}   # 段位局打完前不能開新遊戲 (要先棄賽)
         if cfg.get("ranked"):   # 段位模式: 固定規則 (正常模式 / 4 體力 / 隨機主公 / 正常身分)
-            cfg = dict(cfg, players=max(4, int(cfg.get("players", 5))), mode="normal", base_hp=4, lord="random", chars=["" for _ in (cfg.get("chars") or [])], role_mode="normal")
+            cfg = dict(cfg, spec_all=False, players=max(4, int(cfg.get("players", 5))), mode="normal", base_hp=4, lord="random", chars=["" for _ in (cfg.get("chars") or [])], role_mode="normal")
         self.abort = True
         self._ans_ev.set()
         self._step_ev.set()

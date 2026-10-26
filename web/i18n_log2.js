@@ -165,4 +165,16 @@ window.SGS_LOG_TPL = (window.SGS_LOG_TPL || []).concat([
 ["背景與面板的顏色 (建議選深色)", "Color of backgrounds and panels (a dark color is recommended)", "背景とパネルの色(暗い色を推奨)"],
 ["恢復預設", "Reset to default", "デフォルトに戻す"],
 ["紫晶", "Amethyst", "アメジスト"], ["翡翠", "Jade", "翡翠"], ["烈焰", "Blaze", "烈火"], ["金色", "Gold", "ゴールド"], ["櫻花", "Sakura", "桜"], ["石墨", "Graphite", "グラファイト"],
+// --- 連鎖 / 狀態標記 / 新增按鈕 ---
+["{} 對 {} 的{}連鎖使用 ⚡{}", "{1} responds to {2}'s {3} with ⚡{4}", "{1} が {2} の{3}に連鎖して ⚡{4} を使用"],
+["{} 連鎖使用 ⚡{} (對 {})", "{1} responds with ⚡{2} (targeting {3})", "{1} が連鎖して ⚡{2} を使用 (対象 {3})"],
+["技能無效 (到下個自己回合)", "Skill void (until your next turn)", "技能無効(次の自分のターンまで)"],
+["阻擋 (本回合已用)", "Block (used this turn)", "阻止(今ターン使用済)"],
+["本回合已扣血 {}/2", "HP lost this turn {1}/2", "今ターン失った体力 {1}/2"],
+["無防具: 視為八卦陣", "No armor: counts as Eight-Trigram", "防具なし: 八卦陣扱い"],
+["⏭ 下回合被跳過", "⏭ Skips next turn", "⏭ 次のターンをスキップ"],
+["複製 P{} {} 的技能", "Copies P{1} {2}'s skill", "P{1} {2} の技能をコピー"],
+["👥 好友", "👥 Friends", "👥 フレンド"], ["🏅 成就", "🏅 Achievements", "🏅 実績"], ["成就與解鎖進度", "Achievements and unlock progress", "実績と解放の進捗"],
+["⬇ 下載桌面版", "⬇ Download desktop app", "⬇ デスクトップ版をダウンロード"], ["到 GitHub 下載 Windows / Mac 本地版", "Download the Windows / Mac app from GitHub", "GitHubからWindows / Mac版をダウンロード"],
+["好友、私訊、邀請朋友進房間", "Friends, messages, invite friends to the room", "フレンド、メッセージ、ルームへ招待"],
 ]);
