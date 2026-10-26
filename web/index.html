@@ -1928,8 +1928,7 @@ async function showBoard() {
   const close = () => { M.textContent = ""; S.modalOpen = null; };
   const r = await (await fetch("/api/leaderboard?tok=" + encodeURIComponent(TOK))).json();
   const rows = r.rows || [];
-  const rate = x => x.games ? x.wins / x.games : 0;
-  const SORTS = {"段位": (a, b) => (b.rp || 0) - (a.rp || 0) || b.wins - a.wins, "勝場": (a, b) => b.wins - a.wins || (b.rp || 0) - (a.rp || 0), "勝率": (a, b) => rate(b) - rate(a) || b.games - a.games};
+  const SORTS = {"段位": (a, b) => (b.rp || 0) - (a.rp || 0) || b.wins - a.wins, "勝場": (a, b) => b.wins - a.wins || (b.rp || 0) - (a.rp || 0)};
   let key = "段位";
   const body = h("div", {class: "dbody"}), tabs = h("div", {style: {display: "flex", gap: "6px", marginBottom: "8px"}});
   const draw = () => {
@@ -1942,7 +1941,7 @@ async function showBoard() {
       avEl(x.avatar, x.style, {style: {width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover"}}),
       h("span", {style: {flex: 1}}, h("div", {}, x.name, devEl(x.dev))),
       h("span", {style: {textAlign: "right"}}, h("div", {}, rkEl(x.lv), h("span", {class: "meta", text: " " + (x.rp || 0) + " 分"})),
-        h("div", {class: "meta", text: x.games ? `${x.wins} 勝 / ${x.games} 場 · ${Math.round(rate(x) * 100)}%` : "尚無對局"})));
+        h("div", {class: "meta", text: x.games ? `${x.wins} 勝 / ${x.games} 場` : "尚無對局"})));
     const sorted = rows.slice().sort(SORTS[key]);
     sorted.slice(0, 10).forEach((x, i) => body.append(line(x, i)));
     const mi = sorted.findIndex(x => x.me);
