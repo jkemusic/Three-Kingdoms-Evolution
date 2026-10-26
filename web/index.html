@@ -1824,7 +1824,8 @@ async function poll(force) {
   try {
     if (!myNick()) { if (S.modalOpen !== "nick") showNickGate(); return; }   // 進入遊戲前先取暱稱
     const peek = $("#peek").checked ? 1 : 0;
-    const snap = await api(`/api/state?log=${S.logN}&th=${S.thN}&peek=${peek}&chat=${S.chatN || 0}`);
+    const reqLog = S.logN, reqTh = S.thN;   // 兩個同時送出的請求 (強制刷新 + 定時) 會拿到同一段紀錄: 回來時只收還沒顯示過的
+    const snap = await api(`/api/state?log=${reqLog}&th=${reqTh}&peek=${peek}&chat=${S.chatN || 0}`);
     addChat(snap); S.canManage = !!snap.can_manage; S.roomLocked = !!snap.room_locked;
     S.roomNow = snap.room_name;
     if (snap.room_name) $("#roomname").textContent = "「" + snap.room_name + "」";
@@ -1842,10 +1843,11 @@ async function poll(force) {
     if (S.modalOpen === "lobby") { $("#modal").textContent = ""; S.modalOpen = null; S.baseSeat = null; S.logN = 0; S.thN = 0; S.thoughts = []; S.lastTh = {}; $("#log").textContent = ""; $("#thl").textContent = ""; }
     if (snap.log_total < S.logN) { S.baseSeat = null; S.logN = 0; $("#log").textContent = ""; return; }
     if (snap.thought_total < S.thN) { S.thN = 0; S.thoughts = []; S.lastTh = {}; return; }
-    addLogs(snap.logs); S.logN = snap.log_total;
+    if (S.logN >= reqLog && snap.logs) snap.logs = snap.logs.slice(S.logN - reqLog); addLogs(snap.logs); S.logN = snap.log_total;
     S.snap = snap;
     { const pd = snap.pending; if (pd && S.pingId !== pd.id) { S.pingId = pd.id; if (window.SGS_FX && snap.viewer != null) SGS_FX.sfx("ping"); } }   // 需要我行動: 提示音
     if (snap.thoughts_visible) {
+      if (S.thN >= reqTh && snap.thoughts) snap.thoughts = snap.thoughts.slice(S.thN - reqTh);
       snap.thoughts.forEach(t => { t._ts = Date.now(); S.thoughts.push(t); S.lastTh[t.who] = t; });
       S.thN = snap.thought_total;
       if (snap.thoughts.length) renderThoughts();
