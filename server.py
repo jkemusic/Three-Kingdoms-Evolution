@@ -1183,7 +1183,7 @@ def join_room(tok, rid, password, ip=""):
 
 
 def set_room_password(tok, rid, password):
-    """房主 / 建立者設定、修改或移除 (留空) 房間密碼;目前在房間裡的人不受影響。"""
+    """房主 / 建立者設定、修改或移除 (留空) 房間密碼。改密碼後,之前輸入過密碼的人 (包含現在在房間裡的) 都要重新輸入;房主和建立者不用。"""
     m = ROOMS.get(rid)
     if rid == "main" or m is None:
         return {"ok": False, "error": "這個房間不能設密碼"}
@@ -1194,8 +1194,7 @@ def set_room_password(tok, rid, password):
     password = str(password or "")[:20]
     if password:
         m.pw = Accounts._mk(password)
-        now = time.time()
-        m.allowed |= {t for t, ts in m.seen.items() if now - ts < 60}   # 現在在房間裡的人不用重新輸入
+        m.allowed.clear()
     else:
         m.pw = None
     return {"ok": True, "locked": bool(m.pw)}

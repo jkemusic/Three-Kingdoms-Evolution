@@ -2137,7 +2137,7 @@ async function roomRename() {
 }
 async function roomPassword() {
   const has = S.roomLocked;
-  const pw = prompt(has ? "輸入新的房間密碼 (留空 = 移除密碼):" : "設定房間密碼 (之後要進來的人都要輸入;留空 = 不設):", "");
+  const pw = prompt(has ? "輸入新的房間密碼 (已進來過的人都要重新輸入;留空 = 移除密碼):" : "設定房間密碼 (之後要進來的人都要輸入;留空 = 不設):", "");
   if (pw == null) return;
   const x = await (await fetch("/api/room_password", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({tok: TOK, target: ROOM, password: pw})})).json();
   if (!x.ok) { toast(x.error); return; }
