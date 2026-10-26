@@ -188,7 +188,7 @@ button.primary{background:linear-gradient(180deg,#52dcff,#1a9bd0);color:#02202e;
 .dlg,.ci{border-radius:3px;background:linear-gradient(160deg,#13264a,#0a152b);border:1px solid #2f6f9c;box-shadow:0 0 40px rgba(63,210,255,.2),0 18px 50px rgba(0,0,0,.7)}
 .dlg h3,.ci h3{color:var(--accent)}
 .modal{background:rgba(2,6,14,.75)}
-#prev{position:fixed;left:14px;top:66px;width:230px;background:linear-gradient(160deg,rgba(19,38,74,.97),rgba(8,18,36,.97));border:1px solid #2f6f9c;box-shadow:var(--glow),0 12px 30px rgba(0,0,0,.6);padding:10px;z-index:15;display:none;pointer-events:none}
+#prev{position:fixed;left:14px;top:66px;width:230px;background:linear-gradient(160deg,rgba(19,38,74,.97),rgba(8,18,36,.97));border:1px solid #2f6f9c;box-shadow:var(--glow),0 12px 30px rgba(0,0,0,.6);padding:10px;z-index:15;display:none;pointer-events:none;max-height:calc(100vh - 80px);overflow:hidden}
 #prev img{width:100%;border-radius:4px;display:block}
 #prev h4{margin:8px 0 4px;color:var(--accent);font-size:15px}
 #prev p{margin:0;font-size:13px;line-height:1.55;color:var(--text)}
@@ -686,6 +686,23 @@ function bindPrev(e, c) {   // 滑鼠移上去: 左側顯示大圖與效果 (類
   });
   e.addEventListener("mouseleave", () => { $("#prev").style.display = "none"; });
 }
+function bindCharPrev(e, p) {   // 滑鼠移到場上武將牌: 跟卡牌一樣在左側顯示大圖與技能
+  e.addEventListener("mouseenter", () => {
+    let c = (S.roster || []).find(x => x.name === p.char), note = "";
+    if (p.disguise && !p.dg_flip && (!p.flipped || p.disguise_kind === "disguise")) {
+      const d = (S.roster || []).find(x => x.name === p.disguise);
+      if (d) { c = d; note = p.disguise_kind === "alias" ? "🌀 化身為 · 這回合擁有他的技能" : "🎭 偽裝成 · 這回合擁有他的技能"; }
+    }
+    if (!c) return;
+    const P = $("#prev"); P.textContent = "";
+    if (c.img) P.append(h("img", {src: c.img}));
+    const st = [`體力 ${p.hp}/${p.maxhp}`, `手牌 ${p.hand_n}`]; if (p.role !== "?" && p.role !== "無") st.push(p.role);
+    P.append(h("h4", {text: `${c.faction} ${c.name}`}), note ? h("p", {style: {color: "var(--gold)", fontWeight: 700}, text: note}) : null, h("p", {class: "meta", text: st.join(" / ")}),
+      ...(c.skills || []).map((t, i) => h("p", {text: /^\d+[.、]/.test(t) || c.skills.length < 2 ? t : (i + 1) + ". " + t})));
+    P.style.display = "block";
+  });
+  e.addEventListener("mouseleave", () => { $("#prev").style.display = "none"; });
+}
 function charBody(c, st, tag, p) {
   return h("div", {class: "ci char"}, c.img ? h("img", {src: c.img}) : "",
     h("div", {}, tag ? h("div", {class: "recb", text: tag}) : "", h("h3", {text: `${c.faction} ${c.name}`}), h("div", {class: "meta", text: st}),
@@ -875,6 +892,7 @@ function renderTable0(snap) {
     const x = 50 + 41 * Math.cos(ang), y = 50 + 38 * Math.sin(ang);
     const rp = n >= 7 ? perimPos(k / n, T.clientWidth, T.clientHeight, HW[T.className], HH[T.className]) : null;
     const ph = h("div", {class: "ph", title: "點擊查看武將詳細資訊", onclick: ev => { ev.stopPropagation(); showCharInfo(p); }});
+    bindCharPrev(ph, p);
     if (p.char) ph.style.backgroundImage = `url("/thumb/char/${encodeURIComponent(p.char)}")`;
     const dgFlip = !!p.dg_flip && p.disguise_kind === "disguise";   // 偽裝的那張翻面 → 牌背;本尊翻面看 p.flipped
     if (p.disguise && (!p.flipped || p.disguise_kind === "disguise")) {   // 偽裝: 把偽裝的武將蓋在原本的武將牌上面
