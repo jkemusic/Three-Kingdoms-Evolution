@@ -558,7 +558,7 @@ class Game:
                 if victims:
                     v = tgt.agent.choose_target(self, tgt, "反", victims)
                     self.log(f"  傷害轉移給 {v.name}")
-                    self.damage(src, v, n * (2 if tgt.char.fan_double else 1), nature=nature, _bonus=False, _mods=False)
+                    self.damage(tgt, v, n * (2 if tgt.char.fan_double else 1), nature=nature)   # 反擊: 傷害來源改成使用者,所以吃流星錘 +1 和強化 / 弱化
                     return 0
             elif cname == "占":
                 j = self.flip_judge(tgt)

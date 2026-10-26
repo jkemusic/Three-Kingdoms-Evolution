@@ -76,7 +76,7 @@ T = {
         ("After your Duel makes someone lose HP, you and they each draw 1", "決闘で相手が体力を失った後、あなたと相手が各1枚引く")],
 "吳懿": [("Once per turn, swap all hand cards with another player; if you use x of the swapped cards this turn, lose x HP next turn (void)", "1ターン1回、別のプレイヤーと手札を全て交換。交換した札をこのターンx枚使うと、次のターンに体力-x(無効)"),
         ("When you lose HP you may draw cards equal to the damage", "体力を失った時、ダメージ量と同じ枚数を引ける")],
-"周倉": [("You may take another draw phase, but can't play basic cards in that play phase", "もう一度ドローフェイズを行える。ただしその出牌フェイズでは基本札を出せない"),
+"周倉": [("You may take another draw phase, but can't play basic cards in your play phase", "もう一度ドローフェイズを行える。ただし出牌フェイズでは基本札を出せない"),
         ("Whenever you take damage you may play Dodges equal to the damage to block it", "ダメージを受けた時、ダメージ量と同じ数の閃を出して防げる")],
 "姜維": [("The number of cards you discard in the discard phase = extra cards you draw next turn (max 4)", "弃牌フェイズで捨てた枚数 = 次のターンに多く引ける枚数(最大4枚)"),
         ("Reinforce / Cut the Stoves can be used as Resolve", "増兵減灶を発憤図強として使える")],
