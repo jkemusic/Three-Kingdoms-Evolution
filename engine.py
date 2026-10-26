@@ -492,6 +492,8 @@ class Game:
             self.log(f"  {tgt.name} 的傷害被抵銷")
             return
         n = self.damage_reactions(src, tgt, n, nature)
+        if n > 0 and tgt.alive:
+            n = tgt.char.cap_damage(self, tgt, n)   # 打出反 / 調 / 占 之後手牌可能空了 (諸葛亮: 沒手牌不扣血),要重新檢查
         if n <= 0 or not tgt.alive:
             return
         tgt.hp -= n
