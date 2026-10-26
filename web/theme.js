@@ -32,8 +32,59 @@
       return hsl2rgb(A[0], clamp(s * (A[1] / RA[1]), 0, 1), clamp(l + (A[2] - RA[2]), 0.05, 0.95));   // 主色系
     };
   }
+  /* ---------- 古風三國 外觀: 絳紅 / 墨黑 / 金線,整個牌桌換成書卷風 (主題選「古風三國」時啟用) ---------- */
+  const GF_A = "#d4a64a";
+  const gf = document.createElement("style"); gf.dataset.cos = "1";
+  gf.textContent = `
+html.gf{--gold:#d9ad4f;--red:#d2412f;--felt1:#3a281a;--felt2:#140d08;--ser:"Noto Serif TC","Source Han Serif TC","Songti TC","STSong","PMingLiU","MingLiU",serif}
+html.gf,html.gf body{background:radial-gradient(ellipse at 50% -10%,#3a2316 0,#150d08 62%)}
+html.gf #top{background:linear-gradient(90deg,#1c120b,#26180e 50%,#1c120b);border-bottom:1px solid #8a6a30;box-shadow:0 1px 0 rgba(217,173,79,.3),0 4px 18px rgba(0,0,0,.55)}
+html.gf #top .title{font-family:var(--ser);letter-spacing:.3em;color:#e8c872;text-shadow:0 0 12px rgba(217,173,79,.45)}
+html.gf #tablewrap::before{border:3px double #b88a3a;background:repeating-linear-gradient(45deg,rgba(217,173,79,.045) 0 2px,transparent 2px 16px),repeating-linear-gradient(-45deg,rgba(217,173,79,.045) 0 2px,transparent 2px 16px),radial-gradient(ellipse at 50% 42%,#4a3322 0,#26180f 58%,#120a06 100%);box-shadow:0 0 0 5px #1a0f08,0 0 0 6px rgba(217,173,79,.55),0 0 40px rgba(217,173,79,.12),inset 0 0 80px rgba(0,0,0,.7)}
+html.gf #tablewrap::after{box-shadow:inset 0 0 0 1px rgba(217,173,79,.3);margin:30px}
+html.gf #center .big{font-family:var(--ser);color:#e8c872;text-shadow:0 0 16px rgba(217,173,79,.5)}
+html.gf #center{color:#c9b48a}
+html.gf #roundtag{font-family:var(--ser);color:#e8c872;text-shadow:0 0 12px rgba(217,173,79,.45)}
+html.gf #roundtag .rtdeck{color:#c9b48a}
+html.gf .pl{border-radius:6px;background:linear-gradient(160deg,#2c2016,#17100b);box-shadow:inset 0 0 0 1px #8a6a30,inset 0 0 0 4px #17100b,inset 0 0 0 5px rgba(217,173,79,.3),0 6px 14px rgba(0,0,0,.5)}
+html.gf .pl:hover{box-shadow:inset 0 0 0 1px #d9ad4f,inset 0 0 0 4px #17100b,inset 0 0 0 5px rgba(217,173,79,.45),0 6px 14px rgba(0,0,0,.5)}
+html.gf .pl.cur{box-shadow:inset 0 0 0 2px #e8c872,inset 0 0 0 4px #17100b,0 0 22px rgba(217,173,79,.55);animation:none}
+html.gf .pl.cur::after{content:"出牌";font-family:var(--ser);color:#f6e7c1;background:linear-gradient(#c43a28,#8e2118);border-radius:2px;letter-spacing:.2em;box-shadow:0 0 0 1px #e8c872,0 2px 8px rgba(0,0,0,.5)}
+html.gf .pl.sel{box-shadow:inset 0 0 0 2px #e8c872}
+html.gf .pl .ph{border-radius:3px;border:1px solid #8a6a30;box-shadow:inset 0 0 8px rgba(0,0,0,.6),0 0 0 1px #17100b}
+html.gf .pl .nm{font-family:var(--ser);color:#f3e6c4}
+html.gf .role{border-radius:2px;font-family:var(--ser);box-shadow:0 0 0 1px rgba(246,231,193,.55);letter-spacing:.05em}
+html.gf .hp{color:#e0533d;text-shadow:0 0 6px rgba(224,83,61,.45)}
+html.gf .hp .e{color:#4a3a2c}
+html.gf .tag{border-radius:2px;background:rgba(217,173,79,.08);border-color:#6a5230}
+html.gf .bubble{background:#f1e4c3;color:#2b2415;border:1px solid #8a6a30;border-radius:3px;box-shadow:0 4px 12px rgba(0,0,0,.5)}
+html.gf .bubble::after{border-top-color:#f1e4c3}
+html.gf .pl.bb .bubble::after{border-bottom-color:#f1e4c3}
+html.gf .card{border-radius:5px;border:1px solid #8a6a30;box-shadow:0 4px 12px rgba(0,0,0,.6)}
+html.gf .card.ok{border:2px solid #e8c872;box-shadow:0 0 14px rgba(217,173,79,.55),0 4px 10px rgba(0,0,0,.6)}
+html.gf .card.picked{border-color:#fff1b8;box-shadow:0 0 22px #e8c872,0 10px 18px rgba(0,0,0,.6)}
+html.gf #side{background:linear-gradient(180deg,#22160d,#130b07);border-left:1px solid #8a6a30}
+html.gf #tabs{background:rgba(0,0,0,.28)}
+html.gf #tabs button.on{background:rgba(217,173,79,.1);color:#e8c872;box-shadow:inset 0 -2px 0 #d9ad4f}
+html.gf #log .turn{background:linear-gradient(90deg,rgba(217,173,79,.2),transparent);color:#e8c872;border-left-color:#d9ad4f}
+html.gf .th,html.gf .cc{border-radius:3px;background:rgba(44,32,22,.8);border-color:#5a4426}
+html.gf #bottom{background:linear-gradient(180deg,#22160d,#110a06);border-top:1px solid #8a6a30;box-shadow:0 -1px 0 rgba(217,173,79,.3),0 -6px 18px rgba(0,0,0,.45)}
+html.gf #bar .pr{color:#e8c872;text-shadow:0 0 8px rgba(217,173,79,.35)}
+html.gf button{background:linear-gradient(180deg,#3a281a,#24170f);box-shadow:inset 0 0 0 1px #8a6a30;border-radius:4px}
+html.gf button:hover{background:linear-gradient(180deg,#4a3322,#2e1e13);box-shadow:inset 0 0 0 1px #e8c872,0 0 10px rgba(217,173,79,.3)}
+html.gf button.primary{background:linear-gradient(180deg,#c43a28,#8e2118);color:#f6e7c1;box-shadow:inset 0 0 0 1px #e8c872}
+html.gf #status{border-radius:3px;background:#24170f;border-color:#6a5230;color:#e8c872}
+html.gf .dlg,html.gf .ci{border-radius:5px;background:linear-gradient(160deg,#2c2016,#17100b);border:1px solid #8a6a30;box-shadow:0 0 0 4px #17100b,0 0 0 5px rgba(217,173,79,.35),0 18px 50px rgba(0,0,0,.7)}
+html.gf .dlg h3,html.gf .ci h3{font-family:var(--ser);color:#e8c872;letter-spacing:.12em}
+html.gf .modal{background:rgba(10,5,2,.72)}
+html.gf .pickbar{background:linear-gradient(160deg,#2c2016,#17100b);border:1px solid #d9ad4f;box-shadow:0 0 24px rgba(217,173,79,.35)}
+`;
+  document.head.appendChild(gf);
+  const gfOn = t => document.documentElement.classList.toggle("gf", !!(t && t.a && t.a.toLowerCase() === GF_A));
+
   const origs = new WeakMap();
   function apply(t) {
+    gfOn(t);
     const els = [...document.querySelectorAll("style")].filter(e => !e.dataset.cos);
     const off = !t || !t.a || !t.b || (t.a.toLowerCase() === DEF.a && t.b.toLowerCase() === DEF.b);
     const mp = off ? null : mapper(t), hx = v => v.toString(16).padStart(2, "0");
@@ -220,8 +271,9 @@
 .fx-beam>.fxa{left:18%;right:18%;top:-70%;bottom:50%;z-index:-1;background:linear-gradient(0deg,rgba(255,240,170,.9),rgba(255,240,170,.15) 70%,transparent);filter:blur(2px);animation:fxbm 2.4s ease-in-out infinite}
 .fx-beam>.fxb{inset:-2px;border-radius:50%;z-index:-1;box-shadow:0 0 12px 3px rgba(255,235,150,.8);animation:fxglow2 2.4s ease-in-out infinite}
 @keyframes fxbm{0%,100%{opacity:.55;transform:scaleY(.85)}50%{opacity:1;transform:scaleY(1.1)}}
-.fx-sun>.fxa{inset:-11px;border-radius:50%;z-index:-1;background:repeating-conic-gradient(rgba(255,210,70,.95) 0 5deg,transparent 5deg 15deg);-webkit-mask:radial-gradient(circle,transparent 40%,#000 44%);mask:radial-gradient(circle,transparent 40%,#000 44%);animation:frspin 9s linear infinite}
-.fx-sun>.fxb{inset:-3px;border-radius:50%;z-index:-1;box-shadow:0 0 12px 4px rgba(255,200,60,.7);animation:fxglow2 2s ease-in-out infinite}
+.fx-sun>.fxa{inset:-24px;border-radius:50%;z-index:-1;background:repeating-conic-gradient(#fff2a8 0 3deg,#ffc83a 3deg 6deg,transparent 6deg 30deg);-webkit-mask:radial-gradient(closest-side,transparent 62%,#000 69%,rgba(0,0,0,.5) 84%,transparent 100%);mask:radial-gradient(closest-side,transparent 62%,#000 69%,rgba(0,0,0,.5) 84%,transparent 100%);animation:frspin 16s linear infinite}
+.fx-sun::after{inset:-14px;z-index:-1;background:repeating-conic-gradient(from 15deg,#ff9a2e 0 4deg,transparent 4deg 30deg);-webkit-mask:radial-gradient(closest-side,transparent 72%,#000 80%,transparent 100%);mask:radial-gradient(closest-side,transparent 72%,#000 80%,transparent 100%);animation:frspin 22s linear infinite reverse}
+.fx-sun>.fxb{inset:-8px;border-radius:50%;z-index:-1;background:radial-gradient(closest-side,transparent 84%,rgba(255,226,110,.85) 90%,rgba(255,160,50,.4) 96%,transparent 100%);animation:fxglow2 2.6s ease-in-out infinite}
 .fx-ki>.fxa{inset:-8px;z-index:-1;border-radius:50% 50% 45% 45%;background:radial-gradient(ellipse at 50% 80%,#fff6a8 0,#ffd23a 40%,rgba(255,170,0,0) 75%);filter:blur(2px);animation:fxki .35s ease-in-out infinite alternate}
 .fx-ki>.fxb{inset:-4px;z-index:-1;border-radius:50%;box-shadow:0 0 10px 3px rgba(255,220,70,.9);animation:fxki .5s ease-in-out infinite alternate-reverse}
 @keyframes fxki{from{transform:scale(.94,.9);opacity:.75}to{transform:scale(1.08,1.16) translateY(-2px);opacity:1}}
@@ -235,7 +287,8 @@
 .fx-meteor>.fxb{height:8px;animation-name:fxmt2;animation-delay:-1.1s}
 @keyframes fxmt{0%{left:8%;top:-4%;opacity:0}10%{opacity:1}60%{opacity:1}100%{left:72%;top:60%;opacity:0}}
 @keyframes fxmt2{0%{left:40%;top:-6%;opacity:0}10%{opacity:1}60%{opacity:1}100%{left:92%;top:50%;opacity:0}}
-#cosdlg .tabs{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 12px}
+#cosdlg .tabs{display:flex;gap:6px;flex-wrap:nowrap;margin:4px 0 12px}
+#cosdlg .tabs button{flex:1 1 0;min-width:0;padding:6px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #cosdlg .tabs button.on{background:linear-gradient(180deg,#46d6ff,#1b9fd6);color:#021c2a;font-weight:700}
 #cosdlg .grid{display:flex;gap:10px;flex-wrap:wrap}
 #cosdlg .tile{width:92px;padding:10px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;border-radius:10px;position:relative}
@@ -306,7 +359,7 @@
     if (!boxStyle) {
       boxStyle = document.createElement("style");
       boxStyle.textContent = `.pl[data-bx],.pvseat[data-bx]{background:var(--bx-bg)!important}
-.pl[data-bx]:not(.cur),.pvseat[data-bx]{box-shadow:var(--bx-sh)!important}
+.pl[data-bx]:not(.cur):not(.target):not(.win),.pvseat[data-bx]{box-shadow:var(--bx-sh)!important}
 .pl[data-bx].cur{background:var(--bx-bg)!important}`;
       document.head.appendChild(boxStyle);
     }
@@ -449,7 +502,7 @@ button:disabled{cursor:not-allowed}
 /* 觸控螢幕 (iPad 等): 視窗裡的按鈕 / 輸入框至少 40px 高,避免點錯 */
 @media (pointer:coarse){.dlg button,.dlg select,.dlg input:not([type=checkbox]):not([type=radio]),#members .mr button{min-height:40px}}
 /* 系統設定了「減少動態效果」: 關掉無限循環動畫和過場 */
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}`;
+@media (prefers-reduced-motion:reduce){*:not(.avw):not(.avw>*),:not(.avw)::before,:not(.avw)::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}`;
   st.textContent += `
 /* 頭像動畫只動 opacity / transform (不動 box-shadow / filter),人多時才不會卡 */
 .fx-glow::after{box-shadow:0 0 12px 4px rgba(120,230,255,.9);animation:fxglow2 2.2s ease-in-out infinite}

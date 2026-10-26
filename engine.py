@@ -1220,8 +1220,10 @@ class Game:
                 tk = p._trk = [self.turn_id, 0]
             tk[1] += 1
             if tk[1] > 1 and self.aura("one_card"):   # 曹沖: 一回合只能用 1 張錦囊,每超過一張 -1 點體力
-                self.log(f"  [曹沖] {p.name} 這回合第 {tk[1]} 張錦囊,超過 1 張,扣 1 點體力")
-                self.damage(next((q for q in self.alive_players() if q.char.one_card), None), p, 1, _bonus=False, _mods=False)   # 來源是曹沖 (場上有曹沖技能的人),只標來源,不吃武器 / 強弱加成
+                cc = next((q for q in self.alive_players() if q.char.one_card), None)
+                self.log(f"  {cc.name if cc else ''}[曹沖] {p.name} 這回合第 {tk[1]} 張錦囊,超過 1 張,扣 1 點體力 (可閃)")
+                if not (p.alive and self.need_response(p, "閃", {"attacker": cc})):
+                    self.damage(cc, p, 1, _bonus=False, _mods=False)   # 來源是曹沖 (場上有曹沖技能的人),只標來源,不吃武器 / 強弱加成
         if real is not card:
             p.char.on_view_used(self, p, card)
         if isinstance(tgt, Player) and tgt is not p and tgt.alive and card.kind in ("basic", "trick"):

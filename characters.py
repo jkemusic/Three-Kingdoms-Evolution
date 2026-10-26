@@ -1499,14 +1499,12 @@ class 曹沖(Char):
     name, faction = "曹沖", "魏"
     one_card = True
 
-    def on_other_trick(self, g, p, user, real):  # 和使用錦囊的人永遠交換武將 (可閃)
+    def on_other_trick(self, g, p, user, real):  # 和使用錦囊的人永遠交換武將 (不可閃;可閃的是「超過一張錦囊扣血」那條)
         if not user.alive or not g.trigger_ok(p, "曹沖-交換"):
             return
         if not p.agent.choose_skill(g, p, "曹沖-交換武將"):
             return
-        g.link(f"{p.name}[曹沖] 要和 {user.name} 永遠交換武將 (可閃)")
-        if g.need_response(user, "閃", {"attacker": p}):
-            return
+        g.link(f"{p.name}[曹沖] 要和 {user.name} 永遠交換武將")
         p._char, user._char = user._char, p._char
         for q in (p, user):
             q.borrow, q.borrow2, q.alias, q.disguise = [], [], [], []   # 換了武將: 原本複製 / 化身 / 偽裝的狀態不帶過去
