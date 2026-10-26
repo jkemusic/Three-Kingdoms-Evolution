@@ -826,7 +826,17 @@ class Manager:
         return {s: u for s, t in self.claims.items() if (u := PROFILES.avatar_url(t))}
 
     def seat_styles(self):
-        return {s: PROFILES.style(t) for s, t in self.claims.items()}
+        out = {s: PROFILES.style(t) for s, t in self.claims.items()}
+        g = self.game
+        if g is not None:   # 電腦玩家: 每局隨機套用頭像框 / 特效 / 玩家框 (同一局固定不變)
+            if getattr(self, "_bot_gid", None) != id(g):
+                rnd = random.Random(id(g))
+                pick = lambda L, none: rnd.choice([x["id"] for x in L if x["id"]] + [""] * none)
+                self._bot_gid = id(g)
+                self._bot_sty = {i: {"fr": pick(cosmetics.FRAMES, 1), "fx": pick(cosmetics.EFFECTS, 3), "bx": pick(cosmetics.BOXES, 2)} for i in range(len(g.players))}
+            for i, st in self._bot_sty.items():
+                out.setdefault(i, st)
+        return out
 
     def set_chain_pref(self, tok, on):
         if not hasattr(self, "chain_pref"):

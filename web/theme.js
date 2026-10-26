@@ -47,6 +47,8 @@ html.gf #center{color:#c9b48a}
 html.gf #roundtag{font-family:var(--ser);color:#e8c872;text-shadow:0 0 12px rgba(217,173,79,.45)}
 html.gf #roundtag .rtdeck{color:#c9b48a}
 html.gf .pl{border-radius:6px;background:linear-gradient(160deg,#2c2016,#17100b);box-shadow:inset 0 0 0 1px #8a6a30,inset 0 0 0 4px #17100b,inset 0 0 0 5px rgba(217,173,79,.3),0 6px 14px rgba(0,0,0,.5)}
+html.gf #cosdlg .pvseat{background:linear-gradient(160deg,#2c2016,#17100b);box-shadow:inset 0 0 0 1px #8a6a30}
+html.px #cosdlg .pvseat{background:var(--pxbg);box-shadow:inset 0 0 0 3px var(--pxfg)}
 html.gf .pl:hover{box-shadow:inset 0 0 0 1px #d9ad4f,inset 0 0 0 4px #17100b,inset 0 0 0 5px rgba(217,173,79,.45),0 6px 14px rgba(0,0,0,.5)}
 html.gf .pl.cur{box-shadow:inset 0 0 0 2px #e8c872,inset 0 0 0 4px #17100b,0 0 22px rgba(217,173,79,.55);animation:none}
 html.gf .pl.cur::after{content:"出牌";font-family:var(--ser);color:#f6e7c1;background:linear-gradient(#c43a28,#8e2118);border-radius:2px;letter-spacing:.2em;box-shadow:0 0 0 1px #e8c872,0 2px 8px rgba(0,0,0,.5)}
@@ -164,14 +166,33 @@ html.px .pickbar{background:var(--pxbg);border:3px solid var(--pxacc);box-shadow
 @keyframes pxblink{0%,49%{opacity:1}50%,100%{opacity:.3}}
 @keyframes pxinv{50%{filter:invert(1)}}
 @keyframes pxhue{to{filter:hue-rotate(360deg)}}
-html.px .avw::before,html.px .avw::after,html.px .avw>i{animation-timing-function:steps(4)}
-html.px .fr-6::before{animation:pxhue 3s steps(12) infinite}
-html.px .avw.fr-storm::before{animation:pxinv .6s steps(1) infinite}
-html.px .fx-ring::after{animation:pxblink .8s steps(1) infinite}
-html.px .fx-aurora::after,html.px .fx-rainbow::after{animation:pxhue 4s steps(12) infinite}
-html.px .fx-sun>.fxa{animation:frspin 16s steps(24) infinite}
-html.px .fx-sun::after{animation:frspin 22s steps(24) infinite reverse}
+html.px .avw::before,html.px .avw::after,html.px .avw>i{animation-timing-function:steps(12)}   /* 一般特效 12 格,看起來像像素動畫但不會一頓一頓 */
+html.px .fx-flame::after,html.px .fx-ki>.fxa,html.px .fx-shadow>.fxa,html.px .fx-beam>.fxa{filter:none}   /* 模糊濾鏡很吃效能,像素主題不需要 */
+html.px .fx-arc>.fxa{border:3px dashed #ffe45a;filter:none;animation:pxblink .5s steps(1) infinite}
+html.px .fx-arc>.fxb{border:3px dotted #fff;filter:none;animation:pxblink .5s steps(1) infinite .25s}
+@keyframes pxstripe{to{background-position:16px 0}}
+html.px .avw.fr-storm::before{background:linear-gradient(45deg,#ffec27 25%,#1d2b53 25% 50%,#ffec27 50% 75%,#1d2b53 75%) 0 0/16px 16px;animation:pxstripe .6s steps(4) infinite}
 html.px .fx-comet>.fxa{-webkit-mask:none;mask:none;clip-path:polygon(evenodd,0 0,100% 0,100% 100%,0 100%,0 0,8px 8px,8px calc(100% - 8px),calc(100% - 8px) calc(100% - 8px),calc(100% - 8px) 8px,8px 8px)}
+/* 旋轉特效: 元素本身不轉 (方形轉了角會突出來),改成轉裡面的漸層角度 / 虛線環,連續不卡頓又不會破形 */
+@property --pxa{syntax:"<angle>";inherits:false;initial-value:0deg}
+@keyframes pxrot{to{--pxa:360deg}}
+@keyframes pxorb{0%,100%{left:0;top:0}25%{left:100%;top:0}50%{left:100%;top:100%}75%{left:0;top:100%}}
+html.px .fx-ring::after,html.px .fx-ice>.fxa,html.px .fx-vortex>.fxb{border:0;padding:3px;filter:none;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);animation:pxrot 3s linear infinite}
+html.px .fx-ring::after{background:repeating-conic-gradient(from var(--pxa),rgba(190,245,255,.95) 0 12deg,transparent 12deg 30deg)}
+html.px .fx-ice>.fxa{background:repeating-conic-gradient(from var(--pxa),rgba(190,240,255,.95) 0 6deg,transparent 6deg 18deg);animation-duration:6s}
+html.px .fx-vortex>.fxb{background:repeating-conic-gradient(from var(--pxa),rgba(200,140,255,.95) 0 10deg,transparent 10deg 24deg);animation-direction:reverse}
+html.px .fx-orbit>.fxa,html.px .fx-orbit>.fxb{animation:none}
+html.px .fx-orbit>.fxa::before,html.px .fx-orbit>.fxb::before{left:0;top:0;margin:-3px 0 0 -3px;box-shadow:none;animation:pxorb 2.6s linear infinite}
+html.px .fx-orbit>.fxb::before{animation-duration:4.2s;animation-direction:reverse}
+html.px .fr-6::before{background:conic-gradient(from var(--pxa),#ff5d73,#ffd24a,#46e0a0,#3fd2ff,#9b6bff,#ff5d73)!important;animation:pxrot 4s linear infinite}
+html.px .fx-aurora::after{background:conic-gradient(from var(--pxa),#46e0a0,#3fd2ff,#9b6bff,#ff7ad9,#46e0a0);filter:none;animation:pxrot 3.4s linear infinite}
+html.px .fx-rainbow::after{background:conic-gradient(from var(--pxa),#ff5d73,#ffd24a,#46e0a0,#3fd2ff,#9b6bff,#ff5d73);filter:none;animation:pxrot 2.2s linear infinite}
+html.px .fx-vortex>.fxa{background:conic-gradient(from var(--pxa),rgba(10,0,30,.95),rgba(150,60,255,.8),rgba(10,0,30,.95) 50%,rgba(150,60,255,.8),rgba(10,0,30,.95));filter:none;animation:pxrot 1.6s linear infinite}
+html.px .fx-radar>.fxa{background:conic-gradient(from var(--pxa),transparent 0 70%,rgba(110,255,190,.75) 100%);animation:pxrot 2.2s linear infinite}
+html.px .fx-comet>.fxa{background:conic-gradient(from var(--pxa),transparent 0 78%,rgba(120,220,255,.1) 84%,rgba(255,255,255,.95) 100%);animation:pxrot 1.8s linear infinite}
+html.px .fx-sun>.fxa{background:repeating-conic-gradient(from var(--pxa),#fff2a8 0 3deg,#ffc83a 3deg 6deg,transparent 6deg 30deg);animation:pxrot 16s linear infinite}
+html.px .fx-sun::after{background:repeating-conic-gradient(from calc(15deg + var(--pxa)),#ff9a2e 0 4deg,transparent 4deg 30deg);animation:pxrot 22s linear infinite reverse}
+html.px .fr-yinyang::before{background:conic-gradient(from var(--pxa),#fff 0 50%,#000 50% 100%);animation:pxrot 6s linear infinite}
 @font-face{font-family:"SGS Pixel TW";src:url(/fonts/pixel-tw.woff2) format("woff2");font-display:swap}
 @font-face{font-family:"SGS Pixel JA";src:url(/fonts/pixel-ja.woff2) format("woff2");font-display:swap}
 `;
@@ -220,6 +241,7 @@ ${S} #top .title,${S} #center .big,${S} #roundtag,${S} .dlg h3,${S} .ci h3,${S} 
 ${S} #tablewrap::before{border:${Math.max(3, lw * 2)}px ${s.bs === "dashed" ? "solid" : s.bs} ${s.tbl};background:${s.tpat ? s.tpat + "," : ""}radial-gradient(ellipse at 50% 42%,${s.felt[0]} 0,${s.felt[1]} 100%);box-shadow:0 0 0 3px ${s.bg},0 0 0 4px ${s.line}${sh === "none" ? "" : "," + sh},inset 0 0 70px rgba(0,0,0,.6)}
 ${S} #tablewrap::after{box-shadow:inset 0 0 0 1px ${s.line}55}
 ${S} #center,${S} #roundtag .rtdeck{color:${s.dim}}
+${S} #cosdlg .pvseat{background:${P};box-shadow:inset 0 0 0 1px ${s.line}}
 ${S} .pl{background:${P};border:${B};border-radius:${r}px;box-shadow:${sh};animation:none}
 ${S} .pl:hover{border-color:${s.acc}}
 ${S} .pl.cur{border-color:${s.acc};box-shadow:0 0 0 2px ${s.acc}55,0 0 22px ${s.acc}88;animation:none}
@@ -344,7 +366,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 .fr-0{--fb:linear-gradient(135deg,#e29a58,#7a4a1c)}
 .fr-1{--fb:linear-gradient(135deg,#f4f8fc,#8c9bad 60%,#dfe7ef)}
 .fr-2{--fb:linear-gradient(135deg,#fff0a0,#d89a14 55%,#ffe27a);box-shadow:0 0 5px rgba(255,210,80,.55)}
-.fr-3{--fb:linear-gradient(135deg,#e6fdff,#58c8dc 55%,#bff6ff);box-shadow:0 0 7px rgba(150,240,255,.7)}
+.fr-3{--fb:linear-gradient(135deg,#7ff0e0,#1f9e92 50%,#5fe6d2);box-shadow:0 0 8px rgba(60,230,200,.85)}
 .fr-4{--fb:linear-gradient(135deg,#aef0ff,#2f6cff 55%,#7ad8ff);box-shadow:0 0 8px rgba(90,170,255,.85)}
 .fr-5{--fb:linear-gradient(135deg,#f0b6ff,#6a2bd1 55%,#d68bff);box-shadow:0 0 9px rgba(190,110,255,.9)}
 .fr-6::before{background:conic-gradient(#ff5d73,#ffd24a,#46e0a0,#3fd2ff,#9b6bff,#ff5d73)!important;animation:frspin 4s linear infinite}
@@ -527,7 +549,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
     px_dungeon: { px: 1, c: ["#5b5f6b", "#43464f"], bd: "#c2c3c7", gl: "#c2c3c7", fl: `linear-gradient(rgba(0,0,0,.28) 2px,transparent 2px) 0 0/32px 16px,linear-gradient(90deg,rgba(0,0,0,.28) 2px,transparent 2px) 0 0/32px 16px` },
     px_coin:    { px: 1, c: ["#e8b923", "#b8860b"], bd: "#fff1b0", gl: "#fff1b0", fl: pxc("rgba(255,255,255,.16)", 12) },
     px_lava:    { px: 1, c: ["#d9381e", "#7a1408"], bd: "#ffa300", gl: "#ffa300", fl: pxc("rgba(255,163,0,.22)", 16) },
-    px_night:   { px: 1, c: ["#1d2b53", "#0b1230"], bd: "#29adff", gl: "#29adff", fl: `radial-gradient(#fff 1px,transparent 1.5px) 0 0/22px 22px,radial-gradient(#ffec27 1px,transparent 1.5px) 11px 11px/34px 34px` },
+    px_night:   { px: 1, c: ["#0a0e1f", "#000000"], bd: "#ffec27", gl: "#ffec27", fl: `linear-gradient(45deg,#ffec27 10%,transparent 10% 90%,#ffec27 90%) 0 0/36px 36px,linear-gradient(-45deg,rgba(255,255,255,.5) 8%,transparent 8% 92%,rgba(255,255,255,.5) 92%) 18px 18px/36px 36px` },
     felt:    { c: ["#1f6b52", "#0b2f25"], bd: "#c89b5e", gl: "#c89b5e" },
     wine:    { c: ["#6a1b2c", "#2a0a12"], bd: "#e5b26b", gl: "#e5b26b" },
     charcoal:{ c: ["#3a3f47", "#14171b"], bd: "#aeb8c6", gl: "#aeb8c6" },
@@ -572,15 +594,14 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
     el.dataset.bx = id;
     if (sp.px) el.dataset.bxpx = "1"; else delete el.dataset.bxpx;
     const st = el.style;
-    st.setProperty("--bx-bg", `${sp.fl ? sp.fl + "," : ""}linear-gradient(var(--bxa,160deg),${sp.c[0]}f2,${sp.c[1]}f5)`);
+    const band = sp.px ? "linear-gradient(105deg,transparent 42%,rgba(255,255,255,.2) 42% 54%,transparent 54%) 0% 0/260% 100% no-repeat" : `linear-gradient(105deg,transparent 38%,rgba(255,255,255,.07) 44%,${sp.bd}55 50%,rgba(255,255,255,.07) 56%,transparent 62%) 0% 0/260% 100% no-repeat`;   // 掃過的亮帶: 每個框都有
+    st.setProperty("--bx-bg", `${band},${sp.fl ? sp.fl + "," : ""}linear-gradient(var(--bxa,160deg),${sp.c[0]}f2,${sp.c[1]}f5)`);
     const layers = []; { let d = 0, cur = ""; for (const ch of (sp.fl || "")) { if (ch === "(") d++; if (ch === ")") d--; if (ch === "," && !d) { layers.push(cur); cur = ""; } else cur += ch; } if (cur.trim()) layers.push(cur); }
     const szs = layers.map(l => /\/\s*(\d+)px\s+(\d+)px/.exec(l));   // 有固定大小的圖樣: 每層依自己的大小飄移一格,才能無縫循環
-    if (szs.some(Boolean)) {
-      st.setProperty("--bx-p0", szs.map(() => "0 0").concat("0 0").join(","));
-      st.setProperty("--bx-p1", szs.map(m => m ? m[1] + "px " + m[2] + "px" : "0 0").concat("0 0").join(","));
-      st.setProperty("--bx-dur", (sp.px ? 3 : 9) + "s");
-      el.dataset.bxm = "1";
-    } else { delete el.dataset.bxm; st.removeProperty("--bx-p0"); st.removeProperty("--bx-p1"); }
+    st.setProperty("--bx-p0", ["0% 0"].concat(szs.map(() => "0 0"), "0 0").join(","));
+    st.setProperty("--bx-p1", ["100% 0"].concat(szs.map(m => m ? m[1] + "px " + m[2] + "px" : "0 0"), "0 0").join(","));
+    st.setProperty("--bx-dur", (sp.px ? 3 : 6) + "s");
+    el.dataset.bxm = "1";
     st.setProperty("--bx-sh", sp.px ? `inset 0 0 0 3px ${sp.bd},0 0 0 3px #000,5px 5px 0 3px rgba(0,0,0,.5)` : `inset 0 0 0 1px ${sp.bd},inset 0 0 22px ${sp.gl}33,0 0 14px ${sp.gl}40`);
   }
   window.SGS_BOX = { apply: applyBox, spec: BOX };
