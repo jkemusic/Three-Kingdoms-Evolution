@@ -26,6 +26,7 @@ class Social:
         self.invites = {}             # 被邀請者 key -> [{id, frm, room, rname, t}]
         self.rate = {}                # (key, 動作) -> [時間]
         self.inv_id = 0
+        self.uid_key = None           # 函式: 8 位數字 UID -> 帳號 key (由 server 設定)
 
     # ---------- 基本 ----------
     def _save(self):
@@ -72,9 +73,14 @@ class Social:
 
     # ---------- 好友 ----------
     def add(self, key, name):
-        name = (name or "").strip().lower()
+        """name: 對方的 8 位數字 UID (也接受使用者名稱)。"""
+        name = (name or "").strip()
+        if name.isdigit() and len(name) == 8 and self.uid_key:
+            name = self.uid_key(name) or ""
+        else:
+            name = name.lower()
         if not name or name not in self.acc.d:
-            return {"ok": False, "error": "找不到這個使用者名稱"}
+            return {"ok": False, "error": "找不到這個 UID"}
         if name == key:
             return {"ok": False, "error": "不能加自己為好友"}
         with self.lock:

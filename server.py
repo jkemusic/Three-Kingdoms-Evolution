@@ -274,6 +274,13 @@ class Accounts:
             self.d = json.load(open(self.PATH, encoding="utf-8"))
         except (OSError, ValueError):
             self.d = {}
+        changed = False
+        for a in self.d.values():   # 舊帳號 (原本只靠 UID 登入) 一律先給預設密碼,請使用者自己改
+            if "pw" not in a:
+                a["pw"] = self._mk(DEFAULT_PW)
+                changed = True
+        if changed:
+            self._save()
         self.uuids = {a["uuid"]: k for k, a in self.d.items()}
         self.sess = {a["sess"]: a["uuid"] for a in self.d.values() if a.get("sess")}   # 登入階段碼 -> 帳號 uuid (同一帳號只留最新一個)
         self.kicked = set()   # 被新登入踢掉的舊階段碼
@@ -295,7 +302,43 @@ class Accounts:
 
     @staticmethod
     def _hash(pw, salt):
-        return hashlib.pbkdf2_hmac("sha256", pw.encode("utf-8"), bytes.fromhex(salt), 120_000).hex()
+        return hashlib.pbkdf2_hmac("sha256", pw.encode("utf-8"), bytes.fromhex(salt), 200_000).hex()
+
+    @classmethod
+    def _mk(cls, pw):
+        """密碼只存加鹽的 PBKDF2 雜湊,不存明文。d = 還在用預設密碼。"""
+        salt = os.urandom(16).hex()
+        return {"s": salt, "h": cls._hash(pw, salt), "d": pw == DEFAULT_PW}
+
+    @classmethod
+    def _verify(cls, rec, pw):
+        import hmac
+        return hmac.compare_digest(cls._hash(pw or "", rec["s"]), rec["h"])
+
+    def default_pw(self, tok):
+        k = self.uuids.get(tok)
+        return bool(k and self.d[k].get("pw", {}).get("d"))
+
+    def change_pw(self, tok, old, new):
+        k = self.uuids.get(tok)
+        if not k:
+            return {"ok": False, "error": "請先登入"}
+        if self._blocked("pw:" + k):
+            return {"ok": False, "error": "嘗試次數太多,請 5 分鐘後再試"}
+        new = new or ""
+        if not (MIN_PW <= len(new) <= MAX_PW):
+            return {"ok": False, "error": f"新密碼長度要 {MIN_PW}~{MAX_PW} 個字元"}
+        if new == DEFAULT_PW:
+            return {"ok": False, "error": "不能使用預設密碼"}
+        with self.lock:
+            a = self.d[k]
+            if not self._verify(a["pw"], old):
+                self.fails.setdefault("pw:" + k, []).append(time.time())
+                time.sleep(0.5)
+                return {"ok": False, "error": "舊密碼不正確"}
+            a["pw"] = self._mk(new)
+            self._save()
+        return {"ok": True}
 
     def is_account(self, tok):
         return tok in self.uuids
@@ -314,6 +357,9 @@ class Accounts:
         user = (user or "").strip()
         if not self.NAME_RE.match(user):
             return {"ok": False, "error": "使用者名稱 2~10 字,只能用中英文、數字、底線"}
+        pw = pw or DEFAULT_PW   # 沒設密碼就用預設密碼 (之後請在個人資訊修改)
+        if not (MIN_PW <= len(pw) <= MAX_PW):
+            return {"ok": False, "error": f"密碼長度要 {MIN_PW}~{MAX_PW} 個字元"}
         import uuid as _uuid
         now = time.time()
         with self.lock:
@@ -328,29 +374,30 @@ class Accounts:
             u = adopt_tok if (adopt_tok and adopt_tok in PROFILES.d and adopt_tok not in self.uuids) else str(_uuid.uuid4())
             L.append(now)
             self.fails["reg:" + ip] = L
-            self.d[user.lower()] = {"user": user, "uuid": u, "created": int(time.time())}
+            self.d[user.lower()] = {"user": user, "uuid": u, "created": int(time.time()), "pw": self._mk(pw)}
             self.uuids[u] = user.lower()
             self._save()
         PROFILES.get(u)
-        return {"ok": True, "tok": self.new_session(u), "user": user, "uid": PROFILES.uid(u)}
+        return {"ok": True, "tok": self.new_session(u), "user": user, "uid": PROFILES.uid(u), "default_pw": pw == DEFAULT_PW}
 
-    def login(self, uid, pw=None, ip=""):
-        """只憑 8 位數字 UID 登入 (沒有密碼)。"""
-        key = (uid or "").strip()
-        if self._blocked("ip:" + ip) or self._blocked("all", 60):
+    def login(self, user, pw=None, ip=""):
+        """使用者名稱 + 密碼登入。失敗一律回同一句話 (不透露帳號是否存在)。"""
+        key = (user or "").strip().lower()
+        if self._blocked("ip:" + ip) or self._blocked("all", 60) or self._blocked("u:" + key, 8):
             return {"ok": False, "error": "嘗試次數太多,請 5 分鐘後再試"}
-        a = None
-        if key.isdigit():
-            for acc in self.d.values():
-                if PROFILES.uid(acc["uuid"]) == key:
-                    a = acc
-                    break
-        if not a:
-            self.fails.setdefault("ip:" + ip, []).append(time.time())
-            self.fails.setdefault("all", []).append(time.time())   # 全站失敗次數也限制 (分散式猜 UID)
+        a = self.d.get(key)
+        if a:
+            ok = self._verify(a["pw"], pw)
+        else:
+            self._hash(pw or "", "00" * 16)   # 帳號不存在也算一次雜湊,避免從回應時間猜出帳號是否存在
+            ok = False
+        if not ok:
+            now = time.time()
+            for k in ("ip:" + ip, "all", "u:" + key):
+                self.fails.setdefault(k, []).append(now)
             time.sleep(0.5)
-            return {"ok": False, "error": "找不到這個 UID"}
-        return {"ok": True, "tok": self.new_session(a["uuid"]), "user": a["user"]}
+            return {"ok": False, "error": "使用者名稱或密碼不正確"}
+        return {"ok": True, "tok": self.new_session(a["uuid"]), "user": a["user"], "default_pw": bool(a["pw"].get("d"))}
 
     def _save(self):
         try:
@@ -362,10 +409,13 @@ class Accounts:
 
 
 import social
+DEFAULT_PW = "12345"
+MIN_PW, MAX_PW = 4, 64
 MAX_ACCOUNTS = 2000
 MAX_BODY = 400_000   # 請求本文上限 (頭像 base64 約 160KB)
 ACCOUNTS = Accounts()
 SOCIAL = social.Social(os.path.join(DATA, "social.json"), ACCOUNTS)
+SOCIAL.uid_key = lambda uid: next((k for k, a in list(ACCOUNTS.d.items()) if PROFILES.uid(a["uuid"]) == uid), None)
 
 
 def leaderboard(me=""):
@@ -1104,7 +1154,7 @@ class Handler(BaseHTTPRequestHandler):
         try:
             if path == "/api/me":
                 t = q["tok"][0]
-                return self._send(200, {"ok": ACCOUNTS.is_account(t), "user": ACCOUNTS.username(t), "kicked": raw in ACCOUNTS.kicked})
+                return self._send(200, {"ok": ACCOUNTS.is_account(t), "user": ACCOUNTS.username(t), "kicked": raw in ACCOUNTS.kicked, "default_pw": ACCOUNTS.default_pw(t)})
             if path.startswith("/api/") and path not in OPEN_API and not ACCOUNTS.is_account(q["tok"][0]):
                 return self._send(200, {"auth": False, "ready": False, "kicked": raw in ACCOUNTS.kicked})
             if path.startswith("/avatar/"):
@@ -1236,6 +1286,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(200, ACCOUNTS.login(data.get("user"), data.get("pw"), self._ip()))
             if path.startswith("/api/") and path not in OPEN_API and not ACCOUNTS.is_account(data.get("tok")):
                 return self._send(200, {"ok": False, "auth": False, "kicked": raw in ACCOUNTS.kicked, "error": "請先登入"})
+            if path == "/api/change_pw":
+                return self._send(200, ACCOUNTS.change_pw(data.get("tok"), data.get("old"), data.get("new")))
             if path == "/api/ach_ack":
                 return self._send(200, PROFILES.ack_ach(data.get("tok")))
             if path == "/api/cosmetic":

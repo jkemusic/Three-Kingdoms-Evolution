@@ -595,10 +595,11 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
   <h2>三國殺重製版</h2>
   <div class="meta" id="authmsg">請登入或註冊後開始遊戲</div>
   <div class="atabs"><button id="aLogin" class="on">登入</button><button id="aReg">註冊</button></div>
-  <input id="auser" type="text" maxlength="10" placeholder="登入: 輸入你的 UID (8 位數字)" autocomplete="username">
+  <input id="auser" type="text" maxlength="10" placeholder="使用者名稱" autocomplete="username">
+  <input id="apw" type="password" maxlength="64" placeholder="密碼" autocomplete="current-password" style="margin-top:8px">
   <div id="aerr" class="aerr"></div>
   <button id="asubmit" class="primary big">登入</button>
-  <div class="meta" style="margin-top:8px">登入只需要 UID,請不要把你的 UID 給別人。</div>
+  <div class="meta" style="margin-top:8px" id="ahint">舊帳號 / 沒設密碼的帳號,預設密碼是 12345,登入後請到「個人資訊」修改。</div>
 </div></div>
 <div id="rooms"><div class="rbox">
   <h2>三國殺重製版 · 大廳</h2>
@@ -1866,10 +1867,32 @@ async function showProfile() {
       chars.length ? h("div", {}, chars) : h("div", {class: "meta", text: "還沒有紀錄 (入座打完一場就會出現)"}),
       h("div", {style: {marginTop: "14px", display: "flex", gap: "8px", alignItems: "center"}},
         h("span", {class: "meta", style: {flex: 1}, text: "帳號: " + (S.user || "") }),
+        h("button", {text: "🔑 修改密碼", onclick: () => { close(); showPwDialog(false); }}),
         h("button", {text: "登出", onclick: logout})),
       h("div", {class: "meta", style: {marginTop: "6px", display: "flex", gap: "8px", alignItems: "center"}},
         h("span", {style: {flex: 1, wordBreak: "break-all"}, text: "UID: " + p.uuid}),
         h("button", {text: "複製", onclick: e => { const b = e.target, ok = () => { b.textContent = "已複製"; }; if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(p.uuid).then(ok); else { const t = h("textarea", {}); t.value = p.uuid; document.body.append(t); t.select(); try { document.execCommand("copy"); ok(); } catch (x) {} t.remove(); } }}))))));
+}
+function showPwDialog(forced) {   // 修改密碼 (forced: 還在用預設密碼,登入後提醒)
+  const M = $("#modal"); S.modalOpen = "pw"; M.textContent = "";
+  const close = () => { M.textContent = ""; S.modalOpen = null; };
+  const mk = (ph, ac) => h("input", {type: "password", maxlength: 64, placeholder: ph, autocomplete: ac, style: {width: "100%", marginTop: "8px"}});
+  const o = mk("目前的密碼", "current-password"), n1 = mk("新密碼 (4 字以上,不能是 12345)", "new-password"), n2 = mk("再輸入一次新密碼", "new-password");
+  const err = h("div", {class: "aerr", style: {minHeight: "20px"}});
+  if (forced) o.value = "12345";
+  const go = async () => {
+    if (n1.value !== n2.value) { err.textContent = "兩次輸入的新密碼不一樣"; return; }
+    const r = await api("/api/change_pw", {old: o.value, new: n1.value});
+    if (!r.ok) { err.textContent = r.error || "失敗"; return; }
+    close(); toast("密碼已更新", "ok");
+  };
+  [o, n1, n2].forEach(i => i.onkeydown = e => { if (e.key === "Enter") go(); });
+  M.append(h("div", {class: "modal", style: {zIndex: 7500}, onclick: e => { if (e.target.classList.contains("modal") && !forced) close(); }}, h("div", {class: "dlg", style: {maxWidth: "400px"}},
+    h("div", {class: "dh"}, h("div", {}, h("h3", {text: "🔑 修改密碼"})), h("button", {class: "x", text: forced ? "稍後" : "✕", style: forced ? {width: "auto", borderRadius: "17px", padding: "0 12px"} : {}, onclick: close})),
+    h("div", {class: "dbody"},
+      forced ? h("div", {class: "meta", style: {color: "#ffb454"}, text: "你還在使用預設密碼 12345,任何人都能登入你的帳號,請現在改掉。"}) : null,
+      o, n1, n2, err, h("button", {class: "primary", text: "更新密碼", style: {marginTop: "10px", width: "100%"}, onclick: go})))));
+  setTimeout(() => (forced ? n1 : o).focus(), 50);
 }
 function uploadAvatar(file) {   // 縮成 128x128 JPEG (置中裁切) 再上傳
   if (!file) return;
@@ -1922,21 +1945,23 @@ let AUTH_MODE = "login";
 function setAuthMode(m) {
   AUTH_MODE = m;
   $("#aLogin").classList.toggle("on", m === "login"); $("#aReg").classList.toggle("on", m === "reg");
-  $("#auser").placeholder = m === "reg" ? "設定使用者名稱 (2~10 字)" : "輸入你的 UID (8 位數字)";
+  $("#auser").placeholder = m === "reg" ? "設定使用者名稱 (2~10 字)" : "使用者名稱";
+  $("#apw").placeholder = m === "reg" ? "設定密碼 (4 字以上,留空 = 預設 12345)" : "密碼";
+  $("#apw").autocomplete = m === "reg" ? "new-password" : "current-password";
   $("#asubmit").textContent = m === "reg" ? "註冊" : "登入"; $("#aerr").textContent = "";
 }
 function showAuth(msg) { $("#auth").classList.add("on"); $("#authmsg").textContent = msg || "請登入或註冊後開始遊戲"; }
 async function submitAuth() {
-  const user = $("#auser").value.trim(), pw = "";
+  const user = $("#auser").value.trim(), pw = $("#apw").value;
   const r = await (await fetch(AUTH_MODE === "reg" ? "/api/register" : "/api/login", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({user, pw, tok: TOK})})).json();
   if (!r.ok) { $("#aerr").textContent = r.error || "失敗"; return; }
-  if (AUTH_MODE === "reg" && r.uid) alert("註冊成功!\n你的 UID 是 " + r.uid + "\n之後登入只要輸入這組 UID,請記起來。");
+  if (AUTH_MODE === "reg" && r.default_pw) alert("註冊成功!\n你使用的是預設密碼 12345,請登入後到「個人資訊」修改密碼。");
   try { localStorage.setItem("sgs_tok", r.tok); localStorage.removeItem("sgs_theme"); localStorage.setItem("nick", r.user.slice(0, 10)); } catch (e) {}
   const u = new URL(location.href); u.searchParams.delete("tok"); history.replaceState(null, "", u); location.reload();
 }
 $("#aLogin").onclick = () => setAuthMode("login"); $("#aReg").onclick = () => setAuthMode("reg");
 $("#asubmit").onclick = submitAuth;
-for (const id of ["#auser"]) $(id).onkeydown = e => { if (e.key === "Enter") submitAuth(); };
+for (const id of ["#auser", "#apw"]) $(id).onkeydown = e => { if (e.key === "Enter") submitAuth(); };
 function logout() { try { localStorage.removeItem("sgs_tok"); localStorage.removeItem("nick"); localStorage.removeItem("sgs_theme"); sessionStorage.removeItem("sgs_room"); } catch (e) {} const u = new URL(location.href); u.search = ""; location.href = u.toString(); }
 function resetRoomState() {
   Object.assign(S, {logN: 0, thN: 0, thoughts: [], lastTh: {}, sel: null, picked: null, pendId: 0, chatN: 0, chatUnread: 0, snap: null, modalOpen: null, lobbyKey: null, tgtPick: null}); { const b = $("#cbadge"); if (b) b.textContent = ""; }
@@ -1998,6 +2023,7 @@ $("#rname").onkeydown = e => { if (e.key === "Enter") $("#rcreate").click(); };
   try { me = await (await fetch("/api/me?tok=" + encodeURIComponent(TOK))).json(); } catch (e) {}
   if (!me.ok) { showAuth(me.kicked ? "你的帳號已在另一個裝置登入,請重新登入" : ""); await new Promise(() => {}); return; }   // 沒登入: 停在登入畫面
   S.user = me.user;
+  if (me.default_pw) setTimeout(() => { if (!S.modalOpen) showPwDialog(true); }, 1500);   // 還在用預設密碼: 提醒修改
   if (!ROOM) showRooms(); else $("#roomname").textContent = "";
   const r = await api("/api/roster");
   S.roster = r.chars; S.roles = r.roles; renderChars();

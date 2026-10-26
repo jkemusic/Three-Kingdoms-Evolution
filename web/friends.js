@@ -121,13 +121,17 @@
     const keep = typing ? typing.value : "";
     const hadFocus = typing && document.activeElement === typing;
     body.textContent = "";
-    const inp = el("input", {type: "text", maxlength: 10, placeholder: "輸入對方的使用者名稱", value: keep});
+    const inp = el("input", {type: "text", maxlength: 20, placeholder: "輸入對方的 UID (8 位數字)", value: keep});
     const add = async () => {
       const r = await post("/api/friend_add", {name: inp.value});
       if (!r.ok) { toast(r.error || "失敗"); return; }
       toast(r.msg, "ok"); inp.value = ""; poll();
     };
     inp.onkeydown = e => { if (e.key === "Enter") add(); };
+    const myUid = S.prof && S.prof.uuid;
+    if (myUid) body.append(el("div", {class: "meta", style: {marginTop: "8px"}}, "我的 UID: ", el("b", {text: myUid}), " ",
+      el("button", {text: "複製", style: {padding: "1px 8px", fontSize: "12px"}, onclick: e => { const b = e.target, ok = () => { b.textContent = "已複製"; }; if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(myUid).then(ok); else { const t = document.createElement("textarea"); t.value = myUid; document.body.append(t); t.select(); try { document.execCommand("copy"); ok(); } catch (x) {} t.remove(); } }}),
+      "  (把這組 UID 給朋友,他就能加你)"));
     body.append(el("div", {class: "addrow"}, inp, el("button", {class: "primary", text: "加好友", onclick: add})));
     if (d.req_in.length) {
       body.append(el("div", {class: "sec", text: "好友請求"}));
@@ -139,7 +143,7 @@
     }
     if (d.req_out && d.req_out.length) body.append(el("div", {class: "sec", text: "已送出請求 (等對方接受): " + d.req_out.join("、")}));
     body.append(el("div", {class: "sec", text: "好友 (" + d.friends.length + ")"}));
-    if (!d.friends.length) body.append(el("div", {class: "meta", style: {padding: "10px 4px"}, text: "還沒有好友。輸入朋友的使用者名稱送出請求吧。"}));
+    if (!d.friends.length) body.append(el("div", {class: "meta", style: {padding: "10px 4px"}, text: "還沒有好友。輸入朋友的 UID 送出請求吧。"}));
     for (const f of d.friends) {
       const st = f.online ? ("在線" + (f.where ? " · " + f.where : "")) : ("最後上線: " + fmtSeen(f.seen, d.now));
       body.append(el("div", {class: "frow"},
