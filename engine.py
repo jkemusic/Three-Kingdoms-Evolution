@@ -1569,7 +1569,7 @@ class Game:
             elif c.name == "閃電":
                 if j.color == "黑":
                     self.discard.append(getattr(c, "orig", c))
-                    self.damage(src if src is not None and src.alive else None, p, 3, nature="雷", _bonus=False, _mods=False)   # 傷害來源是發動 (放下) 閃電的那個人,不吃他的武器 / 強弱加成
+                    self.damage(src if src is not None and src.alive else None, p, 3, nature="雷")   # 傷害來源是發動 (放下) 閃電的那個人,吃他的流星錘 +1 和強化 / 弱化
                 else:
                     self.pass_lightning(p, c)
         return skip_play, skip_draw
