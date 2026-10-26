@@ -816,6 +816,8 @@ class Game:
             else:
                 prev = tgt.flipped
                 new = not (tgt.dg_flip if tgt.disguise else prev)   # 偽裝中被降雷: 偽裝的那張和本尊一起翻
+                if new and not prev:   # 即將被翻面: 呂蒙等「翻面時」的技能先發動 (和 flip_char 一樣,翻之前還能用技能)
+                    tgt.flip_char.on_flipped(self, tgt)
                 tgt.flipped = new
                 if tgt.disguise:
                     tgt.dg_flip = new
@@ -1101,6 +1103,9 @@ class Game:
         valid = []
         for q in order:
             if not q.alive:
+                continue
+            if trick in ("南", "萬", "飢") and q.has_armor("藤甲"):   # 藤甲: 南蠻入侵 / 萬箭齊發 / 飢餓 對你無效
+                self.log(f"  藤甲: {q.name} 不受{ {'南': '南蠻入侵', '萬': '萬箭齊發', '飢': '飢餓'}[trick] }影響")
                 continue
             if q.char.blocks_target(self, q, self.cur_card) if getattr(self, "cur_card", None) else False:
                 self.log(f"  {q.name} 不會成為此錦囊的目標")

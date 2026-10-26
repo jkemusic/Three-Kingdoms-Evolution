@@ -177,4 +177,5 @@ window.SGS_LOG_TPL = (window.SGS_LOG_TPL || []).concat([
 ["👥 好友", "👥 Friends", "👥 フレンド"], ["🏅 成就", "🏅 Achievements", "🏅 実績"], ["成就與解鎖進度", "Achievements and unlock progress", "実績と解放の進捗"],
 ["⬇ 下載桌面版", "⬇ Download desktop app", "⬇ デスクトップ版をダウンロード"], ["到 GitHub 下載 Windows / Mac 本地版", "Download the Windows / Mac app from GitHub", "GitHubからWindows / Mac版をダウンロード"],
 ["好友、私訊、邀請朋友進房間", "Friends, messages, invite friends to the room", "フレンド、メッセージ、ルームへ招待"],
+["藤甲: {} 不受{}影響", "Rattan Armor: {1} is unaffected by {2}", "藤甲: {1} は{2}の影響を受けない"],
 ]);

@@ -150,7 +150,7 @@ T = {
         ("You can't be targeted by Fire Attack", "火攻の対象にならない"),
         ("All basic cards in play also count as tricks by type (type only; they cannot be used as any specific trick)", "場の基本札は種類として錦囊札としても扱う(種類のみ。特定の錦囊としては使えない)")],
 "黃蓋": [("Slash can be used as Dismantle", "殺を過河拆橋として使える"),
-        ("Force yourself to lose 1 HP to draw 3 cards", "自分の体力を強制的に1失い、3枚引ける"),
+        ("Force yourself to lose 1 HP to draw 1 card", "自分の体力を強制的に1失い、1枚引ける"),
         ("If 周瑜 is in play, you can only Slash him", "周瑜が場にいると、殺は彼にしか使えない")],
 "公孫淵": [("You may reveal all your hand cards, then draw 2 (once per turn)", "手札を全て公開して2枚引ける(1ターン1回)"),
           ("If a basic card is used on you, next turn you gain their skills (one at a time) until your turn ends", "基本札を使われたら、次のターンにそのスキルを得る(1つずつ)。ターン終了まで")],

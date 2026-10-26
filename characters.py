@@ -591,10 +591,10 @@ class 黃蓋(Char):
         return [(SkillAct("黃蓋-苦肉", self._run), None)]  # 次數不限
 
     def _run(self, g, p, t):
-        g.log(f"  {p.name}[黃蓋] 強制扣 1 點體力,抽 3 張")
+        g.log(f"  {p.name}[黃蓋] 強制扣 1 點體力,抽 1 張")
         g.damage(None, p, 1)
         if p.alive:
-            g.draw(p, 3)
+            g.draw(p, 1)
 
     def ai_choose(self, g, p, options):
         if p.hp >= 3 and len(p.hand) <= 2:

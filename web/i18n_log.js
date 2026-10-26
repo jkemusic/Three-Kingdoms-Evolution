@@ -120,7 +120,7 @@ window.SGS_LOG_TPL = [
 ["{}[馬謖] 擁有 {} 的技能 (直到他死亡或下次重選)", "{1}[馬謖] gains {2}'s skills (until they die or next re-pick)", "{1}[馬謖] {2} のスキルを得る(死亡または次の選び直しまで)"],
 ["{}[馬謖] 用 2 張手牌和 {} 的 2 張手牌交換", "{1}[馬謖] swaps 2 hand cards with 2 of {2}'s", "{1}[馬謖] 手札2枚と {2} の手札2枚を交換"],
 ["{}[魯肅] 把 2 張手牌交給 {}", "{1}[魯肅] gives 2 hand cards to {2}", "{1}[魯肅] 手札2枚を {2} に渡す"],
-["{}[黃蓋] 強制扣 1 點體力,抽 3 張", "{1}[黃蓋] forced to lose 1 HP, draws 3", "{1}[黃蓋] 強制的に体力-1、3枚引く"],
+["{}[黃蓋] 強制扣 1 點體力,抽 1 張", "{1}[黃蓋] forced to lose 1 HP, draws 1", "{1}[黃蓋] 強制的に体力-1、1枚引く"],
 ["{}[龐統] 瀕死: 棄掉所有牌,體力回到 {},抽 4 張,翻回正面", "{1}[龐統] dying: discards all cards, HP back to {2}, draws 4, flips face-up", "{1}[龐統] 瀕死: 全カードを捨て体力を{2}に戻し、4枚引いて表に戻る"],
 ["丈八蛇矛: {} + {} 當作殺", "Serpent Spear: {1} + {2} count as a Slash", "丈八蛇矛: {1} + {2} を殺として扱う"],
 ["不同色: 各自拿走亮出的牌", "Different colours: each takes their revealed card", "異なる色: それぞれ公開したカードを取る"],
