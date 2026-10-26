@@ -93,7 +93,7 @@ class Player:
         self.dmg_x2 = 0               # 強: 本回合「造成」的傷害 x2 的層數
         self.dmg_half = 0             # 弱: 本回合「造成」的傷害 ÷2 的層數
         self.cao = 0                  # 草木皆兵: 本回合摸牌階段少摸的張數
-        self.fa_debt = 0              # 發: 回合結束需棄的張數
+        self.fa_debt = []             # 發: 每使用一張發憤圖強,記下回合結束要棄的張數 (一張問一次)
         self.g = None                 # 所屬 Game (Game.__init__ 設定)
         self.skip_turn = False        # 下個自己的回合整個跳過 (劉禪)
         self.borrow: list = []        # 馬謖複製技能的對象: 對方死亡即失效
@@ -1406,7 +1406,7 @@ class Game:
                 x = max(1, min(p.char.max_fa(self, p), p.agent.choose_x(self, p)))
                 self.draw(p, x)
                 if not p.char.fa_free(self, p) and not p.char.blocks_target(self, p, card):   # 曹丕: 黑色錦囊對自己無效,不用付代價
-                    p.fa_debt += x
+                    p.fa_debt.append(x)
         elif n == "借":
             t, v = tgt
             self.log(f"{p.name} 對 {t.name} 使用 借, 目標 {v.name}")
@@ -1759,10 +1759,9 @@ class Game:
         self.offturn_window(p, "出牌階段結束")
         if not p.alive:
             return
-        if p.fa_debt:
+        while p.fa_debt:   # 每一張發憤圖強各問一次: 要少棄幾張
+            debt = p.fa_debt.pop(0)
             pool = list(p.hand)   # 發憤圖強的棄牌只能棄手牌
-            debt = p.fa_debt
-            p.fa_debt = 0
             lo = max(0, debt - len(pool))   # 牌不夠時,至少要少棄這麼多張
             labels = [f"棄 {debt - m} 張" + (f",其餘 {m} 張不棄 (扣 {m} 點體力)" if m else "") for m in range(lo, debt + 1)]
             m = lo + (p.agent.choose_option(self, p, "發憤圖強-少棄", labels) if len(labels) > 1 else 0)
@@ -1771,6 +1770,7 @@ class Game:
                 self.log(f"{p.name} 發憤圖強少棄 {m} 張,扣 {m} 點體力")
                 self.damage(None, p, m)
                 if not p.alive:
+                    p.fa_debt = []
                     return
             k = min(debt - m, len(p.hand))
             if k:

@@ -1120,7 +1120,7 @@ function renderTwoStep(pend, M) {
     const el = o0.card ? cardEl(o0.card, "ok", act) : h("button", {text: o0.gl, onclick: act});
     box.append(h("div", {class: "ts"}, el, h("div", {class: "meta", text: subs.length > 1 ? o0.gl.split(":")[0] : o0.gl})));
   });
-  plain.forEach(o => box.append(h("button", {text: o.label, onclick: () => submit(pend.id, [o.i])})));
+  plain.forEach(o => box.append(o.card && o.card.kind !== "skill" ? h("div", {class: "ts"}, cardEl(o.card, "ok", () => submit(pend.id, [o.i])), h("div", {class: "meta", text: o.label})) : h("button", {text: o.label, onclick: () => submit(pend.id, [o.i])})));   /* 不需要選目標的牌 (孤注一擲等) 也顯示牌圖 */
   M.append(h("div", {class: "modal soft"}, h("div", {class: "dlg"}, h("h3", {text: pend.prompt}), box)));
 }
 function renderPrompt(snap) {
