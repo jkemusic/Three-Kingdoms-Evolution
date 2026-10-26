@@ -361,9 +361,11 @@ class Accounts:
             pass
 
 
+import social
 MAX_ACCOUNTS = 2000
 MAX_BODY = 400_000   # 請求本文上限 (頭像 base64 約 160KB)
 ACCOUNTS = Accounts()
+SOCIAL = social.Social(os.path.join(DATA, "social.json"), ACCOUNTS)
 
 
 def leaderboard(me=""):
@@ -937,6 +939,23 @@ ROOMS = {"main": MGR}   # 房間 id -> Manager; main 永遠存在 (舊網址 / �
 ROOMS_LOCK = threading.Lock()
 
 
+def friend_where(fkey):
+    """好友目前在哪個房間 (給好友清單顯示)。沒在任何房間回傳空字串。"""
+    a = ACCOUNTS.d.get(fkey)
+    if not a:
+        return ""
+    t, now = a["uuid"], time.time()
+    for m in list(ROOMS.values()):
+        if now - m.seen.get(t, 0) < 8:
+            playing = m.game_active() and t in m.claims.values()
+            return ("對戰中 · " if playing else "") + (m.room_name or "房間")
+    return ""
+
+
+def is_playing(tok):
+    return any(m.game_active() and tok in m.claims.values() for m in list(ROOMS.values()))
+
+
 def create_room(tok, name):
     name = (name or "").strip()[:20] or "新房間"
     if not tok:
@@ -1102,6 +1121,14 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(200, leaderboard(q.get("tok", [""])[0]))
             if path == "/api/rooms":
                 return self._send(200, list_rooms(q.get("tok", [""])[0]))
+            if path == "/api/social":
+                tk = q.get("tok", [""])[0]
+                key = SOCIAL.key_of(tk)
+                SOCIAL.touch(key)
+                return self._send(200, SOCIAL.overview(key, friend_where, is_playing(tk)))
+            if path == "/api/dm":
+                tk = q.get("tok", [""])[0]
+                return self._send(200, SOCIAL.thread(SOCIAL.key_of(tk), q.get("with", [""])[0]))
             M = ROOMS.get(q.get("room", ["main"])[0] or "main")
             if M is None and path.startswith("/api/") and path not in ("/api/cardcat", "/api/i18n", "/api/roster"):
                 return self._send(200, {"gone": True, "ready": False})
@@ -1156,7 +1183,7 @@ class Handler(BaseHTTPRequestHandler):
                     snap["ai_lv"] = [M._level(M.cfg, i) for i in range(len(snap["players"]))]
                 snap.update(M.chat_since(int(q.get("chat", ["0"])[0]), tok))
                 return self._send(200, snap)
-            if path in ("/i18n.js", "/i18n_log.js", "/i18n_ui.js", "/i18n_log2.js", "/fx.js", "/theme.js"):
+            if path in ("/i18n.js", "/i18n_log.js", "/i18n_ui.js", "/i18n_log2.js", "/fx.js", "/theme.js", "/friends.js"):
                 return self._file(os.path.join(WEB, path[1:]))
             if path == "/api/about":
                 from version import VERSION, REPO
@@ -1227,6 +1254,30 @@ class Handler(BaseHTTPRequestHandler):
                 except ValueError:
                     return self._send(200, {"ok": False, "error": "圖片資料錯誤"})
                 return self._send(200, PROFILES.set_avatar(data.get("tok"), raw))
+            if path.startswith(("/api/friend_", "/api/dm_", "/api/invite")):
+                key = SOCIAL.key_of(data.get("tok"))
+                if path == "/api/friend_add":
+                    return self._send(200, SOCIAL.add(key, data.get("name")))
+                if path == "/api/friend_accept":
+                    return self._send(200, SOCIAL.accept(key, data.get("name")))
+                if path == "/api/friend_decline":
+                    return self._send(200, SOCIAL.decline(key, data.get("name")))
+                if path == "/api/friend_remove":
+                    return self._send(200, SOCIAL.remove(key, data.get("name")))
+                if path == "/api/dm_send":
+                    return self._send(200, SOCIAL.send(key, data.get("to"), data.get("text")))
+                if path == "/api/invite":
+                    rid = data.get("room") or "main"
+                    m = ROOMS.get(rid)
+                    if m is None or time.time() - m.seen.get(data.get("tok"), 0) > 30:
+                        return self._send(200, {"ok": False, "error": "你不在這個房間裡"})
+                    return self._send(200, SOCIAL.invite(key, data.get("to"), rid, m.room_name or "房間"))
+                if path == "/api/invite_reply":
+                    r = SOCIAL.reply(key, int(data.get("id") or 0), bool(data.get("accept")))
+                    if r.get("room") and ROOMS.get(r["room"]) is None:
+                        return self._send(200, {"ok": False, "error": "那個房間已經不存在了"})
+                    return self._send(200, r)
+                return self._send(404, {"error": "not found"})
             if path == "/api/room_rename":
                 return self._send(200, rename_room(data.get("tok"), data.get("target"), data.get("name")))
             if path == "/api/room_delete":
