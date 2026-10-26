@@ -1072,13 +1072,15 @@ class 曹植(Char):
     def views(self, g, p, c): return ["五"] if c.name == "桃" else []
 
     def on_turn_start(self, g, p):  # 七輪後勝利 (輪數從這個人變成曹植的時候開始算: 化身 / 偽裝 / 交換武將都一樣)
-        st = self.__dict__.setdefault("_rounds", {})
+        st = g.__dict__.setdefault("_cz_rounds", {})   # 存在這局上: 化身 (左慈) 的曹植每次都是新實例,連續幾輪都選曹植才接著算
         base, last = st.get(p.idx, (None, None))
-        if base is None or g.round - last > 3:   # 第一次擁有 (或隔了很久才又變成他): 重新從 0 算
+        if base is None or g.round - last > (1 if p._char is not self else 3):   # 第一次擁有 (或中斷了才又變成他): 從第一輪重新算
             base = g.round - 1
         st[p.idx] = (base, g.round)
         if g.round - base > 7:
             from engine import GameOver
+            if p._char is not self and p.alias and self not in p.alias:   # 左慈: 同一個回合開頭已換了新化身,勝利畫面要顯示真正獲勝的曹植
+                p.alias = [self]
             g.winner = "曹植 (七輪後獨自勝利)"
             raise GameOver()
 
@@ -2230,7 +2232,7 @@ class 公孫淵(Char):
 
 
 class 左慈(Char):
-    name, faction = "左慈", "群"
+    name, faction, maxhp = "左慈", "群", 3
     used = None
 
     def on_turn_start(self, g, p):
@@ -2239,7 +2241,7 @@ class 左慈(Char):
             self.used = set()
         pool = [n for n in ROSTER if n not in from_ and n not in self.used]
         if pool:
-            n = g.rng.choice(pool)
+            n = pool[p.agent.choose_option(g, p, "左慈-化身", list(pool))]   # 還沒出現過的武將: 自己選 (電腦隨機)
             self.used.add(n)
             p.alias = [ROSTER[n]()]
             g.log(f"  {p.name}[左慈] 化身為 {n}")

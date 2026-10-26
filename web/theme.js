@@ -371,6 +371,18 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 .fr-5{--fb:linear-gradient(135deg,#f0b6ff,#6a2bd1 55%,#d68bff);box-shadow:0 0 9px rgba(190,110,255,.9)}
 .fr-6::before{background:conic-gradient(#ff5d73,#ffd24a,#46e0a0,#3fd2ff,#9b6bff,#ff5d73)!important;animation:frspin 4s linear infinite}
 .fr-6{box-shadow:0 0 10px rgba(255,255,255,.55)}
+/* 段位框: 金屬質感 = 多段明暗的錐形漸層 (高光/暗面交錯) + 內緣高光 + 越高階越厚越亮 */
+.avw.fr-0::before{background:conic-gradient(from 210deg,#f2b27a,#8a5222 18%,#e8a566 34%,#6b3f17 52%,#f0b07a 70%,#8a5222 86%,#f2b27a)}
+.avw.fr-1::before{background:conic-gradient(from 210deg,#fff,#9aa7b6 16%,#e9eff6 32%,#7c8a9b 50%,#fff 66%,#aab6c4 84%,#fff)}
+.avw.fr-2::before{background:conic-gradient(from 210deg,#fff6c0,#c98a0c 16%,#ffe27a 30%,#a56a05 48%,#fff0a0 64%,#d89a14 82%,#fff6c0)}
+.avw.fr-3::before{background:conic-gradient(from 210deg,#d6fff8,#14877c 16%,#6ff0dd 30%,#0f6b62 48%,#c8fff4 64%,#27b8aa 82%,#d6fff8)}
+.avw.fr-4::before{background:conic-gradient(from 210deg,#e4f8ff,#1f55d6 16%,#8fe0ff 30%,#173fa0 48%,#d4f2ff 64%,#3a7cff 82%,#e4f8ff)}
+.avw.fr-5::before{background:conic-gradient(from 210deg,#fbe0ff,#5a1fb8 16%,#e49aff 30%,#43138f 48%,#f6d2ff 64%,#8a46e8 82%,#fbe0ff)}
+.avw.fr-0::before,.avw.fr-1::before,.avw.fr-2::before,.avw.fr-3::before,.avw.fr-4::before,.avw.fr-5::before,.avw.fr-6::before{box-shadow:inset 0 0 0 1px rgba(255,255,255,.45),inset 0 -2px 3px rgba(0,0,0,.38),inset 0 2px 2px rgba(255,255,255,.35)}
+.avw.big.fr-2,.avw.big.fr-3{--fp:6px}
+.avw.big.fr-4,.avw.big.fr-5{--fp:7px}
+.avw.big.fr-6{--fp:8px}
+.fr-6{box-shadow:0 0 12px rgba(255,255,255,.6),0 0 18px rgba(255,160,220,.35)}
 .fr-vic{--fb:linear-gradient(135deg,#ffb27a,#d8321e 55%,#ffd24a);box-shadow:0 0 7px rgba(255,120,60,.7)}
 .fr-hund{--fb:linear-gradient(135deg,#a5f5c0,#1f9d5a 55%,#d8ffe6);box-shadow:0 0 7px rgba(70,224,160,.6)}
 .fr-coll{--fb:linear-gradient(135deg,#ffc2e4,#3fd2ff 50%,#ffe27a);box-shadow:0 0 7px rgba(255,160,220,.6)}
@@ -546,10 +558,10 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
   const dots = (col, sz) => `radial-gradient(${col} 1px,transparent 1.5px) 0 0/${sz}px ${sz}px`;
   const BOX = {
     classic: null,
-    px_grass:   { px: 1, c: ["#2e8b3a", "#1f6a2c"], bd: "#8b5a2b", gl: "#8b5a2b", fl: pxc("rgba(0,0,0,.14)", 16) },
-    px_dungeon: { px: 1, c: ["#5b5f6b", "#43464f"], bd: "#c2c3c7", gl: "#c2c3c7", fl: `linear-gradient(rgba(0,0,0,.28) 2px,transparent 2px) 0 0/32px 16px,linear-gradient(90deg,rgba(0,0,0,.28) 2px,transparent 2px) 0 0/32px 16px` },
-    px_coin:    { px: 1, c: ["#c98a00", "#8a5a00"], bd: "#fff1b0", gl: "#fff1b0" },
-    px_lava:    { px: 1, c: ["#d9381e", "#7a1408"], bd: "#ffa300", gl: "#ffa300", fl: pxc("rgba(255,163,0,.22)", 16) },
+    px_grass:   { px: 1, c: ["#2e8b3a", "#1f6a2c"], bd: "#8b5a2b", gl: "#8b5a2b" },
+    px_dungeon: { px: 1, c: ["#3a3d4a", "#1b1c24"], bd: "#c2c3c7", gl: "#c2c3c7" },
+    px_coin:    { px: 1, c: ["#b07a00", "#6e4800"], bd: "#fff1b0", gl: "#fff1b0" },
+    px_lava:    { px: 1, c: ["#c9301a", "#7e1d0e"], bd: "#ffa300", gl: "#ffa300" },
     px_night:   { px: 1, c: ["#101640", "#05071a"], bd: "#ffec27", gl: "#ffec27" },
     felt:    { c: ["#1f6b52", "#0b2f25"], bd: "#c89b5e", gl: "#c89b5e", fl: dots("rgba(255,255,255,.1)", 10), mv: [1, 0.5] },
     wine:    { c: ["#6a1b2c", "#2a0a12"], bd: "#e5b26b", gl: "#e5b26b", fl: strp("rgba(229,178,107,.08)", 36), mv: [1, 0] },
@@ -562,13 +574,14 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
     thunder: { c: ["#2c2a6e", "#0c0b26"], bd: "#ffe14d", gl: "#ffe14d" },
     ice:     { c: ["#3d7fa8", "#1b3f5e"], bd: "#dff4ff", gl: "#bfe9ff" },
     lava:    { c: ["#5a1408", "#1d0502"], bd: "#ff7a45", gl: "#ff5a2a" },
+    samurai: { c: ["#3b3b3b", "#121212"], bd: "#e6e6e6", gl: "#bdbdbd" },
     royal:   { c: ["#4a2c86", "#170d33"], bd: "#f0c95c", gl: "#b58cff" },
-    sunset:  { c: ["#a04a2a", "#321638"], bd: "#ffb36b", gl: "#ff8f5a", fl: `repeating-linear-gradient(0deg,rgba(255,179,107,.15) 0 6px,transparent 6px 22px) 0 0/40px 22px,linear-gradient(180deg,rgba(255,179,107,.2),transparent 55%)`, mv: [0, 1] },
-    crystal: { c: ["#1f7694", "#0b3040"], bd: "#9ff0ff", gl: "#5fe0ff", fl: `linear-gradient(45deg,rgba(159,240,255,.12) 25%,transparent 25% 75%,rgba(159,240,255,.12) 75%) 0 0/20px 20px`, mv: [1, 1] },
+    sunset:  { c: ["#2a2060", "#e0783a"], bd: "#ffb36b", gl: "#ff8f5a" },
+    crystal: { c: ["#1f7694", "#0a2e3c"], bd: "#9ff0ff", gl: "#5fe0ff" },
     galaxy:  { c: ["#2a1d6a", "#070620"], bd: "#c3b8ff", gl: "#9b8cff", fl: `radial-gradient(ellipse at 30% 40%,rgba(140,90,255,.38),transparent 55%),radial-gradient(ellipse at 75% 70%,rgba(60,140,255,.3),transparent 55%)` },
     bamboo:  { c: ["#2f6b3a", "#0f2a17"], bd: "#a6d38c", gl: "#7fc77a" },
     scroll:  { c: ["#8d7140", "#33270f"], bd: "#5b3a22", gl: "#8d6a3a", fl: `linear-gradient(90deg,rgba(91,58,34,.14) 1px,transparent 1px) 0 0/18px 18px,linear-gradient(rgba(91,58,34,.14) 1px,transparent 1px) 0 0/18px 18px,linear-gradient(180deg,rgba(255,240,200,.18),transparent 50%)`, mv: [1, 0] },
-    zen:     { c: ["#7a705a", "#2a251a"], bd: "#7a6f55", gl: "#9a9078", fl: `repeating-radial-gradient(circle at 50% 50%,rgba(255,255,255,.1) 0 2px,transparent 2px 16px) 0 0/64px 64px`, mv: [1, 1] },
+    zen:     { c: ["#7a705a", "#2a251a"], bd: "#bdb393", gl: "#9a9078" },
     neon:    { c: ["#1a0a3a", "#06020f"], bd: "#ff3df0", gl: "#3dfff0", fl: `linear-gradient(rgba(61,255,240,.14) 1px,transparent 1px) 0 0/16px 16px,linear-gradient(90deg,rgba(255,61,240,.14) 1px,transparent 1px) 0 0/16px 16px`, mv: [0, 1] },
   };
   /* ---------- 玩家框場景動畫: 用獨立圖層 (只動 transform / opacity,不會重繪整個框) 做出有故事的畫面 ---------- */
@@ -578,13 +591,22 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
   const COIN_ROWS = ["..oooo..", ".oyyyyo.", "oyhhyyyo", "oyhyyyso", "oyyyyyso", "oyyyysso", ".oyssso.", "..oooo.."];
   const COIN_COL = { o: "#8a5a00", y: "#ffd23f", h: "#fff3a6", s: "#d89a00" };
   const COIN_URI = "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8" shape-rendering="crispEdges">${COIN_ROWS.map((r, y) => [...r].map((c, x) => c === "." ? "" : `<rect x="${x}" y="${y}" width="1" height="1" fill="${COIN_COL[c]}"/>`).join("")).join("")}</svg>`);
-  const MOON_ROWS = ["..dddooo..", ".ddddyyyo.", "dddddyhyyo", "dddddyyyyo", "dddddyyyso", "dddddyyyyo", "dddddyysyo", "dddddyyyyo", ".ddddyyyo.", "..dddooo.."];   // 上弦月: 右半邊亮,左半邊是暗面
-  const MOON_COL = { o: "#c9a94f", y: "#fff1a8", h: "#ffffff", s: "#e6cf7a", d: "#232a62" };
-  const MOON_URI = "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" shape-rendering="crispEdges">${MOON_ROWS.map((r, y) => [...r].map((c, x) => c === "." ? "" : `<rect x="${x}" y="${y}" width="1" height="1" fill="${MOON_COL[c]}"/>`).join("")).join("")}</svg>`);
+  const moonUri = (col, N = 14) => {   // 彎鉤月: 大圓減去偏左上的小圓,留下右下彎鉤 (像素點陣)
+    let r = "";
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+      const cx = x + .5 - N / 2, cy = y + .5 - N / 2;
+      const o = Math.hypot(cx, cy) <= N / 2 - .3, inn = Math.hypot(cx + N * .17, cy - N * .1) <= N * .38;
+      if (o && !inn) r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${col(x, y, N)}"/>`;
+    }
+    return "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${N} ${N}" shape-rendering="crispEdges">${r}</svg>`);
+  };
+  const MOON_URI = moonUri((x, y, N) => x + y < N * .85 ? "#c9a94f" : x > N * .72 ? "#e6cf7a" : "#fff1a8");
+  const MOON_HALO = moonUri(() => "#fff1a8");
   const bambooSvg = () => {
     const XS = [11, 33, 58, 70, 104, 127, 149, 181, 206, 229];   // 竹子位置: 刻意不等距
-    let g = "", st = "";
+    let all = "";
     XS.forEach((x, i) => {
+      let g = "", st = "";
       const w = 4.5 + R(i, 1) * 3, shade = ["#4f9b4a", "#3f8a43", "#5fae52", "#357a3d"][i % 4];
       st += `<rect x="${(x - w / 2).toFixed(1)}" y="-2" width="${w.toFixed(1)}" height="106" fill="${shade}"/><rect x="${(x - w / 2).toFixed(1)}" y="-2" width="1.3" height="106" fill="rgba(255,255,255,.28)"/>`;
       let y = 6 + R(i, 2) * 16;
@@ -598,8 +620,9 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
         }
         y += 15 + R(i + y, 13) * 17;
       }
+      all += `<g class="sk" style="transform-origin:${x}px 104px;--d:${(3.2 + R(i, 20) * 2.6).toFixed(1)}s;--o:${(-R(i, 21) * 5).toFixed(1)}s;--a:${(1.2 + R(i, 22) * 1.4).toFixed(1)}deg">${st}${g}</g>`;   // 整根竹子 (連同葉子) 以底部為軸左右擺動
     });
-    return `<svg class="bm" viewBox="0 0 240 100" preserveAspectRatio="xMidYMid slice">${st}${g}</svg>`;
+    return `<svg class="bm" viewBox="0 0 240 100" preserveAspectRatio="xMidYMid slice">${all}</svg>`;
   };
   const crustSvg = () => {   // 岩殼: 不規則的深色板塊,板塊之間的縫隙露出底下流動的岩漿 (左右兩份相接,才能無縫循環)
     const cols = 6, rows = 4, cw = 40, ch = 25;
@@ -610,24 +633,75 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
     return `<svg class="cr2" viewBox="0 0 480 100" preserveAspectRatio="none">${one(0)}${one(240)}</svg>`;
   };
   const jadeVeins = () => { const one = ox => `<g transform="translate(${ox} 0)"><path d="M0,30 C20,8 40,52 60,30 S100,8 120,30" stroke="rgba(225,255,242,.55)" stroke-width="1.3" fill="none"/><path d="M0,72 C25,54 45,88 70,68 S105,58 120,72" stroke="rgba(200,255,230,.4)" stroke-width="1" fill="none"/><path d="M60,30 C68,44 56,56 64,69" stroke="rgba(225,255,242,.32)" stroke-width=".8" fill="none"/><path d="M20,19 C14,10 24,4 18,-2" stroke="rgba(225,255,242,.3)" stroke-width=".8" fill="none"/></g>`; return `<svg class="vn" viewBox="0 0 240 100" preserveAspectRatio="none">${one(0)}${one(120)}</svg>`; };
+  const PXL_COL = ["#7e1d0e", "#c9301a", "#ff7a1a", "#ffd23f"];   // 像素熔岩色盤: 暗紅 / 紅 / 橙 / 亮黃
+  const pxLavaUri = ph => { let o = ""; for (let y = 0; y < 16; y++) for (let x = 0; x < 24; x++) { const v = Math.sin(2 * Math.PI * x / 24 + ph + Math.sin(2 * Math.PI * y / 16 + ph * .7) * 1.4) + Math.sin(2 * Math.PI * 2 * x / 24 - ph + Math.cos(2 * Math.PI * y / 16) * .8) * .5; const k = v < -.55 ? 0 : v < .15 ? 1 : v < .9 ? 2 : 3; o += `<rect x="${x}" y="${y}" width="1" height="1" fill="${PXL_COL[k]}"/>`; } return "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 16" shape-rendering="crispEdges">${o}</svg>`); };
+  const lavaFlow = () => { const one = ox => `<g transform="translate(${ox} 0)"><path d="M0,26 C20,6 40,46 60,26 S100,6 120,26" stroke="rgba(255,150,40,.7)" stroke-width="5" fill="none"/><path d="M0,26 C20,6 40,46 60,26 S100,6 120,26" stroke="rgba(255,235,120,.95)" stroke-width="1.6" fill="none"/><path d="M0,72 C25,54 45,90 70,70 S105,56 120,72" stroke="rgba(255,120,30,.65)" stroke-width="4.5" fill="none"/><path d="M0,72 C25,54 45,90 70,70 S105,56 120,72" stroke="rgba(255,225,110,.9)" stroke-width="1.4" fill="none"/></g>`; return `<svg class="fw" viewBox="0 0 240 100" preserveAspectRatio="none">${one(0)}${one(120)}</svg>`; };
+  const sprite = (rows, col) => "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${rows[0].length} ${rows.length}" shape-rendering="crispEdges">${rows.map((r, y) => [...r].map((c, x) => c === "." ? "" : `<rect x="${x}" y="${y}" width="1" height="1" fill="${col[c]}"/>`).join("")).join("")}</svg>`);
+  const FLAME_COL = { y: "#ffd23f", o: "#ff8a1f", r: "#d2381a" };
+  const FLAME_A = sprite(["...y...", "..yoy..", "..yoy..", ".yooyy.", ".yoory.", "yooorry", "yoorrry", ".orrrr.", "..rrr.."], FLAME_COL);
+  const FLAME_B = sprite(["....y..", "...yoy.", "..yooy.", "..yoyy.", ".yoooy.", ".yooory", "yoorrry", ".orrrr.", "..rrr.."], FLAME_COL);
+  const BAT_COL = { k: "#2a2438", p: "#6b4f8f", e: "#ff5d73" };
+  const BAT_UP = sprite(["k.......k", "kk.kkk.kk", "kkkkekkkk", ".kkkkkkk.", "..k...k.."], BAT_COL);
+  const BAT_DN = sprite([".........", "..k...k..", "kkkkekkkk", "kkkkkkkkk", "k..kkk..k"], BAT_COL);
+  const BRICK_URI = (() => { let o = '<rect width="32" height="16" fill="#1c1e26"/>'; const sh = ["#4a4e5c", "#444856", "#50546a", "#3f424f"]; for (let r = 0; r < 2; r++) for (let k = -1; k < 3; k++) { const x = (r ? 8 : 0) + k * 16, y = r * 8, c = sh[(k + 2 + r * 2) % 4]; o += `<rect x="${x + 1}" y="${y + 1}" width="15" height="7" fill="${c}"/><rect x="${x + 1}" y="${y + 1}" width="15" height="1" fill="rgba(255,255,255,.18)"/><rect x="${x + 1}" y="${y + 7}" width="15" height="1" fill="rgba(0,0,0,.28)"/>`; } return "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 16" shape-rendering="crispEdges">${o}</svg>`); })();
+  const boltPts = seed => {   // 每道閃電長得都不一樣: 折線往下走、隨機分岔
+    const ys = [0, 13, 28, 44, 60, 78, 100]; let x = 12 + R(seed, 1) * 16; const pts = [[x, 0]];
+    ys.slice(1).forEach((y, k) => { x = Math.max(4, Math.min(36, x + (R(seed, 2 + k) - .5) * (k % 2 ? 24 : 16))); pts.push([x, y]); });
+    const b = 2 + Math.floor(R(seed, 20) * 3), dir = R(seed, 21) > .5 ? 1 : -1, br = [pts[b]]; let bx = pts[b][0], by = pts[b][1];
+    for (let k = 0; k < 2 + Math.floor(R(seed, 22) * 2); k++) { bx = Math.max(2, Math.min(38, bx + dir * (5 + R(seed, 23 + k) * 8))); by += 9 + R(seed, 27 + k) * 8; br.push([bx, by]); }
+    const f = a => a.map(q => q[0].toFixed(1) + "," + q[1].toFixed(1)).join(" ");
+    return [f(pts), f(br)];
+  };
+  const boltSvg = (seed, x, t, d, flip) => { const [m, b] = boltPts(seed), w = (1.4 + R(seed, 30) * 1.4).toFixed(1); return `<svg class="bl" viewBox="0 0 40 100" preserveAspectRatio="none" style="left:${x}%;--t:${t}s;--dl:${d}s${flip ? ";transform:scaleX(-1)" : ""}"><g fill="none" stroke-linejoin="round" stroke-linecap="round"><polyline points="${m}" stroke="#ffe14d" stroke-width="${(w * 2.6).toFixed(1)}" opacity=".45"/><polyline points="${b}" stroke="#ffe14d" stroke-width="${(w * 1.8).toFixed(1)}" opacity=".4"/><polyline points="${m}" stroke="#fff" stroke-width="${w}"/><polyline points="${b}" stroke="#fff" stroke-width="${(w * .7).toFixed(1)}"/></g></svg>`; };
+  const crystalSvg = () => {   // 水晶: 整面都是凹凸不平的切面 (低多邊形),亮暗交錯,幾個切面輪流反光
+    const C = 13, Rw = 6, W = 240 / (C - 1), H = 100 / (Rw - 1), P = [];
+    for (let r = 0; r < Rw; r++) for (let c = 0; c < C; c++) {
+      const k = r * C + c, edge = c === 0 || c === C - 1 || r === 0 || r === Rw - 1;
+      P.push([c * W + (edge ? 0 : (R(k, 1) - .5) * W * .8), r * H + (edge ? 0 : (R(k, 2) - .5) * H * .8)]);
+    }
+    const mix = t => `rgb(${Math.round(10 + t * 125)},${Math.round(70 + t * 175)},${Math.round(100 + t * 155)})`;
+    let o = "", g = "", n = 0;
+    for (let r = 0; r < Rw - 1; r++) for (let c = 0; c < C - 1; c++) {
+      const a = P[r * C + c], b = P[r * C + c + 1], d = P[(r + 1) * C + c], e = P[(r + 1) * C + c + 1];
+      const tris = (r + c) % 2 ? [[a, b, d], [b, e, d]] : [[a, b, e], [a, e, d]];
+      tris.forEach((t, q) => {
+        const k = r * 40 + c * 3 + q, lit = (1 - (c / C + r / Rw) / 2) * .35;   // 左上方來光: 越靠左上越亮
+        const pts = t.map(v => v[0].toFixed(1) + "," + v[1].toFixed(1)).join(" ");
+        o += `<polygon points="${pts}" fill="${mix(Math.min(1, .12 + lit + R(k, 3) * .5))}" stroke="rgba(190,248,255,.28)" stroke-width=".5"/>`;
+        if (R(k, 4) < .2) g += `<polygon class="ft" style="--dl:${(-R(k, 5) * 7).toFixed(1)}s;--du:${(3 + R(k, 6) * 4).toFixed(1)}s" points="${pts}" fill="#fff"/>`;
+      });
+    }
+    return `<svg class="cy" viewBox="0 0 240 100" preserveAspectRatio="xMidYMid slice">${o}${g}</svg>`;
+  };  const GRASS_COL = { d: "#24692c", m: "#3a9a3f", l: "#8be05a" };
+  const TUFT = sprite([".....l...", ".l...l.l.", ".l.l.m.l.", ".m.l.m.m.", ".m.m.m.m.", "dm.m.m.md", "dmmmmmmmd", "ddmmmmmdd", ".ddddddd."], GRASS_COL);
+  const FLOWER = c => sprite(["..ppp..", ".ppypp.", "..ppp..", "...g...", "...g...", "..gg...", "...g..."], { p: c, y: "#ffd23f", g: "#2f8a3a" });
+  const GRASS_TILE = (() => { let o = '<rect width="24" height="16" fill="#2f8a3a"/>'; for (let i = 0; i < 46; i++) { const x = Math.floor(R(i, 1) * 24), y = Math.floor(R(i, 2) * 15), c = R(i, 3) < .5 ? "#27722f" : "#49a84a", h = R(i, 4) < .45 ? 2 : 1; o += `<rect x="${x}" y="${y}" width="1" height="${h}" fill="${c}"/>`; } return "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 16" shape-rendering="crispEdges">${o}</svg>`); })();
   const SCENE = {
     sakura: () => rng(11).map(i => { const w = 7 + R(i, 1) * 5, t = 5 + R(i, 2) * 4, dx = (R(i, 3) > .5 ? 1 : -1) * (30 + R(i, 4) * 80); return `<i class="pt" style="left:${(R(i, 5) * 100).toFixed(1)}%;width:${w.toFixed(1)}px;height:${(w * .65).toFixed(1)}px;--t:${t.toFixed(1)}s;--dl:${(-R(i, 6) * t).toFixed(1)}s;--dx:${dx.toFixed(0)}px"></i>`; }).join(""),
     ink: () => [[20, 50, 6.5, 0], [52, 38, 7.5, -2.6], [80, 56, 6, -4.2]].map(([x, y, t, d]) => `<b class="ik" style="left:${x}%;top:${y}%;--t:${t}s;--dl:${d}s"><i class="cl"></i><i class="rp"></i><i class="dr"></i></b>`).join(""),
-    thunder: () => `<i class="cd"></i>` + [[18, 5, -0.5], [58, 6.5, -3.2], [84, 7.5, -5.1]].map(([x, t, d]) => `<svg class="bl" viewBox="0 0 30 100" preserveAspectRatio="none" style="left:${x}%;--t:${t}s;--dl:${d}s"><polyline points="18,0 9,40 19,40 6,100" fill="none" stroke="#ffe14d" stroke-width="5" stroke-linejoin="round" opacity=".5"/><polyline points="18,0 9,40 19,40 6,100" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg>`).join("") + `<i class="fl" style="--t:5s;--dl:-0.5s"></i>`,
+    thunder: () => `<i class="cd"></i>` + [[0, 14, 4.3, -0.4, 0], [1, 66, 5.7, -2.1, 1], [2, 38, 7.1, -3.6, 0], [3, 82, 8.9, -6.2, 1], [4, 24, 6.3, -4.4, 0], [5, 54, 9.7, -8.1, 1]].map(([sd, x, t, d, fl]) => boltSvg(sd + 11, x, t, d, fl)).join("") + `<i class="fl" style="--t:4.3s;--dl:-0.4s"></i><i class="fl" style="--t:7.1s;--dl:-3.6s"></i>`,
+    crystal: () => `<i class="cg"></i>` + crystalSvg() + rng(5).map(i => `<i class="sp2" style="left:${(R(i, 1) * 90 + 4).toFixed(0)}%;top:${(R(i, 2) * 70 + 6).toFixed(0)}%;--s:${(7 + R(i, 3) * 6).toFixed(0)}px;--t:${(2.8 + R(i, 4) * 3).toFixed(1)}s;--dl:${(-R(i, 5) * 5).toFixed(1)}s"></i>`).join(""),
+    sunset: () => `<i class="sg"></i><svg class="sn2" viewBox="0 0 60 60"><circle cx="30" cy="30" r="14" fill="#ffd9a0"/><circle cx="30" cy="30" r="14" fill="#ff9a4a" opacity=".5"/></svg>` + [[16, 30, -3], [34, 46, -22], [8, 38, -11]].map(([y, t, d]) => `<i class="sc" style="top:${y}%;--t:${t}s;--dl:${d}s"></i>`).join("") + `<svg class="hl" viewBox="0 0 240 60" preserveAspectRatio="none"><polygon points="0,60 0,34 22,22 44,36 70,8 104,38 128,26 160,40 196,14 224,34 240,24 240,60" fill="#5a3068"/><polygon points="0,60 0,44 36,30 58,46 92,28 118,48 150,22 182,46 214,32 240,44 240,60" fill="#34193f"/><polygon points="0,60 0,52 28,46 60,54 104,44 140,54 176,48 212,54 240,48 240,60" fill="#170b20"/></svg>` + [[12, 14, -2, 1], [26, 20, -9, .8], [18, 17, -5, 1.2], [8, 26, -14, .7], [30, 23, -18, .9], [21, 30, -24, .75], [15, 12, -7, 1]].map(([y, t, d, z]) => `<b class="bd" style="top:${y}%;--t:${t}s;--dl:${d}s;zoom:${z}"><i></i><i></i></b>`).join(""),
+
     ice: () => `<svg class="mt" viewBox="0 0 240 60" preserveAspectRatio="none" style="height:62%"><polygon points="0,60 0,34 28,10 52,30 78,16 112,42 142,6 178,36 208,18 240,38 240,60" fill="#8fb9d6"/><polygon points="28,10 20,22 28,19 36,23" fill="#fff"/><polygon points="142,6 133,20 141,16 150,21" fill="#fff"/></svg><svg class="mt" viewBox="0 0 240 60" preserveAspectRatio="none" style="height:42%"><polygon points="0,60 0,40 40,18 70,40 105,24 150,46 190,22 240,44 240,60" fill="#4f84a8"/><polygon points="40,18 33,29 40,26 47,30" fill="#e9f6ff"/><polygon points="190,22 183,32 190,29 197,33" fill="#e9f6ff"/></svg>`
       + [[10, 30, -2], [26, 52, -19], [6, 40, -9]].map(([y, t, d]) => `<i class="cd2" style="top:${y}%;--t:${t}s;--dl:${d}s"></i>`).join("")
       + rng(5).map(i => `<i class="wd" style="top:${(18 + R(i, 1) * 55).toFixed(0)}%;--t:${(1.8 + R(i, 2) * 1.6).toFixed(1)}s;--dl:${(-R(i, 3) * 3).toFixed(1)}s"></i>`).join("")
       + rng(9).map(i => `<i class="sn" style="left:${(R(i, 4) * 60).toFixed(0)}%;top:${(R(i, 5) * 40).toFixed(0)}%;--t:${(3 + R(i, 6) * 2).toFixed(1)}s;--dl:${(-R(i, 7) * 4).toFixed(1)}s"></i>`).join(""),
     gold: () => `<i class="lq a" style="--t:16s;background:linear-gradient(105deg,${goldStops()})"></i><i class="lq b" style="--t:23s;background:linear-gradient(78deg,${goldStops()})"></i><i class="lq g" style="--t:11s"></i>`,
     jade: () => `<i class="ms a" style="--t:42s"></i><i class="ms b" style="--t:58s"></i>` + jadeVeins() + rng(5).map(i => `<i class="gs jg" style="left:${(R(i, 1) * 92 + 4).toFixed(0)}%;top:${(R(i, 2) * 84 + 8).toFixed(0)}%;width:2.5px;height:2.5px;--t:${(2.5 + R(i, 3) * 3).toFixed(1)}s;--dl:${(-R(i, 4) * 4).toFixed(1)}s"></i>`).join(""),
-    lava: () => `<i class="lv a" style="--t:13s"></i><i class="lv b" style="--t:19s"></i>` + crustSvg() + rng(7).map(i => `<i class="bb" style="left:${(6 + R(i, 1) * 88).toFixed(0)}%;--s:${(4 + R(i, 2) * 4).toFixed(1)}px;--t:${(3.5 + R(i, 3) * 3).toFixed(1)}s;--dl:${(-R(i, 4) * 6).toFixed(1)}s"></i>`).join(""),
+    lava: () => `<i class="lv a" style="--t:13s"></i><i class="lv b" style="--t:19s"></i>` + lavaFlow() + rng(7).map(i => `<i class="bb" style="left:${(6 + R(i, 1) * 88).toFixed(0)}%;--s:${(4 + R(i, 2) * 4).toFixed(1)}px;--t:${(3.5 + R(i, 3) * 3).toFixed(1)}s;--dl:${(-R(i, 4) * 6).toFixed(1)}s"></i>`).join(""),
+    px_grass: () => `<i class="gt"></i>` + rng(11).map(i => `<i class="tu" style="left:${(R(i, 1) * 94).toFixed(0)}%;--d:${(2.6 + R(i, 2) * 2.4).toFixed(1)}s;--o:${(-R(i, 3) * 4).toFixed(1)}s"></i>`).join("") + rng(9).map(i => `<i class="fw2" style="left:${(R(i + 40, 1) * 94 + 1).toFixed(1)}%;bottom:${(R(i + 40, 2) * 22 + 1).toFixed(0)}px;background-image:url(${FLOWER(["#ff5d73", "#fff1e8", "#ffd23f", "#b58cff", "#ff9bd2", "#7fd6ff"][Math.floor(R(i + 40, 3) * 6)])});zoom:${(.7 + R(i + 40, 4) * .6).toFixed(2)};--d:${(3 + R(i + 40, 5) * 2.5).toFixed(1)}s;--o:${(-R(i + 40, 6) * 4).toFixed(1)}s"></i>`).join(""),
+    px_dungeon: () => `<i class="br"></i>` + [[10, 34, 0], [29, 26, -.5], [49, 36, -.2], [68, 27, -.8], [88, 35, -.35]].map(([x, y, d]) => `<b class="tc" style="left:${x}%;top:${y}%"><i class="tg" style="--dl:${d - 0.3}s"></i><i class="tf a" style="--dl:${d}s"></i><i class="tf b" style="--dl:${d}s"></i><i class="tkh"></i></b>`).join("") + `<b class="bt" style="--dl:-3s"><i class="up"></i><i class="dn"></i></b>`,
+    zen: () => `<i class="rk"></i><i class="rg" style="left:20%;top:62%;--dl:0s"></i><i class="rg" style="left:20%;top:62%;--dl:-3s"></i><i class="rg" style="left:20%;top:62%;--dl:-6s"></i><i class="sto" style="left:20%;top:62%;width:30px;height:17px"></i><i class="sto" style="left:8%;top:80%;width:16px;height:9px"></i><svg class="en" viewBox="0 0 40 40"><circle cx="20" cy="20" r="14" fill="none" stroke="#1b1810" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="88" transform="rotate(-65 20 20)"/></svg>`,
+    px_lava: () => `<i class="pl1" style="background-image:url(${pxLavaUri(0)})"></i><i class="pl2" style="background-image:url(${pxLavaUri(2.4)})"></i>` + rng(6).map(i => `<i class="pb" style="left:${(R(i, 1) * 92 + 2).toFixed(0)}%;--t:${(3 + R(i, 2) * 3).toFixed(1)}s;--dl:${(-R(i, 3) * 6).toFixed(1)}s"></i>`).join(""),
     px_night: () => `<i class="mh"></i><i class="mo"></i>` + rng(22).map(i => `<i class="st ${["", "y", "c", ""][i % 4]}" style="left:${(R(i, 1) * 96 + 1).toFixed(0)}%;top:${(R(i, 2) * 92 + 2).toFixed(0)}%;--t:${(1.2 + R(i, 3) * 2.4).toFixed(1)}s;--dl:${(-R(i, 4) * 3).toFixed(1)}s"></i>`).join("")
       + [[16, 28], [62, 60], [86, 22]].map(([x, y], i) => `<i class="sx" style="left:${x}%;top:${y}%;--t:${2 + i * .7}s;--dl:${-i * .9}s"></i>`).join("") + `<i class="ss" style="--t:7s;--dl:-2s"></i>`,
     galaxy: () => rng(26).map(i => `<i class="gs" style="left:${(R(i, 1) * 97 + 1).toFixed(0)}%;top:${(R(i, 2) * 94 + 2).toFixed(0)}%;width:${(1 + R(i, 3) * 1.4).toFixed(1)}px;height:${(1 + R(i, 3) * 1.4).toFixed(1)}px;--t:${(2 + R(i, 4) * 3).toFixed(1)}s;--dl:${(-R(i, 5) * 4).toFixed(1)}s"></i>`).join("")
       + [[14, 30], [48, 68], [76, 24], [92, 70]].map(([x, y], i) => `<i class="gb" style="left:${x}%;top:${y}%;--t:${3 + i * .6}s;--dl:${-i * 1.1}s"></i>`).join("")
       + [[8, 9, -1], [30, 12.5, -7]].map(([y, t, d]) => `<i class="cm" style="top:${y}%;--t:${t}s;--dl:${d}s"></i>`).join(""),
-    px_coin: () => `<i class="cp" style="background:url(${COIN_URI}) 0 0/24px 24px,url(${COIN_URI}) 12px 12px/24px 24px,#c98a00"></i>` + rng(7).map(i => `<i class="gl" style="left:${(R(i, 1) * 94 + 2).toFixed(0)}%;top:${(R(i, 2) * 84 + 6).toFixed(0)}%;--t:${(1.6 + R(i, 3) * 2).toFixed(1)}s;--dl:${(-R(i, 4) * 3).toFixed(1)}s"></i>`).join("") + `<i class="fc" style="left:22%;--t:4s;--dl:-1s"></i><i class="fc" style="left:68%;--t:5.2s;--dl:-3s"></i>`,
+    px_coin: () => rng(16).map(i => `<i class="fc" style="left:${(R(i, 1) * 94 + 1).toFixed(0)}%;--s:${(9 + Math.floor(R(i, 2) * 3) * 2)}px;--t:${(3.2 + R(i, 3) * 3).toFixed(1)}s;--dl:${(-R(i, 4) * 6).toFixed(1)}s"></i>`).join(""),
     bamboo: () => bambooSvg() + rng(3).map(i => `<i class="pt bl2" style="left:${(10 + R(i, 1) * 80).toFixed(0)}%;width:11px;height:5px;--t:${(6 + R(i, 2) * 3).toFixed(1)}s;--dl:${(-R(i, 3) * 8).toFixed(1)}s;--dx:${(R(i, 4) > .5 ? 1 : -1) * 50}px"></i>`).join(""),
+    samurai: () => `<svg class="bm" viewBox="0 0 240 100" preserveAspectRatio="xMidYMid slice"><rect width="240" height="100" fill="url(#smg)"/><defs><linearGradient id="smg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a4a4a"/><stop offset="1" stop-color="#151515"/></linearGradient></defs><rect x="14" y="0" width="3" height="100" fill="#262626"/><rect x="30" y="0" width="2" height="100" fill="#2c2c2c"/><rect x="92" y="0" width="3" height="100" fill="#262626"/><rect x="112" y="0" width="2" height="100" fill="#2e2e2e"/><rect x="136" y="0" width="4" height="100" fill="#222"/><rect x="196" y="0" width="3" height="100" fill="#262626"/><rect x="218" y="0" width="4" height="100" fill="#202020"/><rect x="234" y="0" width="2" height="100" fill="#2c2c2c"/><rect x="13" y="22" width="5" height="1.4" fill="#555"/><rect x="13" y="58" width="5" height="1.4" fill="#555"/><rect x="91" y="40" width="5" height="1.4" fill="#555"/><rect x="135" y="30" width="6" height="1.4" fill="#555"/><rect x="135" y="70" width="6" height="1.4" fill="#555"/><rect x="195" y="18" width="5" height="1.4" fill="#555"/><rect x="195" y="64" width="5" height="1.4" fill="#555"/><rect x="217" y="44" width="6" height="1.4" fill="#555"/><g class="sx-lo"><polygon points="164,100 164,50 172,40 172,100" fill="#d8d8d8"/><rect x="164" y="60" width="8" height="1.5" fill="#8a8a8a"/></g><g class="sx-up"><polygon points="164,50 164,0 172,0 172,40" fill="#d8d8d8"/><rect x="164" y="22" width="8" height="1.5" fill="#8a8a8a"/></g><g class="sx-sam"><path d="M44,90 L46,60 L56,60 L60,90Z" fill="#050505"/><path d="M45,60 L47,44 L56,44 L56,60Z" fill="#050505"/><circle cx="51.5" cy="39" r="4" fill="#050505"/><path d="M41,38 L51.5,28 L62,38Z" fill="#050505"/><g class="sx-sw"><path d="M56,56 L84,55.4" stroke="#f2f2f2" stroke-width="1.2" stroke-linecap="round"/><rect x="54" y="54.6" width="3" height="2.6" fill="#050505"/></g></g><rect y="90" width="240" height="10" fill="#080808"/><path class="sx-sl" d="M72,60 Q122,40 178,34" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" pathLength="100"/></svg><i class="fg a"></i><i class="fg b"></i><i class="sxf"></i>`,
     royal: () => `<i class="ry"></i><i class="cu l"></i><i class="cu r"></i><svg class="cr" viewBox="0 0 40 28"><defs><linearGradient id="gc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff0b8"/><stop offset="1" stop-color="#c9961e"/></linearGradient></defs><path d="M3,24 L5,7 L13,16 L20,3 L27,16 L35,7 L37,24 Z" fill="url(#gc)"/><rect x="3" y="24" width="34" height="3" rx="1" fill="#e8bb4a"/><circle cx="5" cy="6" r="2" fill="#ff5d73"/><circle cx="20" cy="2.5" r="2.3" fill="#7fd6ff"/><circle cx="35" cy="6" r="2" fill="#ff5d73"/><circle cx="20" cy="19" r="2" fill="#b58cff"/></svg>`
       + rng(10).map(i => `<i class="sp" style="left:${(R(i, 1) * 90 + 4).toFixed(0)}%;--t:${(4 + R(i, 2) * 4).toFixed(1)}s;--dl:${(-R(i, 3) * 6).toFixed(1)}s;--s:${(5 + R(i, 4) * 5).toFixed(0)}px"></i>`).join(""),
   };
@@ -659,7 +733,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 /* 雷霆: 烏雲飄動,閃電打下 */
 .bxfx .cd{left:-20%;top:-35%;width:75%;height:70%;background:radial-gradient(closest-side,rgba(8,8,32,.85),transparent);animation:bxcloud2 14s linear infinite alternate}
 @keyframes bxcloud2{from{transform:translateX(0)}to{transform:translateX(75%)}}
-.bxfx .bl{top:0;height:100%;width:28px;opacity:0;animation:bxbolt var(--t) linear var(--dl) infinite;filter:drop-shadow(0 0 4px #ffe14d)}
+.bxfx .bl{top:0;height:100%;width:34px;opacity:0;animation:bxbolt var(--t) linear var(--dl) infinite;filter:drop-shadow(0 0 4px #ffe14d)}
 @keyframes bxbolt{0%,86%{opacity:0}87%{opacity:1}89%{opacity:.15}91%{opacity:1}96%,100%{opacity:0}}
 .bxfx .fl{inset:0;background:#fff;opacity:0;animation:bxflash var(--t) linear var(--dl) infinite}
 @keyframes bxflash{0%,86%{opacity:0}87%{opacity:.3}89%{opacity:0}91%{opacity:.38}96%,100%{opacity:0}}
@@ -689,13 +763,68 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 .bxfx .ms.b{background:radial-gradient(ellipse 26% 36% at 55% 30%,rgba(240,255,250,.28),transparent 72%),radial-gradient(ellipse 16% 30% at 12% 75%,rgba(60,190,140,.4),transparent 72%);background-size:50% 100%;background-repeat:repeat-x;animation-direction:reverse}
 .bxfx .vn{left:0;top:0;width:200%;height:100%;animation:bxflow 70s linear infinite;will-change:transform}
 .bxfx .jg{background:#eafff6;box-shadow:0 0 5px 2px rgba(190,255,230,.8)}
+/* 熔岩流動紋路 */
+.bxfx .fw{left:0;top:0;width:200%;height:100%;animation:bxflow 11s linear infinite;will-change:transform}
+/* 像素熔岩: 像素格的岩漿波紋,平滑流動 */
+.bxfx .pl1,.bxfx .pl2{top:0;left:0;width:200%;height:100%;background-size:96px 64px;image-rendering:pixelated;animation:bxflow 12s linear infinite;will-change:transform}
+.bxfx .pl2{opacity:.55;background-size:72px 48px;animation-direction:reverse;animation-duration:19s}
+.bxfx .pb{bottom:-6px;width:5px;height:5px;background:#ffd23f;box-shadow:0 0 0 1px #ff7a1a;opacity:0;animation:bxrise var(--t) linear var(--dl) infinite}
+/* 像素草地: 草叢與花隨風擺動 */
+.bxfx .gt{inset:0;background:url(${GRASS_TILE}) 0 0/72px 48px;image-rendering:pixelated}
+.bxfx .tu{bottom:-3px;width:27px;height:27px;background:url(${TUFT}) 0 0/100% 100%;image-rendering:pixelated;transform-origin:50% 100%;animation:bxgsway var(--d) ease-in-out var(--o) infinite alternate}
+.bxfx .fw2{width:21px;height:27px;background-size:100% 100%;image-rendering:pixelated;transform-origin:50% 100%;animation:bxgsway var(--d) ease-in-out var(--o) infinite alternate}
+@keyframes bxgsway{from{transform:rotate(-6deg)}to{transform:rotate(6deg)}}
+/* 水晶: 晶柱切面輪流閃光、星芒閃爍 */
+.bxfx .cg{inset:0;background:radial-gradient(ellipse at 50% 100%,rgba(120,235,255,.35),transparent 70%)}
+.bxfx .cy{left:0;bottom:0;width:100%;height:100%}
+.bxfx .ft{opacity:0;animation:bxfacet var(--du) ease-in-out var(--dl) infinite alternate}
+@keyframes bxfacet{0%,40%{opacity:0}to{opacity:.5}}
+.bxfx .sp2{width:var(--s);height:var(--s);background:#fff;clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);opacity:0;animation:bxtw2 var(--t) ease-in-out var(--dl) infinite}
+@keyframes bxtw2{0%,100%{opacity:0;transform:scale(.3) rotate(0)}50%{opacity:.95;transform:scale(1) rotate(45deg)}}
+/* 黃昏: 夕陽緩緩下沉發光、晚霞飄移、遠山剪影、飛鳥 */
+.bxfx .sg{inset:0;background:radial-gradient(ellipse 60% 70% at 72% 100%,rgba(255,140,50,.55),rgba(255,90,60,.2) 50%,transparent 75%);animation:bxsun 8s ease-in-out infinite alternate}
+@keyframes bxsun{from{opacity:.75}to{opacity:1}}
+.bxfx .sn2{right:15%;bottom:6%;width:60px;height:60px;animation:bxsink 14s ease-in-out infinite alternate;will-change:transform}
+@keyframes bxsink{from{transform:translateY(-10px)}to{transform:translateY(12px)}}
+.bxfx .sc{left:0;width:70px;height:7px;border-radius:99px;background:linear-gradient(90deg,transparent,rgba(255,190,150,.65),transparent);animation:bxdrift var(--t) linear var(--dl) infinite;will-change:transform}
+.bxfx .hl{left:0;right:0;bottom:0;width:100%;height:52%}
+.bxfx .bd{left:0;width:14px;height:7px;animation:bxbird var(--t) linear var(--dl) infinite}
+.bxfx .bd i{left:0;top:0;width:7px;height:2px;background:#1a0e22;transform-origin:100% 50%;animation:bxflap .5s ease-in-out infinite alternate}
+.bxfx .bd i+i{left:7px;transform-origin:0 50%;animation-name:bxflap2}
+@keyframes bxflap{from{transform:rotate(-24deg)}to{transform:rotate(18deg)}}
+@keyframes bxflap2{from{transform:rotate(24deg)}to{transform:rotate(-18deg)}}
+@keyframes bxbird{0%{transform:translate(-30px,6px)}50%{transform:translate(140px,-6px)}100%{transform:translate(290px,4px)}}
+/* 像素地牢: 石磚牆、火把閃爍、偶爾飛過的蝙蝠 */
+.bxfx .br{inset:0;background:url(${BRICK_URI}) 0 0/64px 32px;image-rendering:pixelated;opacity:1}
+.bxfx .tc{width:14px;height:33px}
+.bxfx .tf{left:0;top:0;width:14px;height:18px;background:url(${FLAME_A}) 0 0/100% 100%;image-rendering:pixelated;animation:bxflame .5s steps(1) var(--dl) infinite}
+.bxfx .tf.b{background-image:url(${FLAME_B});animation-name:bxflameb}
+@keyframes bxflame{0%{opacity:1}50%{opacity:0}100%{opacity:1}}
+@keyframes bxflameb{0%{opacity:0}50%{opacity:1}100%{opacity:0}}
+.bxfx .tkh{left:5px;top:17px;width:4px;height:16px;background:#7a4a1e;box-shadow:inset -2px 0 #4a2a10}
+.bxfx .tg{left:-26px;top:-22px;width:66px;height:66px;background:radial-gradient(circle,rgba(255,160,50,.28),rgba(255,120,30,.1) 45%,transparent 70%);animation:bxflick 1.9s steps(1) var(--dl) infinite}
+@keyframes bxflick{0%{opacity:.7}18%{opacity:1}34%{opacity:.6}52%{opacity:.95}71%{opacity:.65}86%{opacity:1}100%{opacity:.7}}
+.bxfx .bt{left:0;top:18%;width:27px;height:15px;animation:bxbat 17s linear var(--dl) infinite}
+.bxfx .bt i{left:0;top:0;width:27px;height:15px;image-rendering:pixelated;background-size:100% 100%}
+.bxfx .bt .up{background-image:url(${BAT_UP});animation:bxflame .3s steps(1) infinite}
+.bxfx .bt .dn{background-image:url(${BAT_DN});animation:bxflameb .3s steps(1) infinite}
+@keyframes bxbat{0%{transform:translate(-40px,8px)}10%{transform:translate(50px,-4px)}20%{transform:translate(130px,10px)}30%{transform:translate(210px,-2px)}42%{transform:translate(320px,6px)}100%{transform:translate(320px,6px)}}
+/* 禪意: 枯山水 — 沙紋、石頭、緩緩擴散的漣漪,與一筆畫出的圓相 */
+.bxfx .rk{inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.07) 0 1px,transparent 1px 7px)}
+.bxfx .sto{transform:translate(-50%,-50%);border-radius:50% 50% 46% 46%/62% 62% 38% 38%;background:radial-gradient(ellipse at 38% 30%,#8d887a,#3b3830 70%);box-shadow:0 3px 4px rgba(0,0,0,.45)}
+.bxfx .rg{width:58px;height:24px;transform:translate(-50%,-50%) scale(.3);border:1px solid rgba(255,255,255,.32);border-radius:50%;opacity:0;animation:bxring 9s ease-out var(--dl) infinite}
+@keyframes bxring{0%{transform:translate(-50%,-50%) scale(.35);opacity:0}12%{opacity:.7}100%{transform:translate(-50%,-50%) scale(3);opacity:0}}
+.bxfx .en{right:7%;top:50%;width:52px;height:52px;margin-top:-26px;opacity:0;animation:bxenso 11s ease-in-out infinite}
+.bxfx .en circle{animation:bxdraw 11s ease-in-out infinite}
+@keyframes bxenso{0%{opacity:0}12%{opacity:.5}78%{opacity:.5}100%{opacity:0}}
+@keyframes bxdraw{0%{stroke-dashoffset:88}55%,100%{stroke-dashoffset:8}}
 /* 像素星空: 一格一格閃爍 */
 .bxfx .st{width:2px;height:2px;background:#fff;animation:bxblink2 var(--t) steps(1) var(--dl) infinite}
 .bxfx .st.y{background:#ffec27}.bxfx .st.c{background:#29adff}
 .bxfx .sx{width:3px;height:3px;background:#fff;box-shadow:3px 0 #fff,-3px 0 #fff,0 3px #fff,0 -3px #fff;animation:bxblink2 var(--t) steps(1) var(--dl) infinite}
 @keyframes bxblink2{0%{opacity:1}50%{opacity:.08}100%{opacity:1}}
-.bxfx .mo{right:12%;top:14%;width:30px;height:30px;background:url(${MOON_URI}) 0 0/30px 30px;image-rendering:pixelated}
-.bxfx .mh{right:calc(12% - 8px);top:calc(14% - 8px);width:46px;height:46px;background:rgba(255,241,168,.16);animation:bxblink3 2.4s steps(1) infinite}
+.bxfx .mo{right:12%;top:12%;width:34px;height:34px;background:url(${MOON_URI}) 0 0/34px 34px;image-rendering:pixelated;transform:rotate(-24deg)}
+.bxfx .mh{right:calc(12% - 6px);top:calc(12% - 6px);width:46px;height:46px;background:url(${MOON_HALO}) 0 0/46px 46px;image-rendering:pixelated;opacity:.2;transform:rotate(-24deg);animation:bxblink3 2.4s steps(1) infinite}
 @keyframes bxblink3{0%{opacity:1}50%{opacity:.4}100%{opacity:1}}
 .bxfx .ss{left:0;top:6%;width:4px;height:4px;background:#ffec27;box-shadow:-4px -2px #fff1e8,-8px -4px #ffa300,-12px -6px rgba(255,163,0,.6);opacity:0;animation:bxshoot var(--t) steps(14) var(--dl) infinite}
 @keyframes bxshoot{0%{transform:translate(0,0);opacity:0}6%{opacity:1}28%{transform:translate(260px,90px);opacity:1}30%,100%{transform:translate(264px,92px);opacity:0}}
@@ -709,17 +838,35 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 /* 像素金幣: 滿滿的金幣堆,金光閃閃、偶爾有金幣掉下來 */
 .bxfx .cp{inset:0;image-rendering:pixelated}
 .bxfx .gl{width:5px;height:5px;background:#fff;clip-path:polygon(40% 0,60% 0,60% 40%,100% 40%,100% 60%,60% 60%,60% 100%,40% 100%,40% 60%,0 60%,0 40%,40% 40%);animation:bxblink2 var(--t) steps(1) var(--dl) infinite}
-.bxfx .fc{top:-10px;width:9px;height:9px;background:url(${COIN_URI}) 0 0/9px 9px;image-rendering:pixelated;animation:bxcoinfall var(--t) steps(10) var(--dl) infinite}
-@keyframes bxcoinfall{0%{transform:translateY(0) scaleX(1);opacity:1}25%{transform:translateY(30px) scaleX(.2)}50%{transform:translateY(60px) scaleX(1)}75%{transform:translateY(90px) scaleX(.2)}100%{transform:translateY(125px) scaleX(1);opacity:1}}
-/* 竹林: 竹葉隨風搖 */
+.bxfx .fc{top:-16px;width:var(--s);height:var(--s);background:url(${COIN_URI}) 0 0/100% 100%;image-rendering:pixelated;animation:bxcoinfall var(--t) linear var(--dl) infinite;will-change:transform}
+@keyframes bxcoinfall{0%{transform:translateY(0) scaleX(1)}20%{transform:translateY(27px) scaleX(.15)}40%{transform:translateY(54px) scaleX(1)}60%{transform:translateY(81px) scaleX(.15)}80%{transform:translateY(108px) scaleX(1)}100%{transform:translateY(135px) scaleX(.15)}}
+/* 竹林: 竹子左右擺動,竹葉另外隨風搖 */
+.bxfx .sk{animation:bxstalk var(--d) ease-in-out var(--o) infinite alternate}
+@keyframes bxstalk{from{transform:rotate(calc(var(--a)*-1))}to{transform:rotate(var(--a))}}
 .bxfx .bm{inset:0;width:100%;height:100%}
 .bxfx .lf{animation:bxsway var(--d) ease-in-out var(--o) infinite alternate}
 @keyframes bxsway{from{transform:rotate(-7deg)}to{transform:rotate(7deg)}}
+/* 武士: 黑白竹林,拔刀一閃,竹子斜斷落下 (8 秒一輪) */
+.bxfx .sx-lo,.bxfx .sx-up,.bxfx .sx-sam,.bxfx .sx-sw,.bxfx .sx-sl{transform-box:view-box}
+.bxfx .sx-sam{animation:sxsam 8s ease-in-out infinite}
+@keyframes sxsam{0%,36%{transform:translateX(0)}41%{transform:translateX(16px)}60%{transform:translateX(16px)}78%,100%{transform:translateX(0)}}
+.bxfx .sx-sw{transform-origin:56px 56px;animation:sxsw 8s ease-in-out infinite}
+@keyframes sxsw{0%,34%{transform:rotate(165deg)}41%{transform:rotate(-6deg)}60%{transform:rotate(-6deg)}78%,100%{transform:rotate(165deg)}}
+.bxfx .sx-sl{stroke-dasharray:100;stroke-dashoffset:100;opacity:0;animation:sxsl 8s linear infinite}
+@keyframes sxsl{0%,38%{stroke-dashoffset:100;opacity:0}39%{opacity:1}43%{stroke-dashoffset:0;opacity:1}50%{stroke-dashoffset:0;opacity:0}100%{opacity:0}}
+.bxfx .sx-up{animation:sxup 8s ease-in infinite}
+@keyframes sxup{0%,43%{transform:translate(0,0) rotate(0);opacity:1}60%{transform:translate(9px,18px) rotate(7deg);opacity:1}72%{transform:translate(16px,60px) rotate(16deg);opacity:0}88%{transform:translate(0,0) rotate(0);opacity:0}100%{transform:translate(0,0) rotate(0);opacity:1}}
+.bxfx .sxf{inset:0;background:#fff;opacity:0;animation:sxfl 8s linear infinite}
+@keyframes sxfl{0%,41%{opacity:0}42.5%{opacity:.5}47%,100%{opacity:0}}
+.bxfx .fg{left:-30%;width:160%;height:36%;background:radial-gradient(closest-side,rgba(220,220,220,.2),transparent);animation:sxfog 14s ease-in-out infinite alternate}
+.bxfx .fg.a{top:48%}
+.bxfx .fg.b{top:68%;animation-duration:19s;animation-direction:alternate-reverse}
+@keyframes sxfog{from{transform:translateX(-8%)}to{transform:translateX(8%)}}
 /* 皇家: 王冠與放射的光、絲絨帷幕、飄起的金色星屑 */
-.bxfx .ry{left:50%;top:50%;width:340px;height:340px;margin:-170px 0 0 -170px;background:repeating-conic-gradient(rgba(255,215,100,0) 0 7deg,rgba(255,215,100,.2) 7deg 14deg);-webkit-mask:radial-gradient(closest-side,#000 10%,transparent 100%);mask:radial-gradient(closest-side,#000 10%,transparent 100%);animation:bxspin 60s linear infinite}
-@keyframes bxspin{to{transform:rotate(360deg)}}
-.bxfx .cr{left:50%;top:50%;width:92px;height:64px;margin:-32px 0 0 -46px;opacity:.34;filter:drop-shadow(0 0 6px rgba(255,215,100,.8));animation:bxglow 3.2s ease-in-out infinite alternate}
-@keyframes bxglow{from{opacity:.2}to{opacity:.5}}
+.bxfx .ry{left:-30px;top:-30px;right:-30px;bottom:-30px;background:linear-gradient(45deg,transparent 46%,rgba(240,201,92,.32) 48% 52%,transparent 54%),linear-gradient(-45deg,transparent 46%,rgba(240,201,92,.32) 48% 52%,transparent 54%);background-size:30px 30px;animation:bxlat 14s linear infinite}
+@keyframes bxlat{to{transform:translate(30px,30px)}}
+.bxfx .cr{left:50%;top:50%;width:92px;height:64px;margin:-32px 0 0 -46px;opacity:.5;animation:bxglow 3.2s ease-in-out infinite alternate}
+@keyframes bxglow{from{opacity:.34;transform:translateY(-3px)}to{opacity:.62;transform:translateY(3px)}}
 .bxfx .cu{top:0;bottom:0;width:15%;background:repeating-linear-gradient(90deg,#2b1058 0 5px,#6d3fc2 8px,#2b1058 12px);border:0 solid #f0c95c;transform-origin:top;animation:bxcurt 5s ease-in-out infinite alternate}
 .bxfx .cu.l{left:0;border-right-width:2px}
 .bxfx .cu.r{right:0;border-left-width:2px;animation-delay:-2.5s}
@@ -908,6 +1055,17 @@ button:disabled{cursor:not-allowed}
 .fx-rainbow::after{inset:-11px;background:conic-gradient(#ff5d73,#ffd24a,#46e0a0,#3fd2ff,#9b6bff,#ff5d73);opacity:1;-webkit-mask:radial-gradient(closest-side,#000 55%,rgba(0,0,0,.55) 76%,transparent 100%);mask:radial-gradient(closest-side,#000 55%,rgba(0,0,0,.55) 76%,transparent 100%);animation:frspin 2.2s linear infinite}
 .fx-vortex>.fxa{inset:-14px;background:repeating-conic-gradient(rgba(40,0,90,0) 0deg,rgba(150,60,240,.65) 34deg,rgba(225,150,255,.95) 58deg,rgba(40,0,90,0) 60deg);-webkit-mask:radial-gradient(closest-side,transparent 40%,#000 62%,rgba(0,0,0,.7) 80%,transparent 100%);mask:radial-gradient(closest-side,transparent 40%,#000 62%,rgba(0,0,0,.7) 80%,transparent 100%);animation:frspin 2.4s linear infinite}
 .fx-vortex>.fxb{inset:-7px;border:0;background:repeating-conic-gradient(rgba(90,200,255,0) 0deg,rgba(150,230,255,.95) 28deg,rgba(90,200,255,0) 30deg);-webkit-mask:radial-gradient(closest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));mask:radial-gradient(closest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));animation:frspin 3.6s linear infinite reverse}
+/* 特效範圍: 一律用頭像大小的百分比,最多比頭像大約 30%,小頭像按比例縮小 (不蓋到名字 / 旁邊的元素) */
+.fx-sun>.fxa{inset:-40%}.fx-sun::after{inset:-26%}.fx-sun>.fxb{inset:-14%}
+.fx-beam>.fxa{top:-45%}
+.fx-aurora::after{inset:-30%}.fx-rainbow::after{inset:-24%}
+.fx-vortex>.fxa{inset:-32%}.fx-vortex>.fxb{inset:-16%}
+.fx-shadow>.fxa{inset:-22%}.fx-ki>.fxa{inset:-20%}.fx-flame::after{inset:-14%}
+.fx-orbit>.fxa{inset:-14%}.fx-orbit>.fxb{inset:-26%}
+.fx-ring::after{inset:-14%}.fx-arc>.fxa{inset:-14%}.fx-arc>.fxb{inset:-24%}
+.fx-ice>.fxa{inset:-16%}.fx-comet>.fxa{inset:-18%}.fx-petal::after{inset:-20%}
+html.px .fx-aurora::after{inset:-24%}html.px .fx-rainbow::after{inset:-12%}html.px .fx-vortex>.fxa{inset:-26%}
+html.px .fx-ring::after{inset:-14%}html.px .fx-ice>.fxa{inset:-16%}html.px .fx-vortex>.fxb{inset:-14%}
 @keyframes fxglow2{0%,100%{opacity:.35;transform:scale(.96)}50%{opacity:1;transform:scale(1.04)}}
 @keyframes frember{from{opacity:.8}to{opacity:1}}
 @keyframes frtw{from{opacity:.75}to{opacity:1}}

@@ -478,7 +478,7 @@ def player_public(key):
     lv = PROFILES.level(p.get("xp", 0))
     _nm, _sub, lo, hi = PROFILES.rank(rp)
     return {"ok": True, "uid": PROFILES.uid(t), "rp_lo": lo, "rp_next": hi, "next_rank": PROFILES.rank_label(hi) if hi is not None else None, "user": a["user"], "dev": PROFILES.dev(t), "avatar": PROFILES.avatar_url(t), "style": PROFILES.style(t),
-            "rank": PROFILES.rank_label(rp), "rp": rp, "level": lv, "games": p.get("games", 0), "wins": p.get("wins", 0),
+            "rank": PROFILES.rank_label(rp), "rp": rp, "rstreak": p.get("rstreak", 0), "streak_bonus": min(PROFILES.STREAK_CAP, p.get("rstreak", 0) * PROFILES.STREAK_STEP), "level": lv, "games": p.get("games", 0), "wins": p.get("wins", 0),
             "rgames": p.get("rgames", 0), "rwins": p.get("rwins", 0), "ach": len(p.get("ach", {})),
             "chars": sorted(([n, v[0], v[1]] for n, v in p.get("chars", {}).items()), key=lambda x: (-x[1], -x[2]))[:3]}
 

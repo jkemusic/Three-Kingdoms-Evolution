@@ -489,8 +489,11 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
 .pl .nm{flex-direction:column!important;align-items:flex-start!important;gap:0!important;padding:2px 8px 2px 7px}
 .pl .nm .nr{display:flex;align-items:center;gap:4px;white-space:nowrap}
 .pl .nm .who{margin:0!important;font-size:11px;line-height:1.3;opacity:.95}
-.pl.waiting .nm::after{content:none!important}.pl.waiting .nm .nr::after{content:" ⏳"}
-.pl .nm{left:50%!important;transform:translateX(-50%);align-items:center!important;text-align:center}.pl .nm .nr{justify-content:center}   /* 名字標籤(含勝利徽章)對齊框的正中央 */
+.pl.waiting .nm::after{content:none!important}.pl.waiting .inf>.nr::after{content:" ⏳"}
+.pl .nm{left:6px!important;transform:none;align-items:flex-start!important}
+.pl .inf>.nr{display:flex;align-items:center;gap:4px;min-width:0;font-weight:700;font-size:14px;color:#fff;white-space:nowrap}
+.pl .inf>.nr .pn{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:0 1 auto}
+.pl .inf>.nr .role,.pl .inf>.nr .winb{flex:0 0 auto;border-radius:99px}   /* 名字標籤改放框內 */
 .tag.bd{font-weight:700;white-space:normal;max-width:100%;line-height:1.35;border-radius:6px}.tag.bd-ren{background:#1f6b4a;color:#c9ffe6}.tag.bd-shi{background:#7a2230;color:#ffd0d6}.tag.bd-mk{background:#7a5b10;color:#ffe9a8;box-shadow:0 0 8px rgba(255,210,74,.6)}
 .tag.bd-cnt{background:#1c4a7a;color:#cfe8ff}.tag.bd-once{background:#3a3f4d;color:#d6dbe6}.tag.bd-st{background:#6b3b8a;color:#f1d9ff;box-shadow:0 0 6px rgba(190,120,255,.5)}
 .pile .card .lab,.sitem .card .lab{white-space:nowrap;padding-left:0;padding-right:0}.pile .card .lab{font-size:10px}
@@ -559,7 +562,6 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
 .rkflow{display:flex;align-items:center;justify-content:center;gap:12px}.rkarr{font-size:22px;color:var(--accent)}
 .rankup .rk.big:last-child{animation:rkpop .6s ease-out}@keyframes rkpop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
 </style>
-</head>
 <body>
 <div id="app">
   <div id="top">
@@ -896,7 +898,7 @@ function renderTable0(snap) {
       h("div", {}, hearts(p)), h("div", {class: "meta", text: "手牌 " + p.hand_n}), h("div", {class: "who " + (p.is_viewer ? "me" : p.human ? "hum" : "ai")}, (p.human || p.is_viewer) ? avEl(p.avatar, (snap.avstyles || {})[p.idx], {class: "av"}) : avEl("bot", (snap.avstyles || {})[p.idx], {class: "av"}), (p.is_viewer ? "你" + (p.nick ? "(" + p.nick + ")" : "") : p.human ? (p.nick || "玩家") : "🤖 電腦" + (snap.ai_lv && snap.ai_lv[p.idx] ? " · " + diffLabels()[snap.ai_lv[p.idx] - 1] : "")), p.human || p.is_viewer ? [" ", rkEl(p.lv)] : null, p.host_seat ? " 👑房主" : ""),
       tags);
     { const who = inf.querySelector(".who"), nmEl = inf.querySelector(".nm");   // 玩家資訊 (暱稱 / 等級) 寫在武將名字的上面,都放在框外
-      if (who && nmEl) { const row = h("div", {class: "nr"}); while (nmEl.firstChild) row.append(nmEl.firstChild); nmEl.append(who, row); } }
+      if (who && nmEl) { const row = h("div", {class: "nr"}); while (nmEl.firstChild) row.append(nmEl.firstChild); nmEl.append(who); inf.insertBefore(row, nmEl.nextSibling); } }   // 框外左上角只放頭貼+玩家資訊;P幾/武將名稱/身分放到框裡面、體力上面一排
     if (p.hand && p.hand.length && snap.viewer == null) inf.append(h("div", {class: "mini"}, p.hand.map(miniEl)));
     const el = h("div", {"data-idx": p.idx, class: "pl" + (snap.cur === p.idx && !snap.over ? " cur" : "") + (winners.has(p.idx) ? " win" : "") + (p.is_viewer ? " me" : "") + (snap.waiting === p.idx && !snap.over ? " waiting" : "") + (p.alive ? "" : " dead") + (S.sel === p.idx ? " sel" : "") + (targetIdx.has(p.idx) ? " target" : "") + (pickMode && S.tgtPick.chosen && S.tgtPick.chosen.includes(p.idx) ? " tp1" : "") + (pickMode && !targetIdx.has(p.idx) ? " dimmed" : ""),
                          style: rp ? {left: rp[0] + "px", top: rp[1] + "px", order: k} : {left: `clamp(var(--hw),${x}%,calc(100% - var(--hw)))`, top: `clamp(var(--hh),${y}%,calc(100% - var(--hh)))`, order: k}, onclick: () => { if (pickMode) { tpClick(S.tgtPick, p.idx, pend); return; } S.sel = S.sel === p.idx ? null : p.idx; $("#thf").value = S.sel == null ? "" : String(S.sel); renderThoughts(); renderTable(S.snap); }}, ph, inf);
@@ -1319,6 +1321,15 @@ function noteAction(s) {
   const r = s.match(/P(\d+)\([^)]*\)[^\n]*回 (\d+) 點體力/);
   if (r) floatNum(+r[1], "+" + r[2], "heal");
 }
+function boxRow(bx, ...kids) {   // 玩家資訊: 頭貼+名字那一排套上玩家框
+  const r = h("div", {style: {display: "flex", alignItems: "center", gap: "14px", padding: "10px 12px", borderRadius: "12px", position: "relative"}}, ...kids);
+  if (bx && window.SGS_BOX) SGS_BOX.apply(r, bx);
+  return r;
+}
+function streakLine(p) {   // 自己的段位資訊: 目前段位連勝 (連勝中每多贏一場,下一場多給分)
+  if (p.rstreak == null) return null;
+  return h("div", {class: "meta", text: p.rstreak > 0 ? "🔥 目前 " + p.rstreak + " 連勝 · 下一場勝利多 +" + p.streak_bonus + " 分" : "目前沒有連勝 · 贏一場就開始累積連勝加分"});
+}
 function drawArrow(a, b, harm, label) {
   const A = playerPos(a), B = playerPos(b), svg = $("#arrows");
   if (!A || !B || !svg) return;
@@ -1504,7 +1515,7 @@ async function showPlayer(key) {   // 看別人的個人資訊 (在線列表 / �
     h("div", {class: "dlg", style: {maxWidth: "420px"}},
       h("div", {class: "dh"}, h("div", {}, h("h3", {text: "玩家資訊"})), h("button", {class: "x", text: "✕", onclick: close})),
       h("div", {class: "dbody"},
-        h("div", {style: {display: "flex", alignItems: "center", gap: "14px"}},
+        boxRow((p.style || {}).bx,
           avEl(p.avatar, p.style, {style: {width: "72px", height: "72px", borderRadius: "50%", objectFit: "cover", border: "2px solid #3fd2ff"}}, "big"),
           h("div", {style: {flex: 1, minWidth: 0}},
             h("div", {style: {fontSize: "28px", fontWeight: 800, lineHeight: 1.15, wordBreak: "break-all"}}, p.user, " ", devEl(p.dev)),
@@ -1512,6 +1523,7 @@ async function showPlayer(key) {   // 看別人的個人資訊 (在線列表 / �
             h("div", {style: {margin: "6px 0"}}, rkEl(p.rank, true)))),
         h("div", {style: {height: "10px", background: "#0e2442", borderRadius: "99px", overflow: "hidden", margin: "6px 0"}}, h("div", {style: {width: pct + "%", height: "100%", background: "linear-gradient(90deg,#3fd2ff,#2a7de1)"}})),
         h("div", {class: "meta", text: `段位積分 ${p.rp}` + (p.rp_next != null ? ` / ${p.rp_next} · 距離下一段 (${p.next_rank}) 還差 ${p.rp_next - p.rp} 分` : " (最高段位)")}),
+        streakLine(p),
         h("div", {style: {display: "flex", gap: "8px", flexWrap: "wrap", margin: "12px 0"}}, stat("總場數", p.games), stat("勝場", p.wins), stat("勝率", rate(p.wins, p.games)), stat("段位場", p.rgames), stat("段位勝率", rate(p.rwins, p.rgames))),
         mutualBox(p),
         h("div", {style: {fontWeight: 700, margin: "10px 0 4px"}, text: "最常使用的武將"}),
@@ -1995,7 +2007,7 @@ async function showProfile() {
   M.append(h("div", {class: "modal", onclick: e => { if (e.target.classList.contains("modal")) close(); }}, h("div", {class: "dlg", style: {maxWidth: "460px"}},
     h("div", {class: "dh"}, h("div", {}, h("h3", {text: "玩家資訊"})), h("button", {class: "x", text: "✕", onclick: close})),
     h("div", {class: "dbody"},
-      h("div", {style: {display: "flex", alignItems: "center", gap: "14px"}},
+      boxRow(p.sel && p.sel.box,
         avEl(p.avatar, {fr: p.sel && p.sel.frame, fx: p.sel && p.sel.fx}, {id: "avbig", style: {width: "72px", height: "72px", borderRadius: "50%", objectFit: "cover", border: "2px solid #3fd2ff"}}, "big"),
         h("div", {style: {flex: 1, minWidth: 0}},
           h("div", {style: {display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap"}},
@@ -2009,6 +2021,7 @@ async function showProfile() {
         h("input", {id: "avfile", type: "file", accept: "image/*", style: {display: "none"}, onchange: e => uploadAvatar(e.target.files[0])})),
       h("div", {style: {height: "10px", background: "#0e2442", borderRadius: "99px", overflow: "hidden", margin: "6px 0"}}, h("div", {style: {width: pct + "%", height: "100%", background: "linear-gradient(90deg,#3fd2ff,#2a7de1)"}})),
       h("div", {class: "meta", text: `段位積分 ${p.rp}` + (p.rp_next != null ? ` / ${p.rp_next} · 距離下一段 (${p.next_rank}) 還差 ${p.rp_next - p.rp} 分` : " (最高段位)")}),
+        streakLine(p),
       h("div", {style: {display: "flex", gap: "8px", flexWrap: "wrap", margin: "12px 0"}}, stat("總場數", p.games), stat("勝場", p.wins), stat("勝率", rate(p.wins, p.games)), stat("段位場", p.rgames || 0), stat("段位勝率", rate(p.rwins || 0, p.rgames || 0))),
       h("div", {style: {fontWeight: 700, margin: "10px 0 4px"}, text: "最常使用的武將"}),
       chars.length ? h("div", {}, chars) : h("div", {class: "meta", text: "還沒有紀錄 (入座打完一場就會出現)"}),

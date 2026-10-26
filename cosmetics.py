@@ -178,6 +178,7 @@ BOXES = [
     {"id": "crystal", "n": "水晶", "req": A("tier_dia")},
     {"id": "galaxy", "n": "星河", "req": A("tier_legend")},
     {"id": "bamboo", "n": "竹林", "req": A("roles4")},
+    {"id": "samurai", "n": "武士", "req": A("chars30")},
     {"id": "scroll", "n": "卷軸", "req": A("chars30")},
     {"id": "zen", "n": "禪意", "req": A("no_sha")},
     {"id": "neon", "n": "霓虹網格", "req": A("hand20")},

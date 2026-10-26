@@ -1,5 +1,7 @@
 /* 補充翻譯: 成就 / 頭像框 / 特效 / 主題名、好友 / 房間 / 密碼等介面文字 (與 SGS_LOG_TPL 同格式,接在 i18n_ui.js 之後) */
 window.SGS_LOG_TPL = (window.SGS_LOG_TPL || []).concat([
+["🔥 目前 {} 連勝 · 下一場勝利多 +{} 分", "🔥 Current win streak: {1} · next win gives +{2} bonus points", "🔥 現在 {1} 連勝中 · 次の勝利で +{2} ポイント"],
+["目前沒有連勝 · 贏一場就開始累積連勝加分", "No win streak right now · win a game to start building the streak bonus", "現在連勝なし · 1勝すると連勝ボーナスが貯まり始めます"],
 // --- 成就: 名稱 ---
 ["新兵報到", "Fresh Recruit", "新兵報告"], ["初出茅廬", "First Steps", "初陣"], ["首戰告捷", "First Victory", "初勝利"],
 ["身經百戰", "Battle-Hardened", "百戦錬磨"], ["常勝將軍", "Ever-Victorious", "常勝将軍"], ["常輸將軍", "Ever-Defeated", "常敗将軍"],
@@ -111,7 +113,7 @@ window.SGS_LOG_TPL = (window.SGS_LOG_TPL || []).concat([
 ["經典", "Classic", "クラシック"], ["綠絨", "Green Felt", "グリーンフェルト"], ["酒紅絨", "Wine Velvet", "ワインベルベット"], ["炭灰", "Charcoal", "チャコール"],
 ["翡翠", "Jade", "翡翠"], ["水墨", "Ink Wash", "水墨"], ["榻榻米", "Tatami", "畳"], ["鎏金", "Gilded", "金箔"], ["櫻花", "Sakura", "桜"],
 ["雷霆", "Thunderbolt", "雷霆"], ["冰原", "Ice Field", "氷原"], ["熔岩", "Lava", "溶岩"], ["黃昏", "Dusk", "黄昏"],
-["水晶", "Crystal", "水晶"], ["竹林", "Bamboo Grove", "竹林"], ["卷軸", "Scroll", "巻物"], ["禪意", "Zen", "禅"], ["霓虹網格", "Neon Grid", "ネオングリッド"],
+["水晶", "Crystal", "水晶"], ["竹林", "Bamboo Grove", "竹林"], ["武士", "Samurai", "侍"], ["卷軸", "Scroll", "巻物"], ["禪意", "Zen", "禅"], ["霓虹網格", "Neon Grid", "ネオングリッド"],
 ["房間成員 (", "Room members (", "ルームメンバー ("], ["好友列表 (", "Friends (", "友達リスト ("], ["待審核 (", "Pending (", "承認待ち ("], ["已送出 (", "Sent (", "送信済み ("],
 ["想打的人按「我要參戰」,沒按的自動進入觀戰;沒人坐的座位由電腦擔任,武將全部隨機。目前 ", "Those who want to play press \"I want to play\"; everyone else spectates. Empty seats are computers, with random generals. Currently ", "遊びたい人は「参戦する」を押してください。押さない人は観戦になります。空席はコンピュータが担当し、武将はすべてランダム。現在 "],
 ["劉備-仁救 ", "Liu Bei – Benevolence rescue ", "劉備-仁で救う "], ["觀戰中 · ", "Spectating · ", "観戦中 · "], ["對戰中 · ", "In game · ", "対戦中 · "],
