@@ -762,7 +762,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 /* 冰原: 遠山近山、雲飄、風吹雪 */
 .bxfx .mt{left:0;right:0;bottom:0;width:100%}
 .bxfx .cd2{left:0;width:44px;height:11px;background:rgba(255,255,255,.8);border-radius:99px;box-shadow:13px -5px 0 -1px rgba(255,255,255,.8),-11px -3px 0 -2px rgba(255,255,255,.7);opacity:.85;animation:bxdrift var(--t) linear var(--dl) infinite;will-change:transform}
-@keyframes bxdrift{from{transform:translateX(-70px)}to{transform:translateX(300px)}}
+@keyframes bxdrift{from{transform:translateX(-80px)}to{transform:translateX(580px)}}
 .bxfx .wd{left:0;width:36px;height:1.5px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.95),transparent);opacity:0;animation:bxwind var(--t) linear var(--dl) infinite}
 @keyframes bxwind{0%{transform:translateX(-40px);opacity:0}15%,85%{opacity:.9}100%{transform:translateX(290px);opacity:0}}
 .bxfx .sn{width:2.5px;height:2.5px;border-radius:50%;background:#fff;opacity:0;animation:bxsnow var(--t) linear var(--dl) infinite}
