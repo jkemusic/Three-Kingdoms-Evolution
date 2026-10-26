@@ -1907,6 +1907,8 @@ function showPwDialog(forced, note) {   // 修改密碼 (forced: 還在用預設
 }
 function uploadAvatar(file) {   // 縮成 128x128 JPEG (置中裁切) 再上傳
   if (!file) return;
+  if (!/^image\//.test(file.type)) { toast("請選擇圖片檔"); return; }
+  if (file.size > 5 * 1024 * 1024) { toast("圖片太大了 (" + (file.size / 1048576).toFixed(1) + " MB),上限 5 MB"); return; }   // 檔案大小上限
   const img = new Image(), url = URL.createObjectURL(file);
   img.onload = async () => {
     const c = document.createElement("canvas"); c.width = c.height = 128;
