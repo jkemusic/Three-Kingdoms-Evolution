@@ -1,7 +1,7 @@
 {
   "name": "sgs-sim",
   "productName": "三國殺重製版",
-  "version": "1.4.19",
+  "version": "1.4.20",
   "description": "三國殺重製版模擬器 (桌面版)",
   "main": "main.js",
   "private": true,
