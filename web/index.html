@@ -21,7 +21,7 @@ button.primary{background:linear-gradient(180deg,#f2cd77,#d9a63f);color:#2a1d04;
 button:disabled{opacity:.4;cursor:default;transform:none}
 select,input{font:inherit;color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:5px 9px}
 input[type=range]{accent-color:var(--accent);padding:0}
-#app{display:grid;grid-template-rows:auto 1fr auto;height:100vh}
+#app{display:grid;grid-template-rows:auto minmax(0,1fr) auto;height:100vh}
 #top{display:flex;gap:10px;align-items:center;padding:9px 16px;background:rgba(24,33,43,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);flex-wrap:wrap;box-shadow:0 2px 12px rgba(0,0,0,.35);z-index:3}
 #top .title{font-weight:800;font-size:18px;letter-spacing:.15em;color:var(--accent);margin-right:10px;text-shadow:0 0 12px rgba(233,191,98,.35)}
 #top label{color:var(--dim);display:flex;align-items:center;gap:6px}
@@ -318,7 +318,7 @@ button.big{font-size:16px;font-weight:800;padding:10px 38px}
 .piles{display:flex;gap:14px;justify-content:center;margin-top:8px}.pile{text-align:center}.pile .card{width:64px;height:92px}.pstack.rv .card+.card{margin-left:0}.pstack.rv{gap:8px}.pstack{display:flex;max-width:380px;overflow-x:auto;padding-bottom:4px}.pstack .card{flex:none}.pstack .card+.card{margin-left:-34px}.pstack.seq{align-items:center;gap:2px;padding:12px 10px 4px 12px;flex-wrap:wrap;max-width:470px;overflow:visible;justify-content:center;row-gap:12px}.pstack.seq .card+.card{margin-left:0}.sitem{position:relative;flex:none}.snum{position:absolute;top:-8px;left:-6px;z-index:2;min-width:20px;height:20px;line-height:20px;border-radius:50%;background:var(--accent);color:#04101f;font-size:12px;font-weight:800;text-align:center;box-shadow:0 0 6px rgba(63,210,255,.7)}.swho{margin-top:2px;font-size:12px;color:var(--accent);text-align:center;white-space:nowrap}.sarrow{flex:none;color:var(--accent);font-size:18px}
 /* ===== 桌面版: 手牌欄收在螢幕底部,滑鼠移上去才升起 (出牌輪到你時自動升起) ===== */
 @media (min-width:821px){
-  #app{grid-template-rows:auto 1fr}
+  #app{grid-template-rows:auto minmax(0,1fr)}
   #mid{margin-bottom:48px}
   body:has(#bottom.spec) #mid{margin-bottom:0}   /* 旁觀者沒有手牌列: 牌桌延伸到最下面,不留黑條 */
   #bottom{position:fixed;left:0;right:0;bottom:0;z-index:12;display:flex;flex-direction:column-reverse;min-height:0;padding:0 0 4px;background:none;border:0;box-shadow:none;pointer-events:none}
