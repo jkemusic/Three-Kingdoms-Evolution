@@ -1,2 +1,2 @@
-VERSION = "1.7.47"
+VERSION = "1.7.48"
 REPO = "https://github.com/jkemusic/Threekingdoms"
