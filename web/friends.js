@@ -270,7 +270,7 @@
     sel.append(el("option", {value: "room", text: "🏠 房間頻道"}), el("option", {value: "pub", text: "🌐 公共頻道" + (CH.pubUnread ? " (" + CH.pubUnread + ")" : "")}));
     if (fr.length) {
       const g = el("optgroup", {label: "好友私訊"});
-      for (const f of fr) g.append(el("option", {value: "dm:" + f.id, disabled: !f.online && CH.cur !== "dm:" + f.id, text: "💬 " + (f.remark || f.user) + (f.online ? " ●" : "") + (f.unread ? " (" + f.unread + ")" : "")}));
+      for (const f of fr) g.append(el("option", {value: "dm:" + f.id, disabled: !f.online && CH.cur !== "dm:" + f.id, text: "💬 " + (f.remark || f.user) + (f.unread ? " (" + f.unread + ")" : "")}));
       sel.append(g);
     }
     if (![...sel.options].some(o => o.value === CH.cur)) CH.cur = "room";

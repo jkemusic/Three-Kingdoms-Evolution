@@ -783,7 +783,7 @@ class Game:
                     if not isinstance(c, SkillAct) and c.name in ("強", "弱", "降雷", "孤", "出")]
             if not opts:
                 return
-            cur, w = p, when or f"對你使用{full_name(card.name)}"
+            cur, w = p, when or f"對你使用{_fn(card.name)}"
             if when and when.startswith("使用了") and self.chain_view:   # 連鎖上已有別人接的牌: 問的是最新那張
                 last, who = self.chain_view[-1]
                 if not isinstance(last, (tuple, dict)) and hasattr(last, "name") and isinstance(who, int) and who != p.idx and who != tgt.idx:
