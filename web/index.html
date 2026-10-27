@@ -448,6 +448,7 @@ body.paused #hand .card,body.paused #bar button,body.paused #modal .modal.soft .
 #rooms.on{display:flex}
 #rooms .rbox{width:min(640px,100%);background:#0b1a30;border:1px solid #24557d;border-radius:14px;padding:18px 20px;box-shadow:0 10px 40px rgba(0,0,0,.6)}
 #rooms h2{margin:0 0 4px;color:#3fd2ff}
+#lobbycount{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:400;color:var(--dim)}#lobbycount:empty{display:none}#lobbycount::before{content:"";width:8px;height:8px;border-radius:50%;background:#46e0a0;box-shadow:0 0 6px #46e0a0}
 #lobbytools{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:12px 0 4px}
 #lobbytools button{display:flex;align-items:center;justify-content:flex-start;gap:8px;min-height:44px;padding:8px 12px;border-radius:10px;background:#0e2442;border:1px solid #24496f;color:var(--text);white-space:nowrap}
 #lobbytools button:hover{border-color:#3fd2ff;background:#12305a}
@@ -684,9 +685,8 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
   <div class="meta" style="margin-top:8px" id="ahint">舊帳號 / 沒設密碼的帳號,預設密碼是 12345,登入後請到「個人資訊」修改。</div>
 </div></div>
 <div id="rooms"><div class="rbox">
-  <h2>三國殺重製版 · 大廳</h2>
+  <h2>三國殺重製版 · 大廳<span id="lobbycount"></span></h2>
   <div id="lobbytools" role="group" aria-label="快捷功能"></div>
-  <div class="meta" id="lobbycount"></div>
   <div class="rnew"><input id="rname" type="text" maxlength="20" placeholder="房間名稱 (例如: 阿明的房間)"><input id="rpw" type="password" maxlength="20" placeholder="房間密碼 (可不設)" autocomplete="new-password" style="max-width:150px"><select id="rcap" title="房間人數上限 (含觀戰的人)"><option value="0">人數不限</option><option value="2">上限 2 人</option><option value="3">上限 3 人</option><option value="4">上限 4 人</option><option value="5">上限 5 人</option><option value="6">上限 6 人</option><option value="7">上限 7 人</option><option value="8">上限 8 人</option><option value="9">上限 9 人</option><option value="10">上限 10 人</option></select><button id="rcreate" class="primary">創建房間</button></div>
   <div class="rnew"><button id="rsolo" class="primary" title="自己一個人和電腦對打 (房間不公開)">🤖 單人模式 (和電腦對打)</button></div>
   <div id="rlist"></div>
