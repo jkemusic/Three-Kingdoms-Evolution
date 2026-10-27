@@ -1587,6 +1587,7 @@ async function showPlayer(key) {   // 看別人的個人資訊 (在線列表 / �
             h("div", {style: {fontSize: "28px", fontWeight: 800, lineHeight: 1.15, wordBreak: "break-all"}}, p.user, " ", devEl(p.dev)),
             h("div", {class: "meta", style: {userSelect: "all"}, text: "UID " + p.uid}),
             h("div", {style: {margin: "6px 0"}}, rkEl(p.rank, true)))),
+        playerFriendRow(p),
         ...rkProgress(p),
         streakLine(p),
         h("div", {style: {display: "flex", gap: "8px", flexWrap: "wrap", margin: "12px 0"}}, stat("總場數", p.games), stat("勝場", p.wins), stat("勝率", rate(p.wins, p.games)), stat("段位場", p.rgames), stat("段位勝率", rate(p.rwins, p.rgames)), stat("遊玩時間", fmtPlay(p.playtime))),
@@ -1597,6 +1598,26 @@ async function showPlayer(key) {   // 看別人的個人資訊 (在線列表 / �
   document.body.append(m);
 }
 window.showPlayer = showPlayer;
+function playerFriendRow(p) {   // 別人的玩家資訊: 直接加好友 (已是好友 / 已送出請求 / 對方也想加我 → 一鍵成為好友)
+  if (p.self || !window.SGS_FRIENDS) return null;
+  const acc = (p.user || "").toLowerCase(), box = h("div", {style: {margin: "8px 0"}});
+  const draw = () => {
+    const d = SGS_FRIENDS.data() || {friends: [], req_in: [], req_out: []};
+    box.textContent = "";
+    if ((d.friends || []).some(f => f.id === acc)) { box.append(h("span", {class: "meta", text: "✓ 已是好友"})); return; }
+    if ((d.req_out || []).some(f => f.id === acc)) { box.append(h("span", {class: "meta", text: "⏳ 已送出好友請求,等對方接受"})); return; }
+    const incoming = (d.req_in || []).some(f => f.id === acc);
+    box.append(h("button", {type: "button", class: "primary", style: {padding: "8px 16px", minHeight: "40px"}, text: incoming ? "✅ 接受好友請求" : "➕ 加好友", onclick: async e => {
+      e.target.disabled = true;
+      const r = await SGS_FRIENDS.add(acc);
+      toast(r.ok ? (r.msg || "已送出好友請求") : (r.error || "失敗"), r.ok ? "ok" : undefined);
+      if (r.ok) { const f = (SGS_FRIENDS.data() || {}); if (r.msg === "你們成為好友了") (f.friends = f.friends || []).push({id: acc}); else (f.req_out = f.req_out || []).push({id: acc}); }
+      draw();
+    }}));
+  };
+  draw();
+  return box;
+}
 function friendBtn(x) {   // 在線列表: 已是好友顯示「好友」,已送出請求顯示「已邀請」,否則可加好友
   const d = window.SGS_FRIENDS.data() || {friends: [], req_out: []};
   const st = {padding: "2px 9px", fontSize: "12px"};
