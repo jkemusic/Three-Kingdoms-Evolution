@@ -54,12 +54,12 @@
     if (document.getElementById("bFr")) return;
     const anchor = document.getElementById("bBoard");
     if (!anchor) return;
-    const b = el("button", {id: "bFr", title: "好友、私訊、邀請朋友進房間"}, "👥 好友", el("span", {class: "fb"}));
+    const b = el("button", {id: "bFr", title: "好友、私訊、邀請朋友進房間"}, "好友", el("span", {class: "fb"}));
     b.onclick = openDlg;
     anchor.parentNode.insertBefore(b, anchor);
     const rb = document.querySelector("#rooms .rbox");   // 大廳畫面會蓋住上方工具列,大廳裡也放一顆
     if (rb && !document.getElementById("bFr2")) {
-      const b2 = el("button", {id: "bFr2", title: "好友、私訊、邀請朋友進房間", style: {float: "right"}}, "👥 好友", el("span", {class: "fb"}));
+      const b2 = el("button", {id: "bFr2", title: "好友、私訊、邀請朋友進房間", style: {float: "right"}}, "好友", el("span", {class: "fb"}));
       b2.onclick = openDlg;
       rb.insertBefore(b2, rb.firstChild);
     }
@@ -115,7 +115,7 @@
     const close = () => { const m = document.getElementById("frdlg"); if (m) m.remove(); F.dlg = null; F.chat = null; };
     const body = el("div", {class: "dbody", id: "frbody"});
     const dlg = el("div", {class: "dlg"},
-      el("div", {class: "dh"}, el("div", {}, el("h3", {text: "👥 好友"})), el("button", {class: "x", text: "✕", onclick: close})),
+      el("div", {class: "dh"}, el("div", {}, el("h3", {text: "好友"})), el("button", {class: "x", text: "✕", onclick: close})),
       body);
     const m = el("div", {class: "modal", id: "frdlg", style: {zIndex: 7500}}, dlg);
     m.onclick = e => { if (e.target === m) close(); };

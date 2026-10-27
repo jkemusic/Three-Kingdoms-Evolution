@@ -509,7 +509,12 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
   #roundtag .rtdeck{font-size:12px;margin:0}
   #center{order:-1;text-align:center;margin:0 0 8px}
   #center:empty{display:none}
-  #center .lastact{max-width:none;font-size:12px;margin-top:6px}
+  #center .lastact{max-width:none;font-size:12px;margin-top:0;height:28px;line-height:18px;box-sizing:border-box;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  /* 場地固定大小 (牌堆 / 連鎖 / 最後動作各佔固定一列),有沒有連鎖都不會讓下面的玩家上下跳 */
+  #center:not(:empty){display:grid;grid-template-rows:96px 92px 28px;gap:4px;height:228px;overflow:hidden;flex:none}
+  #center>.piles:not(.pchain){grid-row:1}#center>.pchain{grid-row:2}#center>.lastact{grid-row:3}
+  #center>.piles{margin-top:0;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;align-items:flex-start;scrollbar-width:none}
+  #center>.piles .pstack.seq{flex-wrap:nowrap}
   .piles{gap:8px;margin-top:4px;flex-wrap:wrap}
   .pile .meta{font-size:11px}
   .pile .card{width:46px;height:66px}
@@ -963,7 +968,7 @@ function renderTable0(snap) {
   setRoundTag(snap);
   if (S.centerKey === ck) return;   // 內容沒變就不重畫,滑鼠停在牌上才看得到說明
   S.centerKey = ck; c.textContent = "";
-  const piles = h("div", {class: "piles"}), piles2 = h("div", {class: "piles"});
+  const piles = h("div", {class: "piles"}), piles2 = h("div", {class: "piles pchain"});
   if (snap.discard_top) piles.append(h("div", {class: "pile"}, h("div", {class: "meta", text: "棄牌堆 " + snap.discard}), cardEl(snap.discard_top, "", () => showCardInfo(snap.discard_top))));
   if (snap.discard_chain && snap.discard_chain.length) {
     const st = h("div", {class: "pstack seq"});
@@ -1619,7 +1624,7 @@ function playerFriendRow(p) {   // 別人的玩家資訊: 直接加好友 (已�
     if ((d.friends || []).some(f => f.id === acc)) { box.append(h("span", {class: "meta", text: "✓ 已是好友"})); return; }
     if ((d.req_out || []).some(f => f.id === acc)) { box.append(h("span", {class: "meta", text: "⏳ 已送出好友請求,等對方接受"})); return; }
     const incoming = (d.req_in || []).some(f => f.id === acc);
-    box.append(h("button", {type: "button", class: "primary", style: {padding: "8px 16px", minHeight: "40px"}, text: incoming ? "✅ 接受好友請求" : "➕ 加好友", onclick: async e => {
+    box.append(h("button", {type: "button", class: "primary", style: {padding: "8px 16px", minHeight: "40px"}, text: incoming ? "接受好友請求" : "加好友", onclick: async e => {
       e.target.disabled = true;
       const r = await SGS_FRIENDS.add(acc);
       toast(r.ok ? (r.msg || "已送出好友請求") : (r.error || "失敗"), r.ok ? "ok" : undefined);
@@ -1635,7 +1640,7 @@ function friendBtn(x) {   // 在線列表: 已是好友顯示「好友」,已送
   const st = {padding: "2px 9px", fontSize: "12px"};
   if (d.friends.some(f => f.id === x.acc)) return h("span", {class: "meta", text: "✓ 好友"});
   if ((d.req_out || []).some(f => f.id === x.acc)) return h("span", {class: "meta", text: "已送出請求"});
-  return h("button", {type: "button", text: "➕ 加好友", style: st, onclick: async () => {
+  return h("button", {type: "button", text: "加好友", style: st, onclick: async () => {
     const r = await SGS_FRIENDS.add(x.acc);
     toast(r.ok ? (r.msg || "已送出好友請求") : (r.error || "失敗"), r.ok ? "ok" : undefined);
     renderOnlineList();
@@ -1844,7 +1849,7 @@ function setNick(v) { try { localStorage.setItem("nick", v.trim().slice(0, 10));
 /* ---------- 大廳 (等朋友入座) ---------- */
 function inviteFriendsBtn() {   // 入座 / 選武將 / 新遊戲設定: 直接打開好友視窗,每位在線好友旁有「邀請」
   if (!ROOM || !window.SGS_FRIENDS || !SGS_FRIENDS.open) return null;
-  return h("button", {type: "button", class: "mini-btn", text: "👥 邀請朋友", title: "打開好友列表,邀請在線的朋友進這個房間", onclick: () => SGS_FRIENDS.open()});
+  return h("button", {type: "button", class: "mini-btn", text: "邀請朋友", title: "打開好友列表,邀請在線的朋友進這個房間", onclick: () => SGS_FRIENDS.open()});
 }
 function renderPicking(snap) {   // 隨機武將: 每人抽 3 張選 1,大家同時選
   const M = $("#modal"); M.textContent = ""; S.modalOpen = "lobby";
