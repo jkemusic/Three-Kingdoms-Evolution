@@ -142,7 +142,7 @@
       if (!r.ok) { toast(r.error || "失敗"); return; }
       toast(r.msg, "ok"); inp.value = ""; poll();
     };
-    inp.onkeydown = e => { if (e.key === "Enter") add(); };
+    inp.onkeydown = e => { if (e.key === "Enter" && !e.isComposing && e.keyCode !== 229) add(); };
     const myUid = S.prof && S.prof.uuid;
     if (myUid) body.append(el("div", {class: "meta", style: {marginTop: "8px"}}, "我的 UID: ", el("b", {text: myUid}), " ",
       el("button", {text: "複製", style: {padding: "1px 8px", fontSize: "12px"}, onclick: e => { const b = e.target, ok = () => { b.textContent = "已複製"; }; if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(myUid).then(ok); else { const t = document.createElement("textarea"); t.value = myUid; document.body.append(t); t.select(); try { document.execCommand("copy"); ok(); } catch (x) {} t.remove(); } }})));
@@ -219,7 +219,7 @@
       if (!r.ok) { toast(r.error || "傳送失敗"); return; }
       inp.value = ""; refreshChat(true);
     };
-    inp.onkeydown = e => { if (e.key === "Enter") send(); };
+    inp.onkeydown = e => { if (e.key === "Enter" && !e.isComposing && e.keyCode !== 229) send(); };
     body.append(
       el("div", {class: "addrow", style: {alignItems: "center"}}, el("button", {text: "← 返回", onclick: () => { F.chat = null; renderList(); }}), el("b", {text: F.chatName})),
       msgs, el("div", {class: "sendrow"}, inp, el("button", {class: "primary", text: "傳送", onclick: send})));

@@ -1914,7 +1914,7 @@ function showNickGate(rename) {
     setNick(v); await api("/api/nick", {name: v}); updNickBtn();
     close(); S.lobbyKey = null; poll(true);
   };
-  inp.onkeydown = e => { if (e.key === "Enter") ok(); };
+  inp.onkeydown = e => { if (e.key === "Enter" && !e.isComposing && e.keyCode !== 229) ok(); };
   M.append(h("div", {class: "modal"}, h("div", {class: "dlg", style: {maxWidth: "420px"}},
     h("h3", {text: rename ? "修改暱稱" : "先取個暱稱吧"}), h("div", {class: "meta", text: rename ? "最多 10 字,其他玩家會看到新名字" : "進入遊戲前需要暱稱,其他玩家會看到它 (最多 10 字,之後可用上方「👤 暱稱」按鈕修改)"}),
     h("div", {class: "row"}, inp), h("div", {class: "row"}, h("button", {class: "primary big", text: "確定", onclick: ok}), rename ? h("button", {text: "取消", onclick: close}) : ""))));
@@ -1949,7 +1949,7 @@ async function sendChat() {
   poll(true);
 }
 $("#csend").onclick = sendChat;
-$("#ctext").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); sendChat(); } });
+$("#ctext").addEventListener("keydown", e => { if (e.key === "Enter" && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); sendChat(); } });
 document.querySelectorAll("#tabs button, #mnav button").forEach(b => b.addEventListener("click", () => {
   const lb = $("#logbar"); if (lb) lb.style.display = (b.dataset.t || b.dataset.m) === "log" ? "" : "none";   // 只有對局紀錄分頁顯示
   if ((b.dataset.t || b.dataset.m) === "cc") { S.chatUnread = 0; updChatBadge(); if (window.SGSCH) SGSCH.shown(); setTimeout(() => { const L = $("#cl"); L.scrollTop = L.scrollHeight; }, 0); }
@@ -2287,7 +2287,7 @@ function showPwDialog(forced, note) {   // 修改密碼 (forced: 還在用預設
     if (!r.ok) { err.textContent = r.error || "失敗"; return; }
     close(); toast("密碼已更新", "ok");
   };
-  [o, n1, n2].forEach(i => i.onkeydown = e => { if (e.key === "Enter") go(); });
+  [o, n1, n2].forEach(i => i.onkeydown = e => { if (e.key === "Enter" && !e.isComposing && e.keyCode !== 229) go(); });
   M.append(h("div", {class: "modal", style: {zIndex: 7500}, onclick: e => { if (e.target.classList.contains("modal") && !forced) close(); }}, h("div", {class: "dlg", style: {maxWidth: "400px"}},
     h("div", {class: "dh"}, h("div", {}, h("h3", {text: "🔑 修改密碼"})), h("button", {class: "x", text: forced ? "稍後" : "✕", style: forced ? {width: "auto", borderRadius: "17px", padding: "0 12px"} : {}, onclick: close})),
     h("div", {class: "dbody"},
@@ -2383,7 +2383,7 @@ async function submitAuth() {
 }
 $("#aLogin").onclick = () => setAuthMode("login"); $("#aReg").onclick = () => setAuthMode("reg");
 $("#asubmit").onclick = submitAuth;
-for (const id of ["#auser", "#apw"]) $(id).onkeydown = e => { if (e.key === "Enter") submitAuth(); };
+for (const id of ["#auser", "#apw"]) $(id).onkeydown = e => { if (e.key === "Enter" && !e.isComposing && e.keyCode !== 229) submitAuth(); };
 function logout() { try { localStorage.removeItem("sgs_tok"); localStorage.removeItem("nick"); localStorage.removeItem("sgs_theme"); sessionStorage.removeItem("sgs_room"); } catch (e) {} const u = new URL(location.href); u.search = ""; location.href = u.toString(); }
 function resetRoomState() {
   Object.assign(S, {logN: 0, thN: 0, thoughts: [], lastTh: {}, sel: null, picked: null, pendId: 0, chatN: 0, chatUnread: 0, snap: null, modalOpen: null, lobbyKey: null, tgtPick: null, setupOff: null}); { const b = $("#cbadge"); if (b) b.textContent = ""; }
@@ -2516,7 +2516,7 @@ $("#rcreate").onclick = async () => {
   if (!r.ok) { toast("創建失敗: " + r.error); return; }
   $("#rname").value = ""; $("#rpw").value = ""; enterRoom(r.room, r.name);
 };
-$("#rname").onkeydown = e => { if (e.key === "Enter") $("#rcreate").click(); };
+$("#rname").onkeydown = e => { if (e.key === "Enter" && !e.isComposing && e.keyCode !== 229) $("#rcreate").click(); };
 (async () => {
   let me = {ok: false};
   try { me = await (await fetch("/api/me?tok=" + encodeURIComponent(TOK))).json(); } catch (e) {}

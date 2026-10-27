@@ -620,7 +620,6 @@ function openTut(p) {
     el("div", { class: "tb" }, body.split("\n").map(l => el("p", { text: l }))),
     dots,
     el("div", { class: "tf" },
-      el("button", { text: CATT.btn[lang] || CATT.btn.zh, onclick: openCatalog }),
       el("span", { style: "flex:1" }),
       el("button", { id: "tutprev", text: T.prev, onclick: () => openTut(tutPage - 1) }),
       last ? el("button", { class: "primary", text: T.done, onclick: startPractice })
