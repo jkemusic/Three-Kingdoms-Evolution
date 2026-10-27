@@ -1977,6 +1977,10 @@ function inviteFriendsBtn(big) {   // big: 跟旁邊的主要按鈕一樣大 (�
   if (!ROOM || !window.SGS_FRIENDS || !SGS_FRIENDS.open) return null;
   return h("button", {type: "button", class: big ? "" : "mini-btn", style: big ? {minWidth: "150px"} : null, text: "邀請朋友", title: "打開好友列表,邀請在線的朋友進這個房間", onclick: () => SGS_FRIENDS.open()});
 }
+function gameStartSfx() {   // 開局音效 (兩個進入遊戲的路徑都會呼叫,2 秒內只響一次)
+  const t = Date.now(); if (S.gsT && t - S.gsT < 2000) return; S.gsT = t;
+  try { if (window.SGS_FX) SGS_FX.sfx("gameStart"); } catch (e) {}
+}
 function renderPicking(snap) {   // 隨機武將: 每人抽 3 張選 1,大家同時選
   const M = $("#modal"); M.textContent = ""; S.modalOpen = "lobby";
   $("#status").textContent = "選擇武將中";
@@ -1989,12 +1993,13 @@ function renderPicking(snap) {   // 隨機武將: 每人抽 3 張選 1,大家同
     dlg.append(cd); setTimeout(tick, 0);
   }
   if (snap.pick) {
+    { const k = snap.pick.offers.map(c => c.name).join(); if (S.pickSnd !== k) { S.pickSnd = k; try { if (window.SGS_FX) SGS_FX.sfx("pickOpen"); } catch (e) {} } }   // 新的三選一出現: 提示音
     dlg.append(h("h3", {text: "選擇你的武將 (三選一)"}), h("div", {class: "meta", text: "大家同時選;這三張是專屬抽給你的,不會和其他人重複。選了什麼要到開局才會公開。"}));
     const row = h("div", {class: "picks"});
     snap.pick.offers.forEach(c => row.append(h("div", {class: "pk"},
       c.img ? h("img", {src: c.img}) : "", h("b", {text: `${c.faction} ${c.name}`}), h("span", {class: "meta", text: ` ${c.maxhp}體力`}),
       c.skills.map(s => h("div", {class: "sk", text: s})),
-      h("button", {class: "primary", text: "選這位", onclick: async () => { await api("/api/pick", {name: c.name}); S.lobbyKey = null; poll(true); }}))));
+      h("button", {class: "primary", text: "選這位", onclick: async () => { try { if (window.SGS_FX) SGS_FX.sfx("pickChoose"); } catch (e) {} await api("/api/pick", {name: c.name}); S.lobbyKey = null; poll(true); }}))));
     dlg.append(row);
   } else {
     dlg.append(h("h3", {text: snap.pick_spec ? "玩家選擇武將中" : "你已選好武將"}), h("div", {class: "meta"}, "等待還沒選的玩家: ", whoList(snap.pick_wait || [])));
@@ -2095,8 +2100,8 @@ async function poll(force) {
     }
     { const c = $("#center"); if (c.querySelector(".ngb")) { c.textContent = ""; S.centerKey = null; } }
     if (snap.lobby) { renderLobby(snap); return; }
-    if (S.modalOpen === "lobby") { $("#modal").textContent = ""; S.modalOpen = null; S.baseSeat = null; S.logN = 0; S.thN = 0; S.thoughts = []; S.lastTh = {}; $("#log").textContent = ""; $("#thl").textContent = ""; }
-    if (snap.log_total < S.logN) { S.baseSeat = null; S.logN = 0; $("#log").textContent = ""; return; }
+    if (S.modalOpen === "lobby") { gameStartSfx(); $("#modal").textContent = ""; S.modalOpen = null; S.baseSeat = null; S.logN = 0; S.thN = 0; S.thoughts = []; S.lastTh = {}; $("#log").textContent = ""; $("#thl").textContent = ""; }
+    if (snap.log_total < S.logN) { gameStartSfx(); S.baseSeat = null; S.logN = 0; $("#log").textContent = ""; return; }
     if (snap.thought_total < S.thN) { S.thN = 0; S.thoughts = []; S.lastTh = {}; return; }
     if (S.logN >= reqLog && snap.logs) snap.logs = snap.logs.slice(S.logN - reqLog); addLogs(snap.logs); S.logN = snap.log_total;
     S.snap = snap;
