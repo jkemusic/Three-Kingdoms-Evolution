@@ -2253,7 +2253,7 @@ $("#asubmit").onclick = submitAuth;
 for (const id of ["#auser", "#apw"]) $(id).onkeydown = e => { if (e.key === "Enter") submitAuth(); };
 function logout() { try { localStorage.removeItem("sgs_tok"); localStorage.removeItem("nick"); localStorage.removeItem("sgs_theme"); sessionStorage.removeItem("sgs_room"); } catch (e) {} const u = new URL(location.href); u.search = ""; location.href = u.toString(); }
 function resetRoomState() {
-  Object.assign(S, {logN: 0, thN: 0, thoughts: [], lastTh: {}, sel: null, picked: null, pendId: 0, chatN: 0, chatUnread: 0, snap: null, modalOpen: null, lobbyKey: null, tgtPick: null}); { const b = $("#cbadge"); if (b) b.textContent = ""; }
+  Object.assign(S, {logN: 0, thN: 0, thoughts: [], lastTh: {}, sel: null, picked: null, pendId: 0, chatN: 0, chatUnread: 0, snap: null, modalOpen: null, lobbyKey: null, tgtPick: null, setupOff: null}); { const b = $("#cbadge"); if (b) b.textContent = ""; }
   for (const id of ["#log", "#thl", "#cl", "#modal", "#table", "#hand", "#bar", "#center", "#roundtag"]) { const e = $(id); if (e) e.textContent = ""; }
 }
 function enterRoom(id, name) {
