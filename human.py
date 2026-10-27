@@ -53,6 +53,8 @@ class HumanAgent:
                 tgt = {"kind": "heal", "label": "回血"}
             elif hasattr(t, "kind") and hasattr(t, "color") and not isinstance(t, tuple):
                 tgt = {"kind": "equip", "cid": card_dict(t)["id"], "label": ctext(t)}   # 丁奉: 選一件自己的裝備
+            elif self._is_move(t):   # 出其不意: 前端先點場上的延時錦囊 (cid),再點要移去的玩家 (idx)
+                tgt = {"kind": "move", "owner": t[0].idx, "cid": card_dict(t[1])["id"], "idx": t[2].idx, "label": f"{pname(t[0])} 的 {ctext(t[1])} → {pname(t[2])}"}
             elif isinstance(t, tuple):
                 tgt = {"kind": "multi", "label": "、".join(pname(x) for x in t)}
                 if all(isinstance(x, Player) for x in t):
@@ -124,6 +126,8 @@ class HumanAgent:
     def choose_from(self, g, p, target, cands):
         opts = [self._copt(i, "對方的一張手牌 (隨機)" if c == "HAND" else ctext(c), None if c == "HAND" else c)
                 for i, c in enumerate(cands)]
+        for o, c in zip(opts, cands):   # 前端: 直接點場上那張牌 (手牌沒有牌面,用按鈕)
+            o["target"] = {"kind": "zonehand", "idx": target.idx} if c == "HAND" else {"kind": "zone", "idx": target.idx, "cid": card_dict(c)["id"]}
         r = self._ask("pick", f"選擇 {pname(target)} 的一張牌", opts)
         return cands[r[0]]
 

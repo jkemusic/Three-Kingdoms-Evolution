@@ -756,6 +756,9 @@ class Manager:
         nm = self.nicks.get(tok) or "未命名"
         return f"{nm}(座位 {seat})" if seat is not None else nm
 
+    def _active_elsewhere(self, tok, now):
+        return any(m is not self and now - m.seen.get(tok, 0) < self.OFFLINE_AFTER for m in list(ROOMS.values()))
+
     def presence(self):
         """偵測斷線 / 重連;房主斷線時隨機讓給一位仍在線的人。"""
         with self.plock:
@@ -763,6 +766,19 @@ class Manager:
             for tok, ts in list(self.seen.items()):
                 up = now - ts < self.OFFLINE_AFTER
                 was = self.alive.get(tok, True)
+                if was and not up and self._active_elsewhere(tok, now):   # 人已經換到別的房間了: 不是斷線,當作離開
+                    self.seen.pop(tok, None)
+                    self.alive.pop(tok, None)
+                    self._event(f"← {self._name_of(tok)} 離開了房間", "bad", tok)
+                    if tok == self.host:
+                        if self.public:
+                            self.host, self.host_cleared = None, True
+                        else:
+                            cand = [t for t, x in self.seen.items() if now - x < self.OFFLINE_AFTER]
+                            if cand:
+                                self.host = random.choice(cand)
+                                self._event(f"👑 房主離開了,房主已隨機讓給 {self.nicks.get(self.host) or '未命名'}", "host")
+                    continue
                 if was and not up:
                     self.alive[tok] = False
                     self._event(f"⚠ {self._who(tok)} 斷線了", "warn")
@@ -1126,6 +1142,8 @@ class Manager:
 
     def answer(self, rid, choice, tok=None):
         with self.lock:
+            if self.paused:
+                return {"ok": False, "error": "遊戲暫停中,不能操作"}
             if self.multi:
                 ent = next((e for e in self.multi.values() if e["id"] == rid), None)
                 if not ent or self.multi_win is not None:
@@ -1281,9 +1299,24 @@ def rename_room(tok, rid, name):
     return {"ok": True, "name": name}
 
 
+LOBBY_SEEN = {}   # tok -> 最後一次在大廳看房間列表的時間 (算全站在線人數)
+
+
+def total_online(now=None):
+    """全站目前在線人數: 各房間裡 6 秒內有連線的人 + 在大廳的人 (同一個人只算一次)。"""
+    now = now or time.time()
+    toks = {t for m in list(ROOMS.values()) for t, ts in list(m.seen.items()) if now - ts < 6}
+    toks |= {t for t, ts in list(LOBBY_SEEN.items()) if now - ts < 6}
+    for t in [t for t, ts in list(LOBBY_SEEN.items()) if now - ts > 60]:
+        LOBBY_SEEN.pop(t, None)
+    return len(toks)
+
+
 def list_rooms(tok=None):
     now = time.time()
     out = []
+    if tok:
+        LOBBY_SEEN[tok] = now
     for rid, m in list(ROOMS.items()):
         if m.solo:
             continue
@@ -1294,6 +1327,9 @@ def list_rooms(tok=None):
                     "can_delete": rid != "main" and tok in (m.owner, m.host),
                     "locked": bool(m.pw), "need_pw": bool(m.pw) and not m.can_enter(tok), "cap": m.cap})
     out.sort(key=lambda r: (not r["main"], -r["online"]))
+    tot = total_online(now)
+    for r in out:
+        r["total"] = tot
     return out
 
 

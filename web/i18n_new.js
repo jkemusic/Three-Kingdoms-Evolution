@@ -8,6 +8,8 @@ window.SGS_LOG_TPL = (window.SGS_LOG_TPL || []).concat([
 ["🤖 電腦 · 最強", "🤖 CPU · 最強", "🤖 CPU · 最強"],
 ["🎨 外觀", "🎨 Appearance", "🎨 外観"],
 ["外觀", "Appearance", "外観"],
+["目前共 {} 人在線", "{1} players online now", "現在 {1} 人がオンライン"],
+["遊戲暫停中,不能操作", "Game is paused — no actions", "一時停止中は操作できません"],
 ["排行榜", "Leaderboard", "ランキング"], ["成就", "Achievements", "実績"], ["教學", "Tutorial", "チュートリアル"], ["語言", "Language", "言語"], ["快捷功能", "Quick tools", "ショートカット"],
 ["人數不限", "No player limit", "人数制限なし"], ["房間人數上限 (含觀戰的人)", "Room player limit (incl. spectators)", "部屋の人数上限(観戦者を含む)"], ["房間已滿 (上限 ", "Room is full (limit ", "部屋は満員です(上限 "],
 ["上限 2 人", "Max 2 players", "上限2人"], ["上限 3 人", "Max 3 players", "上限3人"], ["上限 4 人", "Max 4 players", "上限4人"], ["上限 5 人", "Max 5 players", "上限5人"], ["上限 6 人", "Max 6 players", "上限6人"], ["上限 7 人", "Max 7 players", "上限7人"], ["上限 8 人", "Max 8 players", "上限8人"], ["上限 9 人", "Max 9 players", "上限9人"], ["上限 10 人", "Max 10 players", "上限10人"], 

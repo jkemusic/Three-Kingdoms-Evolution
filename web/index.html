@@ -368,6 +368,7 @@ html .pl.target{filter:drop-shadow(0 0 5px #46e0a0) drop-shadow(0 0 14px rgba(70
 .hasprev{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 #bHand{display:none;position:absolute;right:8px;top:-36px;z-index:31;min-height:30px;padding:3px 12px;font-size:13px;border-radius:15px;background:rgba(8,16,30,.88);color:var(--text);border:1px solid var(--line);cursor:pointer}
 body.hand-off #hand{display:none!important}
+body.paused #hand .card,body.paused #bar button,body.paused #modal .modal.soft .dlg,body.paused .pickbar{pointer-events:none;opacity:.55}   /* 暫停中不能出牌 / 回應 */
 @media (max-width:820px),(pointer:coarse){#bHand{display:block}}   /* 手機 / 平板才有收起手牌按鈕 */
 .pickbar,.modal.soft{z-index:38}.card.picked{position:relative;z-index:3}   /* 選對象的提示一定在選取中的牌前面 */
 #members{position:fixed;top:44px;left:150px;z-index:9000;min-width:min(330px,92vw);max-width:min(400px,92vw);background:#0b1a30;border:1px solid #24557d;border-radius:10px;padding:8px 10px;box-shadow:0 10px 30px rgba(0,0,0,.6);display:none}
@@ -685,6 +686,7 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
 <div id="rooms"><div class="rbox">
   <h2>三國殺重製版 · 大廳</h2>
   <div id="lobbytools" role="group" aria-label="快捷功能"></div>
+  <div class="meta" id="lobbycount"></div>
   <div class="rnew"><input id="rname" type="text" maxlength="20" placeholder="房間名稱 (例如: 阿明的房間)"><input id="rpw" type="password" maxlength="20" placeholder="房間密碼 (可不設)" autocomplete="new-password" style="max-width:150px"><select id="rcap" title="房間人數上限 (含觀戰的人)"><option value="0">人數不限</option><option value="2">上限 2 人</option><option value="3">上限 3 人</option><option value="4">上限 4 人</option><option value="5">上限 5 人</option><option value="6">上限 6 人</option><option value="7">上限 7 人</option><option value="8">上限 8 人</option><option value="9">上限 9 人</option><option value="10">上限 10 人</option></select><button id="rcreate" class="primary">創建房間</button></div>
   <div class="rnew"><button id="rsolo" class="primary" title="自己一個人和電腦對打 (房間不公開)">🤖 單人模式 (和電腦對打)</button></div>
   <div id="rlist"></div>
@@ -925,8 +927,11 @@ function winnerSet(snap) {   // 勝利陣營包含哪些玩家 (含已死亡者)
 }
 /* ---------- 選目標: 點牌後直接點玩家 (單一目標 / 依序點兩位) ---------- */
 const tpPl = o => o.target && o.target.kind === "player";
+const tpMv = o => o.target && o.target.kind === "move";   // 出其不意: 先點延時錦囊,再點玩家
 const tpMulti = o => o.target && o.target.kind === "multi" && o.target.idxs && o.target.idxs.length === 2;
 function tpCands(tp) {   // 目前可以點的玩家
+  if (tp.zone) return [];
+  if (tp.mv) return tp.cid == null ? [] : tp.opts.filter(o => String(o.target.cid) === tp.cid).map(o => o.target.idx);
   if (!tp.multi) return tp.opts.map(o => o.target.idx);
   const st = tp.chosen.length;
   return [...new Set(tp.opts.filter(o => st === 0 || o.target.idxs[0] === tp.chosen[0]).map(o => o.target.idxs[st]))];
@@ -938,6 +943,7 @@ function chainBar(tp, pend) {
 }
 function tpClick(tp, idx, pend) {
   if (!tpCands(tp).includes(idx)) return;
+  if (tp.mv) { const o = tp.opts.find(x => String(x.target.cid) === tp.cid && x.target.idx === idx); S.tgtPick = null; submit(pend.id, [o.i]); return; }
   if (tp.chain) {   // 鐵索連環: 點玩家切換選取 (1~2 位),再按確定
     const k = tp.chosen.indexOf(idx);
     if (k >= 0) tp.chosen.splice(k, 1); else if (tp.chosen.length < 2) tp.chosen.push(idx);
@@ -950,6 +956,7 @@ function tpClick(tp, idx, pend) {
 }
 const TP_HINT = {借: ["先點「被借刀的人」(有武器的角色)", "再點他要攻擊的對象"], 聲: ["先點「收到你手牌的人」", "再點「收到他 2 張手牌的人」"]};
 function tpText(tp) {
+  if (tp.mv) return tp.cid == null ? tp.label + " — 請點場上發光的延時錦囊" : tp.label + " — 請點要移到的玩家 (再點一次錦囊可重選)";
   if (!tp.multi) return "請點擊一位玩家 — " + tp.label;
   const h2 = TP_HINT[tp.opts[0].card && tp.opts[0].card.name] || ["請點第 1 位玩家", "請點第 2 位玩家"];
   return `${tp.label} — ${h2[tp.chosen.length]} (${tp.chosen.length + 1}/2)`;
@@ -978,6 +985,10 @@ function renderTable0(snap) {
   const pickMode = !!(pend && S.tgtPick && S.tgtPick.pend === pend.id && !S.tgtPick.list);
   const eqPick = pend && S.tgtPick && S.tgtPick.pend === pend.id && S.tgtPick.eq ? new Set(S.tgtPick.opts.map(o => String(o.target.cid))) : null;
   if (pickMode) tpCands(S.tgtPick).forEach(i => targetIdx.add(i));
+  const zPick = pend && S.tgtPick && S.tgtPick.pend === pend.id && S.tgtPick.zone ? new Map(S.tgtPick.opts.filter(o => o.target.kind === "zone").map(o => [String(o.target.cid), o.i])) : null;
+  if (zPick) S.tgtPick.opts.forEach(o => targetIdx.add(o.target.idx));   // 被選牌的那位玩家外框發光
+  const zsub = i => () => { S.tgtPick = null; submit(pend.id, [i]); };
+  const mvPick = pend && S.tgtPick && S.tgtPick.pend === pend.id && S.tgtPick.mv ? new Set(S.tgtPick.opts.map(o => String(o.target.cid))) : null;
   snap.players.forEach(p => {
     const k = (p.idx - base + n) % n, ang = (90 + 360 / n * k) * Math.PI / 180;
     const x = 50 + 41 * Math.cos(ang), y = 50 + 38 * Math.sin(ang);
@@ -996,10 +1007,10 @@ function renderTable0(snap) {
     const tags = h("div", {class: "tags"});
     const eq = p.equip;
     const zone = h("div", {class: "zone"});
-    [["weapon", "武"], ["weapon2", "武2"], ["armor", "防"], ["armor2", "防2"], ["h+", "+1"], ["h-", "-1"]].forEach(([k, lab]) => { if (eq[k]) zone.append(eqEl(eq[k], lab, false, p.is_viewer && eqPick && eqPick.has(String(eq[k].id)) ? () => { const o = S.tgtPick.opts.find(x => String(x.target.cid) === String(eq[k].id)); S.tgtPick = null; submit(pend.id, [o.i]); } : null)); });
+    [["weapon", "武"], ["weapon2", "武2"], ["armor", "防"], ["armor2", "防2"], ["h+", "+1"], ["h-", "-1"]].forEach(([k, lab]) => { if (eq[k]) zone.append(eqEl(eq[k], lab, false, p.is_viewer && eqPick && eqPick.has(String(eq[k].id)) ? () => { const o = S.tgtPick.opts.find(x => String(x.target.cid) === String(eq[k].id)); S.tgtPick = null; submit(pend.id, [o.i]); } : (zPick && zPick.has(String(eq[k].id)) ? zsub(zPick.get(String(eq[k].id))) : null))); });
     if (zone.childNodes.length) tags.append(zone);
     const exn = Math.max(0, zone.childNodes.length - 3);   // 3 張以內放得下,超過的每張把框多撐 1 格寬
-    if (p.judge.length) { const jz = h("div", {class: "zone jz"}); p.judge.forEach(j => jz.append(eqEl(j, "判", true))); tags.append(jz); }   // 延時錦囊另外一排
+    if (p.judge.length) { const jz = h("div", {class: "zone jz"}); p.judge.forEach(j => { const je = eqEl(j, "判", true, mvPick && mvPick.has(String(j.id)) ? () => { const tp = S.tgtPick; tp.cid = tp.cid === String(j.id) ? null : String(j.id); renderPrompt(S.snap); renderTable(S.snap); } : (zPick && zPick.has(String(j.id)) ? zsub(zPick.get(String(j.id))) : null)); if (mvPick && S.tgtPick.cid === String(j.id)) je.style.outline = "2px solid var(--gold)"; jz.append(je); }); tags.append(jz); }   // 延時錦囊另外一排
     if (p.chained) ph.classList.add("hz");   // 鐵索橫置: 武將牌真的橫過來 (轉 90 度)
     if (p.flipped) tags.append(h("span", {class: "tag flip", text: "翻面"}));
     if (p.stash_n) tags.append(h("span", {class: "tag", text: "未×" + p.stash_n}));
@@ -1094,6 +1105,7 @@ function toast(t, kind) {
   setTimeout(() => e.remove(), kind ? 6000 : 2500);
 }
 async function submit(id, choice) {
+  if (S.snap && S.snap.paused) { toast("遊戲暫停中,不能操作"); return; }
   const pd = S.snap && S.snap.pending;   // 酒殺: 開著「🍶 酒殺」時,出殺會先喝酒再自動接著出同一張殺
   if (S.jiuOn && pd && pd.id === id && pd.kind === "act" && choice.length === 1) {
     const o = pd.options.find(x => x.i === choice[0]), j = pd.options.find(x => x.card && x.card.name === "酒" && !x.target);
@@ -1117,7 +1129,7 @@ function renderHand(snap) {
   }
   // 內容沒變就不重畫: 每 0.25 秒重建按鈕會讓「按下」和「放開」落在不同元素上,導致點不到
   const hk = JSON.stringify([snap.viewer, snap.over, snap.waiting, snap.cur, S.picked, S.jiuOn, me && me.hand && me.hand.map(c => c.id + c.text),
-    snap.pending && [snap.pending.id, snap.pending.kind, snap.pending.prompt, snap.pending.options.map(o => o.label + o.group)], S.tgtPick && [S.tgtPick.label, S.tgtPick.chosen && S.tgtPick.chosen.join()]]);
+    snap.pending && [snap.pending.id, snap.pending.kind, snap.pending.prompt, snap.pending.options.map(o => o.label + o.group)], S.tgtPick && [S.tgtPick.label, S.tgtPick.chosen && S.tgtPick.chosen.join(), S.tgtPick.cid]]);
   if (S.handKey === hk) return;
   S.handKey = hk;
   const H = $("#hand"), B = $("#bar"), WB = $("#waitbar"); H.textContent = ""; B.textContent = ""; WB.style.display = "none";
@@ -1133,6 +1145,7 @@ function renderHand(snap) {
     const nm = opts[0].card ? (opts[0].card.text || opts[0].card.name) : opts[0].label;
     if (opts.every(tpPl)) S.tgtPick = {pend: pend.id, opts, label: "使用 " + nm, chosen: []};
     else if (opts.every(tpMulti)) S.tgtPick = {pend: pend.id, opts, label: "使用 " + nm, multi: true, chosen: []};
+    else if (opts.every(tpMv)) S.tgtPick = {pend: pend.id, opts, label: "使用 " + nm, mv: true, cid: null, chosen: []};
   };
   (me.hand || []).forEach(c => {
     const ok = groups.has(String(c.id));
@@ -1192,7 +1205,7 @@ function renderHand(snap) {
       const opts = groups.get(String(S.picked)), c0 = opts[0].card;
       const nm = c0 ? (c0.text || c0.name) : opts[0].label;
       B.append(jiuBtn(opts));
-      if (!(opts.every(tpPl) || opts.every(tpMulti))) B.append(h("button", {class: "primary", text: "使用 " + nm, onclick: () => use(opts, "使用 " + nm)}));
+      if (!(opts.every(tpPl) || opts.every(tpMulti) || opts.every(tpMv))) B.append(h("button", {class: "primary", text: "使用 " + nm, onclick: () => use(opts, "使用 " + nm)}));
     }
     B.append(h("button", {text: "結束出牌", onclick: () => submit(pend.id, [])}));
   }
@@ -1278,6 +1291,12 @@ function renderPrompt0(snap) {
   if (pend.kind === "target" && pend.options.length && pend.options.every(o => o.target && o.target.kind === "player")) {   // 選目標: 直接點場上的玩家 (可選的外框發光)
     S.tgtPick = {pend: pend.id, opts: pend.options, label: pend.prompt, chosen: []};
     M.append(h("div", {class: "pickbar"}, h("b", {text: `請點擊一位玩家 — ${pend.prompt}`})));
+    renderTable(snap); return;
+  }
+  if (pend.kind === "pick" && pend.options.length && pend.options.every(o => o.target && (o.target.kind === "zone" || o.target.kind === "zonehand"))) {   // 拆 / 順等選對方的牌: 直接點場上發光的牌
+    S.tgtPick = {pend: pend.id, opts: pend.options, label: pend.prompt, zone: true, chosen: []};
+    const hd = pend.options.find(o => o.target.kind === "zonehand");
+    M.append(h("div", {class: "pickbar"}, h("b", {text: `${pend.prompt} — 請點擊發光的牌`}), hd ? h("button", {class: "primary", text: "對方的一張手牌 (隨機)", onclick: () => { S.tgtPick = null; submit(pend.id, [hd.i]); }}) : ""));
     renderTable(snap); return;
   }
   if (pend.kind === "chain" && pend.options.length && pend.options.every(o => o.target && o.target.kind === "player")) {   // 鐵索連環: 點場上玩家
@@ -2079,7 +2098,7 @@ async function poll(force) {
     // 篩選下拉
     const f = $("#thf");
     if (f.options.length !== snap.players.length + 1) { f.textContent = ""; f.append(h("option", {value: "", text: "全部玩家"})); snap.players.forEach(p => f.append(h("option", {value: p.idx, text: "P" + p.idx + " " + (p.char || "")}))); }
-    $("#bPause").textContent = snap.paused ? "繼續" : "暫停";
+    $("#bPause").textContent = snap.paused ? "繼續" : "暫停"; document.body.classList.toggle("paused", !!snap.paused);
     for (const id of ["#bNew", "#bPause", "#bStep", "#speed"]) { $(id).disabled = !snap.is_host; $(id).title = snap.is_host ? "" : "只有房主可以操作"; }
     syncSpeed(snap);
     syncRanked(snap);
@@ -2388,6 +2407,7 @@ async function refreshRooms() {
   let list = [];
   try { list = await (await fetch("/api/rooms?tok=" + TOK)).json(); } catch (e) { return; }
   const L = $("#rlist"); L.textContent = "";
+  $("#lobbycount").textContent = list.length ? "目前共 " + list[0].total + " 人在線" : "";
   for (const r of list) {
     L.append(h("div", {class: "rrow"},
       h("div", {class: "ri"}, h("div", {class: "rn", text: (r.locked ? "🔒 " : "") + r.name}), h("div", {class: "rm", text: (r.host ? "房主: " + r.host + " · " : "") + (r.n ? r.n + " 人局 · " : "") + "目前 " + r.online + (r.cap ? " / " + r.cap : "") + " 人在線"})),
