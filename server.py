@@ -372,7 +372,8 @@ class Accounts:
         user = (user or "").strip()
         if not self.NAME_RE.match(user):
             return {"ok": False, "error": "使用者名稱 2~10 字,只能用中英文、數字、底線"}
-        pw = pw or DEFAULT_PW   # 沒設密碼就用預設密碼 (之後請在個人資訊修改)
+        if not pw:
+            return {"ok": False, "error": "密碼不能留空"}
         if not (MIN_PW <= len(pw) <= MAX_PW):
             return {"ok": False, "error": f"密碼長度要 {MIN_PW}~{MAX_PW} 個字元"}
         import uuid as _uuid
@@ -433,7 +434,7 @@ class Accounts:
 
 import social
 DEFAULT_PW = "12345"
-MIN_PW, MAX_PW = 4, 64
+MIN_PW, MAX_PW = 8, 64
 MAX_ACCOUNTS = 2000
 MAX_BODY = 400_000   # 請求本文上限 (頭像 base64 約 160KB)
 ACCOUNTS = Accounts()
