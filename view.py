@@ -203,8 +203,9 @@ def _badges(g, p, c=None):
         add("⏭ 下回合被跳過", "st")
     if p.dmg_x2 or p.dmg_half:   # 強 / 弱: 這回合「造成」的傷害倍率
         d = p.dmg_x2 - p.dmg_half
-        mult = f"×{2 ** d}" if d >= 0 else f"×1/{2 ** -d}"
-        add(f"傷害 {mult}", "st")
+        if d:   # 強弱抵銷剛好 ×1 就不顯示
+            mult = f"×{2 ** d}" if d >= 0 else f"×1/{2 ** -d}"
+            add(f"傷害 {mult}", "st")
     if sub:
         for a in p.alias:
             add(f"化身為 {a.name}", "st")

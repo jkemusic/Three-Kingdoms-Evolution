@@ -1527,7 +1527,7 @@ function noteAction(s) {
   if (r) floatNum(+r[1], "+" + r[2], "heal");
 }
 function boxRow(bx, ...kids) {   // 玩家資訊: 頭貼+名字那一排套上玩家框
-  const r = h("div", {class: "bxrow", style: {display: "flex", alignItems: "center", gap: "14px", padding: "10px 12px", borderRadius: "12px", position: "relative"}}, ...kids);
+  const r = h("div", {class: "bxrow", style: {display: "flex", alignItems: "center", gap: "14px", padding: "10px 12px", borderRadius: "12px", position: "relative", margin: "3px 9px 12px 3px"}}, ...kids);   // 留出像素框外圈 / 陰影的空間,不壓到下面的進度條
   if (bx && window.SGS_BOX) SGS_BOX.apply(r, bx);
   return r;
 }
