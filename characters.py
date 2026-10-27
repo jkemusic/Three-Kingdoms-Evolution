@@ -2262,7 +2262,7 @@ class 公孫淵(Char):
 
 
 class 左慈(Char):
-    name, faction, maxhp = "左慈", "群", 3
+    name, faction = "左慈", "群"
     used = None
 
     def on_turn_start(self, g, p):

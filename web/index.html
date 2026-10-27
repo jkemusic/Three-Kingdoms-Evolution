@@ -1322,7 +1322,7 @@ function renderPrompt0(snap) {
     S.tgtPick = {pend: pend.id, opts: pend.options, label: pend.prompt, chain: true, chosen: []};
     chainBar(S.tgtPick, pend); renderTable(snap); return;
   }
-  if (pend.kind === "mode" && /^(偽裝|複製技能)/.test(pend.prompt) && S.roster) { renderDisguise(pend, M); return; }
+  if (pend.kind === "mode" && /^(偽裝|複製技能|左慈-化身)/.test(pend.prompt) && S.roster) { renderDisguise(pend, M); return; }
   const multi = pend.max > 1 || (pend.min === 0 && pend.max >= 1 && pend.kind !== "respond");
   const box = h("div", {class: "opts"});
   // 要棄的張數很多時,改成選「要保留」的牌 (其餘棄置)
