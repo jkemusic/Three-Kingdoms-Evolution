@@ -571,7 +571,7 @@ class Game:
                     self._dmg_ctx = None
                     return n
                 self.new_chain()
-                self.link(f"{q.name} 在傷害結算前連鎖使用 ⚡{c} (對 {t.name})")
+                self.link(f"{q.name} 在傷害結算前連鎖使用 ⚡{c}" + (f" (對 {t.name})" if hasattr(t, "name") else ""))
                 self.execute(q, c, t)
                 self.after_play(q, c)
                 if src is not None:
@@ -1612,7 +1612,13 @@ class Game:
         return pick
 
     def fix_equip(self, q):
-        """換裝後: 不能雙裝的武將,武器 / 防具各只能留一件,多的要選一件丟掉。"""
+        """換裝後: 不能裝防具的武將 (典韋) 換到的防具馬上丟進棄牌堆;不能雙裝的武將,武器 / 防具各只能留一件,多的要選一件丟掉。"""
+        if q.char.no_armor:
+            for slot in ("armor", "armor2"):
+                if q.equip[slot]:
+                    self.log(f"  {q.name} 不能裝備防具,{q.equip[slot]} 直接丟進棄牌堆")
+                    self.discard.append(getattr(q.equip[slot], "orig", q.equip[slot]))
+                    q.equip[slot] = None
         for a, b, dual, kind in (("weapon", "weapon2", q.char.dual_weapon, "武器"), ("armor", "armor2", q.char.dual_armor, "防具")):
             if dual:
                 continue

@@ -607,4 +607,88 @@ class LeveledAgent(HeuristicAgent):
             return None
         return super().respond(g, p, need, cands, ctx)
 
+    # --- 很強 (level 4) 專屬: 都只用公開資訊 (場上血量 / 手牌張數 / 裝備) ---
+    ATTACK = {"殺", "火殺", "冰殺", "雷殺", "決", "火攻"}
+    F_TARGET = F_HOLD = F_ACC = True   # 三項各自可開關 (調校用)
+    BOLT_KEEP = ("劉備", "龐統")   # 降雷只留給這兩種有明確收益的對象
+
+    def _att(self, g, me, other):
+        a = super()._att(g, me, other)
+        # 偽裝: 內奸在場上人還多的時候假裝忠臣——不打疑似忠臣 (免得別人看出自己不是護主的),只打疑似反賊,
+        # 並照常救主公;最後剩 3 人以下才露出真面目。別人只看得到公開行為,所以這樣最像忠臣。
+        if (self.level >= 4 and me.role == "內奸" and other is not me and a < 0
+                and len(g.alive_players()) > 3 and self.sus.get(other.idx, 0.0) <= -1.5):
+            return 0.5
+        return a
+
+    def _turn_damage(self, g, p):
+        """估這回合打得出的總傷害: 單次傷害 (酒 / 強 / 弱 已含) x 出殺次數。"""
+        one = 1 + (1 if g.jiu else 0)
+        one = (one << p.dmg_x2) >> p.dmg_half
+        nsha = sum(1 for c in p.hand if c.name in ("殺", "火殺", "冰殺", "雷殺"))
+        unlimited = any(str(getattr(p.equip.get(s), "name", "")).endswith("連弩") for s in ("weapon",))
+        hits = max(nsha if unlimited else min(nsha, 1), 1 if any(c.name in ("決", "火攻") for c in p.hand) else 0)
+        return one * hits
+
+    def _act_core(self, g, p, options):
+        if self.level < 4:
+            return super()._act_core(g, p, options)
+        total = self._turn_damage(g, p)
+        foes = [q for q in g.others(p) if self.attitude(g, p, q) < 0]
+        has_strong = any(c.name == "強" for c in p.hand)
+        # 差一點才打得死 (強化後翻倍剛好夠) 才值得把強化用在自己身上
+        boost = has_strong and total > 0 and any(total < q.hp <= total * 2 for q in foes)
+        keep = []
+        for i, (c, t) in enumerate(options):
+            nm = getattr(c, "name", "")
+            if not self.F_HOLD:
+                pass
+            elif nm == "強" and not (boost and t is p):
+                continue
+            elif nm == "弱":
+                continue
+            elif nm == "降雷" and not (hasattr(t, "_char") and t._char.name in self.BOLT_KEEP):
+                continue
+            keep.append(i)
+        opts = [options[i] for i in keep]
+        if not opts:
+            return None
+        killable = lambda q: q.hp <= total * (2 if boost else 1)
+        pruned = []
+        for name in self.ATTACK:   # 同一種攻擊牌只留「最該打」的目標: 打得死的 > 血少 + 手牌少 (閃的機會小) > 敵意高
+            cs = [(c, t) for c, t in opts if c.name == name and not isinstance(t, tuple) and self.attitude(g, p, t) < 0]
+            if not cs:
+                continue
+            if not self.F_TARGET:
+                continue
+            best = min(cs, key=lambda ct: (self._counter_prio(name, ct[1]), not killable(ct[1]),
+                                          ct[1].hp + 0.4 * len(ct[1].hand) + 0.5 * self.attitude(g, p, ct[1])))[1]
+            pruned += [(c, t) for c, t in cs if t is not best]
+            # 打不死、對方手牌多又滿血、自己手牌不會爆: 先不丟出去,累積到打得死再一起出手
+            if (self.F_ACC and not killable(best) and len(best.hand) >= 3 and best.hp >= 3 and len(p.hand) <= p.hp
+                    and name in ("殺", "火殺", "冰殺", "雷殺")):
+                pruned += [(c, t) for c, t in cs if t is best]
+        opts = [ct for ct in opts if not any(ct[0] is c and ct[1] is t for c, t in pruned)]
+        if not opts:
+            return None
+        r = super()._act_core(g, p, opts)
+        return None if r is None else self._orig_index(options, opts[r])
+
+    @staticmethod
+    def _orig_index(options, opt):
+        for i, o in enumerate(options):
+            if o is opt:
+                return i
+        return 0
+
+    def choose_offturn(self, g, p, options, cur, when):
+        if self.level >= 4 and when == "回合開始":   # 平常不亂用強化,留到打得死的關鍵時刻 (傷害結算前的 ⚡ 另有判斷)
+            keep = [i for i, (c, t) in enumerate(options) if getattr(c, "name", "") != "強"]
+            if len(keep) < len(options):
+                if not keep:
+                    return None
+                r = super().choose_offturn(g, p, [options[i] for i in keep], cur, when)
+                return None if r is None else keep[r]
+        return super().choose_offturn(g, p, options, cur, when)
+
 

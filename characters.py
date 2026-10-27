@@ -2080,6 +2080,9 @@ class 馬謖(Char):
 
     def _run(self, g, p, t):
         p.turn_flags["ms"] = True
+        if len(t.hand) < 2 or len(p.hand) < 2:   # 技能發動前被連鎖的 ⚡ 打光了手牌
+            g.log(f"  {p.name}[馬謖] 換牌失敗 (手牌不足)")
+            return
         mine = p.agent.choose_discard(g, p, 2, list(p.hand), msg=f"選擇要和 {t.name} 交換的 2 張手牌")
         theirs = g.rng.sample(t.hand, 2)
         for c in mine:
