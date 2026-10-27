@@ -756,7 +756,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
   const SCENE_CSS = `
 [data-bx]{isolation:isolate}
 .pvseat[data-bx],.bxsw[data-bx]{position:relative}
-.pl[data-bx] .inf,.pvseat[data-bx] .pvt{text-shadow:0 1px 3px rgba(0,0,0,.9)}
+.pl[data-bx] .inf,.pvseat[data-bx] .pvt{text-shadow:0 1px 1px rgba(0,0,0,.55)}
 .bxfx{position:absolute;inset:var(--bx-bw,1px);border-radius:inherit;overflow:hidden;pointer-events:none;z-index:-1}
 .bxfx *{position:absolute;pointer-events:none;display:block}
 .bxfx::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.26)}   /* 暗幕: 白字對比要夠 (4.5:1) */
