@@ -106,6 +106,7 @@ input[type=range]{accent-color:var(--accent);padding:0}
 .ci{background:linear-gradient(160deg,var(--panel2),var(--panel));border:1px solid var(--accent);color:var(--text);border-radius:14px;padding:16px;display:flex;gap:16px;max-width:min(94vw,560px);align-items:flex-start;box-shadow:0 12px 40px rgba(0,0,0,.6)}
 .ci img{width:200px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,.6)}
 .ci h3{margin:0 0 6px;color:var(--accent);font-size:18px}.ci p{margin:0;line-height:1.7;font-size:15px}
+#modal2 .modal{z-index:7600}
 .modal{position:fixed;inset:0;background:rgba(5,8,12,.7);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:20}
 .modal.soft{background:rgba(0,0,0,.15);backdrop-filter:none;align-items:flex-end;padding-bottom:240px}
 .dlg{background:linear-gradient(160deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:16px;padding:18px;max-width:900px;max-height:90vh;overflow:auto;width:min(900px,94vw);box-shadow:0 18px 50px rgba(0,0,0,.6)}
@@ -199,7 +200,7 @@ button.primary{background:linear-gradient(180deg,#52dcff,#1a9bd0);color:#02202e;
 .dlg.setup{padding:0;width:min(920px,95vw);max-height:92vh;max-height:min(92vh,calc(100dvh - var(--toph,48px) - 12px));display:flex;flex-direction:column;overflow:hidden;border-radius:14px}
 .dh{display:flex;justify-content:space-between;align-items:flex-start;padding:18px 22px 14px;border-bottom:1px solid #1b3a5a;background:linear-gradient(180deg,rgba(63,210,255,.08),transparent)}
 .dh h3{margin:0;font-size:22px;letter-spacing:.08em}
-.dh .x{clip-path:none;border-radius:50%;width:34px;height:34px;padding:0;background:#122440;box-shadow:inset 0 0 0 1px #2a5a85}
+.dh .x{clip-path:none;width:34px;height:34px;padding:0;background:#122440;box-shadow:inset 0 0 0 1px #2a5a85}
 .dbody{overflow:auto;padding:6px 22px 14px;flex:1}
 .df{display:flex;justify-content:flex-end;gap:12px;padding:14px 22px;border-top:1px solid #1b3a5a;background:rgba(0,0,0,.25)}
 .df button{padding:10px 26px}
@@ -438,7 +439,7 @@ body.hand-off #hand{display:none!important}
   #bSide{display:none}
   #tabs{display:none}   /* 手機用底下的分頁列,上面那排重複了 */
   #center{text-align:center!important}
-  #mnav{display:grid;grid-template-columns:repeat(6,1fr);background:var(--panel);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+  #mnav{display:grid;grid-template-columns:repeat(5,1fr);background:var(--panel);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
   #mnav button{border:0;border-radius:0;background:transparent;color:var(--dim)}
   #mnav button.on{color:var(--accent);border-top:2px solid var(--accent)}
 }
@@ -446,7 +447,12 @@ body.hand-off #hand{display:none!important}
 #rooms.on{display:flex}
 #rooms .rbox{width:min(640px,100%);background:#0b1a30;border:1px solid #24557d;border-radius:14px;padding:18px 20px;box-shadow:0 10px 40px rgba(0,0,0,.6)}
 #rooms h2{margin:0 0 4px;color:#3fd2ff}
-.rnew{display:flex;gap:8px;margin:14px 0}.rnew input{flex:1}
+#lobbytools{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:12px 0 4px}
+#lobbytools button{display:flex;align-items:center;justify-content:flex-start;gap:8px;min-height:44px;padding:8px 12px;border-radius:10px;background:#0e2442;border:1px solid #24496f;color:var(--text);white-space:nowrap}
+#lobbytools button:hover{border-color:#3fd2ff;background:#12305a}
+#lobbytools button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#lobbytools svg{width:18px;height:18px;flex:none;stroke:#3fd2ff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rnew{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}.rnew input{flex:1 1 180px;min-width:0}.rnew #rpw{flex:1 1 130px}.rnew #rcap{flex:0 1 auto;min-width:0}.rnew button{flex:none;white-space:nowrap}
 @media (max-width:560px){.rnew{flex-wrap:wrap}.rnew input{flex:1 1 100%;min-width:0;max-width:none!important;min-height:44px}.rnew #rpw{flex:1 1 0}.rnew #rcap{flex:none;min-height:44px}.rnew button{flex:none;white-space:nowrap;min-height:44px}}   /* 手機: 房間名稱獨佔一列,密碼和按鈕同一列 (原本按鈕被擠成直排、溢出卡片) */
 #rlist{display:flex;flex-direction:column;gap:8px;max-height:55vh;overflow:auto}
 .rrow{display:flex;align-items:center;gap:10px;background:#0e2442;border:1px solid #24496f;border-radius:10px;padding:10px 12px}
@@ -647,10 +653,10 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
       <div class="panhint">按住空白處拖曳可移動牌桌 · 雙擊還原</div>
     </div>
     <div id="side">
-      <div id="tabs"><button data-t="log" class="on">對局紀錄</button><button data-t="th">AI 思考</button><button data-t="ch">武將</button><button data-t="cd">卡牌</button><button data-t="cc">聊天<b id="cbadge"></b></button></div>
+      <div id="tabs"><button data-t="log" class="on">對局紀錄</button><button data-t="ch">武將</button><button data-t="cd">卡牌</button><button data-t="cc">聊天<b id="cbadge"></b></button></div>
       <div id="logbar"><label><input id="follow" type="checkbox" checked> 自動捲到最新</label><span class="meta">↳ = 連鎖回應</span></div>
       <div class="pane on" id="log"></div>
-      <div class="pane" id="th">
+      <div class="pane" id="th" hidden style="display:none!important">
         <div class="row"><label>只看 <select id="thf"><option value="">全部玩家</option></select></label><span class="meta" id="thnote"></span></div>
         <div id="thl"></div>
       </div>
@@ -664,7 +670,7 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
     <div id="hand"></div>
     <div id="bar"></div>
   </div>
-  <div id="mnav"><button data-m="" class="on">牌桌</button><button data-m="log">紀錄</button><button data-m="th">AI 思考</button><button data-m="ch">武將</button><button data-m="cd">卡牌</button><button data-m="cc">聊天</button></div>
+  <div id="mnav"><button data-m="" class="on">牌桌</button><button data-m="log">紀錄</button><button data-m="ch">武將</button><button data-m="cd">卡牌</button><button data-m="cc">聊天</button></div>
 </div>
 <div id="auth"><div class="rbox">
   <h2>三國殺重製版</h2>
@@ -678,12 +684,12 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
 </div></div>
 <div id="rooms"><div class="rbox">
   <h2>三國殺重製版 · 大廳</h2>
-  <div class="meta">選一個房間加入,或自己創建一個。房間沒人超過 10 分鐘會自動刪除。</div>
+  <div id="lobbytools" role="group" aria-label="快捷功能"></div>
   <div class="rnew"><input id="rname" type="text" maxlength="20" placeholder="房間名稱 (例如: 阿明的房間)"><input id="rpw" type="password" maxlength="20" placeholder="房間密碼 (可不設)" autocomplete="new-password" style="max-width:150px"><select id="rcap" title="房間人數上限 (含觀戰的人)"><option value="0">人數不限</option><option value="2">上限 2 人</option><option value="3">上限 3 人</option><option value="4">上限 4 人</option><option value="5">上限 5 人</option><option value="6">上限 6 人</option><option value="7">上限 7 人</option><option value="8">上限 8 人</option><option value="9">上限 9 人</option><option value="10">上限 10 人</option></select><button id="rcreate" class="primary">創建房間</button></div>
   <div class="rnew"><button id="rsolo" class="primary" title="自己一個人和電腦對打 (房間不公開)">🤖 單人模式 (和電腦對打)</button></div>
   <div id="rlist"></div>
 </div></div>
-<div id="modal"></div>
+<div id="modal"></div><div id="modal2"></div>
 <div id="cardinfo"></div>
 <div id="prev"></div>
 <div id="hv"></div>
@@ -1015,6 +1021,22 @@ function renderTable0(snap) {
       el.append(h("div", {class: "bubble", text: t.title, style: {animationDelay: "-" + age.toFixed(2) + "s"}}));
     T.append(el);
   });
+  if (n >= 7) {   // 人多時有的玩家框會長高 (判定區 / 裝備多),照固定座位排會和鄰座重疊: 重疊的框互相推開
+    const W = T.clientWidth, H = T.clientHeight, bs = [...T.querySelectorAll(".pl")].map(e => ({e, x: parseFloat(e.style.left), y: parseFloat(e.style.top), w: e.offsetWidth / 2, h: e.offsetHeight / 2})).filter(o => !isNaN(o.x) && !isNaN(o.y));
+    for (let it = 0; it < 40; it++) {
+      let moved = false;
+      for (let i = 0; i < bs.length; i++) for (let j = i + 1; j < bs.length; j++) {
+        const a = bs[i], c = bs[j], ox = a.w + c.w + 6 - Math.abs(a.x - c.x), oy = a.h + c.h + 6 - Math.abs(a.y - c.y);
+        if (ox <= 0 || oy <= 0) continue;
+        moved = true;
+        if (ox < oy) { const sg = a.x <= c.x ? -1 : 1; a.x += sg * ox / 2; c.x -= sg * ox / 2; }
+        else { const sg = a.y <= c.y ? -1 : 1; a.y += sg * oy / 2; c.y -= sg * oy / 2; }
+      }
+      bs.forEach(o => { o.x = Math.min(Math.max(o.x, o.w + 2), Math.max(o.w + 2, W - o.w - 2)); o.y = Math.min(Math.max(o.y, o.h + 44), Math.max(o.h + 44, H - o.h - 2)); });
+      if (!moved) break;
+    }
+    bs.forEach(o => { o.e.style.left = Math.round(o.x) + "px"; o.e.style.top = Math.round(o.y) + "px"; });
+  }
   if (!document.body.classList.contains("m-side") && getComputedStyle(T.firstChild || T).position === "absolute") {   // 面板太高 (手牌多/裝備多) 時往內推,避免被畫面切掉
     const tr = T.getBoundingClientRect();
     T.querySelectorAll(".pl").forEach(el => {
@@ -1659,8 +1681,8 @@ async function showPlayer(key) {   // 看別人的個人資訊 (在線列表 / �
   const close = () => { const m = document.getElementById("playerdlg"); if (m) m.remove(); };
   const rate = (a, b) => b ? Math.round(a / b * 100) + "%" : "-";
   const pct = p.rp_next == null ? 100 : Math.max(0, Math.min(100, (p.rp - p.rp_lo) / (p.rp_next - p.rp_lo) * 100));
-  const stat = (k, v) => h("div", {style: {background: "#0e2442", border: "1px solid #24496f", borderRadius: "10px", padding: "8px 12px", flex: "1 1 90px", textAlign: "center"}},
-    h("div", {style: {fontSize: "20px", fontWeight: 700, color: "#3fd2ff"}, text: String(v)}), h("div", {class: "meta", text: k}));
+  const stat = (k, v) => { const val = h("div", {style: {fontSize: "20px", fontWeight: 700, color: "#3fd2ff", whiteSpace: "nowrap"}, text: String(v)}); setTimeout(() => fitText(val), 0);   // 太長就把字縮小,不換行
+    return h("div", {style: {background: "#0e2442", border: "1px solid #24496f", borderRadius: "10px", padding: "8px 12px", flex: "1 1 90px", minWidth: 0, overflow: "hidden", textAlign: "center"}}, val, h("div", {class: "meta", text: k})); };
   const m = h("div", {class: "modal", id: "playerdlg", style: {zIndex: 7700}, onclick: e => { if (e.target === m) close(); }},
     h("div", {class: "dlg", style: {maxWidth: "420px"}},
       h("div", {class: "dh"}, h("div", {}, h("h3", {text: "玩家資訊"})), h("button", {class: "x", text: "✕", onclick: close})),
@@ -2196,12 +2218,12 @@ function showRankNote(n) {   // 升段 / 降段 視窗
 }
 async function showProfile() {
   const p = (await loadProfile()) || S.prof; if (!p) return;
-  const M = $("#modal"); S.modalOpen = "profile"; M.textContent = "";
+  const M = $("#modal2"); M.textContent = "";   // 個人資訊另外放一層,不會被打牌的詢問視窗洗掉或蓋住
   const pct = p.rp_next == null ? 100 : Math.max(0, Math.min(100, (p.rp - p.rp_lo) / (p.rp_next - p.rp_lo) * 100));
-  const close = () => { M.textContent = ""; S.modalOpen = null; };
+  const close = () => { M.textContent = ""; };
   const rate = (a, b) => b ? Math.round(a / b * 100) + "%" : "-";
-  const stat = (k, v) => h("div", {style: {background: "#0e2442", border: "1px solid #24496f", borderRadius: "10px", padding: "8px 12px", flex: "1 1 90px", textAlign: "center"}},
-    h("div", {style: {fontSize: "20px", fontWeight: 700, color: "#3fd2ff"}, text: String(v)}), h("div", {class: "meta", text: k}));
+  const stat = (k, v) => { const val = h("div", {style: {fontSize: "20px", fontWeight: 700, color: "#3fd2ff", whiteSpace: "nowrap"}, text: String(v)}); setTimeout(() => fitText(val), 0);   // 太長就把字縮小,不換行
+    return h("div", {style: {background: "#0e2442", border: "1px solid #24496f", borderRadius: "10px", padding: "8px 12px", flex: "1 1 90px", minWidth: 0, overflow: "hidden", textAlign: "center"}}, val, h("div", {class: "meta", text: k})); };
   const chars = (p.chars || []).map(([n, g, w]) => h("div", {style: {display: "flex", justifyContent: "space-between", padding: "3px 0", borderBottom: "1px solid #17304f"}},
     h("span", {text: n}), h("span", {class: "meta", text: g + " 場 · " + w + " 勝 · " + rate(w, g)})));
   M.append(h("div", {class: "modal", onclick: e => { if (e.target.classList.contains("modal")) close(); }}, h("div", {class: "dlg", style: {maxWidth: "460px"}},
@@ -2233,8 +2255,8 @@ async function showProfile() {
         h("button", {text: "複製", onclick: e => { const b = e.target, ok = () => { b.textContent = "已複製"; }; if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(p.uuid).then(ok); else { const t = h("textarea", {}); t.value = p.uuid; document.body.append(t); t.select(); try { document.execCommand("copy"); ok(); } catch (x) {} t.remove(); } }}))))));
 }
 function showPwDialog(forced, note) {   // 修改密碼 (forced: 還在用預設密碼,登入後提醒)
-  const M = $("#modal"); S.modalOpen = "pw"; M.textContent = "";
-  const close = () => { M.textContent = ""; S.modalOpen = null; };
+  const M = $("#modal2"); M.textContent = "";
+  const close = () => { M.textContent = ""; };
   const mk = (ph, ac) => h("input", {type: "password", maxlength: 64, placeholder: ph, autocomplete: ac, style: {width: "100%", marginTop: "8px"}});
   const o = mk("目前的密碼", "current-password"), n1 = mk("新密碼 (8 字以上,不能是 12345)", "new-password"), n2 = mk("再輸入一次新密碼", "new-password");
   const err = h("div", {class: "aerr", style: {minHeight: "20px"}});
@@ -2272,7 +2294,12 @@ function uploadAvatar(file) {   // 縮成 128x128 JPEG (置中裁切) 再上傳
   img.src = url;
 }
 $("#bProf").onclick = showProfile;
-const fmtPlay = sec => { const m = Math.floor((sec || 0) / 60); return m >= 60 ? `${Math.floor(m / 60)} 小時 ${m % 60} 分鐘` : `${m} 分鐘`; };   // 累計遊玩時間
+function fitText(e) { let fs = 20; e.style.fontSize = fs + "px"; while (e.scrollWidth > e.clientWidth + 1 && fs > 9) { fs--; e.style.fontSize = fs + "px"; } }
+const fmtPlay = sec => {   // 累計遊玩時間: 天 / 小時 / 分鐘,是 0 的就不顯示
+  const m = Math.floor((sec || 0) / 60), d = Math.floor(m / 1440), h2 = Math.floor(m % 1440 / 60), mi = m % 60, r = [];
+  if (d) r.push(`${d} 天`); if (h2) r.push(`${h2} 小時`); if (mi || !r.length) r.push(`${mi} 分鐘`);
+  return r.join(" ");
+};
 function rkProgress(p) {   // 段位進度: 長條代表「這一段」的進度,兩端標出段位名與分數,文字也用同一個基準,不再讓「113 / 150」看起來像 75% 但長條只有 26%
   const top = p.rp_next == null, span = top ? 0 : p.rp_next - p.rp_lo, got = Math.max(0, p.rp - p.rp_lo), pct = top ? 100 : Math.max(0, Math.min(100, got / span * 100));
   const bar = h("div", {role: "progressbar", "aria-valuemin": 0, "aria-valuemax": 100, "aria-valuenow": Math.round(pct), style: {height: "10px", background: "#0e2442", borderRadius: "99px", overflow: "hidden", margin: "6px 0 2px"}},
@@ -2283,8 +2310,8 @@ function rkProgress(p) {   // 段位進度: 長條代表「這一段」的進度
     h("div", {class: "meta", style: {marginTop: "4px"}, text: `段位積分 ${p.rp} · 本段 ${got} / ${span} · 距離 ${p.next_rank} 還差 ${p.rp_next - p.rp} 分`})];
 }
 async function showBoard() {
-  const M = $("#modal"); S.modalOpen = "board"; M.textContent = "";
-  const close = () => { M.textContent = ""; S.modalOpen = null; };
+  const M = $("#modal2"); M.textContent = "";
+  const close = () => { M.textContent = ""; };
   const r = await (await fetch("/api/leaderboard?tok=" + encodeURIComponent(TOK))).json();
   const rows = r.rows || [];
   const SORTS = {"段位": (a, b) => (b.rp || 0) - (a.rp || 0) || b.wins - a.wins, "勝場": (a, b) => b.wins - a.wins || (b.rp || 0) - (a.rp || 0), "遊玩時間": (a, b) => (b.playtime || 0) - (a.playtime || 0) || (b.rp || 0) - (a.rp || 0)};
@@ -2411,7 +2438,26 @@ async function joinRoom(r) {   // 有密碼的房間: 先輸入密碼 (房主 / 
   }
   enterRoom(r.id, r.name);
 }
+const LOBBY_TOOLS = [   // 大廳的快捷功能: [顯示文字, 對應的上方按鈕 id, 圖示]
+  ["玩家資訊", "bProf", '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'],
+  ["排行榜", "bBoard", '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-1.21 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98 1.21 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>'],
+  ["成就", "bAch", '<circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>'],
+  ["外觀", "bTheme", '<circle cx="13.5" cy="6.5" r=".6"/><circle cx="17.5" cy="10.5" r=".6"/><circle cx="8.5" cy="7.5" r=".6"/><circle cx="6.5" cy="12.5" r=".6"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.65-.75 1.65-1.69 0-.44-.18-.83-.44-1.12-.29-.29-.44-.65-.44-1.13a1.64 1.64 0 0 1 1.67-1.67h2c3.05 0 5.55-2.5 5.55-5.55C21.97 6.01 17.46 2 12 2z"/>'],
+  ["設定", "bSnd", '<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>'],
+  ["教學", "bTut", '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>'],
+];
+function buildLobbyTools() {   // 把上方那排的功能也放進大廳 (按下去就是按上方對應的按鈕)
+  const box = $("#lobbytools"); if (!box) return;
+  box.textContent = "";
+  for (const [label, id, icon] of LOBBY_TOOLS) {
+    const b = h("button", {type: "button", onclick: () => { const src = document.getElementById(id); if (src) src.click(); else toast("功能還沒準備好,請稍後再試"); }});   // 按下時才找按鈕 (有些按鈕是之後才加進上方那排的)
+    b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' + icon + "</svg>";
+    b.append(h("span", {text: label}));
+    box.append(b);
+  }
+}
 function showRooms(msg) {
+  buildLobbyTools();
   $("#rooms").classList.add("on");
   if (msg) toast(msg);
   refreshRooms(); clearInterval(roomTimer); roomTimer = setInterval(() => { if ($("#rooms").classList.contains("on")) refreshRooms(); else clearInterval(roomTimer); }, 2000);

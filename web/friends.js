@@ -129,6 +129,9 @@
     const body = document.getElementById("frbody"); if (!body || F.chat) return;
     const d = F.data || {friends: [], req_in: [], req_out: [], now: Date.now() / 1000};
     const typing = body.querySelector("input");
+    const sig = JSON.stringify([d.friends, d.req_in, d.req_out, F.tab, F.page]);
+    if (!force && typing && (document.activeElement === typing || sig === F.sig)) return;   // 正在打字、或資料沒變: 不重畫 (重畫會讓游標跳回最前面)
+    F.sig = sig;
     const keep = typing ? typing.value : "";
     const hadFocus = typing && document.activeElement === typing;
     const caret = typing ? typing.selectionStart : 0;

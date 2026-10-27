@@ -216,6 +216,10 @@
         }).catch(() => { v.textContent = ""; });
         return box;
       };
+      const spTop = document.getElementById("speed");   // 平板寬度不夠時上方那條會藏起來,所以設定裡也放一份 (同一個值)
+      const spv = el("span", { className: "sv", textContent: spTop ? (+spTop.value).toFixed(2) + "s" : "" });
+      const spd = el("input", { type: "range", min: 0, max: 1.5, step: 0.05, value: spTop ? spTop.value : 0.35, disabled: !spTop || spTop.disabled, title: spTop && spTop.disabled ? "只有房主可以操作" : "" });
+      spd.oninput = () => { spv.textContent = (+spd.value).toFixed(2) + "s"; if (spTop) { spTop.value = spd.value; spTop.dispatchEvent(new Event("input")); } };
       let cm = "me"; try { cm = localStorage.getItem("sgs_chain") === "all" ? "all" : "me"; } catch (e) {}
       const cs = el("select", {}, el("option", { value: "me", textContent: "只有影響到我才問" }), el("option", { value: "all", textContent: "每個動作都問" }));
       cs.value = cm; cs.onchange = () => { try { localStorage.setItem("sgs_chain", cs.value); } catch (e) {} };
@@ -223,8 +227,8 @@
         el("div", { className: "dh" }, el("div", {}, el("h3", { textContent: "⚙ 設定" })), el("button", { className: "x", textContent: "✕", onclick: close })),
         el("div", { className: "dbody" },
           row("音效", cb(!muted, v => SGS_FX.setMuted(!v)), el("span", { className: "meta", textContent: "開 / 關" })),
-          row("音量", vs, vv), row("字體大小", fsl, fv), ttsRow, row("⚡連鎖詢問", cs), aboutRow()));
-      const m = el("div", { className: "modal", id: "setdlg" }, dlg);
+          row("音量", vs, vv), row("字體大小", fsl, fv), row("每步延遲", spd, spv), window.SGS_LANGSEL ? row("語言", window.SGS_LANGSEL()) : "", ttsRow, row("⚡連鎖詢問", cs), aboutRow()));
+      const m = el("div", { className: "modal", id: "setdlg", style: "z-index:7600" }, dlg);
       m.onclick = e => { if (e.target === m) close(); };
       document.body.append(m);
     };

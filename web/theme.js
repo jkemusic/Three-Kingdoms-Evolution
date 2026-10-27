@@ -975,13 +975,13 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
   }
 
   function openDlg(tab) {
-    const M = document.getElementById("modal"); if (!M) return;
+    const M = document.getElementById("modal2"); if (!M) return;   // 獨立一層: 不會被打牌詢問洗掉、大廳裡也能開
     const mode = tab === "ach" ? "ach" : "look";
     tab = tab === "ach" ? "ach" : (tab === "frame" || tab === "fx" || tab === "box") ? tab : "theme";
     let pv = null;   // 預覽: 點到還沒解鎖的項目時,只預覽、不套用
     const render = () => {
-      M.textContent = ""; if (typeof S !== "undefined") S.modalOpen = "theme";
-      const close = () => { M.textContent = ""; if (typeof S !== "undefined") S.modalOpen = null; };
+      M.textContent = "";
+      const close = () => { M.textContent = ""; };
       const p = prof() || {}, sel = p.sel || {}, mine = p.avatar || null;
       const achMode = mode === "ach";   // 成就和外觀是兩個分開的視窗
       const preview = () => {

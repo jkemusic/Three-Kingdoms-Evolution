@@ -741,7 +741,7 @@ const CSS = `
 .imtop{display:flex;gap:8px;justify-content:center}.imc{padding:5px 18px;border:1px solid #2a5a7c;border-radius:99px;color:#7fb7dd;font-size:12px}
 .imlab,.imside{font-size:11px;color:#8fa3bf;text-align:center}.imbot{display:flex;flex-direction:column;align-items:center;gap:4px}
 body.hint-on #modal .modal:not(.soft){padding-top:var(--hintpush,0)!important;box-sizing:border-box;align-items:safe center!important}
-#hintbar{position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:8000;background:#16324a;color:#fff;border:1px solid #3fd2ff;border-radius:10px;padding:8px 14px;display:flex;gap:10px;align-items:center;max-width:min(92vw,720px);box-shadow:0 4px 18px rgba(0,0,0,.5);font-size:14px}
+#hintbar{position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:600;background:#16324a;color:#fff;border:1px solid #3fd2ff;border-radius:10px;padding:8px 14px;display:flex;gap:10px;align-items:center;width:max-content;max-width:min(calc(100vw - 16px),720px);box-sizing:border-box;box-shadow:0 4px 18px rgba(0,0,0,.5);font-size:14px}
 .tdlg.cgdlg{max-width:760px;width:min(760px,96vw)}#cdl{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px;max-height:62vh;overflow:auto;padding:4px 2px}.cgi{display:flex;gap:10px;align-items:flex-start;background:#0c1d36;border:1px solid #24557d;border-radius:8px;padding:6px}.cgi img{width:56px;border-radius:4px;flex:none}.cgd{font-size:12px;color:#a9c4de;margin-top:2px;line-height:1.4}
 #hintbar b{color:#3fd2ff;white-space:nowrap}#hintbar button{background:none;border:0;color:#9fb0c8;cursor:pointer;font-size:15px}
 `;
@@ -757,8 +757,8 @@ function init() {
   const st = document.createElement("style"); st.textContent = CSS; document.head.append(st);
   const top = document.getElementById("top");
   const mkSel = id => { const x = el("select", { class: "langsel", title: "Language / 言語 / 語言" }, LANGS.map(([v, n]) => el("option", { value: v, text: n }))); if (id) x.id = id; x.value = lang; x.onchange = () => setLang(x.value); return x; };
-  const sel = mkSel("langsel");
-  for (const box of document.querySelectorAll("#auth .rbox, #rooms .rbox")) {   // 登入畫面與大廳也能直接切換語言
+  window.SGS_LANGSEL = () => mkSel();   // 設定頁裡的語言選單
+  for (const box of document.querySelectorAll("#auth .rbox")) {   // 登入畫面 (還進不去設定) 也能直接切換語言
     const h2 = box.querySelector("h2"); if (h2) h2.append(mkSel());
   }
   const tb = el("button", { id: "bTut", text: TUT[lang].btn, onclick: () => openTut(0) });
@@ -766,7 +766,7 @@ function init() {
   const LBL = { zh: "語言", en: "Language", ja: "言語" };
   const bl = el("button", { id: "bLang", type: "button", title: "Language / 言語 / 語言", onclick: () => openLangPop() });   // 手機選單用: 點開再選語言
   bl.textContent = LBL[lang];
-  if (top && bn) { top.insertBefore(tb, bn); top.insertBefore(sel, bn); top.insertBefore(bl, bn); }
+  if (top && bn) top.insertBefore(tb, bn);   // 語言選單移進設定頁
   start();
   loadExact().then(() => { apply(); });
   setInterval(updHint, 400);
