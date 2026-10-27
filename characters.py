@@ -1985,7 +1985,7 @@ class 袁術(Char):
 class 賈詡(Char):
     name, faction = "賈詡", "群"
 
-    def blocks_card(self, g, p, card): return getattr(card, "name", "") == "桃"  # 只有瀕死時才能用桃
+    # 技能一: 除了瀕死,桃只能對自己用 (桃本來就只能對自己用,所以自己隨時可以用桃,不需要另外限制)
 
     def skill_options(self, g, p):  # 出一張殺,使 2 個人決鬥
         shas = [c for c in p.hand if c.name == "殺"]
