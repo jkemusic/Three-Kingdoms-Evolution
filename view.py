@@ -177,6 +177,8 @@ def _badges(g, p, c=None):
             add("阻擋 (本回合已用)" if c.used == g.turn_id else "阻擋 (可用)", "once")
         elif n == "司馬昭" and (c.next_double or (g.cur is p and p.turn_flags.get("sm_double"))):
             add("下回合傷害 ×2" if c.next_double else "本回合傷害 ×2", "st")
+        elif n == "許褚" and p.turn_flags.get("xc"):
+            add("本回合傷害 ×2", "st")   # 放棄抽牌: 跟強化一樣掛一個傷害倍率的標記
         elif n == "姜維" and getattr(c, "bonus", 0):
             add(f"下回合多抽 ×{c.bonus}", "st")
         elif n == "張飛":

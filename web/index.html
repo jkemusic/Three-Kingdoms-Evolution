@@ -102,6 +102,7 @@ input[type=range]{accent-color:var(--accent);padding:0}
 #bottom{background:linear-gradient(180deg,rgba(24,33,43,.95),#10161d);border-top:1px solid var(--line);padding:6px 16px 10px;min-height:200px;box-shadow:0 -6px 18px rgba(0,0,0,.35)}
 #hand{display:flex;justify-content:safe center;gap:12px;align-items:flex-end;min-height:176px;overflow-x:auto;padding:24px 4px 6px}
 #bar{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px;min-height:36px}
+.skwrap{position:relative;display:inline-block}.skmenu{position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);display:flex;flex-wrap:wrap;gap:6px;justify-content:center;width:max-content;max-width:min(88vw,560px);padding:8px;background:rgba(5,11,23,.97);border:1px solid #3a4f73;border-radius:8px;box-shadow:0 6px 22px rgba(0,0,0,.65);z-index:40}.skwrap>button.on{border-color:var(--green)}
 #bar .pr{color:var(--gold);margin-right:8px;font-weight:600}
 #cardinfo .modal{z-index:40;align-items:center}
 .ci{background:linear-gradient(160deg,var(--panel2),var(--panel));border:1px solid var(--accent);color:var(--text);border-radius:14px;padding:16px;display:flex;gap:16px;max-width:min(94vw,560px);align-items:flex-start;box-shadow:0 12px 40px rgba(0,0,0,.6)}
@@ -323,6 +324,7 @@ button.big{font-size:16px;font-weight:800;padding:10px 38px}
 .pl.waiting .nm::after{content:" ⏳"}
 .pl.waiting{outline:2px dashed #ffb44d;outline-offset:2px}
 .pl.dimmed{opacity:.45}
+.meta.hpick{cursor:pointer;color:#fff;background:rgba(70,224,160,.28);border:1px solid var(--green);border-radius:6px;padding:2px 8px;display:inline-block;animation:tgpulse 1.4s ease-in-out infinite}
 .pl.target{cursor:crosshair;animation:none;box-shadow:inset 0 0 0 2px var(--green),0 0 26px rgba(70,224,160,.75)}
 html .pl.target{filter:drop-shadow(0 0 5px #46e0a0) drop-shadow(0 0 14px rgba(70,224,160,.85));animation:tgpulse 1.4s ease-in-out infinite}   /* 可選的對象: 玩家框外圍發光 (用 filter,不會被各主題的 box-shadow 蓋掉) */
 @keyframes tgpulse{50%{filter:drop-shadow(0 0 8px #46e0a0) drop-shadow(0 0 24px rgba(70,224,160,1))}}
@@ -629,7 +631,7 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
 .dlg.rankup{padding:22px 24px}.rankup .rkicon{font-size:46px;line-height:1.1}.rankup h3{font-size:24px;margin:6px 0 12px}
 .rankup.up{border-color:#ffd24a;box-shadow:0 0 40px rgba(255,210,74,.45),0 18px 50px rgba(0,0,0,.7)}.rankup.up h3{color:#ffd24a}
 .rankup.down{border-color:#ff5d73}.rankup.down h3{color:#ff8b9b}
-.rkdelta{font-size:26px;font-weight:800;margin-top:10px}.rkdelta.plus{color:#46e0a0}.rkdelta.minus{color:#ff6b7f}
+.rkdelta{font-size:26px;font-weight:800;margin-top:10px;white-space:nowrap;overflow:hidden}.rkdelta.plus{color:#46e0a0}.rkdelta.minus{color:#ff6b7f}
 .rkflow{display:flex;align-items:center;justify-content:center;gap:12px}.rkarr{font-size:22px;color:var(--accent)}
 .rankup .rk.big:last-child{animation:rkpop .6s ease-out}@keyframes rkpop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
 </style>
@@ -989,6 +991,7 @@ function renderTable0(snap) {
   const zPick = pend && S.tgtPick && S.tgtPick.pend === pend.id && S.tgtPick.zone ? new Map(S.tgtPick.opts.filter(o => o.target.kind === "zone").map(o => [String(o.target.cid), o.i])) : null;
   if (zPick) S.tgtPick.opts.forEach(o => targetIdx.add(o.target.idx));   // 被選牌的那位玩家外框發光
   const zsub = i => () => { S.tgtPick = null; submit(pend.id, [i]); };
+  const zhPick = pend && S.tgtPick && S.tgtPick.pend === pend.id && S.tgtPick.zone ? new Map(S.tgtPick.opts.filter(o => o.target.kind === "zonehand").map(o => [o.target.idx, o.i])) : null;   // 對方的手牌: 點「手牌 N」
   const mvPick = pend && S.tgtPick && S.tgtPick.pend === pend.id && S.tgtPick.mv ? new Set(S.tgtPick.opts.map(o => String(o.target.cid))) : null;
   snap.players.forEach(p => {
     const k = (p.idx - base + n) % n, ang = (90 + 360 / n * k) * Math.PI / 180;
@@ -1018,12 +1021,12 @@ function renderTable0(snap) {
     (p.badges || []).forEach(b => tags.append(h("span", {class: "tag bd bd-" + b.k, text: b.t})));
     const inf = h("div", {class: "inf"},
       h("div", {class: "nm"}, h("span", {class: "pn", title: p.char || "", text: "P" + p.idx + " " + ((p.disguise_kind === "disguise" && !p.dg_flip && p.disguise) || p.char || "無名")}), role, winners.has(p.idx) ? h("span", {class: "winb", text: "🏆 勝"}) : ""),
-      h("div", {}, hearts(p)), h("div", {class: "meta", text: "手牌 " + p.hand_n}), h("div", {class: "who " + (p.is_viewer ? "me" : p.human ? "hum" : "ai")}, (p.human || p.is_viewer) ? avEl(p.avatar, (snap.avstyles || {})[p.idx], {class: "av"}) : avEl("bot", (snap.avstyles || {})[p.idx], {class: "av"}), h("span", {class: "wn"}, (p.is_viewer ? "你" + (p.nick ? "(" + p.nick + ")" : "") : p.human ? (p.nick || "玩家") : "🤖 電腦" + (snap.ai_lv && snap.ai_lv[p.idx] ? " · " + diffLabels()[snap.ai_lv[p.idx] - 1] : ""))), p.human || p.is_viewer ? [" ", rkEl(p.lv)] : null, p.host_seat ? " 👑房主" : ""),
+      h("div", {}, hearts(p)), (zhPick && zhPick.has(p.idx) ? h("div", {class: "meta hpick", title: "隨機選一張手牌", text: "手牌 " + p.hand_n + " ▸", onclick: ev => { ev.stopPropagation(); zsub(zhPick.get(p.idx))(); }}) : h("div", {class: "meta", text: "手牌 " + p.hand_n})), h("div", {class: "who " + (p.is_viewer ? "me" : p.human ? "hum" : "ai")}, (p.human || p.is_viewer) ? avEl(p.avatar, (snap.avstyles || {})[p.idx], {class: "av"}) : avEl("bot", (snap.avstyles || {})[p.idx], {class: "av"}), h("span", {class: "wn"}, (p.is_viewer ? "你" + (p.nick ? "(" + p.nick + ")" : "") : p.human ? (p.nick || "玩家") : "🤖 電腦" + (snap.ai_lv && snap.ai_lv[p.idx] ? " · " + diffLabels()[snap.ai_lv[p.idx] - 1] : ""))), p.human || p.is_viewer ? [" ", rkEl(p.lv)] : null, p.host_seat ? " 👑房主" : ""),
       tags);
     { const who = inf.querySelector(".who"), nmEl = inf.querySelector(".nm");   // 玩家資訊 (暱稱 / 等級) 寫在武將名字的上面,都放在框外
       if (who && nmEl) { const row = h("div", {class: "nr"}); while (nmEl.firstChild) row.append(nmEl.firstChild); nmEl.append(who); inf.insertBefore(row, nmEl.nextSibling); } }   // 框外左上角只放頭貼+玩家資訊;P幾/武將名稱/身分放到框裡面、體力上面一排
     if (p.hand && p.hand.length && snap.viewer == null) inf.append(h("div", {class: "mini"}, p.hand.map(miniEl)));
-    const el = h("div", {"data-idx": p.idx, class: "pl" + (snap.cur === p.idx && !snap.over ? " cur" : "") + (winners.has(p.idx) ? " win" : "") + (p.is_viewer ? " me" : "") + (snap.waiting === p.idx && !snap.over ? " waiting" : "") + (p.alive ? "" : " dead") + (S.sel === p.idx ? " sel" : "") + (targetIdx.has(p.idx) ? " target" : "") + (pickMode && S.tgtPick.chosen && S.tgtPick.chosen.includes(p.idx) ? " tp1" : "") + (pickMode && !targetIdx.has(p.idx) ? " dimmed" : ""),
+    const el = h("div", {"data-idx": p.idx, class: "pl" + (snap.cur === p.idx && !snap.over ? " cur" : "") + (winners.has(p.idx) ? " win" : "") + (p.is_viewer ? " me" : "") + (snap.waiting === p.idx && !snap.over ? " waiting" : "") + (p.alive ? "" : " dead") + (S.sel === p.idx ? " sel" : "") + (targetIdx.has(p.idx) ? " target" : "") + (pickMode && S.tgtPick.chosen && S.tgtPick.chosen.includes(p.idx) ? " tp1" : "") + (pickMode && !targetIdx.has(p.idx) && !(S.tgtPick.mv && !S.tgtPick.cid) ? " dimmed" : ""),
                          style: rp ? {left: rp[0] + "px", top: rp[1] + "px", order: k} : {left: `clamp(var(--hw),${x}%,calc(100% - var(--hw)))`, top: `clamp(var(--hh),${y}%,calc(100% - var(--hh)))`, order: k}, onclick: () => { if (pickMode) { tpClick(S.tgtPick, p.idx, pend); return; } S.sel = S.sel === p.idx ? null : p.idx; $("#thf").value = S.sel == null ? "" : String(S.sel); renderThoughts(); renderTable(S.snap); }}, ph, inf);
     { const bx = ((snap.avstyles || {})[p.idx] || {}).bx; if (bx && window.SGS_BOX) SGS_BOX.apply(el, bx); }   // 玩家框
     if (exn) el.style.setProperty("--exn", exn);
@@ -1171,7 +1174,6 @@ function renderHand(snap) {
     };
     H.append(ce);
   });
-  if (!me.hand || !me.hand.length) H.append(h("span", {class: "meta", text: "(沒有手牌)"}));
   if (!pend) {
     let t = "遊戲結束";
     if (!snap.over) {
@@ -1201,7 +1203,12 @@ function renderHand(snap) {
     B.append(h("span", {class: "pr", text: pend.prompt}));
     const sk = new Map();
     pend.options.filter(o => o.card && o.card.kind === "skill").forEach(o => { const k = String(o.group); if (!sk.has(k)) sk.set(k, []); sk.get(k).push(o); });
-    sk.forEach(opts => { const nm = opts[0].card.text || opts[0].card.name, vb = opts.every(o => o.target && o.target.kind === "equip") ? "使用技能 " : "發動 "; B.append(h("button", {text: vb + nm, onclick: () => use(opts, vb + nm)})); });
+    const skBtn = (opts, after) => { const nm = opts[0].card.text || opts[0].card.name, vb = opts.every(o => o.target && o.target.kind === "equip") ? "使用技能 " : "發動 "; return h("button", {text: vb + nm, onclick: () => { if (after) after(); use(opts, vb + nm); }}); };
+    if (sk.size > 3) {   // 技能太多 (例如陳群的重鑄 x4 + 手牌當突襲) 會把按鈕列撐爆: 收進一顆「技能 ▾」,點開才列出來
+      const open = S.skOpen === pend.id;
+      const menu = open ? h("div", {class: "skmenu"}, [...sk.values()].map(opts => skBtn(opts, () => { S.skOpen = null; S.handKey = null; }))) : "";
+      B.append(h("span", {class: "skwrap"}, menu, h("button", {class: open ? "on" : "", text: "技能 (" + sk.size + ") " + (open ? "▴" : "▾"), onclick: () => { S.skOpen = open ? null : pend.id; S.handKey = null; redraw(); }})));
+    } else sk.forEach(opts => B.append(skBtn(opts)));
     if (S.picked != null && groups.has(String(S.picked))) {
       const opts = groups.get(String(S.picked)), c0 = opts[0].card;
       const nm = c0 ? (c0.text || c0.name) : opts[0].label;
@@ -1295,6 +1302,11 @@ function renderPrompt0(snap) {
     renderTable(snap); return;
   }
   if (pend.kind === "pick" && pend.options.length && pend.options.every(o => o.target && (o.target.kind === "zone" || o.target.kind === "zonehand"))) {   // 拆 / 順等選對方的牌: 直接點場上發光的牌
+    if (pend.options.length === 1 && pend.options[0].target.kind === "zonehand") {   // 場上沒有牌可選,只剩手牌 → 直接抽 / 棄
+      S.tgtPick = null;
+      if (S.autoPick !== pend.id) { S.autoPick = pend.id; submit(pend.id, [pend.options[0].i]); }
+      return;
+    }
     S.tgtPick = {pend: pend.id, opts: pend.options, label: pend.prompt, zone: true, chosen: []};
     const hd = pend.options.find(o => o.target.kind === "zonehand");
     M.append(h("div", {class: "pickbar"}, h("b", {text: `${pend.prompt} — 請點擊發光的牌`}), hd ? h("button", {class: "primary", text: "對方的一張手牌 (隨機)", onclick: () => { S.tgtPick = null; submit(pend.id, [hd.i]); }}) : ""));
@@ -2234,6 +2246,7 @@ function showRankNote(n) {   // 升段 / 降段 視窗
                : h("div", {class: "rkdelta", text: "休閒模式 · 積分不變"}),
       h("div", {class: "meta", style: {margin: "6px 0 14px"}, text: `目前 ${n.rp} 分` + (n.next ? ` · 距離 ${n.next} 還差 ${n.need} 分` : " · 已是最高段位")}),
       h("button", {class: "primary big", text: "確定", onclick: close}))));
+  const rkd = box.querySelector(".rkdelta"); if (rkd) { fitText(rkd, 26); setTimeout(() => fitText(rkd, 26), 120); }   // 這行不換行,太長就縮小字
   if (window.SGS_FX && SGS_FX.sfx) try { if (n.changed) SGS_FX.sfx(n.up ? "rankup" : "rankdown"); } catch (e) {}   // 只有升降段才響 (勝負音效遊戲結束時已播)
 }
 async function showProfile() {
@@ -2314,7 +2327,7 @@ function uploadAvatar(file) {   // 縮成 128x128 JPEG (置中裁切) 再上傳
   img.src = url;
 }
 $("#bProf").onclick = showProfile;
-function fitText(e) { let fs = 20; e.style.fontSize = fs + "px"; while (e.scrollWidth > e.clientWidth + 1 && fs > 9) { fs--; e.style.fontSize = fs + "px"; } }
+function fitText(e, start) { let fs = start || 20; e.style.fontSize = fs + "px"; while (e.scrollWidth > e.clientWidth + 1 && fs > 9) { fs--; e.style.fontSize = fs + "px"; } }
 const fmtPlay = sec => {   // 累計遊玩時間: 天 / 小時 / 分鐘,是 0 的就不顯示
   const m = Math.floor((sec || 0) / 60), d = Math.floor(m / 1440), h2 = Math.floor(m % 1440 / 60), mi = m % 60, r = [];
   if (d) r.push(`${d} 天`); if (h2) r.push(`${h2} 小時`); if (mi || !r.length) r.push(`${mi} 分鐘`);

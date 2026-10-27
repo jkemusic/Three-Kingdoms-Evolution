@@ -132,7 +132,7 @@ window.SGS_LOG_TPL = [
 ["兵: 跳過抽牌階段", "Starvation: skips the draw phase", "兵糧寸断: ドローフェイズを飛ばす"],
 ["判定區的延時錦囊全部無效", "All delayed tricks in the judgement zone are void", "判定エリアの遅延錦囊は全て無効"],
 ["占: 傷害抵銷", "Divination: damage cancelled", "占卜: ダメージ相殺"],
-["占判定 {}", "Divination judgement {1}", "占卜の判定 {1}"],
+["占卜判定 {}", "Divination judgement {1}", "占卜の判定 {1}"],
 ["同色 ({}): 兩張都棄掉,{} 受到 1 點傷害", "Same colour ({1}): both discarded, {2} takes 1 damage", "同色({1}): 両方捨て、{2} がダメージ1"],
 ["呂布「無效」: {} 沒有效果", "呂布 \"Void\": {1} has no effect", "呂布「無効」: {1} は効果なし"],
 ["基本牌: 交給 {}", "Basic card: given to {1}", "基本札: {1} に渡す"],

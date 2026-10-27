@@ -427,7 +427,7 @@ class Game:
         self.log(f"JUDGE|{who.idx if who is not None else -1}|{c.color}")   # 給前端音效用的隱藏行
         return c
 
-    def discard_card(self, p, c):
+    def discard_card(self, p, c, played=False):   # played=True: 這是「使用 / 打出」的牌 (無懈、閃、殺回應...),不算被捨棄,不觸發袁術
         if not (c in p.hand or c in p.judge or any(v is c for v in p.equip.values())):
             return  # 已經不在他身上 (例如連鎖效果先把牌棄光了)
         was_equip = any(v is c for v in p.equip.values())
@@ -437,7 +437,7 @@ class Game:
             for q in list(self.alive_players()):
                 if q is not p:
                     q.char.on_equip_broken(self, q, p, c)
-        if p.alive:
+        if p.alive and not played:
             p.char.on_cards_discarded(self, p, c)
 
     def remove_from(self, p, c):
@@ -572,7 +572,7 @@ class Game:
                     return 0
             elif cname == "占":
                 j = self.flip_judge(tgt)
-                self.log(f"  占判定 {j}")
+                self.log(f"  占卜判定 {j}")
                 if j.kind == "trick":
                     self.log("  占卜: 判定到錦囊牌,傷害抵銷")
                     return 0
@@ -602,7 +602,7 @@ class Game:
         for q in self.order_from(self.cur):
             cands = [c for c in q.hand if c.name == "隔"]
             if cands and q.agent.respond(self, q, "隔", cands, {"n": n}):
-                self.discard_card(q, cands[0])
+                self.discard_card(q, cands[0], played=True)
                 self.log(f"  {q.name} 使用 隔, 抽 {n} 張")
                 self.draw(q, n)
 
@@ -645,7 +645,7 @@ class Game:
             for q, cands in entries:
                 c = first[1] if first else q.agent.respond(self, q, "桃", cands, {"target": tgt})
                 if c:
-                    self.discard_card(q, c)
+                    self.discard_card(q, c, played=True)
                     if c.name == "酒":
                         tgt.hp += max(2, q.char.jiu_heal(self, q))   # 酒救人: 回 2 點 (跟桃一樣,不夠還是瀕死)
                     else:
@@ -725,7 +725,7 @@ class Game:
                        "negated": negated, "last_wuxie_by": last_by}
                 c = q.agent.respond(self, q, "無懈", cands, ctx)
                 if c:
-                    self.discard_card(q, c)
+                    self.discard_card(q, c, played=True)
                     self.chain_view.append((c if c.name == "無懈" else ("as無懈", c), q.idx))   # 魯肅: 基本牌當無懈
                     negated = not negated
                     last_by = q
@@ -757,10 +757,10 @@ class Game:
         c = p.agent.respond(self, p, name, cands, ctx)
         if c:
             if isinstance(c, PairView):
-                self.discard_card(p, c.orig)
-                self.discard_card(p, c.extra)
+                self.discard_card(p, c.orig, played=True)
+                self.discard_card(p, c.extra, played=True)
             else:
-                self.discard_card(p, c)
+                self.discard_card(p, c, played=True)
             self.log(f"  {p.name} 打出 {c}")
             if name == "殺":
                 p.sha_n += 1
@@ -776,13 +776,16 @@ class Game:
         """牌指定目標後、目標響應前: 目標可接連鎖使用 ⚡ 強 / 弱 / 降雷 / 孤 / 出 (各牌自己的條件由 play_options 決定)。
         反 / 調 / 占 在『要受到傷害時』、無懈 在錦囊結算時、隔 在受傷時各自詢問。"""
         self._chain_asked.add((id(card), tgt.idx))
+        voided = False   # 呂布在這個窗口發動了無效 → 呼叫端可以讓這張牌沒有效果
         for _ in range(3):
             if not (tgt.alive and p.alive):
-                return
+                return voided
             opts = [(c, t) for c, t in self.play_options(tgt)
                     if not isinstance(c, SkillAct) and c.name in ("強", "弱", "降雷", "孤", "出")]
+            if tgt.char.name == "呂布" and p is not tgt:   # 呂布被指定時,也能在這個時機發動「無效全場一回合」
+                opts += [(c, t) for c, t in tgt.char.skill_options(self, tgt) if getattr(c, "name", "") == "呂布-無效全場"]
             if not opts:
-                return
+                return voided
             cur, w = p, when or f"對你使用{_fn(card.name)}"
             if when and when.startswith("使用了") and self.chain_view:   # 連鎖上已有別人接的牌: 問的是最新那張
                 last, who = self.chain_view[-1]
@@ -791,12 +794,18 @@ class Game:
                     cur, w = self.players[who], f"使用了{full_name(last.name)}"
             i = tgt.agent.choose_offturn(self, tgt, opts, cur, w)
             if i is None:
-                return
+                return voided
             c, t = opts[i]
             self.new_chain()
+            if isinstance(c, SkillAct):
+                self.link(f"{tgt.name} 對 {p.name} 的{_fn(card.name)}發動 {c.name}")
+                self.execute(tgt, c, t)
+                voided = voided or self.void
+                continue
             self.link(f"{tgt.name} 對 {p.name} 的{_fn(card.name)}連鎖使用 ⚡{c}")
             self.execute(tgt, c, t)
             self.after_play(tgt, c)
+        return voided
 
     def chain_all_window(self, p, card, tgt):
         """「全部都問」模式: 別人每打出一張牌,選了這個模式的真人都有機會接連鎖使用 ⚡ (強 / 弱 / 降雷 / 孤 / 出)。"""
@@ -922,7 +931,7 @@ class Game:
                 shas = [c for c in p.hand if c.name == "殺"]
                 c = p.agent.respond(self, p, "青龍追擊", shas, {"victim": tgt}) if shas else None
                 if c:
-                    self.discard_card(p, c)
+                    self.discard_card(p, c, played=True)
                     self.log(f"  青龍偃月刀: {p.name} 再對 {tgt.name} 出一張殺")
                     self.use_sha(p, tgt, c, count=False)
             return
@@ -1198,7 +1207,9 @@ class Game:
         if isinstance(card, SkillAct):
             self.cur_card = self.cur_user = None   # 不要沿用上一張牌 (否則響應提示會寫成上一張牌的名字)
             if isinstance(tgt, Player) and tgt is not p:   # 武將技能指定到的人,也能接連鎖用 ⚡弱 / 降雷
-                self.sha_window(p, tgt, card)
+                if self.sha_window(p, tgt, card):
+                    self.log(f"  呂布「無效」: {card.name} 沒有效果")
+                    return
                 if not (p.alive and tgt.alive):
                     return
             card.run(self, p, tgt)
@@ -1271,7 +1282,9 @@ class Game:
             p.hand.remove(real)
             self.discard.append(real)
         if card.kind == "trick" and isinstance(tgt, Player) and tgt is not p and n not in ("降雷", "強", "弱", "無懈"):
-            self.sha_window(p, tgt, card)   # 被指定的錦囊: 目標也能接連鎖使用 ⚡
+            if self.sha_window(p, tgt, card) and card.kind == "trick":   # 被指定的錦囊: 目標也能接連鎖使用 ⚡ (呂布發動無效 → 這張沒有效果)
+                self.log(f"  呂布「無效」: {card} 沒有效果")
+                return
             if not (p.alive and tgt.alive):
                 return
         if n == "桃":
@@ -1416,7 +1429,7 @@ class Game:
                 shas = [c for c in t.hand if c.name == "殺"]
                 c = t.agent.respond(self, t, "借刀殺人", shas, {"victim": v, "lender": p}) if shas else None
                 if c and v.alive:
-                    self.discard_card(t, c)
+                    self.discard_card(t, c, played=True)
                     self.use_sha(t, v, c, count=False)
                 else:
                     ws = "weapon" if t.equip["weapon"] else "weapon2"
