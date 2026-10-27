@@ -31,7 +31,8 @@ input[type=range]{accent-color:var(--accent);padding:0}
 #status{margin-left:0;color:var(--dim);background:var(--panel2);padding:3px 12px;border-radius:99px;border:1px solid var(--line);font-size:13px}
 #mid{display:grid;grid-template-columns:1fr 390px;min-height:0}
 #tablewrap{position:relative;min-height:0;overflow:hidden;margin:12px}
-#tablewrap.pannable{touch-action:none}@media (max-width:820px){#tablewrap.pannable{touch-action:pan-y}}   /* 手機不能拖曳牌桌,要讓手指能上下捲動 */
+#tablewrap{isolation:isolate}   /* 牌桌上的特效 (骷髏、飛牌、箭頭) 不能蓋到手機的紀錄 / 聊天面板 */
+#tablewrap.pannable{touch-action:none}@media (max-width:820px),(pointer:coarse) and (max-height:500px){#tablewrap.pannable{touch-action:pan-y}}   /* 手機不能拖曳牌桌,要讓手指能上下捲動 */
 #tablewrap::before{content:"";position:absolute;inset:6% 5%;border-radius:50%;
   background:radial-gradient(ellipse at 50% 40%,var(--felt1) 0,var(--felt2) 78%);
   border:14px solid var(--wood);box-shadow:0 0 0 3px #7b5233,0 0 0 6px var(--wood2),inset 0 0 60px rgba(0,0,0,.65),0 18px 40px rgba(0,0,0,.55)}
@@ -297,7 +298,7 @@ button.big{font-size:16px;font-weight:800;padding:10px 38px}
 .pl .nick{font-size:12px;color:var(--gold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .onl{margin-top:6px;font-size:13px;color:var(--text);display:flex;align-items:center;gap:7px}
 .onl .dot{width:9px;height:9px;border-radius:50%;background:#46e0a0;box-shadow:0 0 8px #46e0a0}
-.pl .who{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl .who{font-size:12px;font-weight:700;white-space:nowrap;overflow:visible;text-overflow:ellipsis}   /* 不能切掉頭像特效 */
 .who.me{color:#46e0a0}.who.hum{color:var(--gold)}.who.ai{color:#8aa4c4;font-weight:400}
 .pl.me::before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:4px;border-radius:0 3px 3px 0;background:#46e0a0;box-shadow:0 0 10px #46e0a0}
 .pl .nick{display:none}
@@ -323,7 +324,7 @@ button.big{font-size:16px;font-weight:800;padding:10px 38px}
 #center .decks{white-space:pre;display:inline-block;margin-bottom:8px;padding:3px 14px;border:1px solid #24557d;border-radius:2px;background:rgba(4,12,26,.65)}
 .piles{display:flex;gap:14px;justify-content:center;margin-top:8px}.pile{text-align:center}.pile .card{width:64px;height:92px}.pstack.rv .card+.card{margin-left:0}.pstack.rv{gap:8px}.pstack{display:flex;max-width:380px;overflow-x:auto;padding-bottom:4px}.pstack .card{flex:none}.pstack .card+.card{margin-left:-34px}.pstack.seq{align-items:center;gap:2px;padding:12px 10px 4px 12px;flex-wrap:wrap;max-width:470px;overflow:visible;justify-content:center;row-gap:12px}.pstack.seq .card+.card{margin-left:0}.sitem{position:relative;flex:none}.snum{position:absolute;top:-8px;left:-6px;z-index:2;min-width:20px;height:20px;line-height:20px;border-radius:50%;background:var(--accent);color:#04101f;font-size:12px;font-weight:800;text-align:center;box-shadow:0 0 6px rgba(63,210,255,.7)}.swho{margin-top:2px;font-size:12px;color:var(--accent);text-align:center;white-space:nowrap}.sarrow{flex:none;color:var(--accent);font-size:18px}
 /* ===== 桌面版: 手牌欄收在螢幕底部,滑鼠移上去才升起 (出牌輪到你時自動升起) ===== */
-@media (min-width:821px){
+@media (min-width:821px) and (not ((pointer:coarse) and (max-height:500px))){
   #app{grid-template-rows:auto minmax(0,1fr)}
   html,body{overflow:hidden}   /* 桌面版整頁剛好一個畫面,不出現整頁捲軸 */
   #mid{margin-bottom:0}   /* 手牌列蓋在牌桌上,不再另外留一條黑色底 */
@@ -356,11 +357,15 @@ button.big{font-size:16px;font-weight:800;padding:10px 38px}
 .eq.pk{outline:2px solid #ffd54a;outline-offset:0;box-shadow:0 0 5px 1px #ffd54a;cursor:pointer;animation:pkp 1s ease-in-out infinite;position:relative;z-index:5;padding:0;margin:0;flex:none;max-width:none;background:#0d0f13;gap:0;display:block}@keyframes pkp{50%{box-shadow:0 0 8px 2px #ffd54a}}
 #status:empty{display:none}
 .hasprev{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+#bHand{display:none;position:absolute;right:8px;top:-36px;z-index:31;min-height:30px;padding:3px 12px;font-size:13px;border-radius:15px;background:rgba(8,16,30,.88);color:var(--text);border:1px solid var(--line);cursor:pointer}
+body.hand-off #hand{display:none!important}
+@media (max-width:820px),(pointer:coarse){#bHand{display:block}}   /* 手機 / 平板才有收起手牌按鈕 */
+.pickbar,.modal.soft{z-index:38}.card.picked{position:relative;z-index:3}   /* 選對象的提示一定在選取中的牌前面 */
 #members{position:fixed;top:44px;left:150px;z-index:9000;min-width:min(330px,92vw);max-width:min(400px,92vw);background:#0b1a30;border:1px solid #24557d;border-radius:10px;padding:8px 10px;box-shadow:0 10px 30px rgba(0,0,0,.6);display:none}
 #members .mr.clk{cursor:pointer;border-radius:8px}#members .mr.clk:hover{background:rgba(63,210,255,.12)}#members.on{display:block}#members .mr{display:flex;align-items:center;gap:8px;padding:4px 2px;font-size:13px}#members .mr img{width:26px;height:26px;border-radius:50%;object-fit:cover}#members .mr .av0{width:26px;text-align:center}#members .mr .tg{font-size:11px;color:#7fb7dd;white-space:nowrap;min-width:46px;text-align:right}#members .mr .mn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#members .mr>*{flex:none}#members .mr>.mn{flex:1 1 auto}#members .mr .mb{padding:1px 7px;font-size:12px;min-height:0;white-space:nowrap}#members h4{margin:0 0 4px;color:#3fd2ff;font-size:13px}
 #waitbar{display:none!important}
-@media(max-width:820px){#bar{position:relative;z-index:30}}
-@media (min-width:821px){body.setup-open #modal .modal{top:var(--toph,48px)}body.setup-open:not(.hide-side) #modal .modal{right:390px}body.setup-open:not(.hide-side) #side{z-index:25}}   /* 新遊戲設定: 右邊的聊天 / 紀錄欄不被蓋住 */
+@media(max-width:820px),(pointer:coarse) and (max-height:500px){#bar{position:relative;z-index:30}}
+@media (min-width:821px) and (not ((pointer:coarse) and (max-height:500px))){body.setup-open #modal .modal{top:var(--toph,48px)}body.setup-open:not(.hide-side) #modal .modal{right:390px}body.setup-open:not(.hide-side) #side{z-index:25}}   /* 新遊戲設定: 右邊的聊天 / 紀錄欄不被蓋住 */
 #waitbar{display:none;pointer-events:none;background:#0c1d36;border:1px solid #24557d;color:var(--accent);border-radius:99px;padding:3px 12px;font-size:13px;white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis;flex:0 1 auto}
 #tablewrap .panhint{position:fixed;left:8px;bottom:4px;z-index:13;font-size:12px;color:#7fb7dd;opacity:.75;pointer-events:none}
 #log .lcw{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 2px}#log .lcn{font-size:11px;color:#c3d6ea;line-height:1.2;margin-top:1px;white-space:nowrap}#log img.lc{display:inline-block;vertical-align:middle;width:44px;height:62px;object-fit:cover;margin:0 2px;border-radius:3px;border:1px solid #2f6f9c;cursor:help}
@@ -381,7 +386,7 @@ button.big{font-size:16px;font-weight:800;padding:10px 38px}
 .cm.mine{text-align:right}.cm.mine .cn{color:var(--gold)}.cm .ct{display:inline-block;background:rgba(63,210,255,.1);border:1px solid #24557d;border-radius:4px;padding:3px 9px;word-break:break-all}.cm.mine .ct{background:rgba(233,191,98,.12);border-color:#8a6a1c}
 #cin{display:flex;gap:6px;padding:8px;border-top:1px solid #16304c}#cin input{flex:1;min-width:0}
 #cbadge{color:#ff5d73}
-@media (max-width:820px){
+@media (max-width:820px),(pointer:coarse) and (max-height:500px){
   #table,#center,#tablewrap,#arrows{--px:0px!important;--py:0px!important}
   html,body{font-size:14px;-webkit-text-size-adjust:100%}
   button{min-height:40px;padding:6px 14px}
@@ -502,8 +507,30 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
 .tag.bd{font-weight:700;white-space:normal;max-width:100%;line-height:1.35;border-radius:6px}.tag.bd-ren{background:#1f6b4a;color:#c9ffe6}.tag.bd-shi{background:#7a2230;color:#ffd0d6}.tag.bd-mk{background:#7a5b10;color:#ffe9a8;box-shadow:0 0 8px rgba(255,210,74,.6)}
 .tag.bd-cnt{background:#1c4a7a;color:#cfe8ff}.tag.bd-once{background:#3a3f4d;color:#d6dbe6}.tag.bd-st{background:#6b3b8a;color:#f1d9ff;box-shadow:0 0 6px rgba(190,120,255,.5)}
 .pile .card .lab,.sitem .card .lab{white-space:nowrap;padding-left:0;padding-right:0}.pile .card .lab{font-size:10px}
+/* ===== 手機橫向 (矮螢幕): 壓縮頂端列 / 導覽列 / 手牌,場地改橫排,玩家框一排四個 ===== */
+@media (pointer:coarse) and (max-height:500px){
+  #top{padding:3px 8px!important}
+  #top button,#bMenu{min-height:34px!important;padding:3px 10px!important}
+  #mnav button{min-height:32px!important;padding:3px 2px!important}
+  #bottom{padding:2px 6px 2px}
+  #hand{min-height:0!important;padding:4px 2px 2px!important;gap:5px}
+  #hand .card{width:46px;height:66px}
+  #bar{min-height:32px!important;margin:0 0 2px!important}
+  #roundtag{margin:0!important}
+  #center:not(:empty){display:flex!important;flex-wrap:nowrap;gap:10px;height:112px!important;grid-template-rows:none;align-items:flex-start;margin:0 0 4px!important}
+  #center>.piles,#center>.pchain{height:auto!important;flex:0 0 auto}
+  #center>.lastact{flex:1 1 0;min-width:0;align-self:flex-start;margin-top:4px}
+  #center:has(#winner){display:block!important;height:auto!important}
+  #table .pl{width:calc(25% - 5px)!important}
+  .toast,#toasts{max-width:60vw}
+  .modal.soft{padding-bottom:0!important}
+  .modal.soft .dlg{padding:6px 10px!important;max-height:52dvh!important;overflow-y:auto}
+  .modal.soft .dlg .card{width:46px;height:66px}
+  .modal.soft .dlg h3{font-size:14px;margin:0 0 4px}
+  .modal.soft .dlg button{min-height:36px;padding:3px 10px}
+}
 /* ===== 手機版 (≤820px): 玩家改成精簡清單,連鎖/棄牌堆縮小,不重疊 ===== */
-@media (max-width:820px){
+@media (max-width:820px),(pointer:coarse) and (max-height:500px){
   #tablewrap{margin:0;padding:6px 6px 10px}
   #tablewrap .panhint{display:none}
   #top{overflow-x:auto!important;-webkit-overflow-scrolling:touch;scrollbar-width:none}
@@ -513,7 +540,8 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
   #center:empty{display:none}
   #center .lastact{max-width:none;font-size:12px;margin-top:0;height:28px;line-height:18px;box-sizing:border-box;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
   /* 場地固定大小 (牌堆 / 連鎖 / 最後動作各佔固定一列),有沒有連鎖都不會讓下面的玩家上下跳 */
-  #center:not(:empty){display:grid;grid-template-rows:96px 92px 28px;gap:4px;height:228px;overflow:hidden;flex:none}
+  #center:not(:empty){display:grid;grid-template-rows:108px 124px 30px;gap:6px;height:280px;overflow:hidden;flex:none}
+  #center:has(#winner){display:block;height:auto;overflow:visible;padding:6px 0 10px}   /* 遊戲結束: 勝利結果與「再來一局」要完整顯示,不被固定高度切掉 */
   #center:has(.ngb){display:block;height:auto;padding:24px 0}
   #center>.piles:not(.pchain){grid-row:1}#center>.pchain{grid-row:2}#center>.lastact{grid-row:3}
   #center>.piles{margin-top:0;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;align-items:flex-start;scrollbar-width:none}
@@ -540,15 +568,19 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
   .pl .nm .who.ai{font-size:10px}
   .pl .nm .who{font-size:11px}
   /* 手機頂端列: 只留 ☰ / 成員 / 狀態 / 段位,其餘按鈕收進三條線選單 */
+  #bDl{display:none!important}
   #bMenu{display:inline-flex!important;align-items:center;justify-content:center;min-width:44px;min-height:40px;padding:0!important;order:0}
   #top{flex-wrap:wrap!important;overflow:visible!important;white-space:normal!important}
   #top>*{order:5}
   #top>#bMenu{order:0}#top>#bMembers{order:1}#top>#waitbar{order:2;flex:1 1 0!important;min-width:0}#top>#status{order:3}#top>#bProf{order:4;margin-left:auto}
   #top>button:not(#bMenu):not(#bMembers):not(#bProf),#top>label,#top>select,#top>span:not(#waitbar):not(#status):not(#mcnt){display:none!important}
-  body.menu-open #top>button:not([hidden]):not(#bStep):not(#bNick):not(#bMenu):not(#bMembers):not(#bProf){display:inline-flex!important;align-items:center;justify-content:center;flex:1 1 calc(50% - 6px)!important;min-height:44px;font-size:14px!important}
+  body.menu-open #top>button:not([hidden]):not(#bDl):not(#bStep):not(#bNick):not(#bMenu):not(#bMembers):not(#bProf){display:inline-flex!important;align-items:center;justify-content:center;flex:1 1 calc(50% - 6px)!important;min-height:44px;font-size:14px!important}
   body.menu-open #bMenu{border-color:var(--accent)}
+  body.menu-open #top>label:has(#speed){display:flex!important;flex:1 1 100%;align-items:center;gap:10px;min-height:44px;order:6;font-size:14px}
+  body.menu-open #top>label:has(#speed) input{flex:1 1 auto;width:auto;min-width:0}
+  body.menu-open #top>label:has(#speed) #speedv{display:inline!important;min-width:44px;text-align:right}
   #members{left:8px;right:8px;top:calc(var(--toph,48px) + 4px);min-width:0;max-width:none;max-height:calc(100dvh - var(--toph,48px) - 20px);overflow-y:auto}
-  .pl .nm{min-width:0}.pl .nm .who{display:flex;align-items:center;gap:3px;max-width:100%;overflow:hidden!important;white-space:nowrap!important}.pl .nm .who>*{flex:0 0 auto}.pl .nm .who>.wn{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}.pl.cur::after{display:none!important}
+  .pl .nm{min-width:0}.pl .nm .who{display:flex;align-items:center;gap:3px;max-width:100%;overflow:visible!important;white-space:nowrap!important}.pl .nm .who>*{flex:0 0 auto}.pl .nm .who>.wn{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}.pl.cur::after{display:none!important}
   .role{font-size:10px;padding:0 5px}
   .hp img.o,#table.dense .hp img.o{width:13px;height:13px}
   .hp .hpn{font-size:11px}
@@ -563,6 +595,7 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
   .pl .ph .wei{font-size:9px;padding:0 3px}
   .pl .ph .cover{transform:translate(4px,4px)}
   #bottom{padding:2px 6px 4px}
+  #bottom{display:flex;flex-direction:column;position:relative}#bar{order:-1;margin:0 0 4px}   /* 按鈕列放到手牌上方,手牌貼著底部導覽,下面不留黑色空位 */
   #hand{min-height:0;padding:14px 2px 4px;gap:5px}
   .card{width:66px;height:94px}
   #bar{margin-top:2px;gap:6px}
@@ -618,6 +651,7 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
     </div>
   </div>
   <div id="bottom">
+    <button id="bHand" type="button" aria-pressed="false">收起手牌</button>
     <div id="hand"></div>
     <div id="bar"></div>
   </div>
@@ -1423,7 +1457,7 @@ function noteAction(s) {
   if (r) floatNum(+r[1], "+" + r[2], "heal");
 }
 function boxRow(bx, ...kids) {   // 玩家資訊: 頭貼+名字那一排套上玩家框
-  const r = h("div", {style: {display: "flex", alignItems: "center", gap: "14px", padding: "10px 12px", borderRadius: "12px", position: "relative"}}, ...kids);
+  const r = h("div", {class: "bxrow", style: {display: "flex", alignItems: "center", gap: "14px", padding: "10px 12px", borderRadius: "12px", position: "relative"}}, ...kids);
   if (bx && window.SGS_BOX) SGS_BOX.apply(r, bx);
   return r;
 }
@@ -2045,7 +2079,7 @@ function closeHandView() {   // 點空白處 / Esc: 取消釘住並收起別人�
   const apply = () => { W.style.setProperty("--px", px + "px"); W.style.setProperty("--py", py + "px"); };
   W.classList.add("pannable"); apply();
   W.addEventListener("pointerdown", e => {   // 滑鼠 / 手指 (iPad) 都能拖
-    if ((e.pointerType === "mouse" && e.button !== 0) || window.innerWidth <= 820 || e.target.closest(".pl, button, input, select, a")) return;
+    if ((e.pointerType === "mouse" && e.button !== 0) || matchMedia("(max-width:820px),(pointer:coarse) and (max-height:500px)").matches || e.target.closest(".pl, button, input, select, a")) return;
     st = {x: e.clientX, y: e.clientY, px, py, id: e.pointerId}; W.classList.add("dragging"); try { W.setPointerCapture(e.pointerId); } catch (x) {} e.preventDefault();
   });
   W.addEventListener("pointermove", e => {
@@ -2067,6 +2101,9 @@ function applySide(hide) {
   try { localStorage.setItem("hideSide", hide ? "1" : ""); } catch (e) {}
   setTimeout(() => { if (S.snap) renderTable(S.snap); }, 30);   // 牌桌寬度改變,座位要重新排
 }
+{ const hb = $("#bHand"), setHand = off => { document.body.classList.toggle("hand-off", off); hb.textContent = off ? "顯示手牌" : "收起手牌"; hb.setAttribute("aria-pressed", off ? "true" : "false"); try { localStorage.setItem("handOff", off ? "1" : ""); } catch (e) {} };   // 手牌太擋時可以收起來
+  try { if (localStorage.getItem("handOff")) setHand(true); } catch (e) {}
+  hb.onclick = () => setHand(!document.body.classList.contains("hand-off")); }
 { const mb = $("#bMenu"), plain = on => {   // 選單裡的按鈕只顯示文字,沒有文字的 (設定 / 主題) 用提示文字當名稱
     $("#top").querySelectorAll(":scope>button:not(#bMenu):not(#bMembers):not(#bProf)").forEach(b => {
       if (on) {

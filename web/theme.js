@@ -939,13 +939,13 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
     const sp = BOX[id]; if (!el) return;
     if (!boxStyle) {
       boxStyle = document.createElement("style"); boxStyle.dataset.cos = "1";
-      boxStyle.textContent = `.pl[data-bx],.pvseat[data-bx],.bxsw[data-bx]{background-image:var(--bx-img)!important;background-size:var(--bx-sz)!important;background-repeat:repeat!important;background-position:var(--bx-p0)}   /* 位置不能加 !important,否則會蓋掉動畫 */
-.pl[data-bx]:not(.cur):not(.target):not(.win),.pvseat[data-bx],.bxsw[data-bx]{box-shadow:var(--bx-sh)!important}
-.pl[data-bx][data-bxpx],.pvseat[data-bx],.bxsw[data-bx][data-bxpx]{border-radius:0!important}
+      boxStyle.textContent = `.pl[data-bx],.pvseat[data-bx],.bxsw[data-bx],.bxrow[data-bx]{background-image:var(--bx-img)!important;background-size:var(--bx-sz)!important;background-repeat:repeat!important;background-position:var(--bx-p0)}   /* 位置不能加 !important,否則會蓋掉動畫 */
+.pl[data-bx]:not(.cur):not(.target):not(.win),.pvseat[data-bx],.bxsw[data-bx],.bxrow[data-bx]{box-shadow:var(--bx-sh)!important}
+.pl[data-bx][data-bxpx],.pvseat[data-bx],.bxsw[data-bx][data-bxpx],.bxrow[data-bx][data-bxpx]{border-radius:0!important}
 /* 玩家框會動: 底色漸層角度緩緩擺動,有格紋 / 圓點圖樣的再加上圖樣慢慢飄移 (像素款是一格一格跳) */
 @keyframes bxmove{from{background-position:var(--bx-p0)}to{background-position:var(--bx-p1)}}
-.pl[data-bxm],.pvseat[data-bxm],.bxsw[data-bxm]{animation:bxmove var(--bx-dur,12s) linear infinite!important}
-@media (prefers-reduced-motion:reduce){.pl[data-bx],.pvseat[data-bx],.bxsw[data-bx]{animation:none!important}}`;
+.pl[data-bxm],.pvseat[data-bxm],.bxsw[data-bxm],.bxrow[data-bxm]{animation:bxmove var(--bx-dur,12s) linear infinite!important}
+@media (prefers-reduced-motion:reduce){.pl[data-bx],.pvseat[data-bx],.bxsw[data-bx],.bxrow[data-bx]{animation:none!important}}`;
       document.head.appendChild(boxStyle);
       const scs = document.createElement("style"); scs.dataset.cos = "1"; scs.textContent = SCENE_CSS; document.head.appendChild(scs);
     }
