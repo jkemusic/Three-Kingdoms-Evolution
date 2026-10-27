@@ -31,7 +31,7 @@ input[type=range]{accent-color:var(--accent);padding:0}
 #status{margin-left:0;color:var(--dim);background:var(--panel2);padding:3px 12px;border-radius:99px;border:1px solid var(--line);font-size:13px}
 #mid{display:grid;grid-template-columns:1fr 390px;min-height:0}
 #tablewrap{position:relative;min-height:0;overflow:hidden;margin:12px}
-#tablewrap.pannable{touch-action:none}
+#tablewrap.pannable{touch-action:none}@media (max-width:820px){#tablewrap.pannable{touch-action:pan-y}}   /* 手機不能拖曳牌桌,要讓手指能上下捲動 */
 #tablewrap::before{content:"";position:absolute;inset:6% 5%;border-radius:50%;
   background:radial-gradient(ellipse at 50% 40%,var(--felt1) 0,var(--felt2) 78%);
   border:14px solid var(--wood);box-shadow:0 0 0 3px #7b5233,0 0 0 6px var(--wood2),inset 0 0 60px rgba(0,0,0,.65),0 18px 40px rgba(0,0,0,.55)}
@@ -355,6 +355,7 @@ button.big{font-size:16px;font-weight:800;padding:10px 38px}
 #tablewrap.pannable{cursor:grab}
 .eq.pk{outline:2px solid #ffd54a;outline-offset:0;box-shadow:0 0 5px 1px #ffd54a;cursor:pointer;animation:pkp 1s ease-in-out infinite;position:relative;z-index:5;padding:0;margin:0;flex:none;max-width:none;background:#0d0f13;gap:0;display:block}@keyframes pkp{50%{box-shadow:0 0 8px 2px #ffd54a}}
 #status:empty{display:none}
+.hasprev{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 #members{position:fixed;top:44px;left:150px;z-index:9000;min-width:min(330px,92vw);max-width:min(400px,92vw);background:#0b1a30;border:1px solid #24557d;border-radius:10px;padding:8px 10px;box-shadow:0 10px 30px rgba(0,0,0,.6);display:none}
 #members .mr.clk{cursor:pointer;border-radius:8px}#members .mr.clk:hover{background:rgba(63,210,255,.12)}#members.on{display:block}#members .mr{display:flex;align-items:center;gap:8px;padding:4px 2px;font-size:13px}#members .mr img{width:26px;height:26px;border-radius:50%;object-fit:cover}#members .mr .av0{width:26px;text-align:center}#members .mr .tg{font-size:11px;color:#7fb7dd;white-space:nowrap;min-width:46px;text-align:right}#members .mr .mn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#members .mr>*{flex:none}#members .mr>.mn{flex:1 1 auto}#members .mr .mb{padding:1px 7px;font-size:12px;min-height:0;white-space:nowrap}#members h4{margin:0 0 4px;color:#3fd2ff;font-size:13px}
 #waitbar{display:none!important}
@@ -695,9 +696,30 @@ function cardEl(c, cls, onclick) {
   }
   return e;
 }
+let holdHint = false;
+function bindHold(e, c) {   // 手機沒有滑鼠移上去 / 右鍵: 長按牌 (約 0.45 秒) 打開詳細說明,長按後不會當成點擊出牌
+  let t = null, x0 = 0, y0 = 0;
+  const stop = () => { if (t) { clearTimeout(t); t = null; } };
+  e.addEventListener("touchstart", ev => {
+    const q = ev.touches[0]; x0 = q.clientX; y0 = q.clientY; stop();
+    t = setTimeout(() => {
+      t = null; showCardInfo(c);
+      const eat = k => { k.stopPropagation(); k.preventDefault(); };
+      window.addEventListener("click", eat, {capture: true, once: true});
+      setTimeout(() => window.removeEventListener("click", eat, true), 700);
+    }, 450);
+  }, {passive: true});
+  e.addEventListener("touchmove", ev => { const q = ev.touches[0]; if (Math.abs(q.clientX - x0) > 8 || Math.abs(q.clientY - y0) > 8) stop(); }, {passive: true});
+  e.addEventListener("touchend", stop, {passive: true}); e.addEventListener("touchcancel", stop, {passive: true});
+  if (!holdHint && window.matchMedia && matchMedia("(pointer:coarse)").matches) {
+    holdHint = true;
+    try { if (!localStorage.getItem("sgs_holdhint")) { localStorage.setItem("sgs_holdhint", "1"); setTimeout(() => toast("長按卡牌可以查看詳細說明", "host"), 1200); } } catch (er) {}
+  }
+}
 function bindPrev(e, c) {   // 滑鼠移上去: 左側顯示大圖與效果 (類似 Master Duel)
   if (!c.desc) return;
   e.classList.add("hasprev");
+  bindHold(e, c);
   e.addEventListener("mouseenter", () => {
     const P = $("#prev"); P.textContent = "";
     if (c.img) P.append(h("img", {src: c.img}));
