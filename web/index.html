@@ -2251,10 +2251,10 @@ function showRankNote(n) {   // 升段 / 降段 視窗
   const close = () => { box.textContent = ""; api("/api/rank_ack", {id: n.id}); };   // 按確定才算看過 (沒看到的話下次還會跳)
   box.append(h("div", {class: "modal", style: {zIndex: 9600}, onclick: e => { if (e.target.classList.contains("modal")) close(); }},
     h("div", {class: "dlg rankup" + ((n.changed ? n.up : n.won) ? " up" : " down"), style: {maxWidth: "380px", textAlign: "center"}},
-      h("div", {class: "rkicon", text: n.changed ? (n.up ? "🎉" : "📉") : n.won ? "🏆" : "🏳"}),
-      h("h3", {text: n.changed ? (n.up ? "段位提升!" : "段位下降") : n.won ? "勝利" : "落敗"}),
+      h("div", {class: "rkicon", text: n.changed ? (n.up ? "🎉" : "📉") : n.draw ? "🤝" : n.won ? "🏆" : "🏳"}),
+      h("h3", {text: n.changed ? (n.up ? "段位提升!" : "段位下降") : n.draw ? "平手" : n.won ? "勝利" : "落敗"}),
       n.changed ? h("div", {class: "rkflow"}, rkEl(n.from, true), h("span", {class: "rkarr", text: "➜"}), rkEl(n.to, true)) : h("div", {class: "rkflow"}, rkEl(n.to, true)),
-      n.ranked ? h("div", {class: "rkdelta " + (n.delta > 0 ? "plus" : n.delta < 0 ? "minus" : ""), text: `段位積分 ${n.delta > 0 ? "+" : ""}${n.delta}` + (n.bonus ? ` (含連勝獎勵 +${n.bonus})` : "") + (n.won && n.streak > 1 ? ` · ${n.streak} 連勝` : "")})
+      n.ranked ? h("div", {class: "rkdelta " + (n.delta > 0 ? "plus" : n.delta < 0 || (!n.won && !n.draw) ? "minus" : ""), text: `段位積分 ${n.draw ? "±0" : n.delta === 0 && !n.won ? "-0" : (n.delta > 0 ? "+" : "") + n.delta}` + (n.bonus ? ` (含連勝獎勵 +${n.bonus})` : "") + (n.won && n.streak > 1 ? ` · ${n.streak} 連勝` : "")})
                : h("div", {class: "rkdelta", text: "休閒模式 · 積分不變"}),
       h("div", {class: "meta", style: {margin: "6px 0 14px"}, text: `目前 ${n.rp} 分` + (n.next ? ` · 距離 ${n.next} 還差 ${n.need} 分` : " · 已是最高段位")}),
       h("button", {class: "primary big", text: "確定", onclick: close}))));

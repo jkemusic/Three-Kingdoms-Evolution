@@ -229,7 +229,7 @@ class Profiles:
     STREAK_STEP, STREAK_CAP = 3, 15
     WIN_XP = {1: 15, 2: 30, 3: 45, 4: 70}   # 電腦難度 弱/中/強/很強: 打贏給的經驗值
 
-    def award(self, tok, won, char=None, role=None, win_xp=None, ranked=False, win_rp=None, facts=None, loss_rp=None, secs=0):
+    def award(self, tok, won, char=None, role=None, win_xp=None, ranked=False, win_rp=None, facts=None, loss_rp=None, secs=0, draw=False):
         """回傳 (段位積分變化, 之前段位, 之後段位);休閒模式積分不變 (變化 0)。"""
         p = self.get(tok)
         if not p:
@@ -240,7 +240,9 @@ class Profiles:
             p["playtime"] = p.get("playtime", 0) + max(0, min(int(secs or 0), 6 * 3600))   # 累計遊玩秒數 (單場最多算 6 小時)
             p["xp"] += gain; p["games"] += 1; p["wins"] += 1 if won else 0
             delta = 0; bonus = 0
-            if ranked:
+            if ranked and draw:   # 平手: 不算贏也不算輸,段位積分和連勝都不變
+                p["rgames"] = p.get("rgames", 0) + 1
+            elif ranked:
                 old = p.get("rp", 0)
                 rs = p.get("rstreak", 0)   # 段位連勝: 連勝中每多贏一場,下一場多給 3 分 (最多 +15);輸一場就歸零
                 bonus = min(self.STREAK_CAP, rs * self.STREAK_STEP) if won else 0
@@ -255,7 +257,7 @@ class Profiles:
             _, _, _, nxt = self.rank(p.get("rp", 0))
             # 每場結束都留一則結果通知 (積分變化 / 升降段 / 離下一段還差多少),玩家的瀏覽器讀到就跳出視窗
             p["rank_note"] = {"from": before, "to": after, "delta": delta, "rp": p.get("rp", 0), "up": delta > 0, "changed": after != before,
-                              "ranked": bool(ranked), "won": bool(won), "streak": p.get("rstreak", 0) if ranked else 0, "bonus": bonus if ranked else 0, "next": self.rank_label(nxt) if nxt is not None else None,
+                              "ranked": bool(ranked), "won": bool(won), "draw": bool(draw), "streak": p.get("rstreak", 0) if ranked else 0, "bonus": bonus if ranked else 0, "next": self.rank_label(nxt) if nxt is not None else None,
                               "need": (nxt - p.get("rp", 0)) if nxt is not None else 0, "id": int(time.time() * 1000)}
             if char:
                 c = p.setdefault("chars", {}).setdefault(char, [0, 0]); c[0] += 1; c[1] += 1 if won else 0
@@ -830,7 +832,7 @@ class Manager:
         who = self.nicks.get(tok) or "未命名"
         if r:
             d, b, a = r
-            self._event(f"🏳 {who} 棄賽,段位積分 {d:+d} ({b}" + (f" → {a})" if a != b else ")"), "ok")
+            self._event(f"🏳 {who} 棄賽,段位積分 {'-0' if d == 0 else format(d, '+d')} ({b}" + (f" → {a})" if a != b else ")"), "bad")   # 棄賽一定是輸: 紅底,已經最低分就寫 -0
         del self.claims[seat]
         pl.agent = Observed(LeveledAgent(self._level(self.cfg, seat)), self.rec)
         with self.lock:   # 正卡在等這個人回答: 用預設答案放行
@@ -1013,15 +1015,17 @@ class Manager:
                     lrp = round(Profiles.LOSS_RP * max(0.5, min(1.5, 1 - diff / 400)))
                 if len(g.players) <= 3:   # 2~3 人 (沒有隊友,只能靠自己): 贏的經驗加倍
                     wx = 2 * (wx if wx is not None else Profiles.XP_WIN)
-                r = PROFILES.award(tok, (w == f"P{pl.idx}") if noroles else (camp(pl.role) == w and (pl.role != "內奸" or pl.alive)), pl._char.name, pl.role, wx, ranked, wrp, {"practice": bool(self.cfg.get("practice")), "hp": pl.hp, "alive": pl.alive, "rounds": g.round, "n": len(g.players), "noroles": noroles, "dmg": pl.dmg_total, "sha": pl.sha_n,
-                                                                                                                  "maxhand": pl.max_hand, "chain11": pl.chain11, "wei": pl.wei_n, "same": len(g.players) >= 2 and len({q._char.name for q in g.players}) == 1}, lrp, secs=time.time() - getattr(self, "game_t0", time.time()))
+                draw = str(w).startswith("平手")
+                won = (w == f"P{pl.idx}") if noroles else (camp(pl.role) == w and (pl.role != "內奸" or pl.alive))
+                r = PROFILES.award(tok, won, pl._char.name, pl.role, wx, ranked, wrp, {"practice": bool(self.cfg.get("practice")), "hp": pl.hp, "alive": pl.alive, "rounds": g.round, "n": len(g.players), "noroles": noroles, "dmg": pl.dmg_total, "sha": pl.sha_n,
+                                                                                                                  "maxhand": pl.max_hand, "chain11": pl.chain11, "wei": pl.wei_n, "same": len(g.players) >= 2 and len({q._char.name for q in g.players}) == 1}, lrp, secs=time.time() - getattr(self, "game_t0", time.time()), draw=draw)
                 if r:
                     d, b, a = r
                     who = self.nicks.get(tok) or '未命名'
                     if not ranked:
                         self._event(f"🎮 休閒模式: {who} 段位積分不變 ({a})", "ok")
                     else:
-                        self._event(f"🏅 {who} 段位積分 {d:+d} ({b}" + (f" → {a})" if a != b else ")") + (" 升段!" if d > 0 and a != b else " 降段" if d < 0 and a != b else ""), "ok")
+                        self._event(f"🏅 {who} 段位積分 {'±0 (平手)' if draw else '-0' if d == 0 and not won else format(d, '+d')} ({b}" + (f" → {a})" if a != b else ")") + (" 升段!" if d > 0 and a != b else " 降段" if d < 0 and a != b else ""), "ok" if draw else "bad" if d < 0 or not won else "ok")   # 輸了一律紅底 (已經最低分就是 -0)
 
     def _run(self, g):
         try:
