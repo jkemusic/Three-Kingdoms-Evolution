@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head><script>try{var _t=localStorage.getItem("sgs_theme");if(!_t||JSON.parse(_t).a.toLowerCase()==="#d4a64a")document.documentElement.classList.add("gf")}catch(e){document.documentElement.classList.add("gf")}</script>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover">
 <title>三國殺重製版</title>
 <style>
 
@@ -13,6 +13,7 @@
   --shadow:0 6px 16px rgba(0,0,0,.45);
 }
 *{box-sizing:border-box}
+html{overflow-x:hidden}body{overflow-x:clip}   /* iPad: 內容比螢幕寬時 Safari 會自動縮小整個頁面,右邊出現沒蓋到的空白 */
 html,body{height:100%;margin:0;background:radial-gradient(circle at 50% 0%,#17222d 0,var(--bg) 60%);color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue","Segoe UI","Microsoft JhengHei","微軟正黑體","PingFang TC","Noto Sans TC",sans-serif}
 :lang(ja),:lang(ja) body,:lang(ja) button,:lang(ja) input,:lang(ja) select,:lang(ja) textarea{font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic",Meiryo,"Noto Sans JP",sans-serif}
 :lang(en),:lang(en) body,:lang(en) button,:lang(en) input,:lang(en) select,:lang(en) textarea{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Inter,Roboto,"Helvetica Neue",Arial,sans-serif}
