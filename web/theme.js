@@ -1069,7 +1069,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
     const t = h("div", { class: "achtoast", onclick: () => { t.remove(); SGS_THEME.open("ach"); } },
       h("div", {}, "🏅 達成成就: ", ...names.map((a, i) => h("b", { text: (i ? "、" : "") + a.n }))),
       un.length ? h("div", { class: "meta", text: "解鎖 " + un.join("、") + " (點此查看)" }) : null);
-    document.body.append(t); setTimeout(() => t.remove(), 9000);
+    document.body.append(t); fadeOut(t, 9000);
     api("/api/ach_ack", {}).then(() => { S.achShown = false; if (S.prof) S.prof.ach_new = []; }).catch(() => {});
   }
   window.SGS_COS = { onProfile };

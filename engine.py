@@ -69,7 +69,16 @@ class Player:
             if self.hp > d and self.alive:
                 self.hp = max(1, d)
             return d
-        return self._maxhp
+        eff = self._maxhp
+        dis = self.__dict__.get("disguise")
+        if dis and not self.flipped and dis[0].dyn_maxhp(self) is None:   # 偽裝: 體力上限變成偽裝武將的 (蔣幹偽裝成 4 血武將就是 4 血上限),偽裝結束變回來
+            eff += dis[0].maxhp - self._char.maxhp
+            self.__dict__["_dgm"] = True
+        elif self.__dict__.get("_dgm"):
+            self.__dict__["_dgm"] = False
+            if self.alive and self.hp > eff:
+                self.hp = max(1, eff)
+        return eff
 
     @maxhp.setter
     def maxhp(self, v):
@@ -1903,6 +1912,7 @@ class Game:
                 q.borrow, q.borrow2 = [], []   # 偽裝成馬謖/陳群/韓當時複製的技能,偽裝結束就失效
             q.disguise = []
             q.dg_flip = False
+            q.maxhp   # 偽裝結束: 體力上限變回來,體力超過就收到上限
         for q in self.players:   # 鐵索橫置最多只到這個回合結束: 這回合橫置的人回合結束就轉回來
             if q.chained and getattr(q, "chain_turn", None) == self.turn_id:
                 q.chained = False
