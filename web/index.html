@@ -274,6 +274,7 @@ button.big{font-size:16px;font-weight:800;padding:10px 38px}
 .fnum{position:absolute;transform:translate(-50%,-50%);font-size:30px;font-weight:900;z-index:8;pointer-events:none;animation:fl 1.5s forwards;text-shadow:0 2px 6px #000}
 .fnum.dmg{color:#ff5d73}.fnum.heal{color:#46e0a0}
 @keyframes fl{0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}15%{opacity:1;transform:translate(-50%,-60%) scale(1.15)}100%{opacity:0;transform:translate(-50%,-190%) scale(1)}}
+#center .ngb button{font-size:18px;padding:14px 30px;border-radius:10px;pointer-events:auto;min-height:48px}
 #center .lastact{margin-top:10px;max-width:300px;font-size:13px;color:var(--text);background:rgba(4,12,26,.65);border:1px solid #24557d;padding:5px 12px;border-radius:2px}
 .winb{position:absolute;top:-19px;left:50%;transform:translateX(-50%);border-radius:4px 4px 0 0!important;white-space:nowrap;font-size:11px;font-weight:800;color:#2a1d04;background:linear-gradient(#ffe08a,#e9bf62);padding:0 7px;border-radius:99px}
 .pl.win{box-shadow:inset 0 0 0 2px var(--gold),0 0 22px rgba(240,201,92,.55);filter:none}
@@ -512,6 +513,7 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
   #center .lastact{max-width:none;font-size:12px;margin-top:0;height:28px;line-height:18px;box-sizing:border-box;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
   /* 場地固定大小 (牌堆 / 連鎖 / 最後動作各佔固定一列),有沒有連鎖都不會讓下面的玩家上下跳 */
   #center:not(:empty){display:grid;grid-template-rows:96px 92px 28px;gap:4px;height:228px;overflow:hidden;flex:none}
+  #center:has(.ngb){display:block;height:auto;padding:24px 0}
   #center>.piles:not(.pchain){grid-row:1}#center>.pchain{grid-row:2}#center>.lastact{grid-row:3}
   #center>.piles{margin-top:0;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;align-items:flex-start;scrollbar-width:none}
   #center>.piles .pstack.seq{flex-wrap:nowrap}
@@ -1962,8 +1964,12 @@ async function poll(force) {
     if (!snap.ready) {
       $("#status").textContent = snap.is_host ? "尚未開始" : "等待房主操作";
       if (snap.is_host && S.modalOpen == null && S.roster && S.setupOff !== snap.room_name) openSetup();   // 按過「取消」就不再自動彈出
+      { const c = $("#center");   // 關掉新遊戲視窗後,場地中央留一個按鈕可以再開
+        if (snap.is_host && !c.querySelector(".ngb")) { c.textContent = ""; S.centerKey = null; c.append(h("div", {class: "ngb"}, h("button", {type: "button", class: "primary", text: "開始新遊戲", onclick: () => { S.setupOff = null; openSetup(); }}))); }
+        else if (!snap.is_host && c.querySelector(".ngb")) { c.textContent = ""; S.centerKey = null; } }
       return;
     }
+    { const c = $("#center"); if (c.querySelector(".ngb")) { c.textContent = ""; S.centerKey = null; } }
     if (snap.lobby) { renderLobby(snap); return; }
     if (S.modalOpen === "lobby") { $("#modal").textContent = ""; S.modalOpen = null; S.baseSeat = null; S.logN = 0; S.thN = 0; S.thoughts = []; S.lastTh = {}; $("#log").textContent = ""; $("#thl").textContent = ""; }
     if (snap.log_total < S.logN) { S.baseSeat = null; S.logN = 0; $("#log").textContent = ""; return; }
