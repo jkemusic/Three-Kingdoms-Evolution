@@ -1604,6 +1604,8 @@ class Handler(BaseHTTPRequestHandler):
                     return self._send(200, SOCIAL.accept(key, data.get("name")))
                 if path == "/api/friend_decline":
                     return self._send(200, SOCIAL.decline(key, data.get("name")))
+                if path == "/api/friend_cancel":
+                    return self._send(200, SOCIAL.cancel(key, data.get("name")))
                 if path == "/api/friend_remove":
                     return self._send(200, SOCIAL.remove(key, data.get("name")))
                 if path == "/api/friend_nick":

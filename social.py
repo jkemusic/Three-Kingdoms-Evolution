@@ -135,6 +135,17 @@ class Social:
             self._save()
         return {"ok": True}
 
+    def cancel(self, key, name):   # 收回自己送出的好友請求
+        name = (name or "").strip().lower()
+        with self.lock:
+            me, other = self._u(key), self._u(name)
+            if name in me["out"]:
+                me["out"].remove(name)
+            if key in other["in"]:
+                other["in"].remove(key)
+            self._save()
+        return {"ok": True}
+
     def remove(self, key, name):
         name = (name or "").strip().lower()
         with self.lock:

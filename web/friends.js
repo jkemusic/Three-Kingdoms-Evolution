@@ -163,7 +163,8 @@
     }
     if (tab === "out") {
       if (!(d.req_out || []).length) body.append(el("div", {class: "meta", style: {padding: "10px 4px"}, text: "沒有已送出的好友請求。"}));
-      for (const u of (d.req_out || [])) body.append(el("div", {class: "frow"}, ...person(u, "等對方接受")));
+      for (const u of (d.req_out || [])) body.append(el("div", {class: "frow"}, ...person(u, "等對方接受"),
+        el("button", {title: "收回好友請求", "aria-label": "收回好友請求", text: "✕", onclick: async () => { await post("/api/friend_cancel", {name: u.id}); poll(); }})));
       if (hadFocus) { inp.focus(); try { inp.setSelectionRange(caret, caret); } catch (e) {} }
       return;
     }
