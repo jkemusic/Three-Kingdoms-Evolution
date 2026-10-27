@@ -186,7 +186,7 @@ class HumanAgent:
         return r[0] == 0
 
     def choose_count(self, g, p, skill, maxn):
-        maxn = max(1, min(maxn, 12))
+        maxn = max(1, maxn)   # 不設上限: 手牌有幾張就能選到幾張
         r = self._ask("count", f"{skill}: 選擇張數", [self._copt(i, str(i + 1)) for i in range(maxn)])
         return r[0] + 1
 

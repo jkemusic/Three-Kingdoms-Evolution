@@ -56,7 +56,12 @@
   function sfx(k) { if (!muted && SFX[k]) SFX[k](); }
 
   /* ----- 動畫 ----- */
-  function layer() { return document.getElementById("tablewrap"); }
+  function layer() {   // 特效層: 和牌桌 / 箭頭一樣跟著「拖曳牌桌」的位移一起動 (飛牌、爆點都放在這一層)
+    const w = document.getElementById("tablewrap"); if (!w) return null;
+    let L = document.getElementById("fxlayer");
+    if (!L) { L = document.createElement("div"); L.id = "fxlayer"; w.append(L); }
+    return L;
+  }
   function center() { const w = layer(); return w ? [w.clientWidth / 2, w.clientHeight / 2] : null; }
   function cardOf(str) {   // 從「使用 / 打出 / 裝備 … 牌名」找出牌圖
     if (typeof S === "undefined" || !S.cat || !S.catRe) return null;
@@ -85,7 +90,12 @@
     const e = document.createElement("div"); e.className = "fxburst " + cls; e.style.left = P[0] + "px"; e.style.top = P[1] + "px"; if (txt) e.textContent = txt;
     w.append(e); setTimeout(() => e.remove(), 900);
   }
-  const pos = i => (typeof playerPos === "function" ? playerPos(i) : null);
+  const pos = i => {   // 玩家框中心 (用特效層自己的框當原點: 牌桌正在平移 / 還在動畫時也不會差一截)
+    const el = document.querySelector(`#table .pl[data-idx="${i}"]`), L = layer();
+    if (!el || !L) return null;
+    const a = el.getBoundingClientRect(), b = L.getBoundingClientRect();
+    return [a.left - b.left + a.width / 2, a.top - b.top + a.height / 2];
+  };
 
   let budget = { snd: 0, fly: 0 }, lastFly = { key: "", t: 0 };
   let hintD = null;   // 引擎先送一行隱藏的「出牌者|目標|種類」,緊接著的 [Chain] 使用 行就知道牌要飛向誰
@@ -172,7 +182,8 @@
   };
 
   const css = document.createElement("style");
-  css.textContent = `.fxcard{position:absolute;left:0;top:0;width:64px;z-index:9;pointer-events:none;will-change:transform}
+  css.textContent = `#fxlayer{position:absolute;inset:0;pointer-events:none;z-index:9;transform:translate(var(--px,0px),var(--py,0px))}
+.fxcard{position:absolute;left:0;top:0;width:64px;z-index:9;pointer-events:none;will-change:transform}
 .fxcard img{width:64px;display:block;border-radius:5px;box-shadow:0 6px 18px rgba(0,0,0,.65),0 0 14px rgba(63,210,255,.55)}
 .fxburst{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;z-index:9;pointer-events:none;animation:fxb .85s ease-out forwards;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900}
 .fxburst.hit{border:4px solid #ff5d73;box-shadow:0 0 18px #ff5d73}.fxburst.heal{border:4px solid #46e0a0;box-shadow:0 0 18px #46e0a0;color:#46e0a0}.fxburst.die{border:4px solid #bbb;box-shadow:0 0 22px #fff}

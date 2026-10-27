@@ -2,6 +2,7 @@
 window.SGS_LOG_TPL = (window.SGS_LOG_TPL || []).concat([
 // --- human.py 提示 ---
 ["{}  體力 {}/{}", "{1}  HP {2}/{3}", "{1}  体力 {2}/{3}"],
+["{} 即將受到 {} 點傷害 (反擊轉出 {} 點): 要接連鎖使用 ⚡ 嗎?", "{1} is about to take {2} damage (Counter sends {3}): respond in this chain with ⚡?", "{1} が {2} ダメージを受けようとしています(反撃で {3} ダメージを移す): チェーンで⚡を使いますか?"],
 ["{} 即將受到 {} 點傷害: 要接連鎖使用 ⚡ 嗎?", "{1} is about to take {2} damage: respond in this chain with ⚡?", "{1} が {2} ダメージを受けようとしています: チェーンで⚡を使いますか?"],
 ["{} {}: 要接連鎖使用 ⚡ 嗎?", "{1} {2}: respond in this chain with ⚡?", "{1} {2}: チェーンで⚡を使いますか?"],
 ["{} 使用 {} 對 ", "{1} uses {2} on ", "{1} が {2} を使用: 対象 "],
