@@ -1561,6 +1561,7 @@ class 楊修(Char):
             self.acc += n
             self.nats = tuple(set(self.nats) | {nature})
             g.log(f"  {p.name}[楊修] 吸收 {n} 點傷害 (累計 {self.acc})")
+            g._absorbed = True
             return 0
         return n
 
@@ -2217,10 +2218,10 @@ class 韓當(Char):
 
     def on_other_turn_start(self, g, p, cur): self._tax(g, p, cur)
 
-    def _tax(self, g, p, q):  # 吳勢力的玩家每回合要棄 1 張手牌或扣 1 點體力 (可閃)
-        if q._char.faction != "吳" or not q.alive or not g.trigger_ok(p, f"韓當-{q.idx}"):
+    def _tax(self, g, p, q):  # 不是吳勢力的玩家每回合要棄 1 張手牌或扣 1 點體力 (可閃)
+        if q._char.faction == "吳" or not q.alive or not g.trigger_ok(p, f"韓當-{q.idx}"):
             return
-        g.link(f"{p.name}[韓當] {q.name} 是吳勢力,要棄 1 張手牌,否則扣 {g.dmg_preview(p, 1, tgt=q)} 點體力 (可閃)")
+        g.link(f"{p.name}[韓當] {q.name} 不是吳勢力,要棄 1 張手牌,否則扣 {g.dmg_preview(p, 1, tgt=q)} 點體力 (可閃)")
         cd = q.agent.respond(g, q, "韓當棄牌", list(q.hand), {"source": p}) if q.hand else None
         if cd:
             g.discard_card(q, cd)

@@ -910,7 +910,7 @@ function bindHover() {
   V.addEventListener("mouseenter", () => { S.hvOver = true; clearTimeout(timer); });   // 滑鼠移進手牌面板時保持開啟,才能點牌看詳細
   V.addEventListener("mouseleave", () => { S.hvOver = false; leave(); });
 }
-function devEl(d) { return d ? h("span", {class: "rk", style: {background: "#7a3cff", color: "#fff", marginLeft: "4px"}, title: "遊戲開發者", text: "開發者"}) : null; }
+function devEl(d) { return d ? h("span", {class: "rk", style: {background: "#7a3cff", color: "#fff", margin: "0 4px 0 4px"}, title: "遊戲開發者", text: "開發者"}) : null; }
 function rkEl(r, big) {   // 段位標籤 (例: 黃金2)
   if (!r) return null;
   return h("span", {class: "rk rk-" + String(r).replace(/\d+$/, "") + (big ? " big" : ""), title: "段位 " + r, text: r});
@@ -1653,7 +1653,7 @@ function renderMembers() {   // 👥 房間成員: 每個人都看得到 (不只
   pn.append(h("h4", {text: "房間成員 (" + o.length + ")"}));
   o.forEach(x => pn.append(h("div", {class: "mr" + (x.acc ? " clk" : ""), onclick: x.acc ? () => { pn.classList.remove("on"); showPlayer(x.acc); } : null},
     avEl(x.avatar, x.style, {}),
-    h("span", {class: "mn", title: x.name || "", text: (x.host ? "👑 " : "") + (x.name || "未命名") + (x.id === S.myWho ? " (你)" : "")}), rkEl(x.lv), devEl(x.dev),
+    h("span", {class: "mn", title: x.name || "", text: (x.host ? "👑 " : "") + (x.name || "未命名") + (x.id === S.myWho ? " (你)" : "")}), devEl(x.dev), rkEl(x.lv),
     h("span", {class: "tg", text: x.spec ? "👁 觀戰者" : x.seat != null ? "座位 " + x.seat : ""}),
     S.amHost && x.id !== S.myWho && !x.host ? h("button", {type: "button", text: "👑", title: "把房主讓給他", class: "mb", onclick: async ev => {
       ev.stopPropagation();
@@ -1689,7 +1689,7 @@ function renderOnlineList() {
   o.forEach(x => box.append(h("div", {style: {display: "flex", alignItems: "center", gap: "8px", padding: "7px 4px", borderBottom: "1px solid #17304f"}},
     avEl(x.avatar, x.style, {style: {width: "36px", height: "36px", borderRadius: "50%", objectFit: "cover", flex: "none", cursor: x.acc ? "pointer" : ""}, onclick: () => x.acc && showPlayer(x.acc)}),
     h("div", {style: {flex: 1, minWidth: 0, cursor: x.acc ? "pointer" : ""}, title: "查看個人資訊", onclick: () => x.acc && showPlayer(x.acc)},
-      h("div", {style: {fontWeight: 600}}, (x.host ? "👑 " : "") + (x.name || "未命名") + (x.id === S.myWho ? " (你)" : ""), " ", rkEl(x.lv), devEl(x.dev)),
+      h("div", {style: {fontWeight: 600}}, (x.host ? "👑 " : "") + (x.name || "未命名") + (x.id === S.myWho ? " (你)" : ""), " ", devEl(x.dev), rkEl(x.lv)),
       x.spec || x.seat != null ? h("div", {class: "meta", text: x.spec ? "👁 觀戰者" : "座位 " + x.seat}) : null),
     x.id !== S.myWho && x.acc && window.SGS_FRIENDS ? friendBtn(x) : null,
     S.amHost && x.id !== S.myWho ? h("button", {type: "button", text: "踢出", style: {padding: "2px 9px", fontSize: "12px"}, onclick: async () => {
@@ -2275,7 +2275,7 @@ async function showProfile() {
           h("div", {style: {display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap"}},
             h("div", {style: {fontSize: "28px", fontWeight: 800, lineHeight: 1.15, wordBreak: "break-all"}, text: myNick() || "未命名"}),
             S.nickLocked ? null : h("button", {text: "✎", title: "改暱稱", style: {padding: "3px 10px"}, onclick: () => { close(); showNickGate(true); }})),
-          h("div", {style: {margin: "6px 0"}}, rkEl(p.rank, true), devEl(p.dev)),
+          h("div", {style: {margin: "6px 0"}}, devEl(p.dev), rkEl(p.rank, true)),
           h("div", {style: {display: "flex", gap: "6px", flexWrap: "wrap"}},
             h("button", {text: "上傳頭貼", style: {whiteSpace: "nowrap", padding: "6px 10px"}, onclick: () => $("#avfile").click()}),
             p.avatar ? h("button", {text: "移除", style: {whiteSpace: "nowrap", padding: "6px 10px"}, onclick: async () => { await api("/api/avatar", {data: ""}); showProfile(); }}) : null,

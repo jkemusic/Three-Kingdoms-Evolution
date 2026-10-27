@@ -19,7 +19,7 @@ window.SGS_LOG_TPL = (window.SGS_LOG_TPL || []).concat([
 ["{}[{}] 獲得 {} 使用的 {}", "{1}[{2}] takes {4} used by {3}", "{1}[{2}] {3} が使った {4} を得る"],
 ["鐵索連環: {} 同受傷害", "Iron Chain: {1} takes the damage too", "鉄索連環: {1} も同じダメージを受ける"],
 ["{}[{}] 棄置 {} 的一張牌", "{1}[{2}] discards a card of {3}", "{1}[{2}] {3} のカードを1枚捨てさせる"],
-["{}[{}] {} 是吳勢力,要棄 {} 張手牌,否則扣 {} 點體力 (可閃)", "{1}[{2}] {3} is a Wu player: discards {4} hand card(s) or loses {5} HP (dodgeable)", "{1}[{2}] {3} は呉勢力: 手札{4}枚を捨てるか体力-{5}(閃で防げる)"],
+["{}[{}] {} 不是吳勢力,要棄 {} 張手牌,否則扣 {} 點體力 (可閃)", "{1}[{2}] {3} is not a Wu player: discards {4} hand card(s) or loses {5} HP (dodgeable)", "{1}[{2}] {3} は呉以外の勢力: 手札{4}枚を捨てるか体力-{5}(閃で防げる)"],
 ["{}[{}] 獲得造成傷害的 {}", "{1}[{2}] takes {3}, which caused the damage", "{1}[{2}] ダメージを与えた {3} を得る"],
 ["{}[{}] 趁 {} 抽牌,也抽 {} 張", "{1}[{2}] takes the chance while {3} draws: also draws {4} card(s)", "{1}[{2}] {3} のドローに乗じて、自分も{4}枚引く"],
 ["{}[張紘] 扣血,其他人也各扣 {} 血 (可閃)", "{1}[Zhang Hong] loses HP: everyone else also loses {2} HP (dodgeable)", "{1}[張紘] 体力を失い、他の全員も体力-{2} (閃で防げる)"],

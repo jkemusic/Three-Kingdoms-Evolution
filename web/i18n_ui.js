@@ -104,7 +104,7 @@ window.SGS_LOG_TPL = (window.SGS_LOG_TPL || []).concat([
 ["{}[{}] 受傷判定", "{1}[{2}] damage judgement", "{1}[{2}] ダメージ判定"],
 // --- 勢力 ---
 ["魏", "Wei", "魏"], ["蜀", "Shu", "蜀"], ["吳", "Wu", "呉"], ["群", "Qun", "群"], ["晉", "Jin", "晋"],
-["韓當: 吳勢力要棄 1 張手牌 (不棄就要出閃,否則扣 {} 點體力)", "Han Dang: Wu players must discard 1 hand card (otherwise play a Dodge or lose {1} HP)", "韓当: 呉勢力は手札1枚を捨てる(捨てないなら閃、さもなくば体力-{1})"],
+["韓當: 不是吳勢力要棄 1 張手牌 (不棄就要出閃,否則扣 {} 點體力)", "Han Dang: Non-Wu players must discard 1 hand card (otherwise play a Dodge or lose {1} HP)", "韓当: 呉以外の勢力は手札1枚を捨てる(捨てないなら閃、さもなくば体力-{1})"],
 ["複製技能: {}要複製誰的技能?", "Copy skill: whose skills should {1} copy?", "スキルコピー: {1} は誰のスキルをコピーしますか?"],
 ["{} 瀕死了,要使用桃/酒救他嗎? (大家同時決定,先出的人救)", "{1} is dying. Save them with Peach / Wine? (everyone decides at once; first to play saves)", "{1} が瀕死です。桃/酒で救いますか?(全員同時に決定、先に出した人が救う)"],
 ["你瀕死了,要使用桃/酒救自己嗎? (大家同時決定,先出的人救)", "You are dying. Save yourself with Peach / Wine? (everyone decides at once; first to play saves)", "あなたは瀕死です。桃/酒で自分を救いますか?(全員同時に決定、先に出した人が救う)"],

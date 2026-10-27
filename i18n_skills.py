@@ -145,7 +145,7 @@ T = {
 "陸遜": [("One trick card can be used as Windfall (once per turn)", "錦囊1枚を無中生有として使える(1ターン1回)"),
         ("You can't be targeted by Complacency or Steal", "楽不思蜀・順手牽羊の対象にならない")],
 "韓當": [("You may gain one skill of another Wu player (chosen at game start; unusable after they die)", "他の呉勢力のスキルを1つ得られる(ゲーム開始時に選ぶ。その人が死ぬと使えない)"),
-        ("Wu players must each turn discard 1 hand card or lose 1 HP (dodgeable)", "呉勢力は毎ターン手札1枚を捨てるか体力-1(閃で防げる)")],
+        ("Non-Wu players must each turn discard 1 hand card or lose 1 HP (dodgeable)", "呉以外の勢力は毎ターン手札1枚を捨てるか体力-1(閃で防げる)")],
 "魯肅": [("You may draw 2 extra cards then give 2 hand cards to another player", "2枚多く引き、手札2枚を別のプレイヤーに渡せる"),
         ("You can't be targeted by Fire Attack", "火攻の対象にならない"),
         ("All basic cards in play also count as tricks by type (type only; they cannot be used as any specific trick)", "場の基本札は種類として錦囊札としても扱う(種類のみ。特定の錦囊としては使えない)")],

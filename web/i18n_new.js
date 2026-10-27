@@ -277,7 +277,7 @@ window.SGS_UI_TPL = [
 ["{} 要和 {} 永遠交換武將", "{1} wants to permanently swap generals with {2}", "{1} が {2} と武将を永久に交換したい"],
 ["{} 本回合出了錦囊牌,扣 {} 點體力", "{1} played a trick this turn and loses {2} HP", "{1} はこのターン錦囊を出したため体力 -{2}"],
 ["{} 擁有 {} 的技能 (直到他死亡)", "{1} has the skills of {2} (until they die)", "{1} は {2} のスキルを持つ(死亡するまで)"],
-["{} {} 是吳勢力,要棄 {} 張手牌,否則扣 {} 點體力 (可閃)", "{1}: {2} is of Wu — must discard {3} hand card(s) or lose {4} HP (can Dodge)", "{1}: {2} は呉勢力。手札 {3} 枚を捨てるか体力 -{4}(閃で回避可)"],
+["{} {} 不是吳勢力,要棄 {} 張手牌,否則扣 {} 點體力 (可閃)", "{1}: {2} is not of Wu — must discard {3} hand card(s) or lose {4} HP (can Dodge)", "{1}: {2} は呉以外の勢力。手札 {3} 枚を捨てるか体力 -{4}(閃で回避可)"],
 ["{} 棄置 {} 的一張牌", "{1} discards a card of {2}", "{1} が {2} のカードを 1 枚捨てさせる"],
 ["{} 阻擋了這次傷害", "{1} blocks this damage", "{1} がこのダメージを防ぐ"],
 ["{} 再進行一次抽牌階段 ({} 張),本回合不能出基本牌", "{1} takes another draw phase ({2}); no basic cards this turn", "{1} はもう一度ドローフェイズ({2} 枚)。このターン基本札は出せない"],

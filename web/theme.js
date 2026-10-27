@@ -509,7 +509,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 #cosdlg .tabs button{flex:1 1 0;min-width:0;padding:6px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #cosdlg .tabs button.on{background:linear-gradient(180deg,#46d6ff,#1b9fd6);color:#021c2a;font-weight:700}
 #cosdlg .grid{display:flex;gap:10px;flex-wrap:wrap}
-#cosdlg .tile{width:92px;padding:10px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;border-radius:10px;position:relative}
+#cosdlg .tile{width:92px;padding:10px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;border-radius:10px;position:relative;overflow:hidden}   /* 光柱 / 光環等頭像特效不要超出自己的框 */
 #cosdlg .tile.sel{box-shadow:inset 0 0 0 2px var(--accent)}
 /* 外觀視窗裡一次有幾十個頭像特效在跑會很卡: 只有滑鼠移到的 / 目前選的那一格才動,其他停住 (頭像動畫可以只暫停,不影響外觀) */
 #cosdlg .tile .avw::before,#cosdlg .tile .avw::after,#cosdlg .tile .avw>i{animation-play-state:paused}

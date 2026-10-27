@@ -496,7 +496,8 @@ class Game:
         if n > 0:
             n = tgt.char.pre_damage(self, tgt, src, n, nature)
         if n <= 0:
-            self.log(f"  {tgt.name} 的傷害被抵銷")
+            if not self.__dict__.pop("_absorbed", False):   # 楊修吸收時已經寫過「吸收 N 點傷害」,不再重複寫「被抵銷」
+                self.log(f"  {tgt.name} 的傷害被抵銷")
             return
         n = self.damage_reactions(src, tgt, n, nature, raw)
         if n > 0 and tgt.alive:
