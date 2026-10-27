@@ -1896,7 +1896,7 @@ function openSetup() {
       sect("人數", "", nBox),
       sect("身分配置", "", varBox),
       sect("主公座位", "主公從哪個座位開始;身分會在開局時才揭曉", lordBox),
-      sect("電腦難度", "上面一排是一次調整全部電腦;每個座位也可以在下方「座位與武將」各自調整。段位模式打贏電腦加的積分: 弱 +10 / 中 +18 / 強 +25 / 很強 +32;輸了 −15。段位模式的電腦難度不能自己調,跟著入座玩家的平均段位走: 青銅 弱 / 白銀·黃金 中 / 白金·鑽石 強 / 大師·傳說 很強。", diffSeg = seg(diffLabels().map((t, k) => [k + 1, t]), st.diff, v => { st.diff = v; seatBox.querySelectorAll("select[data-dseat]").forEach(x => { x.value = String(v); keepD[x.dataset.dseat] = String(v); }); })),
+      sect("電腦難度", "上面一排是一次調整全部電腦;每個座位也可以在下方「座位與武將」各自調整。段位模式打贏電腦加的積分: 弱 +10 / 中 +18 / 強 +25 / 很強 +32;輸了 −15。同場有其他真人時,輸贏分數會依對手平均積分與你的差距調整 (最多 ±50%)。段位模式的電腦難度不能自己調,跟著入座玩家的平均段位走: 青銅 弱 / 白銀·黃金 中 / 白金·鑽石 強 / 大師·傳說 很強。", diffSeg = seg(diffLabels().map((t, k) => [k + 1, t]), st.diff, v => { st.diff = v; seatBox.querySelectorAll("select[data-dseat]").forEach(x => { x.value = String(v); keepD[x.dataset.dseat] = String(v); }); })),
       sect("基礎體力上限", "所有武將的體力上限一起增減 (預設 4);原本就比較高或低的武將會保留差距。例如設 6,原本 4 血的武將變 6 血,原本 3 血的變 5 血", hpBox),
       sect("遊戲模式", "正常模式: 武將不變;百變模式: 第 2 輪起,每次輪到玩家的回合一開始都會隨機換成一位新武將 (已損失的體力不變)", modeBox),
       sect("身分模式", "正常: 一般身分局;無身分: 沒有主公反賊,各打各的,最後活著的人贏;身分全公開: 所有人的身分一開始就公開;主公不公開: 主公不亮身分,也不加體力上限", rmBox),
