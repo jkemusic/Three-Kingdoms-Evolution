@@ -85,7 +85,7 @@ window.SGS_LOG_TPL = (window.SGS_LOG_TPL || []).concat([
 [" 👁 觀戰者", " 👁 Spectator", " 👁 観戦者"], [" 👑房主", " 👑Host", " 👑ホスト"], [" 🔒 段位模式固定", " 🔒 Fixed in ranked", " 🔒 ランクでは固定"],
 ["AI 速度 (0 = 最快)", "AI speed (0 = fastest)", "AI速度(0 = 最速)"], ["← 返回", "← Back", "← 戻る"], ["◂ 側欄", "◂ Sidebar", "◂ サイド"],
 ["⚔ 參戰", "⚔ Join", "⚔ 参戦"], ["⚔ 已參戰 (點擊取消)", "⚔ Joined (click to cancel)", "⚔ 参戦中(クリックで取消)"], ["⚔ 我要參戰", "⚔ I want to play", "⚔ 参戦する"],
-["✓ 好友", "✓ Friend", "✓ 友達"], ["開始新遊戲", "Start new game", "新しいゲームを始める"], ["收起手牌", "Hide hand", "手札を隠す"], ["顯示手牌", "Show hand", "手札を表示"], ["長按卡牌可以查看詳細說明", "Long-press a card to see its details", "カードを長押しすると詳細が見られます"], ["好友", "Friends", "フレンド"], ["邀請朋友", "Invite friends", "フレンドを招待"], ["接受好友請求", "Accept friend request", "友達リクエストを承認"], ["➕ 加好友", "➕ Add friend", "➕ 友達追加"], ["加好友", "Add friend", "友達追加"],
+["✓ 好友", "✓ Friend", "✓ 友達"], ["開始新遊戲", "Start new game", "新しいゲームを始める"], ["等待接受", "Pending", "承認待ち"], ["已是好友", "Friends", "友達です"], ["收起手牌", "Hide hand", "手札を隠す"], ["顯示手牌", "Show hand", "手札を表示"], ["長按卡牌可以查看詳細說明", "Long-press a card to see its details", "カードを長押しすると詳細が見られます"], ["好友", "Friends", "フレンド"], ["邀請朋友", "Invite friends", "フレンドを招待"], ["接受好友請求", "Accept friend request", "友達リクエストを承認"], ["➕ 加好友", "➕ Add friend", "➕ 友達追加"], ["加好友", "Add friend", "友達追加"],
 ["上傳頭貼", "Upload avatar", "アイコンをアップロード"], ["人數 (你 + 電腦)", "Players (you + computers)", "人数(あなた + コンピュータ)"],
 ["你坐座位 0,其他座位都是電腦;房間不公開,離開就會結束對局。", "You sit at seat 0 and the rest are computers. The room is private; leaving ends the game.", "あなたは席0、他はすべてコンピュータです。ルームは非公開で、退出すると対局は終了します。"],
 ["你被房主踢出了房間", "You were kicked out of the room by the host", "ホストによりルームから追い出されました"],

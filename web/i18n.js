@@ -678,7 +678,7 @@ function hintFor(snap) {
 }
 function updHint() {
   let b = document.getElementById("hintbar");
-  if (!hintOn) { if (b) b.remove(); return; }
+  if (!hintOn) { if (b) b.remove(); document.body.classList.remove("hint-on"); return; }
   if (!b) {
     b = el("div", { id: "hintbar" }, el("b", { id: "hbt" }), el("span", { id: "hbx" }), el("button", { id: "hbc", text: "✕", onclick: () => { hintOn = false; updHint(); } }));
     document.body.append(b);
@@ -691,6 +691,10 @@ function updHint() {
   document.getElementById("hbc").title = T.hintOff;
   const bar = document.getElementById("bar"), r = bar && bar.getBoundingClientRect();   // 放在提示 / 操作列的正上方,不要擋住它
   b.style.top = (r && r.height > 0 ? Math.max(8, r.top - b.offsetHeight - 8) : 60) + "px";
+  if (r && r.height > 0 && r.width > 0) { const half = b.offsetWidth / 2; b.style.left = Math.max(half + 8, Math.min(innerWidth - half - 8, r.left + r.width / 2)) + "px"; }   // 跟操作列水平置中對齊
+  else b.style.left = "50%";
+  document.body.style.setProperty("--hintpush", Math.ceil(b.offsetTop + b.offsetHeight + 8) + "px");   // 詢問視窗往下讓開,不被提示列蓋住標題
+  document.body.classList.add("hint-on");
 }
 
 window.SGS_HINT_OFF = () => { hintOn = false; updHint(); };   // 開新局 (不是練習局) 時,練習提示橫幅要消失
@@ -720,6 +724,7 @@ const CSS = `
 .imock{position:relative;display:flex;flex-direction:column;gap:8px;align-items:center;padding-right:0}
 .imtop{display:flex;gap:8px;justify-content:center}.imc{padding:5px 18px;border:1px solid #2a5a7c;border-radius:99px;color:#7fb7dd;font-size:12px}
 .imlab,.imside{font-size:11px;color:#8fa3bf;text-align:center}.imbot{display:flex;flex-direction:column;align-items:center;gap:4px}
+body.hint-on #modal .modal:not(.soft){padding-top:var(--hintpush,0)!important;box-sizing:border-box;align-items:safe center!important}
 #hintbar{position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:8000;background:#16324a;color:#fff;border:1px solid #3fd2ff;border-radius:10px;padding:8px 14px;display:flex;gap:10px;align-items:center;max-width:min(92vw,720px);box-shadow:0 4px 18px rgba(0,0,0,.5);font-size:14px}
 .tdlg.cgdlg{max-width:760px;width:min(760px,96vw)}.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px;max-height:62vh;overflow:auto;padding:4px 2px}.cgi{display:flex;gap:10px;align-items:flex-start;background:#0c1d36;border:1px solid #24557d;border-radius:8px;padding:6px}.cgi img{width:56px;border-radius:4px;flex:none}.cgd{font-size:12px;color:#a9c4de;margin-top:2px;line-height:1.4}
 #hintbar b{color:#3fd2ff;white-space:nowrap}#hintbar button{background:none;border:0;color:#9fb0c8;cursor:pointer;font-size:15px}
