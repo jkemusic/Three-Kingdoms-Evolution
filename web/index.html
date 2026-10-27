@@ -1878,7 +1878,7 @@ function renderRankedLobby(snap) {   // 段位模式大廳: 每個人只能選�
       : h("button", {type: "button", class: "primary", text: "⚔ 我要參戰", onclick: join})),
     h("div", {style: {margin: "0 0 8px"}}, inviteFriendsBtn()),
     rows,
-    snap.host ? h("div", {class: "row"}, h("button", {class: "primary", text: "開始遊戲", onclick: async () => { await api("/api/start", {}); poll(true); }})) :
+    snap.is_host ? h("div", {class: "row"}, h("button", {class: "primary", text: "開始遊戲", onclick: async () => { await api("/api/start", {}); poll(true); }})) :
       h("div", {class: "meta", text: "👑 等待房主按下開始…" + (snap.host_name ? " (房主: " + snap.host_name + ")" : "")}))));
 }
 function renderLobby(snap) {
@@ -1910,7 +1910,7 @@ function renderLobby(snap) {
     h("div", {class: "meta", text: "朋友用瀏覽器開這個網址就能選座位。沒人坐的真人座位開始時會由 AI 接手。"}),
     h("div", {style: {margin: "0 0 8px"}}, inviteFriendsBtn()),
     rows,
-    snap.host ? h("div", {class: "row"}, h("button", {class: "primary", text: "開始遊戲", onclick: async () => { await api("/api/start", {}); poll(true); }})) :
+    snap.is_host ? h("div", {class: "row"}, h("button", {class: "primary", text: "開始遊戲", onclick: async () => { await api("/api/start", {}); poll(true); }})) :
       h("div", {class: "meta", text: "👑 等待房主操作…" + (snap.host_name ? " (房主: " + snap.host_name + ")" : "")}));
   M.append(h("div", {class: "modal"}, dlg));
 }
