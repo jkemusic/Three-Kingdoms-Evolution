@@ -1982,6 +1982,9 @@ function inviteFriendsBtn(big) {   // big: 跟旁邊的主要按鈕一樣大 (�
   if (!ROOM || !window.SGS_FRIENDS || !SGS_FRIENDS.open) return null;
   return h("button", {type: "button", class: big ? "" : "mini-btn", style: big ? {minWidth: "150px"} : null, text: "邀請朋友", title: "打開好友列表,邀請在線的朋友進這個房間", onclick: () => SGS_FRIENDS.open()});
 }
+function backBtn(big) {   // 回到大廳 (大廳 / 選武將 / 等待畫面都能用;確認視窗和上方「大廳」鈕一樣)
+  return h("button", {type: "button", class: big ? "" : "mini-btn", style: big ? {minWidth: "150px"} : null, text: "🚪 回到大廳", onclick: () => $("#bRooms").click()});
+}
 function gameStartSfx() {   // 開局音效 (兩個進入遊戲的路徑都會呼叫,2 秒內只響一次)
   const t = Date.now(); if (S.gsT && t - S.gsT < 2000) return; S.gsT = t;
   try { if (window.SGS_FX) SGS_FX.sfx("gameStart"); } catch (e) {}
@@ -2010,7 +2013,7 @@ function renderPicking(snap) {   // 隨機武將: 每人抽 3 張選 1,大家同
     dlg.append(h("h3", {text: snap.pick_spec ? "玩家選擇武將中" : "你已選好武將"}), h("div", {class: "meta"}, "等待還沒選的玩家: ", whoList(snap.pick_wait || [])));
   }
   if ((snap.pick_wait || []).length && snap.pick) dlg.append(h("div", {class: "meta"}, "還沒選: ", whoList(snap.pick_wait)));
-  dlg.append(h("div", {style: {marginTop: "8px"}}, inviteFriendsBtn()));
+  dlg.append(h("div", {style: {marginTop: "8px", display: "flex", gap: "8px", flexWrap: "wrap"}}, inviteFriendsBtn(), backBtn()));
   M.append(h("div", {class: "modal"}, dlg));
 }
 function renderRankedLobby(snap) {   // 段位模式大廳: 每個人只能選「參戰」或「觀戰」
@@ -2029,7 +2032,7 @@ function renderRankedLobby(snap) {   // 段位模式大廳: 每個人只能選�
     h("div", {style: {margin: "10px 0", display: "flex", gap: "8px", flexWrap: "wrap"}}, seated
       ? h("button", {type: "button", class: "primary", style: {minWidth: "150px"}, text: "⚔ 已參戰 (點擊取消)", onclick: watch})
       : h("button", {type: "button", class: "primary", style: {minWidth: "150px"}, text: "⚔ 我要參戰", onclick: join}),
-      inviteFriendsBtn(true)),
+      inviteFriendsBtn(true), backBtn(true)),
     rows,
     snap.is_host ? h("div", {class: "row"}, h("button", {class: "primary", text: "開始遊戲", onclick: async () => { await api("/api/start", {}); poll(true); }})) :
       h("div", {class: "meta", text: "👑 等待房主按下開始…" + (snap.host_name ? " (房主: " + snap.host_name + ")" : "")}))));
@@ -2061,7 +2064,7 @@ function renderLobby(snap) {
   }
   const dlg = h("div", {class: "dlg"}, h("h3", {text: "等待玩家入座"}),
     h("div", {class: "meta", text: "朋友用瀏覽器開這個網址就能選座位。沒人坐的真人座位開始時會由 AI 接手。"}),
-    h("div", {style: {margin: "0 0 8px"}}, inviteFriendsBtn()),
+    h("div", {style: {margin: "0 0 8px", display: "flex", gap: "8px", flexWrap: "wrap"}}, inviteFriendsBtn(), backBtn()),
     rows,
     snap.is_host ? h("div", {class: "row"}, h("button", {class: "primary", text: "開始遊戲", onclick: async () => { await api("/api/start", {}); poll(true); }})) :
       h("div", {class: "meta", text: "👑 等待房主操作…" + (snap.host_name ? " (房主: " + snap.host_name + ")" : "")}));
@@ -2086,7 +2089,9 @@ async function poll(force) {
     if (!myNick()) { if (S.modalOpen !== "nick") showNickGate(); return; }   // 進入遊戲前先取暱稱
     const peek = $("#peek").checked ? 1 : 0;
     const reqLog = S.logN, reqTh = S.thN;   // 兩個同時送出的請求 (強制刷新 + 定時) 會拿到同一段紀錄: 回來時只收還沒顯示過的
+    const room0 = ROOM;
     const snap = await api(`/api/state?log=${reqLog}&th=${reqTh}&peek=${peek}&chat=${S.chatN || 0}`);
+    if (room0 !== ROOM) return;   // 換房間時還沒回來的舊房間狀態: 丟掉 (不然會把舊房間的模式 / 牌桌畫到新房間)
     addChat(snap); S.canManage = !!snap.can_manage; S.roomLocked = !!snap.room_locked;
     S.roomNow = snap.room_name;
     if (snap.room_name) $("#roomname").textContent = "「" + snap.room_name + "」";
