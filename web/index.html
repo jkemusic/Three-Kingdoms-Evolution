@@ -1463,7 +1463,8 @@ function pchip(i, par) {
   const nm = (par.includes("/") ? par.split("/").pop() : par).replace(/^[主忠反內][公臣賊奸]$/, "");
   return h("span", {class: "pc", "data-zh": "P" + i + "(" + par + ")", "data-chip": "1", text: "P" + i + (nm && nm !== "?" ? " " + nm : "")});
 }
-function arrow(mid, harm) {   // 圖像化箭頭: ──[牌]──▶
+function arrow(mid, harm, noTarget) {   // 圖像化箭頭: ──[牌]──▶ (沒有指定對象的牌: 只有 ──[牌],不畫箭頭)
+  if (noTarget) return h("span", {class: "arw " + (harm ? "harm" : "help")}, h("i", {class: "ln"}), ...mid);
   return h("span", {class: "arw " + (harm ? "harm" : "help")}, h("i", {class: "ln"}), ...mid, h("i", {class: "ln"}), h("i", {class: "ah"}));
 }
 const GROUP_RE = /^(?:使用|打出)?\s*(?:紅|黑)?(?:南蠻入侵|萬箭齊發|飢餓|桃園結義|五穀豐登|突襲|南|萬|飢|桃園|五|突)\s*$/;
@@ -1492,7 +1493,7 @@ function logNodes0(s) {
   m = s.match(/^(\s*(?:↳+ )?)P(\d+)\(([^)]*)\) (?:使用|打出) (.*)$/);
   if (m) {
     if (GROUP_RE.test(m[4])) return [m[1], pchip(m[2], m[3]), arrow(cardNodesT(m[4]), GROUP_HARM.test(m[4])), h("span", {class: "pc", text: "全體"})];   // 群體牌: 箭頭指向全體
-    return [m[1], pchip(m[2], m[3]), arrow(cardNodesT(m[4]), HARM_RE.test(m[4]))];
+    return [m[1], pchip(m[2], m[3]), arrow(cardNodesT(m[4]), HARM_RE.test(m[4]), true)];   // 沒有對象 (無中生有 / 增兵減灶 / 鐵索連環…)
   }
   return richNodes(s);
 }
@@ -1713,7 +1714,7 @@ async function showPlayer(key) {   // 看別人的個人資訊 (在線列表 / �
   const close = () => { const m = document.getElementById("playerdlg"); if (m) m.remove(); };
   const rate = (a, b) => b ? Math.round(a / b * 100) + "%" : "-";
   const pct = p.rp_next == null ? 100 : Math.max(0, Math.min(100, (p.rp - p.rp_lo) / (p.rp_next - p.rp_lo) * 100));
-  const stat = (k, v) => { const val = h("div", {style: {fontSize: "20px", fontWeight: 700, color: "#3fd2ff", whiteSpace: "nowrap"}, text: String(v)}); setTimeout(() => fitText(val), 0);   // 太長就把字縮小,不換行
+  const stat = (k, v) => { const val = h("div", {style: {fontSize: "20px", fontWeight: 700, color: "#3fd2ff", whiteSpace: "nowrap", height: "28px", lineHeight: "28px"}, text: String(v)}); setTimeout(() => fitText(val), 0);   // 太長就把字縮小,不換行;固定行高,縮小後數字跟其他格子還是同一條水平線
     return h("div", {style: {background: "#0e2442", border: "1px solid #24496f", borderRadius: "10px", padding: "8px 12px", flex: "1 1 90px", minWidth: 0, overflow: "hidden", textAlign: "center"}}, val, h("div", {class: "meta", text: k})); };
   const m = h("div", {class: "modal", id: "playerdlg", style: {zIndex: 7700}, onclick: e => { if (e.target === m) close(); }},
     h("div", {class: "dlg", style: {maxWidth: "420px"}},
@@ -2255,7 +2256,7 @@ async function showProfile() {
   const pct = p.rp_next == null ? 100 : Math.max(0, Math.min(100, (p.rp - p.rp_lo) / (p.rp_next - p.rp_lo) * 100));
   const close = () => { M.textContent = ""; };
   const rate = (a, b) => b ? Math.round(a / b * 100) + "%" : "-";
-  const stat = (k, v) => { const val = h("div", {style: {fontSize: "20px", fontWeight: 700, color: "#3fd2ff", whiteSpace: "nowrap"}, text: String(v)}); setTimeout(() => fitText(val), 0);   // 太長就把字縮小,不換行
+  const stat = (k, v) => { const val = h("div", {style: {fontSize: "20px", fontWeight: 700, color: "#3fd2ff", whiteSpace: "nowrap", height: "28px", lineHeight: "28px"}, text: String(v)}); setTimeout(() => fitText(val), 0);   // 太長就把字縮小,不換行;固定行高,縮小後數字跟其他格子還是同一條水平線
     return h("div", {style: {background: "#0e2442", border: "1px solid #24496f", borderRadius: "10px", padding: "8px 12px", flex: "1 1 90px", minWidth: 0, overflow: "hidden", textAlign: "center"}}, val, h("div", {class: "meta", text: k})); };
   const chars = (p.chars || []).map(([n, g, w]) => h("div", {style: {display: "flex", justifyContent: "space-between", padding: "3px 0", borderBottom: "1px solid #17304f"}},
     h("span", {text: n}), h("span", {class: "meta", text: g + " 場 · " + w + " 勝 · " + rate(w, g)})));

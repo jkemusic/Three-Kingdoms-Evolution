@@ -479,11 +479,14 @@ class Game:
             n += 1
         if src and src is not tgt and _mods:
             n = src.char.dmg_dealt_mod(self, src, tgt, n)
+        n0 = n   # 還沒乘強化 / 弱化的傷害 (傷害結算前的 ⚡ 連鎖出了強 / 弱就從這裡重算)
         if not self.void and _mods:   # 反轉移出去的傷害不再重複乘 (否則每轉一手就 x2)
             if src:
                 n *= 2 ** src.dmg_x2   # 強: 該玩家本回合「造成」的傷害 x2
             if src:
                 n //= 2 ** src.dmg_half   # 弱: 該玩家本回合「造成」的傷害 ÷2 (無條件捨去)
+            if n > 0:
+                n = self._damage_window(src, tgt, n0, n)
         if not qg:
             n -= tgt.armor_names().count("緩衝盾")
         n = tgt.char.cap_damage(self, tgt, n)
@@ -537,6 +540,56 @@ class Game:
         if tgt.alive:
             tgt.char.after_damage(self, tgt)   # 這次傷害全部結算完 (含瀕死、連鎖) 才跳出的選擇
 
+    def _damage_window(self, src, tgt, n0, n):
+        """傷害結算前: 受傷的人和傷害來源,手上只要有 ⚡ 牌 (強 / 弱 / 降雷 / 孤 / 出) 就問要不要接連鎖
+        (例如王允反彈時,強化王允 → 傷害 x2);打出強 / 弱後從 n0 重算。反 / 調 / 占 之後在 damage_reactions 問。"""
+        askers = [tgt] + ([src] if src is not None and src is not tgt else [])
+        self._dmg_ctx = (src, tgt)
+        for _ in range(3):
+            acted = False
+            for q in askers:
+                if not (q.alive and tgt.alive and (src is None or src.alive)):
+                    continue
+                opts = [(c, t) for c, t in self.play_options(q) if not isinstance(c, SkillAct) and c.name in ("強", "弱", "降雷", "孤", "出")]
+                if not opts:
+                    continue
+                i = q.agent.choose_offturn(self, q, opts, tgt, f"即將受到 {n} 點傷害")
+                if i is None:
+                    continue
+                c, t = opts[i]
+                self.new_chain()
+                self.link(f"{q.name} 在傷害結算前連鎖使用 ⚡{c} (對 {t.name})")
+                self.execute(q, c, t)
+                self.after_play(q, c)
+                if src is not None:
+                    n = n0 * 2 ** src.dmg_x2 // 2 ** src.dmg_half
+                acted = True
+                break
+            if not acted:
+                break
+        self._dmg_ctx = None
+        return n
+
+    def dmg_preview(self, src, n, tgt=None, nature=None, bonus=False):
+        """提示文字用: 照 damage() 的順序先算一遍 (不改任何狀態),n 點傷害實際會是幾點。
+        含流星錘 (bonus)、藤甲、來源武將的加成 (司馬昭 / 許褚…)、強化 / 弱化、緩衝盾、受傷上限 (一回合最多扣 N)。
+        tgt 不確定 (例如「其他人」) 時略過對象那邊的防具 / 上限;要攔下傷害的技能 (pre_damage) 要問人,算不進來。"""
+        t = tgt
+        if t is None and src is not None:
+            t = next(iter(self.others(src)), None)
+        if tgt is not None and nature == "火" and tgt.has_armor("藤甲"):
+            n += 1
+        if bonus and src is not None and src.has_weapon("流星錘"):
+            n += 1
+        if src is not None and t is not None and src is not t:
+            n = src.char.dmg_dealt_mod(self, src, t, n)
+        if src is not None and not self.void:
+            n = n * 2 ** src.dmg_x2 // 2 ** src.dmg_half
+        if tgt is not None:
+            n -= tgt.armor_names().count("緩衝盾")
+            n = tgt.char.cap_damage(self, tgt, n)
+        return max(0, n)
+
     def damage_reactions(self, src, tgt, n, nature):
         """⚡ 反/調/占: 要受到傷害時使用。回傳實際要承受的傷害 (0=被抵銷或轉移)。"""
         while n > 0 and tgt.alive:
@@ -552,7 +605,10 @@ class Game:
                 cands = []
             if not cands:
                 break
-            c = tgt.agent.respond(self, tgt, "受傷響應", cands, {"src": src, "n": n, "nature": nature})
+            fan_n = None   # 打反擊轉出去的實際傷害 (含自己的強化 / 弱化、流星錘、反擊加倍): 問的時候一起告訴玩家
+            if any(vname(x) == "反" for x in cands):
+                fan_n = self.dmg_preview(tgt, n * (2 if tgt.char.fan_double else 1), bonus=True)   # 反擊轉出去: 張昭加倍,再吃自己的流星錘 / 武將加成 / 強化 / 弱化
+            c = tgt.agent.respond(self, tgt, "受傷響應", cands, {"src": src, "n": n, "nature": nature, "fan_n": fan_n})
             if not c:
                 break
             self.discard_card(tgt, c)
@@ -567,7 +623,7 @@ class Game:
                 victims = [q for q in self.alive_players() if q is not tgt]
                 if victims:
                     v = tgt.agent.choose_target(self, tgt, "反", victims)
-                    self.log(f"  傷害轉移給 {v.name}")
+                    self.log(f"  傷害改由 {v.name} 承受")
                     self.damage(tgt, v, n * (2 if tgt.char.fan_double else 1), nature=None)   # 反擊: 轉出去的傷害變成無屬性; 傷害來源改成使用者,所以吃流星錘 +1 和強化 / 弱化
                     return 0
             elif cname == "占":
@@ -1778,12 +1834,12 @@ class Game:
             debt = p.fa_debt.pop(0)
             pool = list(p.hand)   # 發憤圖強的棄牌只能棄手牌
             lo = max(0, debt - len(pool))   # 牌不夠時,至少要少棄這麼多張
-            labels = [f"棄 {debt - m} 張" + (f",其餘 {m} 張不棄 (扣 {m} 點體力)" if m else "") for m in range(lo, debt + 1)]
+            labels = [f"棄 {debt - m} 張" + (f",其餘 {m} 張不棄 (扣 {self.dmg_preview(p, m, tgt=p)} 點體力)" if m else "") for m in range(lo, debt + 1)]   # 扣的點數是算完強化 / 弱化的
             m = lo + (p.agent.choose_option(self, p, "發憤圖強-少棄", labels) if len(labels) > 1 else 0)
             m = max(lo, min(debt, m))
             if m:   # 先結算少棄的傷害 (可觸發反擊/調虎離山/占卜等),再進行棄牌
-                self.log(f"{p.name} 發憤圖強少棄 {m} 張,扣 {m} 點體力")
-                self.damage(None, p, m)
+                self.log(f"{p.name} 發憤圖強少棄 {m} 張,扣 {self.dmg_preview(p, m, tgt=p)} 點體力")
+                self.damage(p, p, m, _bonus=False)   # 來源是自己: 自己的強化 / 弱化會算進去 (強化後少棄 5 張 = 10 點);不吃流星錘 +1
                 if not p.alive:
                     p.fa_debt = []
                     return

@@ -1,4 +1,5 @@
 """人類玩家代理: 每個決策都透過 Manager.ask 停下來等 GUI 回答。"""
+import re
 from engine import Player
 from characters import SkillAct
 from thinking import opt_label, pname
@@ -9,7 +10,7 @@ NEED_PROMPT = {
     "閃": "你被攻擊了,要打出閃嗎?",
     "殺": "需要打出殺",
     "無懈": "要使用無懈嗎?",
-    "受傷響應": "你將受到傷害,要使用反/調/占 嗎?",
+    "受傷響應": "你即將受到傷害,要使用 ⚡ 牌嗎?",
     "隔": "有人受傷了,要使用隔 抽牌嗎?",
     "火攻": "要棄置同色手牌造成 1 點火焰傷害嗎?",
     "借刀殺人": "要對指定的人出殺嗎?(不出會被奪走武器)",
@@ -77,21 +78,25 @@ class HumanAgent:
             prompt = (f"{pname(ctx['source'])} 對 " + ("全體" if ctx.get("targets") else pname(ctx["target"])) + f" 使用 {full_name(ctx['trick'])}" +
                       f"{' (已被無懈)' if ctx.get('negated') else ''},要使用無懈嗎?")
         if need == "受傷響應":
-            prompt = f"你將受到 {ctx['n']} 點傷害,要使用反/調/占 嗎?"
+            prompt = f"你即將受到 {ctx['n']} 點傷害,要使用 ⚡ 牌嗎?"
+            if ctx.get("fan_n") not in (None, ctx["n"]):
+                prompt += f" (用反擊轉給別人會是 {ctx['fan_n']} 點,已含強化/弱化)"
         for k in ("attacker", "src", "source"):
             if need in ("閃", "殺") and isinstance(ctx.get(k), Player):
                 who, cc = ctx[k], getattr(g, "cur_card", None)
                 if ctx.get("group"):
-                    prompt = f"{pname(who)} 使用 {ctx['group']},要打出{need}嗎?"
+                    prompt = f"{pname(who)} 使用 {full_name(ctx['group'])},要打出{need}嗎?"
                 elif cc is not None and g.cur_user is who and cc.name == "殺":
                     prompt = f"{pname(who)} 對你使用殺,要打出{need}嗎? (不出會受到傷害)"
                 elif cc is not None and g.cur_user is who:
-                    prompt = f"{pname(who)} 使用 {cc.name},要打出{need}嗎?"
+                    prompt = f"{pname(who)} 使用 {full_name(cc.name)},要打出{need}嗎?"
                 else:
                     prompt = f"{pname(who)} 的技能效果指向你,要打出{need}嗎?"
                 break
         if need == "殺" and isinstance(ctx.get("duel_with"), Player):
-            prompt = f"和 {pname(ctx['duel_with'])} 決鬥: 要打出殺嗎? (不出就扣 1 點體力)"
+            prompt = f"和 {pname(ctx['duel_with'])} 決鬥: 要打出殺嗎? (不出就扣 {g.dmg_preview(ctx['duel_with'], 1, tgt=p, bonus=True)} 點體力)"
+        if need in ("劉協棄牌", "夏侯淵給牌", "韓當棄牌", "袁術棄牌") and prompt and isinstance(ctx.get("source"), Player):   # 提示裡的「扣 1 點」要是算完對方強化 / 弱化的
+            prompt = prompt.replace("扣 1 點", f"扣 {g.dmg_preview(ctx['source'], 1, tgt=p, bonus=need in ('劉協棄牌', '夏侯淵給牌'))} 點")
         opts = [self._copt(i, ctext(c), c) for i, c in enumerate(cands)]
         opts.append(self._copt(len(cands), "不出", None))
         r = self._ask("respond", prompt or f"響應: {need}", opts)
@@ -186,7 +191,7 @@ class HumanAgent:
         return r[0] + 1
 
     def choose_offturn(self, g, p, options, cur, when):
-        sig = (when,) + tuple(sorted({getattr(o[0], "name", str(o[0])) for o in options}))
+        sig = (re.sub(r"\d+", "", when),) + tuple(sorted({getattr(o[0], "name", str(o[0])) for o in options}))
         m = self.muted.get(sig)
         if m and ((m[0] == "round" and m[1] == g.round) or (m[0] == "turn" and m[1] == g.turn_id)):
             return None
@@ -205,7 +210,7 @@ class HumanAgent:
             opts.append(d)
         opts.append(self._copt(len(options), "不發動"))
         opts.append(self._copt(len(options) + 1, "不發動,這類選項本回合不再詢問"))
-        r = self._ask("skill", (f"{pname(cur)} {when}: 要接連鎖使用 ⚡ 嗎?" if when.startswith(("對你使用", "使用了")) else f"{pname(cur)} 的{when}: 要發動技能嗎?"), opts,
+        r = self._ask("skill", (f"{pname(cur)} {when}: 要接連鎖使用 ⚡ 嗎?" if when.startswith(("對你使用", "使用了", "即將受到")) else f"{pname(cur)} 的{when}: 要發動技能嗎?"), opts,
                       timeout=20, default=[len(options)])   # 20 秒沒回答 = 不發動
         if r[0] == len(options) + 1:
             self.muted[sig] = ("turn", g.turn_id)

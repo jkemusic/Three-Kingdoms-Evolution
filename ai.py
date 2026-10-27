@@ -11,6 +11,7 @@ choose_x(g, p)                   -> 發憤圖強要抽的張數 1~5
 choose_chain(g, p)               -> 鐵索連環要橫置的玩家 list (空 = 重鑄)
 pick_pile(g, p, pile)            -> 五穀豐登要拿的牌
 """
+import re
 
 
 class RandomAgent:
@@ -496,6 +497,19 @@ class HeuristicAgent(RandomAgent):
                 if n == "孤" and p.hp <= p.maxhp - 2 and len(p.hand) <= 2:
                     return i
                 if n == "出" and isinstance(t, tuple) and t[0] is p and self.attitude(g, p, t[2]) <= -1 and t[1].name in ("樂", "兵", "毒", "閃電", "草"):
+                    return i
+            return None
+        if when.startswith("即將受到"):   # 傷害結算前的 ⚡: 受傷的人弱化對方,或傷害來源強化自己 (剛好能打死才值得)
+            src, tgt = getattr(g, "_dmg_ctx", None) or (None, None)
+            m = re.search(r"\d+", when)
+            n = int(m.group()) if m else 1
+            if src is None or tgt is None:
+                return None
+            for i, (c, t) in enumerate(options):
+                nm = getattr(c, "name", "")
+                if nm == "弱" and t is src and p is tgt and n >= 2 and (self.attitude(g, p, src) <= -1 or src is p) and (n >= p.hp or src is p):
+                    return i
+                if nm == "強" and t is p and p is src and tgt is not p and self.attitude(g, p, tgt) <= -1 and n < tgt.hp <= n * 2:
                     return i
             return None
         if when != "回合開始":

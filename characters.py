@@ -933,7 +933,7 @@ class 劉協(Char):
     def plain_immune(self, g, p): return True
 
     def on_turn_start(self, g, p):  # 別人各棄 1 張手牌,否則扣 1 點體力
-        g.link(f"{p.name}[劉協] 回合開始: 其他人各棄 1 張手牌,否則扣 1 點體力")
+        g.link(f"{p.name}[劉協] 回合開始: 其他人各棄 1 張手牌,否則扣 {g.dmg_preview(p, 1, bonus=True)} 點體力")
         for q in g.others(p):
             if not q.alive:
                 continue
@@ -1377,7 +1377,7 @@ class 夏侯淵(Char):
         if not user.alive or not g.trigger_ok(p, "夏侯淵-索牌"):
             return
         c = user.agent.respond(g, user, "夏侯淵給牌", list(user.hand), {"source": p}) if user.hand else None
-        g.link(f"{p.name}[夏侯淵] {user.name} 使用閃,要交一張手牌 (否則扣 1 點體力)")
+        g.link(f"{p.name}[夏侯淵] {user.name} 使用閃,要交一張手牌 (否則扣 {g.dmg_preview(p, 1, tgt=user, bonus=True)} 點體力)")
         if c:
             user.hand.remove(c)
             p.hand.append(c)
@@ -1577,7 +1577,7 @@ class 楊修(Char):
             g.heal(p, acc)
         elif acc and g.others(p):
             t = p.agent.choose_target(g, p, "楊修-轉移傷害", g.others(p))
-            g.log(f"  黑色: 把 {acc} 點傷害轉移給 {t.name}")
+            g.log(f"  黑色: 把 {acc} 點傷害改由 {t.name} 承受")
             g.damage(p, t, acc, nature=nat, _bonus=False, _mods=False)
 
 
@@ -1965,7 +1965,7 @@ class 袁術(Char):
     def on_cards_discarded(self, g, p, c):  # 我的牌被捨棄: 其他人也要棄 1 張牌,否則 -1 點體力 (可閃)
         if not g.trigger_ok(p, "袁術-連坐"):
             return
-        g.link(f"{p.name}[袁術] 牌被捨棄,其他人要棄 1 張牌,否則 -1 點體力 (可閃)")
+        g.link(f"{p.name}[袁術] 牌被捨棄,其他人要棄 1 張牌,否則 -{g.dmg_preview(p, 1)} 點體力 (可閃)")
         for q in list(g.others(p)):
             if not q.alive:
                 continue
@@ -2217,7 +2217,7 @@ class 韓當(Char):
     def _tax(self, g, p, q):  # 吳勢力的玩家每回合要棄 1 張手牌或扣 1 點體力 (可閃)
         if q._char.faction != "吳" or not q.alive or not g.trigger_ok(p, f"韓當-{q.idx}"):
             return
-        g.link(f"{p.name}[韓當] {q.name} 是吳勢力,要棄 1 張手牌,否則扣 1 點體力 (可閃)")
+        g.link(f"{p.name}[韓當] {q.name} 是吳勢力,要棄 1 張手牌,否則扣 {g.dmg_preview(p, 1, tgt=q)} 點體力 (可閃)")
         cd = q.agent.respond(g, q, "韓當棄牌", list(q.hand), {"source": p}) if q.hand else None
         if cd:
             g.discard_card(q, cd)

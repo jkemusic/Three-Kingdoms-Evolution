@@ -105,7 +105,7 @@ const W = [
   ["展示 ", "shows ", "公開: "], ["棄置 ", "discards ", "捨てる: "], ["亮出 ", "reveals ", "公開: "], ["判定 ", "judges ", "判定: "],
   ["裝備 ", "equips ", "装備: "], ["重鑄 ", "recasts ", "再鋳造: "], ["重鑄: 抽1張", "Recast: draws 1", "再鋳造: 1枚引く"],
   ["將 ", "puts ", ""], [" 放入 ", " into ", " を "], [" 的判定區", "'s judgement zone", " の判定エリアに置く"],
-  ["傷害轉移給 ", "Damage transferred to ", "ダメージ移転先: "], ["同色 ", "Same colour ", "同色 "], ["兩張都棄掉", "both discarded", "両方捨てる"],
+  ["傷害改由 ", "Damage taken by ", "ダメージを受ける人: "], ["同色 ", "Same colour ", "同色 "], ["兩張都棄掉", "both discarded", "両方捨てる"],
   ["使用桃 -> 體力 ", "plays Peach -> HP ", "桃を使用 -> 体力 "], ["使用酒 (下一張殺傷害+1)", "drinks Wine (next Slash +1 damage)", "酒を使用(次の殺のダメージ+1)"],
   ["武將牌翻面一回合 (技能無法使用)", "character card flipped for a turn (skills disabled)", "武将カードが1ターン裏返る(スキル使用不可)"],
   ["翻面一回合", "is flipped for a turn", "が1ターン裏返る"], ["偽裝成 ", "disguises as ", "変身: "], ["獲得他的技能直到回合結束", "gaining their skills until end of turn", "ターン終了までそのスキルを得る"],
