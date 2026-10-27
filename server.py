@@ -490,7 +490,7 @@ def _card(key):   # 好友列表用: 頭貼 / 框 / 特效 / 段位 / 等級
     a = ACCOUNTS.d.get(key)
     t = a["uuid"] if a else ""
     p = PROFILES.d.get(t) or {}
-    return {"avatar": PROFILES.avatar_url(t), "style": PROFILES.style(t), "rank": PROFILES.lv(t), "level": PROFILES.level(p.get("xp", 0)), "dev": PROFILES.dev(t)}
+    return {"avatar": PROFILES.avatar_url(t), "style": PROFILES.style(t), "rank": PROFILES.lv(t), "rp": p.get("rp", 0), "playtime": p.get("playtime", 0), "level": PROFILES.level(p.get("xp", 0)), "dev": PROFILES.dev(t)}
 SOCIAL.card = _card
 SOCIAL.uid_key = lambda uid: next((k for k, a in list(ACCOUNTS.d.items()) if PROFILES.uid(a["uuid"]) == uid), None)
 
@@ -525,6 +525,7 @@ class Manager:
         self.claims = {}; self.ips = {}
         self.seen = {}    # tok -> 最後一次連線時間 (算目前在線人數)
         self.kicked = {}  # tok -> 解除時間 (被房主踢出)
+        self.cap = 0       # 房間人數上限 (0 = 不限; 含觀戰的人)
         self.solo = False  # 單人模式房間: 只有建立者進得去,不顯示在大廳,離開就刪除
         self.pw = None    # 房間密碼 (加鹽雜湊;None = 沒有密碼)
         self.allowed = set()   # 輸入過密碼 / 被邀請的玩家 (uuid)
@@ -1187,7 +1188,7 @@ def is_playing(tok):
     return any(m.game_active() and tok in m.claims.values() for m in list(ROOMS.values()))
 
 
-def create_room(tok, name, password=None, solo=False):
+def create_room(tok, name, password=None, solo=False, cap=0):
     name = (name or "").strip()[:20] or "新房間"
     password = str(password or "")[:20]
     if not tok:
@@ -1203,6 +1204,11 @@ def create_room(tok, name, password=None, solo=False):
         if password:
             m.pw = Accounts._mk(password)
         m.solo = bool(solo)
+        try:
+            cap = int(cap or 0)
+        except (TypeError, ValueError):
+            cap = 0
+        m.cap = cap if 2 <= cap <= 10 else 0
         m.created = time.time()
         ROOMS[rid] = m
     return {"ok": True, "room": rid, "name": name, "locked": bool(password)}
@@ -1213,6 +1219,8 @@ def join_room(tok, rid, password, ip=""):
     m = ROOMS.get(rid)
     if m is None:
         return {"ok": False, "gone": True, "error": "房間已不存在"}
+    if m.cap and m.pid(tok) not in {x["id"] for x in m.online()} and len(m.online()) >= m.cap:
+        return {"ok": False, "error": "房間已滿 (上限 %d 人)" % m.cap}
     if not m.pw or m.can_enter(tok):
         return {"ok": True}
     key = "room:" + str(rid) + ":" + str(tok)
@@ -1284,7 +1292,7 @@ def list_rooms(tok=None):
         out.append({"id": rid, "name": m.room_name, "online": len(on), "state": st, "host": m.host_name() or "",
                     "n": m.cfg.get("n") if m.cfg else None, "main": rid == "main",
                     "can_delete": rid != "main" and tok in (m.owner, m.host),
-                    "locked": bool(m.pw), "need_pw": bool(m.pw) and not m.can_enter(tok)})
+                    "locked": bool(m.pw), "need_pw": bool(m.pw) and not m.can_enter(tok), "cap": m.cap})
     out.sort(key=lambda r: (not r["main"], -r["online"]))
     return out
 
@@ -1601,7 +1609,7 @@ class Handler(BaseHTTPRequestHandler):
             if path == "/api/room_create" and not ACCOUNTS.is_account(data.get("tok")):
                 return self._send(200, {"ok": False, "auth": False, "error": "請先登入"})
             if path == "/api/room_create":
-                return self._send(200, create_room(data.get("tok"), data.get("name"), data.get("password"), bool(data.get("solo"))))
+                return self._send(200, create_room(data.get("tok"), data.get("name"), data.get("password"), bool(data.get("solo")), data.get("cap")))
             if path == "/api/room_join":
                 return self._send(200, join_room(data.get("tok"), data.get("room") or "main", data.get("password"), self._ip()))
             M = ROOMS.get(data.get("room") or "main")

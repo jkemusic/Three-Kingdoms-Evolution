@@ -8,6 +8,10 @@ window.SGS_LOG_TPL = (window.SGS_LOG_TPL || []).concat([
 ["🤖 電腦 · 最強", "🤖 CPU · 最強", "🤖 CPU · 最強"],
 ["🎨 外觀", "🎨 Appearance", "🎨 外観"],
 ["外觀", "Appearance", "外観"],
+["人數不限", "No player limit", "人数制限なし"], ["房間人數上限 (含觀戰的人)", "Room player limit (incl. spectators)", "部屋の人数上限(観戦者を含む)"], ["房間已滿 (上限 ", "Room is full (limit ", "部屋は満員です(上限 "],
+["上限 2 人", "Max 2 players", "上限2人"], ["上限 3 人", "Max 3 players", "上限3人"], ["上限 4 人", "Max 4 players", "上限4人"], ["上限 5 人", "Max 5 players", "上限5人"], ["上限 6 人", "Max 6 players", "上限6人"], ["上限 7 人", "Max 7 players", "上限7人"], ["上限 8 人", "Max 8 players", "上限8人"], ["上限 9 人", "Max 9 players", "上限9人"], ["上限 10 人", "Max 10 players", "上限10人"], 
+["卡牌", "Cards", "カード"], ["搜尋卡牌名稱或說明…", "Search card name or text…", "カード名や説明で検索…"],
+["排序", "Sort", "並び替え"], ["排序方式", "Sort by", "並び替え方法"], ["成為好友時間", "Friends since", "友達になった日"], ["等級", "Level", "レベル"], ["名字 A-Z", "Name A-Z", "名前 A-Z"], ["最近上線", "Last online", "最終オンライン"], ["由小到大", "Ascending", "昇順"], ["由大到小", "Descending", "降順"], ["切換排序方向", "Toggle sort direction", "並び順を切り替え"], ["上一頁", "Previous", "前へ"], ["下一頁", "Next", "次へ"],
 ["主題 / 頭像框 / 特效,有些要段位或成就解鎖", "Themes / avatar frames / effects — some need a rank or achievement", "テーマ / アイコン枠 / エフェクト。ランクや実績で解放されるものもあります"],
 ["外觀 (主題、頭像框、特效)", "Appearance (themes, avatar frames, effects)", "外観(テーマ・アイコン枠・エフェクト)"],
 ["完成成就可以解鎖主題、頭像框與特效", "Complete achievements to unlock themes, avatar frames and effects", "実績を達成するとテーマ・アイコン枠・エフェクトが解放されます"],
@@ -74,7 +78,6 @@ window.SGS_LOG_TPL = (window.SGS_LOG_TPL || []).concat([
 ["灰燼", "Ashes", "灰燼"], ["古風三國", "Ancient Kingdoms", "古風三国"], ["電競藍", "Esports Blue", "eスポーツブルー"], ["像素·草地", "Pixel · Grass", "ピクセル・草原"], ["像素·地牢", "Pixel · Dungeon", "ピクセル・ダンジョン"], ["像素·金幣", "Pixel · Coin", "ピクセル・コイン"], ["像素·熔岩", "Pixel · Lava", "ピクセル・溶岩"], ["像素·星夜", "Pixel · Night", "ピクセル・星夜"], ["像素·糖粉", "Pixel · Candy", "ピクセル・キャンディ"], ["像素·掌機綠", "Pixel · Handheld", "ピクセル・携帯機"], ["像素·海藍", "Pixel · Ocean", "ピクセル・海"], ["像素·琥珀", "Pixel · Amber", "ピクセル・琥珀"], ["像素·暮紫", "Pixel · Dusk", "ピクセル・夕暮れ"], ["像素·赤紅", "Pixel · Red", "ピクセル・赤"], ["像素·黑白", "Pixel · Mono", "ピクセル・モノ"], ["緋紅", "Scarlet", "緋色"], ["夕陽", "Sunset", "夕陽"], ["毒綠", "Toxic Green", "毒緑"], ["賽博", "Cyber", "サイバー"],
 ["黑白", "Monochrome", "モノクロ"], ["薰衣草", "Lavender", "ラベンダー"], ["皇家", "Royal", "ロイヤル"],
 // --- 好友 / 房間 / 密碼 ---
-["  (把這組 UID 給朋友,他就能加你)", "  (Give this UID to a friend so they can add you)", "  (このUIDを友達に教えると追加してもらえます)"],
 [" (你)", " (you)", " (あなた)"], [" (座位 ", " (seat ", " (席 "], [" (房主: ", " (host: ", " (ホスト: "],
 [" · 共同好友 ", " · Mutual friends ", " · 共通の友達 "], [" · 無共同好友", " · No mutual friends", " · 共通の友達なし"], [" · 積分 ", " · Points ", " · ポイント "],
 [" 亮牌", " reveals", " が公開"], [" 人參戰。", " players are in.", " 人が参戦中。"], [" 傳來私訊", " sent a message", " からメッセージ"],

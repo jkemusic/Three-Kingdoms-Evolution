@@ -430,7 +430,7 @@ body.hand-off #hand{display:none!important}
   #bSide{display:none}
   #tabs{display:none}   /* 手機用底下的分頁列,上面那排重複了 */
   #center{text-align:center!important}
-  #mnav{display:grid;grid-template-columns:repeat(5,1fr);background:var(--panel);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+  #mnav{display:grid;grid-template-columns:repeat(6,1fr);background:var(--panel);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
   #mnav button{border:0;border-radius:0;background:transparent;color:var(--dim)}
   #mnav button.on{color:var(--accent);border-top:2px solid var(--accent)}
 }
@@ -439,7 +439,7 @@ body.hand-off #hand{display:none!important}
 #rooms .rbox{width:min(640px,100%);background:#0b1a30;border:1px solid #24557d;border-radius:14px;padding:18px 20px;box-shadow:0 10px 40px rgba(0,0,0,.6)}
 #rooms h2{margin:0 0 4px;color:#3fd2ff}
 .rnew{display:flex;gap:8px;margin:14px 0}.rnew input{flex:1}
-@media (max-width:560px){.rnew{flex-wrap:wrap}.rnew input{flex:1 1 100%;min-width:0;max-width:none!important;min-height:44px}.rnew #rpw{flex:1 1 0}.rnew button{flex:none;white-space:nowrap;min-height:44px}}   /* 手機: 房間名稱獨佔一列,密碼和按鈕同一列 (原本按鈕被擠成直排、溢出卡片) */
+@media (max-width:560px){.rnew{flex-wrap:wrap}.rnew input{flex:1 1 100%;min-width:0;max-width:none!important;min-height:44px}.rnew #rpw{flex:1 1 0}.rnew #rcap{flex:none;min-height:44px}.rnew button{flex:none;white-space:nowrap;min-height:44px}}   /* 手機: 房間名稱獨佔一列,密碼和按鈕同一列 (原本按鈕被擠成直排、溢出卡片) */
 #rlist{display:flex;flex-direction:column;gap:8px;max-height:55vh;overflow:auto}
 .rrow{display:flex;align-items:center;gap:10px;background:#0e2442;border:1px solid #24496f;border-radius:10px;padding:10px 12px}
 .rrow .ri{flex:1;min-width:0}.rrow .rn{font-weight:700}.rrow .rm{font-size:12px;color:var(--dim)}
@@ -639,13 +639,14 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
       <div class="panhint">按住空白處拖曳可移動牌桌 · 雙擊還原</div>
     </div>
     <div id="side">
-      <div id="tabs"><button data-t="log" class="on">對局紀錄</button><button data-t="th">AI 思考</button><button data-t="ch">武將</button><button data-t="cc">聊天<b id="cbadge"></b></button></div>
+      <div id="tabs"><button data-t="log" class="on">對局紀錄</button><button data-t="th">AI 思考</button><button data-t="ch">武將</button><button data-t="cd">卡牌</button><button data-t="cc">聊天<b id="cbadge"></b></button></div>
       <div id="logbar"><label><input id="follow" type="checkbox" checked> 自動捲到最新</label><span class="meta">↳ = 連鎖回應</span></div>
       <div class="pane on" id="log"></div>
       <div class="pane" id="th">
         <div class="row"><label>只看 <select id="thf"><option value="">全部玩家</option></select></label><span class="meta" id="thnote"></span></div>
         <div id="thl"></div>
       </div>
+      <div class="pane" id="cd"><input type="text" id="cdq" placeholder="搜尋卡牌名稱或說明…" style="width:100%;box-sizing:border-box;margin-bottom:6px"><div id="cdl"></div></div>
       <div class="pane" id="ch"><input type="text" id="chq" placeholder="搜尋武將名稱或技能敘述…" style="width:100%;box-sizing:border-box;margin-bottom:6px"><div class="chars" id="chl"></div></div>
       <div class="pane" id="cc"><div id="cl"></div><div id="cin"><input id="ctext" type="text" maxlength="200" placeholder="輸入訊息,Enter 送出"><button id="csend" class="primary">送出</button></div></div>
     </div>
@@ -655,7 +656,7 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
     <div id="hand"></div>
     <div id="bar"></div>
   </div>
-  <div id="mnav"><button data-m="" class="on">牌桌</button><button data-m="log">紀錄</button><button data-m="th">AI 思考</button><button data-m="ch">武將</button><button data-m="cc">聊天</button></div>
+  <div id="mnav"><button data-m="" class="on">牌桌</button><button data-m="log">紀錄</button><button data-m="th">AI 思考</button><button data-m="ch">武將</button><button data-m="cd">卡牌</button><button data-m="cc">聊天</button></div>
 </div>
 <div id="auth"><div class="rbox">
   <h2>三國殺重製版</h2>
@@ -670,7 +671,7 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
 <div id="rooms"><div class="rbox">
   <h2>三國殺重製版 · 大廳</h2>
   <div class="meta">選一個房間加入,或自己創建一個。房間沒人超過 10 分鐘會自動刪除。</div>
-  <div class="rnew"><input id="rname" type="text" maxlength="20" placeholder="房間名稱 (例如: 阿明的房間)"><input id="rpw" type="password" maxlength="20" placeholder="房間密碼 (可不設)" autocomplete="new-password" style="max-width:150px"><button id="rcreate" class="primary">創建房間</button></div>
+  <div class="rnew"><input id="rname" type="text" maxlength="20" placeholder="房間名稱 (例如: 阿明的房間)"><input id="rpw" type="password" maxlength="20" placeholder="房間密碼 (可不設)" autocomplete="new-password" style="max-width:150px"><select id="rcap" title="房間人數上限 (含觀戰的人)"><option value="0">人數不限</option><option value="2">上限 2 人</option><option value="3">上限 3 人</option><option value="4">上限 4 人</option><option value="5">上限 5 人</option><option value="6">上限 6 人</option><option value="7">上限 7 人</option><option value="8">上限 8 人</option><option value="9">上限 9 人</option><option value="10">上限 10 人</option></select><button id="rcreate" class="primary">創建房間</button></div>
   <div class="rnew"><button id="rsolo" class="primary" title="自己一個人和電腦對打 (房間不公開)">🤖 單人模式 (和電腦對打)</button></div>
   <div id="rlist"></div>
 </div></div>
@@ -1613,7 +1614,7 @@ function showOnline() {
   if (!e || !o) return;
   const hb = document.getElementById("handover"); if (hb) renderHandover(hb);
   e.textContent = "";
-  e.append(h("span", {class: "dot"}), h("button", {type: "button", text: `👥 房間內 ${o.length} 人 ▾`, title: "查看在線的人", style: {padding: "3px 10px"}, onclick: openOnlineList}));
+  e.append(h("button", {type: "button", text: `👥 房間內 ${o.length} 人 ▾`, title: "查看在線的人", style: {padding: "3px 10px"}, onclick: openOnlineList}));
   if (document.getElementById("onlist")) renderOnlineList();   // 列表開著時跟著更新
 }
 function renderOnlineList() {
@@ -1900,7 +1901,7 @@ async function sendChat() {
 $("#csend").onclick = sendChat;
 $("#ctext").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); sendChat(); } });
 document.querySelectorAll("#tabs button, #mnav button").forEach(b => b.addEventListener("click", () => {
-  const lb = $("#logbar"); if (lb) lb.style.display = (b.dataset.t || b.dataset.m) === "cc" ? "none" : "";
+  const lb = $("#logbar"); if (lb) lb.style.display = (b.dataset.t || b.dataset.m) === "log" ? "" : "none";   // 只有對局紀錄分頁顯示
   if ((b.dataset.t || b.dataset.m) === "cc") { S.chatUnread = 0; updChatBadge(); if (window.SGSCH) SGSCH.shown(); setTimeout(() => { const L = $("#cl"); L.scrollTop = L.scrollHeight; }, 0); }
 }));
 /* ---------- 暱稱 ---------- */
@@ -2020,7 +2021,7 @@ async function poll(force) {
     S.online = snap.online; S.hostName = snap.host_name; showOnline(); showHostBar(snap); handleEvents(snap.events);
     S.nickLocked = !!snap.locked; { const b = $("#bNick"); b.disabled = S.nickLocked; b.title = S.nickLocked ? "遊戲進行中不能改暱稱" : "修改你的暱稱"; }
     if (!snap.ready) {
-      $("#status").textContent = snap.is_host ? "尚未開始" : "等待房主操作";
+      $("#status").textContent = snap.is_host ? "" : "等待房主操作";
       if (snap.is_host && S.modalOpen == null && S.roster && S.setupOff !== snap.room_name) openSetup();   // 按過「取消」就不再自動彈出
       { const c = $("#center");   // 關掉新遊戲視窗後,場地中央留一個按鈕可以再開
         if (snap.is_host && !c.querySelector(".ngb")) { c.textContent = ""; S.centerKey = null; c.append(h("div", {class: "ngb"}, h("button", {type: "button", class: "primary", text: "開始新遊戲", onclick: () => { S.setupOff = null; openSetup(); }}))); }
@@ -2068,6 +2069,9 @@ document.querySelectorAll("#mnav button").forEach(b => b.onclick = () => {
   if (b.dataset.m) document.querySelector(`#tabs button[data-t="${b.dataset.m}"]`).click();
   if (b.dataset.m === "th") renderThoughts();
 });
+document.querySelector('#tabs button[data-t="cd"]').addEventListener("click", () => { if (window.SGS_I18N) SGS_I18N.renderCardPane(); });
+$("#cdq").addEventListener("input", () => { if (window.SGS_I18N) SGS_I18N.renderCardPane(); });
+document.addEventListener("sgs-lang", () => { if ($("#cd").classList.contains("on")) SGS_I18N.renderCardPane(); });
 /* 左上角的牌詳細資訊: 點空白處、或滑鼠不在任何牌上 (例如那張牌被重畫掉了) 就收起 */
 document.addEventListener("click", () => { $("#prev").style.display = "none"; }, true);
 document.addEventListener("mousemove", e => { const P = $("#prev"); if (P.style.display === "block" && !(e.target.closest && e.target.closest(".hasprev"))) P.style.display = "none"; });
@@ -2198,8 +2202,8 @@ async function showProfile() {
           h("div", {style: {margin: "6px 0"}}, rkEl(p.rank, true), devEl(p.dev)),
           h("div", {style: {display: "flex", gap: "6px", flexWrap: "wrap"}},
             h("button", {text: "上傳頭貼", style: {whiteSpace: "nowrap", padding: "6px 10px"}, onclick: () => $("#avfile").click()}),
-            h("button", {text: "🎨 外觀", style: {whiteSpace: "nowrap", padding: "6px 10px"}, onclick: () => { close(); SGS_THEME.open("theme"); }}),
-            p.avatar ? h("button", {text: "移除", style: {whiteSpace: "nowrap", padding: "6px 10px"}, onclick: async () => { await api("/api/avatar", {data: ""}); showProfile(); }}) : null)),
+            p.avatar ? h("button", {text: "移除", style: {whiteSpace: "nowrap", padding: "6px 10px"}, onclick: async () => { await api("/api/avatar", {data: ""}); showProfile(); }}) : null,
+            h("button", {text: "🎨 外觀", style: {whiteSpace: "nowrap", padding: "6px 10px"}, onclick: () => { close(); SGS_THEME.open("theme"); }}))),
         h("input", {id: "avfile", type: "file", accept: "image/*", style: {display: "none"}, onchange: e => uploadAvatar(e.target.files[0])})),
       ...rkProgress(p),
         streakLine(p),
@@ -2345,7 +2349,7 @@ async function refreshRooms() {
   const L = $("#rlist"); L.textContent = "";
   for (const r of list) {
     L.append(h("div", {class: "rrow"},
-      h("div", {class: "ri"}, h("div", {class: "rn", text: (r.locked ? "🔒 " : "") + r.name}), h("div", {class: "rm", text: (r.host ? "房主: " + r.host + " · " : "") + (r.n ? r.n + " 人局 · " : "") + "目前 " + r.online + " 人在線"})),
+      h("div", {class: "ri"}, h("div", {class: "rn", text: (r.locked ? "🔒 " : "") + r.name}), h("div", {class: "rm", text: (r.host ? "房主: " + r.host + " · " : "") + (r.n ? r.n + " 人局 · " : "") + "目前 " + r.online + (r.cap ? " / " + r.cap : "") + " 人在線"})),
       h("span", {class: "st" + (r.state === "進行中" ? " go" : ""), text: r.state}),
       h("button", {class: "primary", text: r.state === "進行中" || r.state === "選武將" ? "觀戰" : "加入", title: r.state === "進行中" || r.state === "選武將" ? "遊戲已開始,只能觀戰" : "", onclick: () => joinRoom(r)})));
   }
@@ -2427,7 +2431,7 @@ $("#bRooms").onclick = () => {
   leaveRoom();
 };
 $("#rcreate").onclick = async () => {
-  const r = await (await fetch("/api/room_create", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({tok: TOK, name: $("#rname").value, password: $("#rpw").value})})).json();
+  const r = await (await fetch("/api/room_create", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({tok: TOK, name: $("#rname").value, password: $("#rpw").value, cap: +$("#rcap").value})})).json();
   if (!r.ok) { toast("創建失敗: " + r.error); return; }
   $("#rname").value = ""; $("#rpw").value = ""; enterRoom(r.room, r.name);
 };

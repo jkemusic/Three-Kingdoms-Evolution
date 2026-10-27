@@ -318,7 +318,7 @@ const PAT = {
     [/^等待 P(\d+) ?(.*)$/, (m, i, c) => `Waiting for P${i} ${c}`],
     [/^體力 (\d+)\/(\d+)$/, (m, a, b) => `HP ${a}/${b}`],
     [/^手牌 (\d+)$/, (m, n) => `Hand ${n}`],
-    [/^目前 (\d+) 人在線$/, (m, n) => `${n} online`],
+    [/^目前 (\d+)(?: \/ (\d+))? 人在線$/, (m, n, c) => `${n}${c ? "/" + c : ""} online`],
     [/^(.+?) 回合$/, (m, a) => `${a}'s turn`],
     [/^你\((.*)\)$/, (m, a) => `You (${a})`],
     [/^Round (\d+) 輪$/, (m, a) => `Round ${a}`],
@@ -336,7 +336,7 @@ const PAT = {
     [/^等待 P(\d+) ?(.*)$/, (m, i, c) => `P${i} ${c} を待っています`],
     [/^體力 (\d+)\/(\d+)$/, (m, a, b) => `体力 ${a}/${b}`],
     [/^手牌 (\d+)$/, (m, n) => `手札 ${n}`],
-    [/^目前 (\d+) 人在線$/, (m, n) => `${n}人オンライン`],
+    [/^目前 (\d+)(?: \/ (\d+))? 人在線$/, (m, n, c) => `${n}${c ? "/" + c : ""}人オンライン`],
     [/^(.+?) 回合$/, (m, a) => `${a} のターン`],
     [/^你\((.*)\)$/, (m, a) => `あなた(${a})`],
   ],
@@ -631,6 +631,29 @@ function openTut(p) {
   box.append(dlg);
 }
 const CATT = { btn: { zh: "🃏 卡牌圖鑑", en: "🃏 Card Gallery", ja: "🃏 カード図鑑" }, title: { zh: "卡牌圖鑑", en: "Card Gallery", ja: "カード図鑑" }, back: { zh: "← 回到教學", en: "← Back to tutorial", ja: "← チュートリアルへ" } };
+function cardItems(cat) {   // 卡牌圖鑑的每一格 (教學彈窗與側欄分頁共用): [{node, text}]
+  const T = x => (typeof tr === "function" ? tr(x) : x), out = [];
+  for (const [k, v] of Object.entries(cat)) {
+    if (/^[火冰雷]殺$/.test(k)) continue;
+    const eq = /^(裝備|武器)[(（]/.test(v.desc);   // 武器 / 防具 / 坐騎: 名字用牌名,說明保留「裝備(類型)」
+    const full = eq ? k : (v.desc.match(/^([^:：]+)[:：]/) || [0, k])[1];
+    const nm = lang !== "zh" && !eq && SHORT[k] ? ((full.match(/^[⚡⏳]\s*/) || [""])[0]) + SHORT[k][lang === "en" ? 0 : 1] : T(full);
+    const ds = eq ? T(v.desc) : (exact[v.desc] ? exact[v.desc].replace(/^[⚡⏳]\s*/, "") : T(v.desc.replace(/^[^:：]+[:：]\s*/, "")));
+    out.push({ text: (k + " " + full + " " + v.desc + " " + nm + " " + ds).toLowerCase(),
+      node: el("div", { class: "cgi" }, el("img", { src: v.img["紅"] || v.img["黑"], loading: "lazy" }),
+        el("div", {}, el("b", { text: nm }), el("div", { class: "cgd", text: ds }))) });
+  }
+  return out;
+}
+let cdCat = null;
+async function renderCardPane() {   // 側欄「卡牌」分頁: 圖鑑 + 搜尋
+  const q = document.getElementById("cdq"), L = document.getElementById("cdl"); if (!q || !L) return;
+  if (!cdCat) { L.textContent = "…"; try { cdCat = await (await fetch("/api/cardcat")).json(); } catch (e) { L.textContent = String(e); return; } }
+  const items = cardItems(cdCat), w = q.value.trim().toLowerCase();
+  L.textContent = "";
+  for (const it of items) if (!w || it.text.includes(w)) L.append(it.node);
+  if (!L.children.length) L.append(el("div", { class: "meta", text: lang === "en" ? "No matching card" : lang === "ja" ? "該当するカードなし" : "找不到符合的卡牌" }));
+}
 async function openCatalog() {
   const box = tutBox(); box.textContent = "";
   const grid = el("div", { class: "cgrid" }, el("p", { text: "…" }));
@@ -642,14 +665,7 @@ async function openCatalog() {
   let cat = {};
   try { cat = await (await fetch("/api/cardcat")).json(); } catch (e) { grid.textContent = String(e); return; }
   grid.textContent = "";
-  const T = x => (typeof tr === "function" ? tr(x) : x);
-  for (const [k, v] of Object.entries(cat)) {
-    if (/^[火冰雷]殺$/.test(k)) continue;
-    const eq = /^(裝備|武器)[(（]/.test(v.desc);   // 武器 / 防具 / 坐騎: 名字用牌名,說明保留「裝備(類型)」
-    const full = eq ? k : (v.desc.match(/^([^:：]+)[:：]/) || [0, k])[1];
-    grid.append(el("div", { class: "cgi" }, el("img", { src: v.img["紅"] || v.img["黑"], loading: "lazy" }),
-      el("div", {}, el("b", { text: lang !== "zh" && !eq && SHORT[k] ? ((full.match(/^[⚡⏳]\s*/) || [""])[0]) + SHORT[k][lang === "en" ? 0 : 1] : T(full) }), el("div", { class: "cgd", text: eq ? T(v.desc) : (exact[v.desc] ? exact[v.desc].replace(/^[⚡⏳]\s*/, "") : T(v.desc.replace(/^[^:：]+[:：]\s*/, ""))) }))));
-  }
+  for (const it of cardItems(cat)) grid.append(it.node);
 }
 function refreshTut() { if (document.getElementById("tutov")) openTut(tutPage); }
 async function startPractice() {
@@ -726,7 +742,7 @@ const CSS = `
 .imlab,.imside{font-size:11px;color:#8fa3bf;text-align:center}.imbot{display:flex;flex-direction:column;align-items:center;gap:4px}
 body.hint-on #modal .modal:not(.soft){padding-top:var(--hintpush,0)!important;box-sizing:border-box;align-items:safe center!important}
 #hintbar{position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:8000;background:#16324a;color:#fff;border:1px solid #3fd2ff;border-radius:10px;padding:8px 14px;display:flex;gap:10px;align-items:center;max-width:min(92vw,720px);box-shadow:0 4px 18px rgba(0,0,0,.5);font-size:14px}
-.tdlg.cgdlg{max-width:760px;width:min(760px,96vw)}.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px;max-height:62vh;overflow:auto;padding:4px 2px}.cgi{display:flex;gap:10px;align-items:flex-start;background:#0c1d36;border:1px solid #24557d;border-radius:8px;padding:6px}.cgi img{width:56px;border-radius:4px;flex:none}.cgd{font-size:12px;color:#a9c4de;margin-top:2px;line-height:1.4}
+.tdlg.cgdlg{max-width:760px;width:min(760px,96vw)}#cdl{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px;max-height:62vh;overflow:auto;padding:4px 2px}.cgi{display:flex;gap:10px;align-items:flex-start;background:#0c1d36;border:1px solid #24557d;border-radius:8px;padding:6px}.cgi img{width:56px;border-radius:4px;flex:none}.cgd{font-size:12px;color:#a9c4de;margin-top:2px;line-height:1.4}
 #hintbar b{color:#3fd2ff;white-space:nowrap}#hintbar button{background:none;border:0;color:#9fb0c8;cursor:pointer;font-size:15px}
 `;
 function openLangPop() {
@@ -757,6 +773,6 @@ function init() {
   try { if (!localStorage.getItem("sgs_tut_seen")) { localStorage.setItem("sgs_tut_seen", "1"); } } catch (e) {}
 }
 function mark(n) { orig.set(n, { zh: n.nodeValue, out: n.nodeValue }); return n; }   // 已經翻好的文字節點: 不要讓逐節點翻譯再碰一次
-window.SGS_I18N = { setLang, tr, mark, openTut, get lang() { return lang; } };
+window.SGS_I18N = { renderCardPane, setLang, tr, mark, openTut, get lang() { return lang; } };
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
 })();

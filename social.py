@@ -249,13 +249,13 @@ class Social:
                 com = [self._name(x) for x in self._u(k)["fr"] if x in mine and x != key]
                 return dict(self.card(k), mutual=len(com), mutual_names=com[:8])
             fr = []
-            for f in me["fr"]:
+            for fi, f in enumerate(me["fr"]):   # fi = 成為好友的先後順序 (越小越早)
                 uf = self._u(f)
                 rd = me["read"].get(f, 0)
                 unread = sum(1 for m in self.d["dm"].get(self._pair(key, f), []) if m["f"] == f and m["t"] > rd)
                 on = now - uf.get("seen", 0) < ONLINE_WITHIN
                 fr.append(dict(extra(f), user=self._name(f), id=f, remark=me.get("rk", {}).get(f, ""), online=on, seen=int(uf.get("seen", 0)),
-                               where=where(f) if on else "", unread=unread))
+                               where=where(f) if on else "", unread=unread, idx=fi))
             fr.sort(key=lambda x: (not x["online"], -x["seen"]))
             inv = [{"id": i["id"], "from": self._name(i["frm"]), "room": i["room"], "rname": i["rname"]}
                    for i in self.invites.get(key, []) if now - i["t"] < INVITE_TTL]

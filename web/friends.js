@@ -142,8 +142,7 @@
     inp.onkeydown = e => { if (e.key === "Enter") add(); };
     const myUid = S.prof && S.prof.uuid;
     if (myUid) body.append(el("div", {class: "meta", style: {marginTop: "8px"}}, "我的 UID: ", el("b", {text: myUid}), " ",
-      el("button", {text: "複製", style: {padding: "1px 8px", fontSize: "12px"}, onclick: e => { const b = e.target, ok = () => { b.textContent = "已複製"; }; if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(myUid).then(ok); else { const t = document.createElement("textarea"); t.value = myUid; document.body.append(t); t.select(); try { document.execCommand("copy"); ok(); } catch (x) {} t.remove(); } }}),
-      "  (把這組 UID 給朋友,他就能加你)"));
+      el("button", {text: "複製", style: {padding: "1px 8px", fontSize: "12px"}, onclick: e => { const b = e.target, ok = () => { b.textContent = "已複製"; }; if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(myUid).then(ok); else { const t = document.createElement("textarea"); t.value = myUid; document.body.append(t); t.select(); try { document.execCommand("copy"); ok(); } catch (x) {} t.remove(); } }})));
     body.append(el("div", {class: "addrow"}, inp, el("button", {class: "primary", text: "加好友", onclick: add})));
     const tab = F.tab || "list";
     const T = (k, label, red) => el("button", {class: tab === k ? "primary" : "", onclick: () => { F.tab = k; renderList(true); }}, label, red ? el("span", {class: "rd"}) : "");
@@ -166,7 +165,17 @@
       return;
     }
     if (!d.friends.length) body.append(el("div", {class: "meta", style: {padding: "10px 4px"}, text: "還沒有好友。輸入朋友的 UID 送出請求吧。"}));
-    for (const f of d.friends) {
+    const SORTS = [["time", "成為好友時間"], ["level", "等級"], ["playtime", "遊玩時間"], ["rank", "段位"], ["name", "名字 A-Z"], ["seen", "最近上線"]];
+    const key = { time: f => f.idx || 0, level: f => f.level || 0, playtime: f => f.playtime || 0, rank: f => f.rp || 0, name: f => (f.remark || f.user || "").toLowerCase(), seen: f => f.online ? 1e12 : (f.seen || 0) };
+    let sk = "seen", dir = -1; try { sk = localStorage.getItem("frSort") || "seen"; dir = localStorage.getItem("frDir") === "1" ? 1 : -1; } catch (e) {}
+    if (!key[sk]) sk = "seen";
+    const sorted = d.friends.slice().sort((a, b) => { const x = key[sk](a), y = key[sk](b); const c = typeof x === "string" ? x.localeCompare(y) : x - y; return c ? c * dir : (a.user || "").localeCompare(b.user || ""); });
+    const PER = 10, pages = Math.max(1, Math.ceil(sorted.length / PER)); F.page = Math.min(Math.max(0, F.page || 0), pages - 1);
+    const sel = el("select", {title: "排序方式", onchange: () => { try { localStorage.setItem("frSort", sel.value); } catch (e) {} F.page = 0; renderList(true); }}, SORTS.map(([v, n]) => el("option", {value: v, text: n})));
+    sel.value = sk;
+    const dirBtn = el("button", {type: "button", text: dir === 1 ? "由小到大" : "由大到小", title: "切換排序方向", onclick: () => { try { localStorage.setItem("frDir", dir === 1 ? "0" : "1"); } catch (e) {} F.page = 0; renderList(true); }});
+    if (d.friends.length > 1) body.append(el("div", {class: "addrow", style: {alignItems: "center", margin: "6px 0"}}, el("span", {class: "meta", text: "排序"}), sel, dirBtn));
+    for (const f of sorted.slice(F.page * PER, F.page * PER + PER)) {
       const st = f.online ? ("在線" + (f.where ? " · " + f.where : "")) : ("最後上線: " + fmtSeen(f.seen, d.now));
       body.append(el("div", {class: "frow"},
         el("span", {class: "dot" + (f.online ? " on" : "")}),
@@ -181,6 +190,10 @@
         ROOM ? el("button", {title: !f.online ? "對方離線,不能邀請" : inRoom(f) ? "對方已經在這個房間裡" : "邀請到目前的房間", disabled: !f.online || inRoom(f), text: "邀請", onclick: async () => { const r = await post("/api/invite", {to: f.id}); toast(r.ok ? "已邀請 " + f.user : (r.error || "邀請失敗"), r.ok ? "ok" : undefined); }}) : "",
         el("button", {title: "刪除好友", text: "🗑", onclick: async () => { if (confirm("確定要刪除好友「" + f.user + "」嗎?")) { await post("/api/friend_remove", {name: f.id}); poll(); } }})));
     }
+    if (pages > 1) body.append(el("div", {class: "addrow", style: {alignItems: "center", justifyContent: "center", margin: "8px 0"}},
+      el("button", {type: "button", text: "上一頁", disabled: F.page <= 0, onclick: () => { F.page--; renderList(true); }}),
+      el("span", {class: "meta", text: (F.page + 1) + " / " + pages}),
+      el("button", {type: "button", text: "下一頁", disabled: F.page >= pages - 1, onclick: () => { F.page++; renderList(true); }})));
     if (hadFocus) { inp.focus(); try { inp.setSelectionRange(caret, caret); } catch (e) {} }
   }
 
