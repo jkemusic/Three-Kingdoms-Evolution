@@ -381,7 +381,7 @@ const SKILLS = [   // 〈武將-技能〉 的技能名
   [/^丁奉-棄置(.+)抽牌$/, "discard $1 & draw", "$1を捨てて引く"], [/^丈八蛇矛-雙牌當殺$/, "two cards as Slash", "2枚を殺として使う"],
   [/^伊籍-棄2張$/, "discard 2", "2枚捨てる"], [/^公孫淵-亮牌抽2$/, "reveal hand, draw 2", "手札公開して2枚引く"], [/^劉備-仁回血$/, "Benevolence heal", "仁で回復"],
   [/^劉備-棄錦囊得仁$/, "discard trick for token", "錦囊を捨てて仁を得る"], [/^劉禪-棄光並跳過回合$/, "discard all & skip turn", "全て捨てさせターンを飛ばす"],
-  [/^吳懿-交換手牌$/, "swap hands", "手札交換"], [/^呂布-無效全場$/, "void everything", "全て無効"], [/^周魴-棄牌扣血$/, "discard to cost HP", "捨てて体力を奪う"],
+  [/^吳懿-交換手牌$/, "swap hands", "手札交換"], [/^吳懿-抽牌$/, "draw when hurt", "受傷で引く"], [/^呂布-無效全場$/, "void everything", "全て無効"], [/^周魴-棄牌扣血$/, "discard to cost HP", "捨てて体力を奪う"],
   [/^孔融-重鑄手牌$/, "recast hand", "手札再鋳造"], [/^孫權-換牌$/, "exchange cards", "カード交換"], [/^孫權-殺殺$/, "two Slashes", "殺2枚"], [/^張松-指定$/, "designate", "指定"],
   [/^張苞-棄兩張(.+)$/, "discard two $1", "$1を2枚捨てる"], [/^張角-捨牌回血$/, "discard to heal", "捨てて回復"], [/^張遼-殺全部人$/, "Slash everyone", "全員に殺"],
   [/^張郃-無人可攻擊$/, "nobody to attack", "攻撃対象なし"], [/^曹操-弒抽牌$/, "token draw", "弒で引く"], [/^曹植-洗手牌$/, "shuffle hands", "手札シャッフル"],

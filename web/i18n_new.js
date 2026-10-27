@@ -345,6 +345,8 @@ window.SGS_UI_TPL = [
 ["主題「{}」", "Theme “{1}”", "テーマ「{1}」"],
 ["特效「{}」", "Effect “{1}”", "エフェクト「{1}」"],
 ["玩家框「{}」", "Player box “{1}”", "プレイヤー枠「{1}」"],
+["{} 用掉了 {} 張交換來的牌,下個回合抽牌階段後扣 {} 點體力", "{1} used {2} of the swapped cards: loses {3} HP after next turn's draw phase", "{1} が交換した札を {2} 枚使用: 次のターンのドローフェイズ後に体力 {3} を失う"],
+["{} 交換手牌的代價: 扣 {} 點體力", "{1} pays for the swap: loses {2} HP", "{1} 手札交換の代償: 体力 {2} を失う"],
 ["✓ 已是好友", "✓ Already friends", "✓ すでに友達です"],
 ["⏳ 已送出好友請求,等對方接受", "⏳ Friend request sent; waiting for them to accept", "⏳ 友達リクエスト送信済み。相手の承認待ちです"],
 ["✅ 接受好友請求", "✅ Accept friend request", "✅ 友達リクエストを承認"],

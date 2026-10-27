@@ -74,7 +74,7 @@ T = {
         ("Everyone's hand limit is 3; lose 1 HP per extra card (counted outside their turn)", "全員の手札上限は3枚。超過1枚ごとに体力-1(自分以外のターンで計算)")],
 "劉諶": [("You may draw 1 fewer; this turn all hand cards can be used as Duel; if a Duel makes someone lose 2 HP, this skill stops", "1枚少なく引くと、このターン手札全てを決闘として使える。決闘で相手が2ダメージを受けたらこのスキルは無効"),
         ("After your Duel makes someone lose HP, you and they each draw 1", "決闘で相手が体力を失った後、あなたと相手が各1枚引く")],
-"吳懿": [("Once per turn, swap all hand cards with another player; if you use x of the swapped cards this turn, lose x HP next turn (void)", "1ターン1回、別のプレイヤーと手札を全て交換。交換した札をこのターンx枚使うと、次のターンに体力-x(無効)"),
+"吳懿": [("Once per turn, swap all hand cards with another player; if you use x of the swapped cards this turn, lose x HP next turn (after your draw phase)", "1ターン1回、別のプレイヤーと手札を全て交換。交換した札をこのターンx枚使うと、次のターンのドローフェイズ後に体力-x"),
         ("When you lose HP you may draw cards equal to the damage", "体力を失った時、ダメージ量と同じ枚数を引ける")],
 "周倉": [("You may take another draw phase, but can't play basic cards in your play phase", "もう一度ドローフェイズを行える。ただし出牌フェイズでは基本札を出せない"),
         ("Whenever you take damage you may play Dodges equal to the damage to block it", "ダメージを受けた時、ダメージ量と同じ数の閃を出して防げる")],

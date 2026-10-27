@@ -1705,7 +1705,31 @@ class 吳懿(Char):
     def _run(self, g, p, t):
         p.turn_flags["wu1"] = True
         p.hand, t.hand = t.hand, p.hand
+        p.turn_flags["wu_ids"] = {id(getattr(c, "orig", c)) for c in p.hand}   # 換到手上的牌: 這回合用掉幾張,下回合就扣幾點體力
+        p.turn_flags["wu_used"] = 0
         g.log(f"  {p.name}[吳懿] 和 {t.name} 交換所有手牌")
+
+    def on_card_used(self, g, p, user, card):
+        ids = p.turn_flags.get("wu_ids")
+        if user is not p or not ids:
+            return
+        real = id(getattr(card, "orig", card))
+        if real in ids:
+            ids.discard(real)
+            p.turn_flags["wu_used"] = p.turn_flags.get("wu_used", 0) + 1
+
+    def end_turn(self, g, p):
+        x = p.turn_flags.get("wu_used", 0)
+        if x:
+            p.wu_debt = getattr(p, "wu_debt", 0) + x
+            g.log(f"  {p.name}[吳懿] 用掉了 {x} 張交換來的牌,下個回合抽牌階段後扣 {x} 點體力")
+
+    def after_draw(self, g, p, drawn):
+        x = getattr(p, "wu_debt", 0)
+        if x:
+            p.wu_debt = 0
+            g.log(f"  {p.name}[吳懿] 交換手牌的代價: 扣 {x} 點體力")
+            g.damage(None, p, x)
 
     def ai_choose(self, g, p, options):
         best = None
@@ -1717,6 +1741,8 @@ class 吳懿(Char):
 
     def on_damaged(self, g, p, src, n):
         g.new_dmg_chain()   # 受傷之後才發動: 另開一條新連鎖
+        if not g.trigger_ok(p, "吳懿-抽牌"):   # 「可以」抽: 由玩家決定要不要發動
+            return
         g.link(f"{p.name}[吳懿] 扣 {n} 血,抽 {n} 張")
         g.draw(p, n)
 
