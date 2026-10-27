@@ -532,6 +532,7 @@ async function setLang(l) {
   apply();
   refreshTut();
   document.querySelectorAll("select.langsel").forEach(x => { x.value = l; });
+  const bl = document.getElementById("bLang"); if (bl) bl.textContent = { zh: "語言", en: "Language", ja: "言語" }[l];
   const tb = document.getElementById("bTut"); if (tb) { tb.textContent = TUT[l].btn; }
   if (typeof S !== "undefined" && S.snap) { try { S.handKey = null; } catch (e) {} }
   document.dispatchEvent(new CustomEvent("sgs-lang"));
@@ -696,7 +697,7 @@ window.SGS_HINT_OFF = () => { hintOn = false; updHint(); };   // 開新局 (不�
 
 /* ---------- 啟動 ---------- */
 const CSS = `
-#langsel,.langsel{background:#1b2230;color:#e6edf7;border:1px solid #394559;border-radius:6px;padding:3px 6px;font-size:13px}#auth h2,#rooms h2{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}#auth h2{justify-content:center}h2 .langsel{min-height:32px;font-size:13px;font-weight:400}
+#langsel,.langsel{background:#1b2230;color:#e6edf7;border:1px solid #394559;border-radius:6px;padding:3px 6px;font-size:13px}#bLang{display:none}#langpop{position:fixed;inset:0;z-index:9600;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center}#langpop .lpbox{display:flex;flex-direction:column;gap:8px;min-width:min(260px,80vw);background:#0b1a30;border:1px solid #24557d;border-radius:12px;padding:14px;box-shadow:0 10px 30px rgba(0,0,0,.6)}#langpop button{min-height:46px;font-size:15px;border-radius:8px}#langpop button.on{border-color:#e9bf62;color:#e9bf62}#auth h2,#rooms h2{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}#auth h2{justify-content:center}h2 .langsel{min-height:32px;font-size:13px;font-weight:400}
 #tutov{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;display:flex;align-items:center;justify-content:center;padding:16px}
 .tdlg{background:#161c28;color:#e6edf7;border:1px solid #394559;border-radius:12px;max-width:560px;width:100%;padding:18px 20px;box-shadow:0 10px 40px rgba(0,0,0,.6);max-height:90vh;max-height:90dvh;overflow:auto;-webkit-overflow-scrolling:touch}
 .tdlg .th{position:sticky;top:-18px;margin:-18px -20px 0;padding:14px 20px 8px;background:#161c28;z-index:2}.tdlg .tf{position:sticky;bottom:-18px;margin:0 -20px -18px;padding:10px 20px 14px;background:#161c28;z-index:2}
@@ -723,6 +724,14 @@ const CSS = `
 .tdlg.cgdlg{max-width:760px;width:min(760px,96vw)}.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px;max-height:62vh;overflow:auto;padding:4px 2px}.cgi{display:flex;gap:10px;align-items:flex-start;background:#0c1d36;border:1px solid #24557d;border-radius:8px;padding:6px}.cgi img{width:56px;border-radius:4px;flex:none}.cgd{font-size:12px;color:#a9c4de;margin-top:2px;line-height:1.4}
 #hintbar b{color:#3fd2ff;white-space:nowrap}#hintbar button{background:none;border:0;color:#9fb0c8;cursor:pointer;font-size:15px}
 `;
+function openLangPop() {
+  if (document.getElementById("langpop")) return;
+  const close = () => { const x = document.getElementById("langpop"); if (x) x.remove(); };
+  const pop = el("div", { id: "langpop", onclick: e => { if (e.target === pop) close(); } },
+    el("div", { class: "lpbox", role: "dialog", "aria-label": "Language" },
+      LANGS.map(([v, n]) => el("button", { type: "button", class: v === lang ? "on" : "", text: n, onclick: () => { close(); setLang(v); } }))));
+  document.body.append(pop);
+}
 function init() {
   const st = document.createElement("style"); st.textContent = CSS; document.head.append(st);
   const top = document.getElementById("top");
@@ -733,7 +742,10 @@ function init() {
   }
   const tb = el("button", { id: "bTut", text: TUT[lang].btn, onclick: () => openTut(0) });
   const bn = document.getElementById("bNick");
-  if (top && bn) { top.insertBefore(tb, bn); top.insertBefore(sel, bn); }
+  const LBL = { zh: "語言", en: "Language", ja: "言語" };
+  const bl = el("button", { id: "bLang", type: "button", title: "Language / 言語 / 語言", onclick: () => openLangPop() });   // 手機選單用: 點開再選語言
+  bl.textContent = LBL[lang];
+  if (top && bn) { top.insertBefore(tb, bn); top.insertBefore(sel, bn); top.insertBefore(bl, bn); }
   start();
   loadExact().then(() => { apply(); });
   setInterval(updHint, 400);

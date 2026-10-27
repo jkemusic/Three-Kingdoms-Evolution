@@ -25,6 +25,7 @@ select,input{font:inherit;color:var(--text);background:var(--panel2);border:1px 
 input[type=range]{accent-color:var(--accent);padding:0}
 #app{display:grid;grid-template-rows:auto minmax(0,1fr) auto;height:100vh;height:100dvh}
 #top{display:flex;gap:10px;align-items:center;padding:9px 16px;background:rgba(24,33,43,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);flex-wrap:wrap;box-shadow:0 2px 12px rgba(0,0,0,.35);z-index:3}
+#bMenu{display:none}
 #top .title{font-weight:800;font-size:18px;letter-spacing:.15em;color:var(--accent);margin-right:10px;text-shadow:0 0 12px rgba(233,191,98,.35)}
 #top label{color:var(--dim);display:flex;align-items:center;gap:6px}
 #status{margin-left:0;color:var(--dim);background:var(--panel2);padding:3px 12px;border-radius:99px;border:1px solid var(--line);font-size:13px}
@@ -530,6 +531,16 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
   .pl .nm .pn{font-size:12px}
   .pl .nm .who.ai{font-size:10px}
   .pl .nm .who{font-size:11px}
+  /* 手機頂端列: 只留 ☰ / 成員 / 狀態 / 段位,其餘按鈕收進三條線選單 */
+  #bMenu{display:inline-flex!important;align-items:center;justify-content:center;min-width:44px;min-height:40px;padding:0!important;order:0}
+  #top{flex-wrap:wrap!important;overflow:visible!important;white-space:normal!important}
+  #top>*{order:5}
+  #top>#bMenu{order:0}#top>#bMembers{order:1}#top>#waitbar{order:2;flex:1 1 0!important;min-width:0}#top>#status{order:3}#top>#bProf{order:4;margin-left:auto}
+  #top>button:not(#bMenu):not(#bMembers):not(#bProf),#top>label,#top>select,#top>span:not(#waitbar):not(#status):not(#mcnt){display:none!important}
+  body.menu-open #top>button:not([hidden]):not(#bStep):not(#bNick):not(#bMenu):not(#bMembers):not(#bProf){display:inline-flex!important;align-items:center;justify-content:center;flex:1 1 calc(50% - 6px)!important;min-height:44px;font-size:14px!important}
+  body.menu-open #bMenu{border-color:var(--accent)}
+  #members{left:8px;right:8px;top:calc(var(--toph,48px) + 4px);min-width:0;max-width:none;max-height:calc(100dvh - var(--toph,48px) - 20px);overflow-y:auto}
+  .pl .nm{min-width:0}.pl .nm .who{display:flex;align-items:center;gap:3px;max-width:100%;overflow:hidden!important;white-space:nowrap!important}.pl .nm .who>*{flex:0 0 auto}.pl .nm .who>.wn{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}.pl.cur .nm,.pl.waiting .nm{max-width:calc(100% - 64px)}
   .role{font-size:10px;padding:0 5px}
   .hp img.o,#table.dense .hp img.o{width:13px;height:13px}
   .hp .hpn{font-size:11px}
@@ -567,6 +578,7 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
 <body>
 <div id="app">
   <div id="top">
+    <button id="bMenu" type="button" aria-label="選單" aria-expanded="false" aria-controls="top"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button>
     <span class="title">三國殺重製版</span><button id="bRooms" title="回到大廳,選擇或創建房間">🚪 大廳</button><span id="roomname"></span><button id="bMembers" title="房間裡的成員">👥 <span id="mcnt">1</span></button><span class="sepv"></span><span id="hostbar"></span>
     <button id="bPause" class="primary">暫停</button>
     <button id="bNew">新遊戲</button><button id="bForfeit" hidden title="段位模式: 直接認輸並扣分">🏳 棄賽</button>
@@ -916,7 +928,7 @@ function renderTable0(snap) {
     (p.badges || []).forEach(b => tags.append(h("span", {class: "tag bd bd-" + b.k, text: b.t})));
     const inf = h("div", {class: "inf"},
       h("div", {class: "nm"}, h("span", {class: "pn", title: p.char || "", text: "P" + p.idx + " " + ((p.disguise_kind === "disguise" && !p.dg_flip && p.disguise) || p.char || "無名")}), role, winners.has(p.idx) ? h("span", {class: "winb", text: "🏆 勝"}) : ""),
-      h("div", {}, hearts(p)), h("div", {class: "meta", text: "手牌 " + p.hand_n}), h("div", {class: "who " + (p.is_viewer ? "me" : p.human ? "hum" : "ai")}, (p.human || p.is_viewer) ? avEl(p.avatar, (snap.avstyles || {})[p.idx], {class: "av"}) : avEl("bot", (snap.avstyles || {})[p.idx], {class: "av"}), (p.is_viewer ? "你" + (p.nick ? "(" + p.nick + ")" : "") : p.human ? (p.nick || "玩家") : "🤖 電腦" + (snap.ai_lv && snap.ai_lv[p.idx] ? " · " + diffLabels()[snap.ai_lv[p.idx] - 1] : "")), p.human || p.is_viewer ? [" ", rkEl(p.lv)] : null, p.host_seat ? " 👑房主" : ""),
+      h("div", {}, hearts(p)), h("div", {class: "meta", text: "手牌 " + p.hand_n}), h("div", {class: "who " + (p.is_viewer ? "me" : p.human ? "hum" : "ai")}, (p.human || p.is_viewer) ? avEl(p.avatar, (snap.avstyles || {})[p.idx], {class: "av"}) : avEl("bot", (snap.avstyles || {})[p.idx], {class: "av"}), h("span", {class: "wn"}, (p.is_viewer ? "你" + (p.nick ? "(" + p.nick + ")" : "") : p.human ? (p.nick || "玩家") : "🤖 電腦" + (snap.ai_lv && snap.ai_lv[p.idx] ? " · " + diffLabels()[snap.ai_lv[p.idx] - 1] : ""))), p.human || p.is_viewer ? [" ", rkEl(p.lv)] : null, p.host_seat ? " 👑房主" : ""),
       tags);
     { const who = inf.querySelector(".who"), nmEl = inf.querySelector(".nm");   // 玩家資訊 (暱稱 / 等級) 寫在武將名字的上面,都放在框外
       if (who && nmEl) { const row = h("div", {class: "nr"}); while (nmEl.firstChild) row.append(nmEl.firstChild); nmEl.append(who); inf.insertBefore(row, nmEl.nextSibling); } }   // 框外左上角只放頭貼+玩家資訊;P幾/武將名稱/身分放到框裡面、體力上面一排
@@ -2022,6 +2034,18 @@ function applySide(hide) {
   try { localStorage.setItem("hideSide", hide ? "1" : ""); } catch (e) {}
   setTimeout(() => { if (S.snap) renderTable(S.snap); }, 30);   // 牌桌寬度改變,座位要重新排
 }
+{ const mb = $("#bMenu"), plain = on => {   // 選單裡的按鈕只顯示文字,沒有文字的 (設定 / 主題) 用提示文字當名稱
+    $("#top").querySelectorAll(":scope>button:not(#bMenu):not(#bMembers):not(#bProf)").forEach(b => {
+      if (on) {
+        if (b.children.length || b.dataset.mt != null) return;
+        b.dataset.mt = b.textContent;
+        b.textContent = b.textContent.replace(/[\p{Extended_Pictographic}\u2B07\u2699\u25B8\u25BE\uFE0F]/gu, "").trim() || (b.title || "").split(/[(（]/)[0].trim() || b.dataset.mt;
+      } else if (b.dataset.mt != null) { b.textContent = b.dataset.mt; delete b.dataset.mt; }
+    });
+  }, setMenu = on => { plain(on); document.body.classList.toggle("menu-open", on); mb.setAttribute("aria-expanded", on ? "true" : "false"); };
+  mb.onclick = () => setMenu(!document.body.classList.contains("menu-open"));
+  $("#top").addEventListener("click", e => { const b = e.target.closest("button"); if (b && b !== mb) setMenu(false); });
+  document.addEventListener("click", e => { if (document.body.classList.contains("menu-open") && !e.target.closest("#top")) setMenu(false); }); }
 new MutationObserver(() => { const on = S.modalOpen === "setup"; if (on) document.body.style.setProperty("--toph", ($("#top").offsetHeight || 48) + "px"); document.body.classList.toggle("setup-open", on); }).observe($("#modal"), {childList: true});   // 新遊戲設定: 上方那一排不被蓋住
 $("#bSide").onclick = () => applySide(!document.body.classList.contains("hide-side"));
 try { if (localStorage.getItem("hideSide")) applySide(true); } catch (e) {}
