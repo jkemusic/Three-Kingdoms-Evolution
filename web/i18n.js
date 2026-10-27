@@ -531,7 +531,7 @@ async function setLang(l) {
   await loadExact();
   apply();
   refreshTut();
-  const sel = document.getElementById("langsel"); if (sel) sel.value = l;
+  document.querySelectorAll("select.langsel").forEach(x => { x.value = l; });
   const tb = document.getElementById("bTut"); if (tb) { tb.textContent = TUT[l].btn; }
   if (typeof S !== "undefined" && S.snap) { try { S.handKey = null; } catch (e) {} }
   document.dispatchEvent(new CustomEvent("sgs-lang"));
@@ -696,7 +696,7 @@ window.SGS_HINT_OFF = () => { hintOn = false; updHint(); };   // 開新局 (不�
 
 /* ---------- 啟動 ---------- */
 const CSS = `
-#langsel{background:#1b2230;color:#e6edf7;border:1px solid #394559;border-radius:6px;padding:3px 6px;font-size:13px}
+#langsel,.langsel{background:#1b2230;color:#e6edf7;border:1px solid #394559;border-radius:6px;padding:3px 6px;font-size:13px}#auth h2,#rooms h2{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}#auth h2{justify-content:center}h2 .langsel{min-height:32px;font-size:13px;font-weight:400}
 #tutov{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;display:flex;align-items:center;justify-content:center;padding:16px}
 .tdlg{background:#161c28;color:#e6edf7;border:1px solid #394559;border-radius:12px;max-width:560px;width:100%;padding:18px 20px;box-shadow:0 10px 40px rgba(0,0,0,.6);max-height:90vh;max-height:90dvh;overflow:auto;-webkit-overflow-scrolling:touch}
 .tdlg .th{position:sticky;top:-18px;margin:-18px -20px 0;padding:14px 20px 8px;background:#161c28;z-index:2}.tdlg .tf{position:sticky;bottom:-18px;margin:0 -20px -18px;padding:10px 20px 14px;background:#161c28;z-index:2}
@@ -726,9 +726,11 @@ const CSS = `
 function init() {
   const st = document.createElement("style"); st.textContent = CSS; document.head.append(st);
   const top = document.getElementById("top");
-  const sel = el("select", { id: "langsel", title: "Language / 言語 / 語言" }, LANGS.map(([v, n]) => el("option", { value: v, text: n })));
-  sel.value = lang;
-  sel.onchange = () => setLang(sel.value);
+  const mkSel = id => { const x = el("select", { class: "langsel", title: "Language / 言語 / 語言" }, LANGS.map(([v, n]) => el("option", { value: v, text: n }))); if (id) x.id = id; x.value = lang; x.onchange = () => setLang(x.value); return x; };
+  const sel = mkSel("langsel");
+  for (const box of document.querySelectorAll("#auth .rbox, #rooms .rbox")) {   // 登入畫面與大廳也能直接切換語言
+    const h2 = box.querySelector("h2"); if (h2) h2.append(mkSel());
+  }
   const tb = el("button", { id: "bTut", text: TUT[lang].btn, onclick: () => openTut(0) });
   const bn = document.getElementById("bNick");
   if (top && bn) { top.insertBefore(tb, bn); top.insertBefore(sel, bn); }
