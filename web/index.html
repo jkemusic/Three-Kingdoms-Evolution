@@ -317,6 +317,9 @@ button.big{font-size:16px;font-weight:800;padding:10px 38px}
 .pl.waiting{outline:2px dashed #ffb44d;outline-offset:2px}
 .pl.dimmed{opacity:.45}
 .pl.target{cursor:crosshair;animation:none;box-shadow:inset 0 0 0 2px var(--green),0 0 26px rgba(70,224,160,.75)}
+html .pl.target{filter:drop-shadow(0 0 5px #46e0a0) drop-shadow(0 0 14px rgba(70,224,160,.85));animation:tgpulse 1.4s ease-in-out infinite}   /* 可選的對象: 玩家框外圍發光 (用 filter,不會被各主題的 box-shadow 蓋掉) */
+@keyframes tgpulse{50%{filter:drop-shadow(0 0 8px #46e0a0) drop-shadow(0 0 24px rgba(70,224,160,1))}}
+@media (prefers-reduced-motion:reduce){html .pl.target{animation:none}}
 @keyframes tglow{50%{box-shadow:inset 0 0 0 2px var(--green),0 0 30px rgba(70,224,160,.9)}}
 .pickbar{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:linear-gradient(160deg,#13264a,#0a152b);border:1px solid var(--green);box-shadow:0 0 24px rgba(70,224,160,.4);padding:12px 20px;display:flex;gap:16px;align-items:center;z-index:25;border-radius:4px}
 .pickbar b{color:var(--green)}
@@ -1908,9 +1911,10 @@ document.querySelectorAll("#tabs button, #mnav button").forEach(b => b.addEventL
 function myNick() { try { return localStorage.getItem("nick") || ""; } catch (e) { return ""; } }
 function setNick(v) { try { localStorage.setItem("nick", v.trim().slice(0, 10)); } catch (e) {} }
 /* ---------- 大廳 (等朋友入座) ---------- */
-function inviteFriendsBtn() {   // 入座 / 選武將 / 新遊戲設定: 直接打開好友視窗,每位在線好友旁有「邀請」
+function inviteFriendsBtn(big) {   // big: 跟旁邊的主要按鈕一樣大 (不用小按鈕樣式)
+  // 入座 / 選武將 / 新遊戲設定: 直接打開好友視窗,每位在線好友旁有「邀請」
   if (!ROOM || !window.SGS_FRIENDS || !SGS_FRIENDS.open) return null;
-  return h("button", {type: "button", class: "mini-btn", text: "邀請朋友", title: "打開好友列表,邀請在線的朋友進這個房間", onclick: () => SGS_FRIENDS.open()});
+  return h("button", {type: "button", class: big ? "" : "mini-btn", style: big ? {minWidth: "150px"} : null, text: "邀請朋友", title: "打開好友列表,邀請在線的朋友進這個房間", onclick: () => SGS_FRIENDS.open()});
 }
 function renderPicking(snap) {   // 隨機武將: 每人抽 3 張選 1,大家同時選
   const M = $("#modal"); M.textContent = ""; S.modalOpen = "lobby";
@@ -1951,10 +1955,10 @@ function renderRankedLobby(snap) {   // 段位模式大廳: 每個人只能選�
   const n = (snap.online || []).filter(x => x.seat != null).length;
   M.append(h("div", {class: "modal"}, h("div", {class: "dlg"}, h("h3", {text: "段位模式"}),
     h("div", {class: "meta", text: "想打的人按「我要參戰」,沒按的自動進入觀戰;沒人坐的座位由電腦擔任,武將全部隨機。目前 " + n + " 人參戰。"}),
-    h("div", {style: {margin: "10px 0"}}, seated
-      ? h("button", {type: "button", class: "primary", text: "⚔ 已參戰 (點擊取消)", onclick: watch})
-      : h("button", {type: "button", class: "primary", text: "⚔ 我要參戰", onclick: join})),
-    h("div", {style: {margin: "0 0 8px"}}, inviteFriendsBtn()),
+    h("div", {style: {margin: "10px 0", display: "flex", gap: "8px", flexWrap: "wrap"}}, seated
+      ? h("button", {type: "button", class: "primary", style: {minWidth: "150px"}, text: "⚔ 已參戰 (點擊取消)", onclick: watch})
+      : h("button", {type: "button", class: "primary", style: {minWidth: "150px"}, text: "⚔ 我要參戰", onclick: join}),
+      inviteFriendsBtn(true)),
     rows,
     snap.is_host ? h("div", {class: "row"}, h("button", {class: "primary", text: "開始遊戲", onclick: async () => { await api("/api/start", {}); poll(true); }})) :
       h("div", {class: "meta", text: "👑 等待房主按下開始…" + (snap.host_name ? " (房主: " + snap.host_name + ")" : "")}))));
@@ -2107,9 +2111,14 @@ function applySide(hide) {
   try { localStorage.setItem("hideSide", hide ? "1" : ""); } catch (e) {}
   setTimeout(() => { if (S.snap) renderTable(S.snap); }, 30);   // 牌桌寬度改變,座位要重新排
 }
-{ const hb = $("#bHand"), setHand = off => { document.body.classList.toggle("hand-off", off); hb.textContent = off ? "顯示手牌" : "收起手牌"; hb.setAttribute("aria-pressed", off ? "true" : "false"); try { localStorage.setItem("handOff", off ? "1" : ""); } catch (e) {} };   // 手牌太擋時可以收起來
+{ const hb = $("#bHand"), pin = () => {   // 收起手牌後版面會縮,按鈕釘在原本的位置不跟著跑
+    const B = document.body, off = B.classList.contains("hand-off"); B.classList.remove("hand-off"); hb.style.cssText = "";
+    const r = hb.getBoundingClientRect(); if (off) B.classList.add("hand-off");
+    if (off && r.width) hb.style.cssText = `position:fixed;top:${Math.round(r.top)}px;right:${Math.round(innerWidth - r.right)}px;bottom:auto`;
+  }, setHand = off => { document.body.classList.toggle("hand-off", off); pin(); hb.textContent = off ? "顯示手牌" : "收起手牌"; hb.setAttribute("aria-pressed", off ? "true" : "false"); try { localStorage.setItem("handOff", off ? "1" : ""); } catch (e) {} };   // 手牌太擋時可以收起來
   try { if (localStorage.getItem("handOff")) setHand(true); } catch (e) {}
-  hb.onclick = () => setHand(!document.body.classList.contains("hand-off")); }
+  hb.onclick = () => setHand(!document.body.classList.contains("hand-off"));
+  addEventListener("resize", () => { if (document.body.classList.contains("hand-off")) pin(); }); }
 { const mb = $("#bMenu"), plain = on => {   // 選單裡的按鈕只顯示文字,沒有文字的 (設定 / 主題) 用提示文字當名稱
     $("#top").querySelectorAll(":scope>button:not(#bMenu):not(#bMembers):not(#bProf)").forEach(b => {
       if (on) {
