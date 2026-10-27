@@ -1528,7 +1528,7 @@ function renderMembers() {   // 👥 房間成員: 每個人都看得到 (不只
   if (!pn || !pn.classList.contains("on")) return;
   pn.textContent = "";
   pn.append(h("h4", {text: "房間成員 (" + o.length + ")"}));
-  o.forEach(x => pn.append(h("div", {class: "mr" + (x.acc ? " clk" : ""), onclick: x.acc ? () => showPlayer(x.acc) : null},
+  o.forEach(x => pn.append(h("div", {class: "mr" + (x.acc ? " clk" : ""), onclick: x.acc ? () => { pn.classList.remove("on"); showPlayer(x.acc); } : null},
     avEl(x.avatar, x.style, {}),
     h("span", {class: "mn", title: x.name || "", text: (x.host ? "👑 " : "") + (x.name || "未命名") + (x.id === S.myWho ? " (你)" : "")}), rkEl(x.lv), devEl(x.dev),
     h("span", {class: "tg", text: x.spec ? "👁 觀戰者" : x.seat != null ? "座位 " + x.seat : ""}),
@@ -2051,7 +2051,7 @@ function applySide(hide) {
   mb.onclick = () => setMenu(!document.body.classList.contains("menu-open"));
   $("#top").addEventListener("click", e => { const b = e.target.closest("button"); if (b && b !== mb) setMenu(false); });
   document.addEventListener("click", e => { if (document.body.classList.contains("menu-open") && !e.target.closest("#top")) setMenu(false); }); }
-new MutationObserver(() => { const on = S.modalOpen === "setup"; if (on) document.body.style.setProperty("--toph", ($("#top").offsetHeight || 48) + "px"); document.body.classList.toggle("setup-open", on); }).observe($("#modal"), {childList: true});   // 新遊戲設定: 上方那一排不被蓋住
+new MutationObserver(() => { if ($("#modal").childNodes.length) { const mp = $("#members"); if (mp) mp.classList.remove("on"); } const on = S.modalOpen === "setup"; if (on) document.body.style.setProperty("--toph", ($("#top").offsetHeight || 48) + "px"); document.body.classList.toggle("setup-open", on); }).observe($("#modal"), {childList: true});   // 新遊戲設定: 上方那一排不被蓋住
 $("#bSide").onclick = () => applySide(!document.body.classList.contains("hide-side"));
 try { if (localStorage.getItem("hideSide")) applySide(true); } catch (e) {}
 window.addEventListener("resize", () => { if (S.snap) renderTable(S.snap); });
