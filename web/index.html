@@ -1897,7 +1897,7 @@ function openSetup() {
     h("div", {class: "dh"}, h("div", {}, h("h3", {text: "新遊戲"}), h("div", {class: "meta", text: "選好人數與座位,按下開始 (滑鼠移到各項標題旁的 ⓘ 上可看說明)"}), h("div", {id: "onl", class: "onl"}), ROOM && S.canManage ? [h("button", {type: "button", class: "mini-btn", text: "✎ 改房名", onclick: roomRename}), inviteFriendsBtn(), h("button", {type: "button", class: "mini-btn", id: "bRoomPw", text: S.roomLocked ? "🔒 修改 / 移除密碼" : "🔓 設定密碼", onclick: roomPassword}), (S.amHost ? h("button", {type: "button", class: "mini-btn", text: "🗑 刪除房間", onclick: roomDelete}) : null)] : null), h("button", {class: "x", text: "✕", onclick: close})),
     h("div", {class: "dbody"},
       sect("房主", "把房主讓給目前在線的某人", h("div", {id: "handover", class: "seg"})),
-      sect("對戰模式", "休閒模式: 段位積分不變;段位模式: 贏了加分、輸了扣分 (依電腦難度,見玩家資訊)", seg([["casual", "🎮 休閒模式"], ["ranked", "🏅 段位模式"]], st.ranked, v => { st.ranked = v; lockRanked(); }), rkIn),
+      sect("對戰模式", "休閒模式: 段位積分不變;段位模式: 贏了加分、輸了扣分 (依電腦難度,見玩家資訊)", seg([["casual", "🎮 休閒模式"], ["ranked", "🏅 段位模式"]], st.ranked, v => { st.ranked = v; lockRanked(); }), h("div", {style: {margin: "2px 0 6px"}}, rankHelpBtn()), rkIn),
       sect("人數", "", nBox),
       sect("身分配置", "", varBox),
       sect("主公座位", "主公從哪個座位開始;身分會在開局時才揭曉", lordBox),
@@ -2055,7 +2055,7 @@ function renderRankedLobby(snap) {   // 段位模式大廳: 每個人只能選�
     h("div", {style: {margin: "10px 0", display: "flex", gap: "8px", flexWrap: "wrap"}}, seated
       ? h("button", {type: "button", class: "primary", style: {minWidth: "150px"}, text: "⚔ 已參戰 (點擊取消)", onclick: watch})
       : h("button", {type: "button", class: "primary", style: {minWidth: "150px"}, text: "⚔ 我要參戰", onclick: join}),
-      inviteFriendsBtn(true), rankHelpBtn(true), backBtn(true)),
+      inviteFriendsBtn(true), backBtn(true)),
     rows,
     snap.is_host ? h("div", {class: "row"}, h("button", {class: "primary", text: "開始遊戲", onclick: async () => { await api("/api/start", {}); poll(true); }})) :
       h("div", {class: "meta", text: "👑 等待房主按下開始…" + (snap.host_name ? " (房主: " + snap.host_name + ")" : "")}))));
