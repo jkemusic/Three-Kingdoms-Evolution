@@ -1,0 +1,22 @@
+/* 段位說明視窗的翻譯 (與 SGS_LOG_TPL 同格式,接在 i18n_new.js 之後) */
+window.SGS_LOG_TPL = (window.SGS_LOG_TPL || []).concat([
+["❔ 段位說明", "❔ Rank guide", "❔ ランクの説明"],
+["段位模式說明", "Ranked mode guide", "ランクモードの説明"],
+["什麼是段位模式", "What is ranked mode?", "ランクモードとは"],
+["段位模式是計分的對戰: 贏了加段位積分、輸了扣積分,積分決定你的段位。休閒模式積分不變,可以隨便玩。", "Ranked mode is scored: winning adds rank points, losing subtracts them, and your points decide your rank. Casual mode never changes your points, so play freely.", "ランクモードは得点制です。勝てばランクポイントが増え、負ければ減り、ポイントでランクが決まります。カジュアルモードではポイントは変わりません。"],
+["段位表 (所需積分)", "Ranks (points needed)", "ランク一覧(必要ポイント)"],
+["傳說以外每個段位又分 3 → 2 → 1 三小段,數字越小越高 (例如 黃金3 → 黃金2 → 黃金1 → 白金3)。", "Every rank except Legend has three tiers, 3 → 2 → 1, and a smaller number is higher (e.g. Gold 3 → Gold 2 → Gold 1 → Platinum 3).", "レジェンド以外の各ランクは 3 → 2 → 1 の3段階で、数字が小さいほど上です(例: ゴールド3 → ゴールド2 → ゴールド1 → プラチナ3)。"],
+["怎麼加分", "Earning points", "ポイントの増え方"],
+["打贏電腦依難度加分: 弱 +10 / 中 +18 / 強 +25 / 很強 +32 (多種難度取平均),全真人對戰 +25。連勝中每多贏一場,下一場多 +3,最多 +15;輸一場歸零。", "Beating the AI gives points by difficulty: Easy +10 / Medium +18 / Hard +25 / Expert +32 (averaged if mixed), +25 in all-human games. Each extra win in a streak adds +3 to the next win (max +15); a loss resets it.", "CPUに勝つと難易度に応じて 弱 +10 / 普通 +18 / 強 +25 / 最強 +32(混在時は平均)、全員人間は +25。連勝中は次の勝利に +3 ずつ加算(最大 +15)、負けるとリセットされます。"],
+["怎麼扣分", "Losing points", "ポイントの減り方"],
+["輸了扣的分數和同難度贏的加分一樣,但依你的段位調整: 黃金以下 ×0.7、白金·鑽石 ×1.0、大師 ×1.15、傳說 ×1.3。所以段位越高越難爬 (損益兩平勝率約 41% → 50% → 53% → 57%,積分最低 0)。", "A loss costs as much as a win at the same difficulty, scaled by your rank: ×0.7 up to Gold, ×1.0 in Platinum/Diamond, ×1.15 in Master, ×1.3 in Legend. Higher ranks are harder to climb (break-even win rate about 41% → 50% → 53% → 57%; points never go below 0).", "負けの減少は同難度の勝ちと同じですが、ランクで補正されます: ゴールド以下 ×0.7、プラチナ・ダイヤ ×1.0、マスター ×1.15、レジェンド ×1.3。高いほど上がりにくくなります(損益分岐の勝率 約41% → 50% → 53% → 57%、0未満にはなりません)。"],
+["電腦難度", "AI difficulty", "CPUの難易度"],
+["段位模式的電腦難度不能自己選,跟著你的段位走: 青銅 弱 / 白銀·黃金 中 / 白金·鑽石 強 / 大師·傳說 很強。", "Ranked AI difficulty can't be chosen; it follows your rank: Bronze Easy / Silver·Gold Medium / Platinum·Diamond Hard / Master·Legend Expert.", "ランクモードのCPU難易度は選べず、ランクに従います: ブロンズ 弱 / シルバー・ゴールド 普通 / プラチナ・ダイヤ 強 / マスター・レジェンド 最強。"],
+["身分係數", "Role modifiers", "役職補正"],
+["每個身分的天生勝率不同,輸贏分數會依人數和身分調整 (內奸贏得最多、輸扣最少;勝率高的身分贏得少)。輸了但自己撐到最後,扣分打 8 折。", "Each role has a different natural win rate, so points are scaled by player count and role (the Spy gains the most and loses the least; high-win-rate roles gain less). If you lose but are still alive at the end, the loss is ×0.8.", "役職ごとに勝率が違うため、人数と役職で増減が調整されます(内通者は増加が最大で減少が最小、勝ちやすい役職は増加が小さめ)。負けても最後まで生き残った場合、減少は ×0.8 になります。"],
+["特殊情況", "Special cases", "特別なケース"],
+["• 內奸撐到和主公單挑才輸: 算「次級勝利」,得贏分的 30%。\n• 平手 (超過回合上限): 得贏分的 40%,不算勝場、連勝不變。\n• 中途棄賽: 扣分 ×1.5。\n• 同場有其他真人: 依對手平均積分與你的差距調整 (最多 ±50%)。\n• 同一個網路有多個帳號在同一場: 這場不計分。", "• A Spy who reaches the final duel with the Lord but loses gets a \"minor win\": 30% of the win points.\n• Draw (round limit exceeded): 40% of the win points; not a win, streak unchanged.\n• Forfeiting mid-game: loss ×1.5.\n• Other human players in the game: points are scaled by the gap in average rank points (up to ±50%).\n• Several accounts on the same network in one game: that game gives no points.", "• 内通者が主君との一騎打ちまで残って負けた場合は「次点勝利」で、勝利ポイントの30%。\n• 引き分け(ラウンド上限超過): 勝利ポイントの40%。勝利には数えず連勝も変わりません。\n• 途中放棄: 減少 ×1.5。\n• 他の人間プレイヤーがいる場合: 平均ポイント差で最大 ±50% 調整。\n• 同じネットワークから複数アカウントが参加した試合はポイント対象外。"],
+["房間規則", "Room rules", "ルーム設定"],
+["段位模式武將全部隨機,基礎體力、主公座位、身分模式都固定,也不能開旁觀者看全部。打完之前不能開新遊戲 (可以先棄賽)。新手練習局固定為休閒模式。", "In ranked mode all generals are random; base HP, Lord seat and role mode are fixed, and spectators can't see everything. You can't start a new game until the current one ends (you may forfeit). Tutorial practice games are always casual.", "ランクモードでは武将は全てランダムで、基本体力・主君の席・役職モードは固定、観戦者の全公開も使えません。試合が終わるまで新しいゲームは始められません(放棄は可能)。練習ゲームは常にカジュアルです。"],
+["關閉", "Close", "閉じる"],
+]);
