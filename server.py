@@ -557,6 +557,7 @@ def _card(key):   # 好友列表用: 頭貼 / 框 / 特效 / 段位 / 等級
     p = PROFILES.d.get(t) or {}
     return {"avatar": PROFILES.avatar_url(t), "style": PROFILES.style(t), "rank": PROFILES.lv(t), "rp": p.get("rp", 0), "playtime": p.get("playtime", 0), "level": PROFILES.level(p.get("xp", 0)), "dev": PROFILES.dev(t)}
 SOCIAL.card = _card
+SOCIAL.in_room = lambda k: friend_where(k)
 SOCIAL.uid_key = lambda uid: next((k for k, a in list(ACCOUNTS.d.items()) if PROFILES.uid(a["uuid"]) == uid), None)
 
 
@@ -1575,6 +1576,14 @@ class Handler(BaseHTTPRequestHandler):
                     me_k = SOCIAL.key_of(q.get("tok", [""])[0])
                     r["self"] = me_k == r["user"].lower()
                     r["mutual"] = [dict(_card(k), id=k, name=(ACCOUNTS.d.get(k) or {}).get("user", k)) for k in SOCIAL.mutual(me_k, r["user"].lower())]
+                    fk = r["user"].lower()   # 線上狀態: 誰都看得到在線 / 離線;所在房間和最後上線時間只有好友看得到
+                    seen = SOCIAL._u(fk).get("seen", 0) if fk in SOCIAL.d["u"] else 0
+                    wf = friend_where(fk)
+                    r["online"] = time.time() - seen < 15 or bool(wf)
+                    isf = fk in (SOCIAL.d["u"].get(me_k) or {}).get("fr", [])
+                    r["where"] = wf if isf and r["online"] else ""
+                    r["seen"] = int(seen) if isf else 0
+                    r["now"] = int(time.time())
                 return self._send(200, r)
             if path == "/api/gchat":
                 try:
@@ -1622,6 +1631,7 @@ class Handler(BaseHTTPRequestHandler):
                     return self._send(200, {"need_pw": True, "ready": False})
                 viewer = M.seat_of(tok)
                 M.touch(tok)
+                SOCIAL.touch(SOCIAL.key_of(tok))   # 在房間裡輪詢也算上線 (好友名單才不會把觀戰中的人寫成離線)
                 nk = q.get("nick", [None])[0]
                 if nk is not None and M.nicks.get(tok, "") != nk[:10]:
                     M.set_nick(tok, nk)   # 伺服器重啟後暱稱會遺失,每次輪詢順便帶上

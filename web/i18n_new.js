@@ -133,7 +133,7 @@ window.SGS_LOG_TPL = (window.SGS_LOG_TPL || []).concat([
 ["🏠 房間頻道", "🏠 Room channel", "🏠 ルームチャンネル"], ["👑 你是房主", "👑 You are the host", "👑 あなたはホスト"], ["👑 等待房主按下開始…", "👑 Waiting for the host to press Start…", "👑 ホストの開始待ち…"],
 ["👑 等待房主操作…", "👑 Waiting for the host…", "👑 ホストの操作待ち…"], ["👑 讓給 ", "👑 Hand over to ", "👑 譲る: "], ["👥 在線的人", "👥 Online", "👥 オンライン"],
 ["🔑 修改密碼", "🔑 Change password", "🔑 パスワード変更"], ["🔒 修改 / 移除密碼", "🔒 Change / remove password", "🔒 パスワード変更 / 削除"], ["🔒 全部關閉 (不開放)", "🔒 Close all (not open)", "🔒 すべて閉じる(非公開)"],
-["🔓 全部開放給朋友", "🔓 Open to all friends", "🔓 友達全員に公開"], ["🔓 設定密碼", "🔓 Set password", "🔓 パスワード設定"], ["🤖 單人模式", "🤖 Solo mode", "🤖 ソロモード"], ["🤖 電腦", "🤖 Computer", "🤖 コンピュータ"],
+["🔓 全部開放玩家", "🔓 Open to all players", "🔓 全員に公開"], ["🔓 設定密碼", "🔓 Set password", "🔓 パスワード設定"], ["🤖 單人模式", "🤖 Solo mode", "🤖 ソロモード"], ["🤖 電腦", "🤖 Computer", "🤖 コンピュータ"],
 ["玩家選擇武將中", "Players are picking characters", "プレイヤーが武将を選択中"],
 // --- 玩家框 ---
 ["🪟 玩家框", "🪟 Player box", "🪟 プレイヤー枠"], ["玩家框", "Player box", "プレイヤー枠"],

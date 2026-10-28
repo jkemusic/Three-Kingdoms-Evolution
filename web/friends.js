@@ -367,7 +367,7 @@
   setInterval(() => { pollPub(); if (CH.cur.startsWith("dm:") && ccOpen()) renderDM(false); }, 3000);
   setTimeout(pollPub, 1800);
 
-  window.SGS_FRIENDS = { open: openDlg, data: () => F.data, add: async acc => { const r = await post("/api/friend_add", {name: acc}); if (r.ok) poll(); return r; } };
+  window.SGS_FRIENDS = { fmtSeen, open: openDlg, data: () => F.data, add: async acc => { const r = await post("/api/friend_add", {name: acc}); if (r.ok) poll(); return r; } };
   setInterval(poll, 4000);
   setTimeout(poll, 1500);
 })();

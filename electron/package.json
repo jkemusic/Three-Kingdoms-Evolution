@@ -1,7 +1,7 @@
 {
   "name": "sgs-sim",
   "productName": "三國殺重製版",
-  "version": "1.8.14",
+  "version": "1.8.15",
   "description": "三國殺重製版模擬器 (桌面版)",
   "main": "main.js",
   "private": true,
@@ -20,7 +20,7 @@
     "extraResources": [{ "from": "../dist/sgs-server", "to": "server" }],
     "directories": { "output": "release" },
     "win": { "target": ["nsis", "zip"] },
-    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true },
+    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": false, "perMachine": false, "deleteAppDataOnUninstall": false },
     "mac": { "target": ["dmg", "zip"], "category": "public.app-category.games", "identity": null }
   }
 }

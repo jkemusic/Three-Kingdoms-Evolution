@@ -183,8 +183,10 @@ class Social:
         with self.lock:
             return dict(self.d["u"].get(key, {}).get("rk", {})) if key else {}
 
+    in_room = staticmethod(lambda key: "")   # 伺服器掛上: 這個人目前在哪個房間 (字串,沒有就空字串);在房間裡一定算在線
+
     def is_online(self, key):
-        return time.time() - self._u(key).get("seen", 0) < ONLINE_WITHIN
+        return time.time() - self._u(key).get("seen", 0) < ONLINE_WITHIN or bool(self.in_room(key))
 
     def mutual(self, a, b):
         """a 和 b 的共同好友 (帳號 key 列表)。"""
@@ -269,9 +271,10 @@ class Social:
                 uf = self._u(f)
                 rd = me["read"].get(f, 0)
                 unread = sum(1 for m in self.d["dm"].get(self._pair(key, f), []) if m["f"] == f and m["t"] > rd)
-                on = now - uf.get("seen", 0) < ONLINE_WITHIN
+                wf = where(f)
+                on = now - uf.get("seen", 0) < ONLINE_WITHIN or bool(wf)   # 在房間裡 (含觀戰) 也算在線,不只看好友視窗有沒有在輪詢
                 fr.append(dict(extra(f), user=self._name(f), id=f, remark=me.get("rk", {}).get(f, ""), online=on, seen=int(uf.get("seen", 0)),
-                               where=where(f) if on else "", unread=unread, idx=fi))
+                               where=wf if on else "", unread=unread, idx=fi))
             fr.sort(key=lambda x: (not x["online"], -x["seen"]))
             inv = [{"id": i["id"], "from": self._name(i["frm"]), "room": i["room"], "rname": i["rname"]}
                    for i in self.invites.get(key, []) if now - i["t"] < INVITE_TTL]

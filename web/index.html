@@ -1736,6 +1736,7 @@ async function showPlayer(key) {   // 看別人的個人資訊 (在線列表 / �
             h("div", {style: {display: "flex", alignItems: "center", gap: "8px", flexWrap: "nowrap"}},
               h("div", {class: "pnm", style: {fontSize: "28px", fontWeight: 800, lineHeight: 1.15, wordBreak: "break-all", minWidth: 0, flex: "0 1 auto"}}, p.user, " ", devEl(p.dev)), playerFriendRow(p)),
             h("div", {class: "meta", style: {userSelect: "all"}, text: "UID " + p.uid}),
+            p.self ? null : h("div", {class: "meta", style: {margin: "2px 0"}}, h("span", {class: "dot" + (p.online ? " on" : ""), style: {display: "inline-block", width: "9px", height: "9px", borderRadius: "50%", background: p.online ? "#3ddc84" : "#59657a", marginRight: "6px"}}), p.online ? "在線" + (p.where ? " · " + p.where : "") : (p.seen && window.SGS_FRIENDS ? "最後上線: " + SGS_FRIENDS.fmtSeen(p.seen, p.now) : "離線")),
             h("div", {style: {margin: "6px 0"}}, rkEl(p.rank, true)))),
         ...rkProgress(p),
         streakLine(p),
@@ -1814,8 +1815,8 @@ function openSetup() {
       return cs.length ? h("optgroup", {label: f}, ...cs.map(c => h("option", {value: c.name, text: `${c.faction} ${c.name} (${c.maxhp}體力)`}))) : null;
     }).filter(Boolean)];
   const keep = {}, keepD = {}; let diffSeg = null;
-  const mkSeat = (i, n) => {   // 一個座位: 武將 / 電腦難度 / 開放給朋友 / 把這個武將複製到別的座位
-    const open0 = h("div", {class: "open"}, toggle("開放給朋友", false));
+  const mkSeat = (i, n) => {   // 一個座位: 武將 / 電腦難度 / 開放玩家 / 把這個武將複製到別的座位
+    const open0 = h("div", {class: "open"}, toggle("開放玩家", false));
     const sel = h("select", {"data-seat": i}, charOpts()); if (keep[i]) sel.value = keep[i];
     const dsel = h("select", {"data-dseat": i, title: "這個座位的電腦難度"}, diffLabels().map((t, k) => h("option", {value: k + 1, text: "🤖 " + t}))); dsel.disabled = st.ranked === "ranked"; dsel.value = keepD[i] || String(st.diff);
     const cp = h("select", {class: "cpy", title: "把這個座位的武將複製到另一個座位 (兩個座位會用同一位武將)"},
@@ -1853,10 +1854,10 @@ function openSetup() {
     seatBox.textContent = "";
     for (let i = 0; i < st.n; i++) seatBox.append(mkSeat(i, st.n));
   };
-  const openAll = h("button", {type: "button", class: "mini-btn", style: {marginBottom: "6px"}, text: "🔓 全部開放給朋友", onclick: () => {
+  const openAll = h("button", {type: "button", class: "mini-btn", style: {marginBottom: "6px"}, text: "🔓 全部開放玩家", onclick: () => {
     const bs = [...seatBox.querySelectorAll(".open input[type=checkbox]")], on = !bs.every(b => b.checked);
     bs.forEach(b => { b.checked = on; b.dispatchEvent(new Event("change", {bubbles: true})); });
-    openAll.textContent = on ? "🔒 全部關閉 (不開放)" : "🔓 全部開放給朋友";
+    openAll.textContent = on ? "🔒 全部關閉 (不開放)" : "🔓 全部開放玩家";
   }});
   const drawMode = () => { modeBox.textContent = ""; modeBox.append(seg([["normal", "正常模式"], ["shuffle", "🔀 百變模式"]], st.mode, v => { st.mode = v; })); };
   const rkSide = h("div", {class: "rkside"}), rkIn = h("div", {class: "rkin"});
@@ -1913,7 +1914,7 @@ function openSetup() {
         h("label", {class: "fld"}, h("span", {text: "亂數種子"}), seed),
         h("label", {class: "fld", title: "打開後,沒有入座的旁觀者可以看到所有人的身分和手牌 (段位模式不能開,避免洩漏給正在打的人)"}, h("span", {text: "旁觀者可看全部身分 / 手牌"}), specAll),
         h("label", {class: "fld"}, h("span", {text: "AI 速度 (0 = 最快)"}), h("div", {class: "rng"}, speed, speedV)))),
-      sect("座位與武將", "留「隨機武將」會從 " + roster.length + " 位武將中抽,不重複;勾「開放給朋友」讓朋友入座。段位模式: 武將全部隨機,座位全部開放,按下開始後想打的人按「參戰」,沒按的自動觀戰,沒人坐的座位由電腦擔任", h("div", {}, openAll, seatBox))),
+      sect("座位與武將", "留「隨機武將」會從 " + roster.length + " 位武將中抽,不重複;勾「開放玩家」讓玩家入座。段位模式: 武將全部隨機,座位全部開放,按下開始後想打的人按「參戰」,沒按的自動觀戰,沒人坐的座位由電腦擔任", h("div", {}, openAll, seatBox))),
     h("div", {class: "df"}, h("button", {text: "取消", onclick: close}), h("button", {class: "primary big", text: "開始遊戲", onclick: start})));
   M.append(h("div", {class: "modal"}, dlg, rkSide));
   const placeRk = () => {   // 左邊的段位卡貼著對話框左緣;聊天欄開著對話框被推向左邊時,放不下就不顯示 (下方仍有一行段位)
