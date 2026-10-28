@@ -678,7 +678,7 @@ class Manager:
             self.claims[human] = starter
         self.cfg = dict(cfg, seed=seed, n=n, want=want, pool=pool)
         self.paused = False
-        self.speed = float(cfg.get("speed", 0.35))
+        self.speed = max(0.05, float(cfg.get("speed", 0.35)))   # 每步延遲最低 0.05 秒
         self.error = None
         self.pending = None
         self.game = None
@@ -1165,7 +1165,7 @@ class Manager:
         if "pause" in d:
             self.paused = bool(d["pause"])
         if "speed" in d:
-            self.speed = max(0.0, float(d["speed"]))
+            self.speed = max(0.05, float(d["speed"]))
         if d.get("step"):
             self._step_ev.set()
         return {"ok": True}

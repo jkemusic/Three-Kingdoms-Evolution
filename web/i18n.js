@@ -24,7 +24,7 @@ const W = [
   ["設定你的暱稱 (朋友入座時別人會看到)", "Set your nickname (others see it when you sit)", "ニックネームを設定(着席時に他の人に表示)"],
   ["隱藏 / 顯示右側的紀錄、AI 思考、武將欄", "Hide / show the right-hand log, AI thoughts and generals", "右側のログ/AI思考/武将欄の表示切替"],
   ["暫停時前進一行紀錄", "Advance one log line while paused", "一時停止中に1行進める"],
-  ["每一步 (每行紀錄) 之間的等待時間,0 = 最快", "Delay between steps (log lines); 0 = fastest", "ステップ(ログ1行)ごとの待ち時間。0 = 最速"],
+  ["每一步 (每行紀錄) 之間的等待時間,最快 0.05 秒", "Delay between steps (log lines); fastest is 0.05s", "ステップ(ログ1行)ごとの待ち時間。最速は0.05秒"],
   ["勾選後,右側「AI 思考」分頁會在遊戲進行中就顯示每個 AI 的理由 (預設遊戲結束才顯示,避免洩漏)", "When ticked, the AI thoughts tab shows each AI's reasoning during play (by default only after the game ends, to avoid leaks)", "チェックすると対局中からAIの理由を表示(既定では終了後のみ)"],
   ["遊戲結束或勾選上方「即時顯示 AI 思考」後才會顯示 (多人遊戲只有房主能勾)", "Shown after the game ends or when \"Show AI thoughts live\" is ticked (host only in multiplayer)", "ゲーム終了後、または上の「AIの思考を即表示」で表示(マルチではホストのみ)"],
   ["點擊查看武將詳細資訊", "Click for general details", "クリックで武将の詳細"],

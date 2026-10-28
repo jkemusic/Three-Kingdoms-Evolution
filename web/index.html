@@ -649,7 +649,7 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
     <button id="bPause" class="primary">暫停</button>
     <button id="bNew">新遊戲</button><button id="bForfeit" hidden title="段位模式: 直接認輸並扣分">🏳 棄賽</button>
     <button id="bStep" hidden style="display:none" title="暫停時前進一行紀錄">單步</button>
-    <label title="每一步 (每行紀錄) 之間的等待時間,0 = 最快">每步延遲 <input id="speed" type="range" min="0" max="1.5" step="0.05" value="0.35"><span id="speedv">0.35s</span></label>
+    <label title="每一步 (每行紀錄) 之間的等待時間,最快 0.05 秒">每步延遲 <input id="speed" type="range" min="0.05" max="1.5" step="0.05" value="0.35"><span id="speedv">0.35s</span></label>
     <input id="peek" type="checkbox" hidden>
     <span style="flex:1"></span><button id="bNick" style="display:none" title="設定你的暱稱 (朋友入座時別人會看到)">👤 暱稱</button>
     <button id="bSide" title="隱藏 / 顯示右側的紀錄、AI 思考、武將欄">側欄 ▸</button>
@@ -1797,7 +1797,7 @@ function openSetup() {
   const roster = S.roster;
   const st = {n: 4, human: "spectate", variant: 0, lord: "random", mode: "normal", diff: 3, rm: "normal", hp: 4, ranked: "casual"};
   const cnt = a => { const c = {}; a.forEach(x => c[x] = (c[x] || 0) + 1); return Object.entries(c).map(([k, v]) => k + v).join(" "); };
-  const speed = h("input", {type: "range", min: 0, max: 1.5, step: 0.05, value: $("#speed").value});
+  const speed = h("input", {type: "range", min: 0.05, max: 1.5, step: 0.05, value: $("#speed").value});
   const speedV = h("span", {class: "val", text: (+speed.value).toFixed(2) + "s"});
   speed.oninput = () => { speedV.textContent = (+speed.value).toFixed(2) + "s"; };
   const seed = h("input", {type: "number", placeholder: "隨機", class: "seed"});
@@ -1913,7 +1913,7 @@ function openSetup() {
       sect("進階", "", h("div", {class: "adv"},
         h("label", {class: "fld"}, h("span", {text: "亂數種子"}), seed),
         h("label", {class: "fld", title: "打開後,沒有入座的旁觀者可以看到所有人的身分和手牌 (段位模式不能開,避免洩漏給正在打的人)"}, h("span", {text: "旁觀者可看全部身分 / 手牌"}), specAll),
-        h("label", {class: "fld"}, h("span", {text: "AI 速度 (0 = 最快)"}), h("div", {class: "rng"}, speed, speedV)))),
+        h("label", {class: "fld"}, h("span", {text: "AI 速度 (0.05 = 最快)"}), h("div", {class: "rng"}, speed, speedV)))),
       sect("座位與武將", "留「隨機武將」會從 " + roster.length + " 位武將中抽,不重複;勾「開放玩家」讓玩家入座。段位模式: 武將全部隨機,座位全部開放,按下開始後想打的人按「參戰」,沒按的自動觀戰,沒人坐的座位由電腦擔任", h("div", {}, openAll, seatBox))),
     h("div", {class: "df"}, h("button", {text: "取消", onclick: close}), h("button", {class: "primary big", text: "開始遊戲", onclick: start})));
   M.append(h("div", {class: "modal"}, dlg, rkSide));
