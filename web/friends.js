@@ -169,8 +169,8 @@
       return;
     }
     if (!d.friends.length) body.append(el("div", {class: "meta", style: {padding: "10px 4px"}, text: "還沒有好友。輸入朋友的 UID 送出請求吧。"}));
-    const SORTS = [["time", "成為好友時間"], ["level", "等級"], ["playtime", "遊玩時間"], ["rank", "段位"], ["name", "名字 A-Z"], ["seen", "最近上線"]];
-    const key = { time: f => f.idx || 0, level: f => f.level || 0, playtime: f => f.playtime || 0, rank: f => f.rp || 0, name: f => (f.remark || f.user || "").toLowerCase(), seen: f => f.online ? 1e12 : (f.seen || 0) };
+    const SORTS = [["time", "成為好友時間"], ["playtime", "遊玩時間"], ["rank", "段位"], ["name", "名字 A-Z"], ["seen", "最近上線"]];
+    const key = { time: f => f.idx || 0, playtime: f => f.playtime || 0, rank: f => f.rp || 0, name: f => (f.remark || f.user || "").toLowerCase(), seen: f => f.online ? 1e12 : (f.seen || 0) };
     let sk = "seen", dir = -1; try { sk = localStorage.getItem("frSort") || "seen"; dir = localStorage.getItem("frDir") === "1" ? 1 : -1; } catch (e) {}
     if (!key[sk]) sk = "seen";
     const sorted = d.friends.slice().sort((a, b) => { const x = key[sk](a), y = key[sk](b); const c = typeof x === "string" ? x.localeCompare(y) : x - y; return c ? c * dir : (a.user || "").localeCompare(b.user || ""); });
