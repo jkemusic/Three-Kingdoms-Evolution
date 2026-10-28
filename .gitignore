@@ -23,3 +23,5 @@ rulebook.md
 run.py
 *.bat
 social.json
+*.bak*
+profiles.json.bak*

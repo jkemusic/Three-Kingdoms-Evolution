@@ -45,32 +45,36 @@ class Profiles:
         self._migrate_rp()
 
     def _migrate_rp(self):
-        """段位門檻改過一次 (傳說 1400 → 2000): 舊積分依各段位區間線性換算,每個人的段位和小段不變;只做一次。"""
+        """v1.7.58 把舊積分依比例換算到新門檻 (rkv=2),之後決定「積分數字維持原本的、段位依新門檻重算」:
+        對 rkv=2 的人把換算反推回原本的積分 (rkv=3,只做一次,改之前先備份);其餘沒標記的人積分本來就是原本的,直接標 rkv=3。"""
         old, new = self.OLD_RANKS, [lo for _, lo in self.RANKS]
-        def conv(v):
+        def back(v):
             v = max(0, int(v or 0))
-            if v >= old[-1]:
-                return new[-1] + (v - old[-1])
-            for i in range(len(old) - 1):
-                if old[i] <= v < old[i + 1]:
-                    return round(new[i] + (v - old[i]) * (new[i + 1] - new[i]) / (old[i + 1] - old[i]))
+            if v >= new[-1]:
+                return old[-1] + (v - new[-1])
+            for i in range(len(new) - 1):
+                if new[i] <= v < new[i + 1]:
+                    return round(old[i] + (v - new[i]) * (old[i + 1] - old[i]) / (new[i + 1] - new[i]))
             return v
-        changed = False
-        for p in self.d.values():
-            if isinstance(p, dict) and p.get("rkv") != 2 and ("rp" in p or "peak_rp" in p):
+        todo = [p for p in self.d.values() if isinstance(p, dict) and p.get("rkv") != 3]
+        if not todo:
+            return
+        if any(p.get("rkv") == 2 for p in todo):
+            try:
+                import shutil
+                shutil.copy(self.PATH, self.PATH + ".bak-before-revert")   # 資料資料夾裡的備份,不在 repo
+            except OSError:
+                pass
+        for p in todo:
+            if p.get("rkv") == 2:
                 for k in ("rp", "peak_rp"):
                     if k in p:
-                        p[k] = conv(p[k])
-                p["rkv"] = 2
-                changed = True
-            elif isinstance(p, dict) and p.get("rkv") != 2:
-                p["rkv"] = 2   # 沒打過段位的新帳號: 直接標成新版,不用換算
-                changed = True
-        if changed:
-            try:
-                self._save()
-            except Exception:
-                pass
+                        p[k] = back(p[k])
+            p["rkv"] = 3
+        try:
+            self._save()
+        except Exception:
+            pass
 
     # 段位: 積分 (rp) 決定。每個段位 (傳說除外) 再分 3 / 2 / 1 三小段,1 最高
     RANKS = [("青銅", 0), ("白銀", 150), ("黃金", 400), ("白金", 700), ("鑽石", 1100), ("大師", 1500), ("傳說", 2000)]
@@ -129,7 +133,7 @@ class Profiles:
         with self.lock:
             p = self.d.get(tok)
             if p is None and create:
-                p = self.d[tok] = {"xp": 0, "games": 0, "wins": 0, "created": int(time.time()), "rkv": 2}
+                p = self.d[tok] = {"xp": 0, "games": 0, "wins": 0, "created": int(time.time()), "rkv": 3}
                 self._save()
             return p
 
@@ -1074,6 +1078,8 @@ class Manager:
                 if not won and not draw and pl.alive and pl.role != "內奸":
                     rl *= 0.8   # 輸了但自己撐到最後: 扣分打 8 折
                 partial = round(wrp * rw * 0.3) if (not won and not draw and pl.role == "內奸" and getattr(pl, "duel1", False)) else 0   # 內奸撐到和主公單挑才輸: 次級勝利,給贏分的 30%
+                if draw:
+                    partial = max(1, round(wrp * rw * 0.4))   # 平手: 加分,但只有贏的 40% (不算勝場、連勝不變)
                 wrp, lrp = max(1, round(wrp * rw)), max(1, round(lrp * rl))
                 r = PROFILES.award(tok, won, pl._char.name, pl.role, wx, ranked, wrp, {"practice": bool(self.cfg.get("practice")), "hp": pl.hp, "alive": pl.alive, "rounds": g.round, "n": len(g.players), "noroles": noroles, "dmg": pl.dmg_total, "sha": pl.sha_n,
                                                                                                                   "maxhand": pl.max_hand, "chain11": pl.chain11, "wei": pl.wei_n, "same": len(g.players) >= 2 and len({q._char.name for q in g.players}) == 1}, lrp, secs=time.time() - getattr(self, "game_t0", time.time()), draw=draw, partial=partial)
@@ -1083,7 +1089,7 @@ class Manager:
                     if not ranked:
                         self._event(f"🎮 休閒模式: {who} 段位積分不變 ({a})", "ok")
                     else:
-                        self._event(f"🏅 {who} 段位積分 {'±0 (平手)' if draw else '-0' if d == 0 and not won else format(d, '+d')}{' 內奸次級勝利' if partial and not won else ''} ({b}" + (f" → {a})" if a != b else ")") + (" 升段!" if d > 0 and a != b else " 降段" if d < 0 and a != b else ""), "ok" if draw or d > 0 else "bad" if d < 0 or not won else "ok")   # 輸了一律紅底 (已經最低分就是 -0)
+                        self._event(f"🏅 {who} 段位積分 {(format(d, '+d') + ' (平手)') if draw else '-0' if d == 0 and not won else format(d, '+d')}{' 內奸次級勝利' if partial and not won else ''} ({b}" + (f" → {a})" if a != b else ")") + (" 升段!" if d > 0 and a != b else " 降段" if d < 0 and a != b else ""), "ok" if draw or d > 0 else "bad" if d < 0 or not won else "ok")   # 輸了一律紅底 (已經最低分就是 -0)
 
     def _run(self, g):
         try:
