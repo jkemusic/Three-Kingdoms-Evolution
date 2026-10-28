@@ -859,6 +859,14 @@ class Manager:
                 elif not was and up:
                     self.alive[tok] = True
                     self._event(f"✅ {self._who(tok)} 重新連線", "ok")
+            # 房主不在房間 (斷線 / 離開時房裡沒有別人,之後才有人進來;或是已經沒連線很久) 又沒交給別人: 現在補上,優先交給入座的玩家
+            h = self.host
+            if h and not self.public and now - self.seen.get(h, 0) >= self.OFFLINE_AFTER:
+                cand = [t for t, x in self.seen.items() if t != h and now - x < self.OFFLINE_AFTER]
+                if cand:
+                    seated = [t for t in cand if self.seat_of(t) is not None]
+                    self.host = random.choice(seated or cand)
+                    self._event(f"👑 房主不在房間,房主已讓給 {self.nicks.get(self.host) or self._name_of(self.host)}", "host")
 
     def online(self):
         now = time.time()
