@@ -218,12 +218,36 @@
           v.textContent = "v" + a.version + " ";
           const gh = el("button", { textContent: "GitHub", title: a.repo, style: "margin:0 8px" });
           gh.onclick = () => window.open(a.repo, "_blank", "noopener");
+          const mdBox = md => {   // 更新日誌 (Markdown): 只處理 # / ## 標題與 - 清單,全部用 textContent,不吃 HTML;上方選單選要看哪個版本
+            const wrap = el("div", {}), body = el("div", { style: "max-height:56vh;overflow:auto;line-height:1.55" });
+            if (!md) { body.textContent = "(沒有更新日誌)"; wrap.append(body); return wrap; }
+            const lines = md.split(/\r?\n/), secs = [];   // secs: [{name: "v1.7.58", lines: [...]}]
+            lines.forEach(raw => { const m = /^##\s+(.*)$/.exec(raw.trimEnd()); if (m) secs.push({ name: m[1].trim(), lines: [raw] }); else if (secs.length) secs[secs.length - 1].lines.push(raw); });
+            const draw = ls => {
+              body.textContent = ""; let ul = null;
+              ls.forEach(raw => {
+                const ln = raw.trimEnd(), h = /^(#{1,3})\s+(.*)$/.exec(ln), li = /^\s*[-*]\s+(.*)$/.exec(ln);
+                if (li) { if (!ul) { ul = el("ul", { style: "margin:4px 0 10px;padding-left:20px" }); body.append(ul); } ul.append(el("li", { textContent: li[1], style: "margin:2px 0" })); return; }
+                ul = null;
+                if (h) body.append(el("div", { textContent: h[2], style: "font-weight:800;margin:" + (h[1].length === 1 ? "0 0 8px;font-size:1.2em" : "12px 0 2px;font-size:1.05em;color:var(--gold,#e8c872)") }));
+                else if (ln.trim()) body.append(el("div", { textContent: ln, style: "margin:2px 0" }));
+              });
+              body.scrollTop = 0;
+            };
+            if (secs.length < 2) { draw(lines); wrap.append(body); return wrap; }
+            const sel = el("select", { style: "margin:0 0 8px;max-width:100%" }, el("option", { value: "-1", textContent: "全部版本" }), ...secs.map((x, k) => el("option", { value: String(k), textContent: x.name })));
+            sel.value = "0";
+            sel.onchange = () => draw(+sel.value < 0 ? lines : secs[+sel.value].lines);
+            draw(secs[0].lines);
+            wrap.append(sel, body);
+            return wrap;
+          };
           const lg = el("button", { textContent: "更新日誌" });
           lg.onclick = () => {
             const d2 = el("div", { className: "dlg", style: "max-width:560px" },
               el("div", { className: "dh" }, el("div", {}, el("h3", { textContent: "更新日誌 · v" + a.version })), el("button", { className: "x", textContent: "✕", onclick: () => m2.remove() })),
-              el("div", { className: "dbody" }, el("pre", { textContent: a.changelog || "(沒有更新日誌)", style: "white-space:pre-wrap;font:inherit;max-height:60vh;overflow:auto;margin:0" })));
-            const m2 = el("div", { className: "modal" }, d2); m2.onclick = e => { if (e.target === m2) m2.remove(); };
+              el("div", { className: "dbody" }, mdBox(a.changelog)));
+            const m2 = el("div", { className: "modal", style: "z-index:7700" }, d2);; m2.onclick = e => { if (e.target === m2) m2.remove(); };   // z-index 比設定視窗 (7600) 高,才會蓋在它前面
             document.body.append(m2);
           };
           v.append(gh, lg);
