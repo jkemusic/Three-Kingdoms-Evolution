@@ -230,7 +230,7 @@ def auto_frame(tier):
 
 
 # 未完成成就的進度: id -> (目前值函式 (p, level, peak_rp), 目標值)。沒列出的 (一次性事件) 不顯示進度條。
-_RP = {"tier_gold": 250, "tier_dia": 700, "tier_legend": 1400}
+_RP = {"tier_gold": 400, "tier_dia": 1100, "tier_legend": 2000}
 PROGRESS = {
     "first_game": (lambda p, lv, rp: p["games"], 1),
     "first_win": (lambda p, lv, rp: p["wins"], 1),
@@ -248,9 +248,9 @@ PROGRESS = {
     "chars30": (lambda p, lv, rp: len(p.get("chars", {})), 30),
     "main10": (lambda p, lv, rp: _best_char_wins(p), 10),
     "games50": (lambda p, lv, rp: p["games"], 50),
-    "tier_gold": (lambda p, lv, rp: rp, 250),
-    "tier_dia": (lambda p, lv, rp: rp, 700),
-    "tier_legend": (lambda p, lv, rp: rp, 1400),
+    "tier_gold": (lambda p, lv, rp: rp, 400),
+    "tier_dia": (lambda p, lv, rp: rp, 1100),
+    "tier_legend": (lambda p, lv, rp: rp, 2000),
 }
 
 

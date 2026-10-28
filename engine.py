@@ -787,6 +787,10 @@ class Game:
                 raise GameOver()
             return
         roles = [p.role for p in self.alive_players()]
+        if len(roles) == 2 and "內奸" in roles and self.lord.alive:   # 內奸撐到和主公單挑: 段位結算算「次級勝利」
+            for q in self.alive_players():
+                if q.role == "內奸":
+                    q.duel1 = True
         if not self.lord.alive:
             self.winner = "內奸" if roles == ["內奸"] else "反賊"
         elif "反賊" not in roles and "內奸" not in roles:

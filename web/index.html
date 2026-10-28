@@ -1901,7 +1901,7 @@ function openSetup() {
       sect("人數", "", nBox),
       sect("身分配置", "", varBox),
       sect("主公座位", "主公從哪個座位開始;身分會在開局時才揭曉", lordBox),
-      sect("電腦難度", "上面一排是一次調整全部電腦;每個座位也可以在下方「座位與武將」各自調整。段位模式打贏電腦加的積分: 弱 +10 / 中 +18 / 強 +25 / 很強 +32;輸了 −15。同場有其他真人時,輸贏分數會依對手平均積分與你的差距調整 (最多 ±50%)。段位模式的電腦難度不能自己調,跟著入座玩家的平均段位走: 青銅 弱 / 白銀·黃金 中 / 白金·鑽石 強 / 大師·傳說 很強。", diffSeg = seg(diffLabels().map((t, k) => [k + 1, t]), st.diff, v => { st.diff = v; seatBox.querySelectorAll("select[data-dseat]").forEach(x => { x.value = String(v); keepD[x.dataset.dseat] = String(v); }); })),
+      sect("電腦難度", "上面一排是一次調整全部電腦;每個座位也可以在下方「座位與武將」各自調整。段位模式打贏電腦加的積分: 弱 +10 / 中 +18 / 強 +25 / 很強 +32;輸了扣的分數和同難度贏的加分一樣 (勝率超過約 50% 才會升)。同場有其他真人時,輸贏分數會依對手平均積分與你的差距調整 (最多 ±50%)。段位模式的電腦難度不能自己調,跟著入座玩家的平均段位走: 青銅 弱 / 白銀·黃金 中 / 白金·鑽石 強 / 大師·傳說 很強。", diffSeg = seg(diffLabels().map((t, k) => [k + 1, t]), st.diff, v => { st.diff = v; seatBox.querySelectorAll("select[data-dseat]").forEach(x => { x.value = String(v); keepD[x.dataset.dseat] = String(v); }); })),
       sect("基礎體力上限", "所有武將的體力上限一起增減 (預設 4);原本就比較高或低的武將會保留差距。例如設 6,原本 4 血的武將變 6 血,原本 3 血的變 5 血", hpBox),
       sect("遊戲模式", "正常模式: 武將不變;百變模式: 第 2 輪起,每次輪到玩家的回合一開始都會隨機換成一位新武將 (已損失的體力不變)", modeBox),
       sect("身分模式", "正常: 一般身分局;無身分: 沒有主公反賊,各打各的,最後活著的人贏;身分全公開: 所有人的身分一開始就公開;主公不公開: 主公不亮身分,也不加體力上限", rmBox),
@@ -2256,10 +2256,10 @@ function showRankNote(n) {   // 升段 / 降段 視窗
   const close = () => { box.textContent = ""; api("/api/rank_ack", {id: n.id}); };   // 按確定才算看過 (沒看到的話下次還會跳)
   box.append(h("div", {class: "modal", style: {zIndex: 9600}, onclick: e => { if (e.target.classList.contains("modal")) close(); }},
     h("div", {class: "dlg rankup" + ((n.changed ? n.up : n.won) ? " up" : " down"), style: {maxWidth: "380px", textAlign: "center"}},
-      h("div", {class: "rkicon", text: n.changed ? (n.up ? "🎉" : "📉") : n.draw ? "🤝" : n.won ? "🏆" : "🏳"}),
-      h("h3", {text: n.changed ? (n.up ? "段位提升!" : "段位下降") : n.draw ? "平手" : n.won ? "勝利" : "落敗"}),
+      h("div", {class: "rkicon", text: n.changed ? (n.up ? "🎉" : "📉") : n.draw ? "🤝" : n.partial ? "🥈" : n.won ? "🏆" : "🏳"}),
+      h("h3", {text: n.changed ? (n.up ? "段位提升!" : "段位下降") : n.draw ? "平手" : n.partial ? "次級勝利" : n.won ? "勝利" : "落敗"}),
       n.changed ? h("div", {class: "rkflow"}, rkEl(n.from, true), h("span", {class: "rkarr", text: "➜"}), rkEl(n.to, true)) : h("div", {class: "rkflow"}, rkEl(n.to, true)),
-      n.ranked ? h("div", {class: "rkdelta " + (n.delta > 0 ? "plus" : n.delta < 0 || (!n.won && !n.draw) ? "minus" : ""), text: `段位積分 ${n.draw ? "±0" : n.delta === 0 && !n.won ? "-0" : (n.delta > 0 ? "+" : "") + n.delta}` + (n.bonus ? ` (含連勝獎勵 +${n.bonus})` : "") + (n.won && n.streak > 1 ? ` · ${n.streak} 連勝` : "")})
+      n.ranked ? h("div", {class: "rkdelta " + (n.delta > 0 ? "plus" : n.delta < 0 || (!n.won && !n.draw && !n.partial) ? "minus" : ""), text: `段位積分 ${n.draw ? "±0" : n.delta === 0 && !n.won && !n.partial ? "-0" : (n.delta > 0 ? "+" : "") + n.delta}` + (n.bonus ? ` (含連勝獎勵 +${n.bonus})` : "") + (n.won && n.streak > 1 ? ` · ${n.streak} 連勝` : "")})
                : h("div", {class: "rkdelta", text: "休閒模式 · 積分不變"}),
       h("div", {class: "meta", style: {margin: "6px 0 14px"}, text: `目前 ${n.rp} 分` + (n.next ? ` · 距離 ${n.next} 還差 ${n.need} 分` : " · 已是最高段位")}),
       h("button", {class: "primary big", text: "確定", onclick: close}))));
