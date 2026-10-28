@@ -1639,7 +1639,7 @@ class Handler(BaseHTTPRequestHandler):
                 if M.lobby:
                     return self._send(200, apply_remarks({"ready": True, "lobby": True, "n": M.cfg["n"],
                                             "humans": sorted(M.humans),
-                                            "ranked": bool(M.cfg.get("ranked")), "claims": sorted(M.claims), "mine": viewer, "names": M.seat_names(), "levels": M.seat_levels(), "avatars": M.seat_avatars(),
+                                            "ranked": bool(M.cfg.get("ranked")), "claims": sorted(M.claims), "mine": viewer, "names": M.seat_names(), "levels": M.seat_levels(), "avatars": M.seat_avatars(), "avstyles": M.seat_styles(),
                                             "host": bool(tok) and tok == M.host, "is_host": M.is_host(tok),
                                             "online": M.online(), "host_name": M.host_name(), "events": M.events, "locked": M.game_active(), "room_name": M.room_name, "can_manage": tok_can_manage(M, tok),
                                             **M.pick_view(tok), **M.chat_since(int(q.get("chat", ["0"])[0]), tok)}, M, tok))

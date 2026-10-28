@@ -2020,7 +2020,7 @@ function gameStartSfx() {   // 開局音效 (兩個進入遊戲的路徑都會�
 function renderPicking(snap) {   // 隨機武將: 每人抽 3 張選 1,大家同時選
   const M = $("#modal"); M.textContent = ""; S.modalOpen = "lobby";
   $("#status").textContent = "選擇武將中";
-  const who = i => h("span", {style: {display: "inline-flex", alignItems: "center", gap: "4px", margin: "0 4px"}}, (snap.avatars || {})[i] ? h("img", {src: snap.avatars[i], style: {width: "22px", height: "22px", borderRadius: "50%", objectFit: "cover"}}) : null, "座位 " + i + ((snap.names || {})[i] ? "(" + snap.names[i] + ")" : ""));
+  const who = i => h("span", {style: {display: "inline-flex", alignItems: "center", gap: "4px", margin: "0 4px"}}, (snap.names || {})[i] != null || (snap.avatars || {})[i] ? avEl((snap.avatars || {})[i], (snap.avstyles || {})[i], {style: {width: "22px", height: "22px", borderRadius: "50%", objectFit: "cover"}}) : null, "座位 " + i + ((snap.names || {})[i] ? "(" + snap.names[i] + ")" : ""));
   const whoList = a => h("span", {}, ...a.map(who));
   const dlg = h("div", {class: "dlg"});
   if (snap.pick_left != null) {   // 選武將倒數 60 秒: 時間到沒選的人隨機
@@ -2083,11 +2083,11 @@ function renderLobby(snap) {
     else if (snap.claims.includes(i)) {
       const av = (snap.avatars || {})[i];
       cell = h("span", {class: "meta", style: {display: "inline-flex", alignItems: "center", gap: "6px"}},
-        av ? h("img", {src: av, style: {width: "28px", height: "28px", borderRadius: "50%", objectFit: "cover"}}) : "👤",
+        avEl(av, (snap.avstyles || {})[i], {style: {width: "28px", height: "28px", borderRadius: "50%", objectFit: "cover"}}),
         ((snap.names || {})[i] || "已有人入座"));
     }
     else cell = h("button", {text: "坐這裡", onclick: async () => { await api("/api/claim", {seat: i, name: myNick()}); poll(true); }});
-    if (snap.mine === i && (snap.avatars || {})[i]) cell = h("span", {style: {display: "inline-flex", alignItems: "center", gap: "6px"}}, h("img", {src: snap.avatars[i], style: {width: "28px", height: "28px", borderRadius: "50%", objectFit: "cover"}}), cell);
+    if (snap.mine === i) cell = h("span", {style: {display: "inline-flex", alignItems: "center", gap: "6px"}}, avEl((snap.avatars || {})[i], (snap.avstyles || {})[i], {style: {width: "28px", height: "28px", borderRadius: "50%", objectFit: "cover"}}), cell);
     rows.push(h("div", {class: "lrow"}, h("b", {text: "座位 " + i}), cell));
   }
   const dlg = h("div", {class: "dlg"}, h("h3", {text: "等待玩家入座"}),
