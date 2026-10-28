@@ -2469,6 +2469,7 @@ async function refreshRooms() {
   for (const r of list) {
     L.append(h("div", {class: "rrow"},
       h("div", {class: "ri"}, h("div", {class: "rn", text: (r.locked ? "🔒 " : "") + r.name}), h("div", {class: "rm", text: (r.host ? "房主: " + r.host + " · " : "") + (r.n ? r.n + " 人局 · " : "") + "目前 " + r.online + (r.cap ? " / " + r.cap : "") + " 人在線"})),
+      r.ranked != null ? h("span", {class: "st" + (r.ranked ? " go" : ""), style: {marginRight: "6px"}, text: r.ranked ? "🏅 段位模式" : "🎮 休閒模式"}) : null,   // 對戰中 / 選武將 / 等待入座的房間: 標出是哪種模式
       h("span", {class: "st" + (r.state === "進行中" ? " go" : ""), text: r.state}),
       h("button", {class: "primary", text: r.state === "進行中" || r.state === "選武將" ? "觀戰" : "加入", title: r.state === "進行中" || r.state === "選武將" ? "遊戲已開始,只能觀戰" : "", onclick: () => joinRoom(r)})));
   }

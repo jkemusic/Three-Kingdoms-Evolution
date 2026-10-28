@@ -1435,9 +1435,9 @@ def list_rooms(tok=None):
         if m.solo:
             continue
         on = m.online()
-        st = ("進行中" if m.game_active() else "選武將" if m.picking else "等待玩家" if m.lobby else "空房")
+        st = ("進行中" if m.game_active() else "選武將" if m.picking else "等待玩家" if m.lobby else "等待開局" if on else "空房")   # 有人在的房間不能寫空房
         out.append({"id": rid, "name": m.room_name, "online": len(on), "state": st, "host": (rk.get(SOCIAL.key_of(m.host)) if m.host and m.host != tok else None) or m.host_name() or "",
-                    "n": m.cfg.get("n") if m.cfg else None, "main": rid == "main",
+                    "n": m.cfg.get("n") if m.cfg else None, "ranked": bool(m.cfg.get("ranked")) if m.cfg and st in ("進行中", "選武將", "等待玩家") else None, "main": rid == "main",
                     "can_delete": rid != "main" and tok in (m.owner, m.host),
                     "locked": bool(m.pw), "need_pw": bool(m.pw) and not m.can_enter(tok), "cap": m.cap})
     out.sort(key=lambda r: (not r["main"], -r["online"]))
@@ -1448,13 +1448,13 @@ def list_rooms(tok=None):
 
 
 def reap_rooms():
-    """沒人在線超過 10 分鐘的自訂房間: 停掉對局並刪除。"""
+    """沒人在線的自訂房間: 沒開局的 1 分鐘後刪除,對局進行中的 3 分鐘後停掉對局並刪除 (給手機切換程式 / 斷線重連一點時間)。"""
     now = time.time()
     for rid, m in list(ROOMS.items()):
-        if rid == "main":
+        if rid == "main" or m.public:
             continue
         last = max([m.created] + list(m.seen.values()))
-        if now - last > 600:
+        if now - last > (180 if m.game_active() else 60):
             m.abort = True; m._ans_ev.set(); m._step_ev.set()
             with ROOMS_LOCK:
                 ROOMS.pop(rid, None)
@@ -1823,7 +1823,9 @@ def main():
         while True:
             time.sleep(2)
             try:
-                M.presence()
+                for m in list(ROOMS.values()):   # 每個房間都要偵測 (房主斷線要交棒),順便清掉沒人的房間
+                    m.presence()
+                reap_rooms()
             except Exception:
                 pass
     threading.Thread(target=_tick, daemon=True).start()

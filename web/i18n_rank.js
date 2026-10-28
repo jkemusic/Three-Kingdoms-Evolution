@@ -19,6 +19,7 @@ window.SGS_LOG_TPL = (window.SGS_LOG_TPL || []).concat([
 ["房間規則", "Room rules", "ルーム設定"],
 ["段位模式武將全部隨機,基礎體力、主公座位、身分模式都固定,也不能開旁觀者看全部。打完之前不能開新遊戲 (可以先棄賽)。新手練習局固定為休閒模式。", "In ranked mode all generals are random; base HP, Lord seat and role mode are fixed, and spectators can't see everything. You can't start a new game until the current one ends (you may forfeit). Tutorial practice games are always casual.", "ランクモードでは武将は全てランダムで、基本体力・主君の席・役職モードは固定、観戦者の全公開も使えません。試合が終わるまで新しいゲームは始められません(放棄は可能)。練習ゲームは常にカジュアルです。"],
 ["關閉", "Close", "閉じる"],
+["等待開局", "Waiting to start", "開始待ち"],
 ["等待房主開始", "Waiting for the host", "ホストの開始待ち"],
 ["房主還沒開始新遊戲,開始後這裡會自動顯示牌桌。", "The host hasn't started a new game yet. The table will appear here automatically once it starts.", "ホストがまだ新しいゲームを始めていません。始まると自動的にテーブルが表示されます。"],
 ]);
