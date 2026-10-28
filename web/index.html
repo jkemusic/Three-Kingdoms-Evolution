@@ -1659,10 +1659,11 @@ function renderMembers() {   // 👥 房間成員: 每個人都看得到 (不只
   if (!pn || !pn.classList.contains("on")) return;
   pn.textContent = "";
   pn.append(h("h4", {text: "房間成員 (" + o.length + ")"}));
+  const anyTag = o.some(x => x.spec || x.seat != null);   // 等待開局時沒有人有座位 / 觀戰標籤: 不要留一欄空白
   o.forEach(x => pn.append(h("div", {class: "mr" + (x.acc ? " clk" : ""), onclick: x.acc ? () => { pn.classList.remove("on"); showPlayer(x.acc); } : null},
     avEl(x.avatar, x.style, {}),
     h("span", {class: "mn", title: x.name || "", text: (x.host ? "👑 " : "") + (x.name || "未命名") + (x.id === S.myWho ? " (你)" : "")}), devEl(x.dev), rkEl(x.lv),
-    h("span", {class: "tg", text: x.spec ? "👁 觀戰者" : x.seat != null ? "座位 " + x.seat : ""}),
+    anyTag ? h("span", {class: "tg", text: x.spec ? "👁 觀戰者" : x.seat != null ? "座位 " + x.seat : ""}) : null,
     S.amHost && x.id !== S.myWho && !x.host ? h("button", {type: "button", text: "👑", title: "把房主讓給他", class: "mb", onclick: async ev => {
       ev.stopPropagation();
       if (!confirm(`確定把房主讓給「${x.name || "未命名"}」嗎?你之後就不能操作新遊戲/暫停等功能了。`)) return;
