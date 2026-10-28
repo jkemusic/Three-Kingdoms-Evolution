@@ -2244,7 +2244,7 @@ updNickBtn();
 if (myNick()) api("/api/nick", {name: myNick()});
 function syncRanked(snap) {   // 段位局進行中: 不能開新遊戲,參戰的人可以棄賽
   const live = !!(snap.ranked && snap.locked && !snap.over);
-  const bn = $("#bNew"); if (live) { bn.disabled = true; bn.title = "段位模式打完之前不能開新遊戲 (可以先棄賽)"; }
+  const bn = $("#bNew"); if (live && !snap.ranked_abandoned) { bn.disabled = true; bn.title = "段位模式打完之前不能開新遊戲 (可以先棄賽)"; }
   const me = (snap.players || []).some(p => p.is_viewer);
   $("#bForfeit").hidden = !(live && me);
   const inGame = !!(snap.locked && !snap.over && me);   // 自己正在對局中: 不能回大廳 (觀戰的人可以)

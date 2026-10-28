@@ -637,7 +637,10 @@ class Manager:
         if not self.is_host(cfg.get("tok")):
             return {"ok": False, "error": "only host"}
         if self.game_active() and (self.cfg or {}).get("ranked"):
-            return {"ok": False, "error": "ranked game in progress"}   # 段位局打完前不能開新遊戲 (要先棄賽)
+            if not self.ranked_abandoned():
+                return {"ok": False, "error": "ranked game in progress"}   # 段位局打完前不能開新遊戲 (要先棄賽)
+            for t in list(self.claims.values()):   # 入座的人都離開很久了: 房主可以收掉這局,離開的人照棄賽算輸
+                self.forfeit(t)
         if cfg.get("ranked"):   # 段位模式: 固定規則 (正常模式 / 4 體力 / 隨機主公 / 正常身分)
             cfg = dict(cfg, spec_all=False, players=max(4, int(cfg.get("players", 5))), mode="normal", base_hp=4, lord="random", chars=["" for _ in (cfg.get("chars") or [])], role_mode="normal")
         self.abort = True
@@ -916,6 +919,14 @@ class Manager:
 
     def game_active(self):
         return self.game is not None and not self.lobby and self.game.winner is None
+
+    ABANDON_AFTER = 120   # 段位局入座的人全都超過這麼久沒連線: 視為丟下這局不管,房主可以直接開新遊戲
+
+    def ranked_abandoned(self):
+        if not (self.game_active() and (self.cfg or {}).get("ranked")):
+            return False
+        now = time.time()
+        return all(now - self.seen.get(t, 0) >= self.ABANDON_AFTER for t in self.claims.values())
 
     def seat_avatars(self):
         return {s: u for s, t in self.claims.items() if (u := PROFILES.avatar_url(t))}
@@ -1630,6 +1641,7 @@ class Handler(BaseHTTPRequestHandler):
                 snap["room_locked"] = bool(M.pw)
                 snap["is_host"] = M.is_host(tok)
                 snap["online"] = M.online()
+                snap["ranked_abandoned"] = M.ranked_abandoned()
                 snap["host_name"] = M.host_name()
                 snap["events"] = M.events
                 snap["avstyles"] = M.seat_styles(); snap["locked"] = M.game_active(); snap["ranked"] = bool((M.cfg or {}).get("ranked"))
