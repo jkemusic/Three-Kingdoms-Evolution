@@ -433,7 +433,8 @@ body.paused #hand .card,body.paused #bar button,body.paused #modal .modal.soft .
   #bar .pr{width:100%;margin:0 0 2px}
   #bar button{flex:1 1 auto}
   .modal.soft{align-items:flex-end;padding-bottom:0;background:rgba(0,0,0,.35)}
-  .modal{align-items:flex-end}
+  .modal{align-items:center}
+  .modal:not(.soft) .dlg{width:calc(100vw - 20px);max-width:calc(100vw - 20px);border-radius:14px}   /* 手機: 一般視窗 (暱稱 / 大廳 / 設定…) 放螢幕中間;打牌詢問 (.soft) 才貼在底部 */
   .dlg{width:100vw;max-width:100vw;border-radius:14px 14px 0 0;max-height:78dvh;padding:12px}
   .opts .card{width:64px;height:92px}
   .seatgrid{grid-template-columns:1fr}
@@ -2125,6 +2126,11 @@ async function poll(force) {
     S.nickLocked = !!snap.locked; { const b = $("#bNick"); b.disabled = S.nickLocked; b.title = S.nickLocked ? "遊戲進行中不能改暱稱" : "修改你的暱稱"; }
     if (!snap.ready) {
       $("#status").textContent = snap.is_host ? "" : "等待房主操作";
+      if (!snap.is_host && S.modalOpen == null) {   // 房客 / 旁觀者: 房主還沒開局時牌桌是空的,中間放一個說明視窗 (手機上狀態列看不到)
+        const M = $("#modal"); M.textContent = ""; S.modalOpen = "wait";
+        M.append(h("div", {class: "modal"}, h("div", {class: "dlg", style: {maxWidth: "420px"}}, h("h3", {text: "等待房主開始"}), h("div", {class: "meta", text: "房主還沒開始新遊戲,開始後這裡會自動顯示牌桌。"}), h("div", {style: {margin: "10px 0 0", display: "flex", gap: "8px", flexWrap: "wrap"}}, inviteFriendsBtn(), backBtn()))));
+      }
+      if (snap.is_host && S.modalOpen === "wait") { $("#modal").textContent = ""; S.modalOpen = null; }
       if (snap.is_host && S.modalOpen == null && S.roster && S.setupOff !== snap.room_name) openSetup();   // 按過「取消」就不再自動彈出
       { const c = $("#center");   // 關掉新遊戲視窗後,場地中央留一個按鈕可以再開
         if (snap.is_host && !c.querySelector(".ngb")) { c.textContent = ""; S.centerKey = null; c.append(h("div", {class: "ngb"}, h("button", {type: "button", class: "primary", text: "開始新遊戲", onclick: () => { S.setupOff = null; openSetup(); }}))); }
@@ -2133,7 +2139,7 @@ async function poll(force) {
     }
     { const c = $("#center"); if (c.querySelector(".ngb")) { c.textContent = ""; S.centerKey = null; } }
     if (snap.lobby) { renderLobby(snap); return; }
-    if (S.modalOpen === "lobby") { gameStartSfx(); $("#modal").textContent = ""; S.modalOpen = null; S.baseSeat = null; S.logN = 0; S.thN = 0; S.thoughts = []; S.lastTh = {}; $("#log").textContent = ""; $("#thl").textContent = ""; }
+    if (S.modalOpen === "lobby" || S.modalOpen === "wait") { gameStartSfx(); $("#modal").textContent = ""; S.modalOpen = null; S.baseSeat = null; S.logN = 0; S.thN = 0; S.thoughts = []; S.lastTh = {}; $("#log").textContent = ""; $("#thl").textContent = ""; }
     if (snap.log_total < S.logN) { gameStartSfx(); S.baseSeat = null; S.logN = 0; $("#log").textContent = ""; return; }
     if (snap.thought_total < S.thN) { S.thN = 0; S.thoughts = []; S.lastTh = {}; return; }
     if (S.logN >= reqLog && snap.logs) snap.logs = snap.logs.slice(S.logN - reqLog); addLogs(snap.logs); S.logN = snap.log_total;
