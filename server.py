@@ -521,7 +521,7 @@ class PublicChat:
                 return {"ok": False, "error": "說話太快了"}
             self.t[tok] = now
             self.id += 1
-            self.msgs.append({"id": self.id, "nick": nick, "who": Manager.pid(tok), "text": text, "t": int(now),
+            self.msgs.append({"id": self.id, "nick": nick, "who": Manager.pid(tok), "acc": ACCOUNTS.uuids.get(tok), "text": text, "t": int(now),
                               "avatar": PROFILES.avatar_url(tok), "style": PROFILES.style(tok), "lv": PROFILES.lv(tok), "dev": PROFILES.dev(tok)})
             del self.msgs[:-200]
         return {"ok": True}
@@ -563,12 +563,13 @@ SOCIAL.uid_key = lambda uid: next((k for k, a in list(ACCOUNTS.d.items()) if PRO
 def leaderboard(me=""):
     """玩家排行榜: 所有有帳號的玩家 (段位、積分、段位模式的勝場 / 場數;休閒模式不計)。"""
     rows = []
-    for acc in list(ACCOUNTS.d.values()):
+    rk = SOCIAL.remarks(SOCIAL.key_of(me)) if me else {}
+    for k, acc in list(ACCOUNTS.d.items()):
         t = acc["uuid"]
         p = PROFILES.d.get(t)
         if not p:
             continue
-        rows.append({"name": acc["user"], "acc": acc["user"].lower(), "me": t == me, "lv": PROFILES.rank_label(p.get("rp", 0)), "rp": p.get("rp", 0), "rp_next": PROFILES.rank(p.get("rp", 0))[3], "xp": p["xp"],
+        rows.append({"name": rk.get(k) or acc["user"], "acc": acc["user"].lower(), "me": t == me, "lv": PROFILES.rank_label(p.get("rp", 0)), "rp": p.get("rp", 0), "rp_next": PROFILES.rank(p.get("rp", 0))[3], "xp": p["xp"],
                      "games": p.get("rgames", 0), "wins": p.get("rwins", 0), "playtime": p.get("playtime", 0), "avatar": PROFILES.avatar_url(t), "style": PROFILES.style(t), "dev": PROFILES.dev(t)})
     return {"rows": rows}
 OPEN_API = {"/api/about", "/api/rooms", "/api/cardcat", "/api/cosmetics", "/api/i18n", "/api/roster", "/api/me", "/api/login", "/api/register"}
@@ -1388,17 +1389,46 @@ def total_online(now=None):
     return len(toks)
 
 
+def apply_remarks(snap, M, tok):
+    """替好友取的暱稱只有自己看得到,而且除了好友介面和對方的玩家資訊以外,到處都顯示暱稱:
+    座位名單 / 線上名單 / 房主 / 聊天 / 事件通知都換成暱稱 (遊戲內容本身不變)。"""
+    rk = SOCIAL.remarks(SOCIAL.key_of(tok))
+    if not rk:
+        return snap
+    by = {t: rk[k] for t in list(M.nicks) if t != tok for k in [SOCIAL.key_of(t)] if k in rk}
+    if not by:
+        return snap
+    pid_map = {M.pid(t): r for t, r in by.items()}
+    nick_map = sorted(((M.nicks[t], r) for t, r in by.items() if M.nicks.get(t)), key=lambda x: -len(x[0]))
+    def sub(text):
+        for n, r in nick_map:
+            text = text.replace(n, r)
+        return text
+    if snap.get("names"):
+        snap["names"] = {s: (by.get(M.claims.get(s)) or n) for s, n in snap["names"].items()}
+    if snap.get("online"):
+        snap["online"] = [dict(o, name=pid_map.get(o["id"], o["name"])) for o in snap["online"]]
+    if M.host in by:
+        snap["host_name"] = by[M.host]
+    if snap.get("events"):
+        snap["events"] = [dict(e, text=sub(e["text"])) if isinstance(e.get("text"), str) else e for e in snap["events"]]
+    if snap.get("chat"):
+        snap["chat"] = [dict(m, nick=pid_map[m["who"]]) if m.get("who") in pid_map else m for m in snap["chat"]]
+    return snap
+
+
 def list_rooms(tok=None):
     now = time.time()
     out = []
     if tok:
         LOBBY_SEEN[tok] = now
+    rk = SOCIAL.remarks(SOCIAL.key_of(tok)) if tok else {}
     for rid, m in list(ROOMS.items()):
         if m.solo:
             continue
         on = m.online()
         st = ("進行中" if m.game_active() else "選武將" if m.picking else "等待玩家" if m.lobby else "空房")
-        out.append({"id": rid, "name": m.room_name, "online": len(on), "state": st, "host": m.host_name() or "",
+        out.append({"id": rid, "name": m.room_name, "online": len(on), "state": st, "host": (rk.get(SOCIAL.key_of(m.host)) if m.host and m.host != tok else None) or m.host_name() or "",
                     "n": m.cfg.get("n") if m.cfg else None, "main": rid == "main",
                     "can_delete": rid != "main" and tok in (m.owner, m.host),
                     "locked": bool(m.pw), "need_pw": bool(m.pw) and not m.can_enter(tok), "cap": m.cap})
@@ -1532,7 +1562,11 @@ class Handler(BaseHTTPRequestHandler):
                     n = int(q.get("since", ["0"])[0])
                 except ValueError:
                     n = 0
-                return self._send(200, PUBCHAT.since(n))
+                out = PUBCHAT.since(n)
+                rk = SOCIAL.remarks(SOCIAL.key_of(q.get("tok", [""])[0]))   # 公共頻道: 好友顯示我取的暱稱
+                if rk and isinstance(out, dict) and isinstance(out.get("msgs"), list):
+                    out["msgs"] = [dict(m, nick=rk[m["acc"]]) if m.get("acc") in rk else m for m in out["msgs"]]
+                return self._send(200, out)
             if path == "/api/dm":
                 tk = q.get("tok", [""])[0]
                 return self._send(200, SOCIAL.thread(SOCIAL.key_of(tk), q.get("with", [""])[0]))
@@ -1574,12 +1608,12 @@ class Handler(BaseHTTPRequestHandler):
                     M.set_nick(tok, nk)   # 伺服器重啟後暱稱會遺失,每次輪詢順便帶上
                 M.set_chain_pref(tok, q.get("cm", [""])[0] == "all")   # 連鎖提示: 全部都問 / 只有影響到我才問
                 if M.lobby:
-                    return self._send(200, {"ready": True, "lobby": True, "n": M.cfg["n"],
+                    return self._send(200, apply_remarks({"ready": True, "lobby": True, "n": M.cfg["n"],
                                             "humans": sorted(M.humans),
                                             "ranked": bool(M.cfg.get("ranked")), "claims": sorted(M.claims), "mine": viewer, "names": M.seat_names(), "levels": M.seat_levels(), "avatars": M.seat_avatars(),
                                             "host": bool(tok) and tok == M.host, "is_host": M.is_host(tok),
                                             "online": M.online(), "host_name": M.host_name(), "events": M.events, "locked": M.game_active(), "room_name": M.room_name, "can_manage": tok_can_manage(M, tok),
-                                            **M.pick_view(tok), **M.chat_since(int(q.get("chat", ["0"])[0]), tok)})
+                                            **M.pick_view(tok), **M.chat_since(int(q.get("chat", ["0"])[0]), tok)}, M, tok))
                 snap = snapshot(M, viewer, int(q.get("log", ["0"])[0]),
                                 int(q.get("th", ["0"])[0]),
                                 q.get("peek", ["0"])[0] == "1" and not (M.cfg or {}).get("ranked") and (len(M.humans) <= 1 or M.is_host(tok)))   # 多人遊戲只有房主能偷看
@@ -1594,7 +1628,7 @@ class Handler(BaseHTTPRequestHandler):
                 if M.cfg and "players" in snap:   # 每個電腦座位的難度 (1~4)
                     snap["ai_lv"] = [M._level(M.cfg, i) for i in range(len(snap["players"]))]
                 snap.update(M.chat_since(int(q.get("chat", ["0"])[0]), tok))
-                return self._send(200, snap)
+                return self._send(200, apply_remarks(snap, M, tok))
             if path in ("/fonts/pixel-tw.woff2", "/fonts/pixel-ja.woff2"):   # 像素主題的字體 (Fusion Pixel Font, OFL 授權)
                 return self._file(os.path.join(WEB, "fonts", path[len("/fonts/"):]))
             if path in ("/i18n.js", "/i18n_log.js", "/i18n_ui.js", "/i18n_log2.js", "/i18n_new.js", "/i18n_rank.js", "/fx.js", "/theme.js", "/friends.js"):

@@ -178,6 +178,11 @@ class Social:
             self._save()
         return {"ok": True, "remark": remark}
 
+    def remarks(self, key):
+        """我替好友取的暱稱 {好友 key: 暱稱} (沒有就是空的)。"""
+        with self.lock:
+            return dict(self.d["u"].get(key, {}).get("rk", {})) if key else {}
+
     def is_online(self, key):
         return time.time() - self._u(key).get("seen", 0) < ONLINE_WITHIN
 
