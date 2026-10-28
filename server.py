@@ -98,6 +98,13 @@ class Profiles:
         w = max(0.7, min(2.5, math.sqrt(s)))
         l = max(0.5, min(1.2, w / s))
         return round(w, 2), round(l, 2)
+    LOSS_TIER = ((700, 0.7), (1500, 1.0), (2000, 1.15), (10**9, 1.3))   # 分段式期望值: 低段位輸得少 (損益兩平勝率約 41%),高段位輸得多 (大師約 53%、傳說約 57%)
+
+    @classmethod
+    def loss_tier(cls, rp):
+        rp = max(0, int(rp or 0))
+        return next(m for hi, m in cls.LOSS_TIER if rp < hi)
+
     SPREAD = 500                            # 對手平均積分差 / 這個數 = 加減分比例 (±50% 封頂)
 
     @classmethod
@@ -1080,6 +1087,7 @@ class Manager:
                 partial = round(wrp * rw * 0.3) if (not won and not draw and pl.role == "內奸" and getattr(pl, "duel1", False)) else 0   # 內奸撐到和主公單挑才輸: 次級勝利,給贏分的 30%
                 if draw:
                     partial = max(1, round(wrp * rw * 0.4))   # 平手: 加分,但只有贏的 40% (不算勝場、連勝不變)
+                lrp = lrp * Profiles.loss_tier(rps.get(tok, 0))   # 分段式期望值: 依自己結算前的段位調整輸的扣分
                 wrp, lrp = max(1, round(wrp * rw)), max(1, round(lrp * rl))
                 r = PROFILES.award(tok, won, pl._char.name, pl.role, wx, ranked, wrp, {"practice": bool(self.cfg.get("practice")), "hp": pl.hp, "alive": pl.alive, "rounds": g.round, "n": len(g.players), "noroles": noroles, "dmg": pl.dmg_total, "sha": pl.sha_n,
                                                                                                                   "maxhand": pl.max_hand, "chain11": pl.chain11, "wei": pl.wei_n, "same": len(g.players) >= 2 and len({q._char.name for q in g.players}) == 1}, lrp, secs=time.time() - getattr(self, "game_t0", time.time()), draw=draw, partial=partial)
