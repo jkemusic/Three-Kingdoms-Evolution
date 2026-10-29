@@ -1079,7 +1079,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
       } else if (tab === "cardbg" || tab === "cardback") {   // 卡面 (你的牌的底色風格) / 卡背: 其他玩家看得到
         const isBg = tab === "cardbg", kind = isBg ? "cardbgs" : "cardbacks", L = CAT[kind] || [], curv = (isBg ? sel.cardbg : sel.cardback) || "classic";
         const url = id => isBg ? "/cards/" + encodeURIComponent("殺") + ".svg?bg=" + id : "/cards/_back.svg?bk=" + id;
-        const sw = ordered2(LST(L), kind).map(x => {
+        const sw = ordered2(L, kind).map(x => {
           const ok = has(kind, x.id), on = curv === x.id;
           return h("button", {
             class: "tile" + (ok ? "" : " lock") + (on ? " sel" : "") + (pv && pv.cid === x.id && pv.ck === kind ? " pvd" : ""), title: ok ? x.n : rq(x), "aria-pressed": on ? "true" : "false",
@@ -1087,7 +1087,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
           }, h("img", { src: url(x.id), alt: x.n, style: { width: "54px", height: "77px", borderRadius: "5px", display: "block" } }),
           h("span", { class: "tn", text: (ok ? (shopMode ? "✓ " : "") : "🔒 ") + x.n }), ok ? null : h("span", { class: "rq", text: rq(x) }));
         });
-        body = h("div", {}, h("div", { class: "meta", style: { marginBottom: "6px" }, text: `已擁有 ${LST(L).filter(x => has(kind, x.id)).length} / ${LST(L).length}` }), h("div", { class: "grid" }, ...sw),
+        body = h("div", {}, h("div", { class: "meta", style: { marginBottom: "6px" }, text: `已擁有 ${L.filter(x => has(kind, x.id)).length} / ${L.length}` }), h("div", { class: "grid" }, ...sw),
           h("div", { class: "meta", style: { marginTop: "10px" }, text: isBg ? "卡面是你的手牌和你打出的牌的底色風格,其他玩家看到你的牌時也是這個風格。" : "卡背會顯示在你座位的手牌數旁邊,所有玩家都看得到。" }));
       } else if (tab === "ach") {
         const got = p.ach || {}, list = CAT.achs;

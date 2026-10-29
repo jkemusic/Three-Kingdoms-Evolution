@@ -276,13 +276,13 @@ _to_shop()
 # 卡面 (你打出的牌、手牌的底色風格,其他玩家看得到) / 卡背 (座位上顯示的卡背,其他玩家看得到): 全部商店買 (經典免費)
 CARDBGS = [
     {"id": "classic", "n": "預設卡面", "req": F()},
-    {"id": "ink", "n": "水墨", "req": S(180)},
-    {"id": "ocean", "n": "深海", "req": S(200)},
-    {"id": "jade", "n": "翡翠", "req": S(220)},
-    {"id": "sakura", "n": "櫻花", "req": S(240)},
-    {"id": "night", "n": "星夜", "req": S(280)},
-    {"id": "gold", "n": "鎏金", "req": S(320)},
-    {"id": "neon", "n": "霓虹", "req": S(360)},
+    {"id": "silk", "n": "絹帛", "req": S(180)},
+    {"id": "bamboo", "n": "竹簡", "req": S(200)},
+    {"id": "qinghua", "n": "青花", "req": S(220)},
+    {"id": "jade", "n": "玉色", "req": S(240)},
+    {"id": "vermilion", "n": "朱漆", "req": S(280)},
+    {"id": "ink", "n": "墨黑", "req": S(320)},
+    {"id": "gold", "n": "鎏金", "req": S(360)},
 ]
 CARDBACKS = [
     {"id": "classic", "n": "經典", "req": F()},

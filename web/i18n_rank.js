@@ -34,7 +34,7 @@ window.SGS_LOG_TPL = (window.SGS_LOG_TPL || []).concat([
 ["🛒 外觀商店", "🛒 Cosmetics shop", "🛒 外観ショップ"],
 ["🎨 我的外觀", "🎨 My cosmetics", "🎨 マイ外観"],
 ["購買", "Buy", "購入"],
-["💰 遊戲幣", "💰 Coins", "💰 コイン"], ["遊戲幣", "Coins", "コイン"], ["預設卡面", "Default face", "デフォルト"], ["聲望", "Renown", "名声"],
+["💰 遊戲幣", "💰 Coins", "💰 コイン"], ["遊戲幣", "Coins", "コイン"], ["預設卡面", "Default face", "デフォルト"], ["絹帛", "Silk", "絹"], ["竹簡", "Bamboo slips", "竹簡"], ["青花", "Blue-and-white", "青花"], ["玉色", "Jade", "玉色"], ["朱漆", "Vermilion lacquer", "朱漆"], ["墨黑", "Black ink", "墨黒"], ["聲望", "Renown", "名声"],
 ["🌟 你已達到傳說!", "🌟 You've reached Legend!", "🌟 レジェンドに到達しました!"],
 ["轉生 1 框", "Rebirth 1 frame", "転生 1 フレーム"],
 ["轉生 2 框", "Rebirth 2 frame", "転生 2 フレーム"],
