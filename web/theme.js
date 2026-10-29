@@ -1117,7 +1117,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
           h("div", { style: { padding: "6px 22px 18px", maxHeight: "70vh", overflowY: "auto" } },
             achMode || tab === "theme" || tab === "cardbg" || tab === "cardback" ? null : preview(), achMode ? null : buyRow(),
             achMode ? null : h("div", { class: "tabs" }, ...tabs.map(([k, n]) => h("button", { class: k === tab ? "on" : "", text: n, onclick: () => { tab = k; pv = null; render(); } }))),
-            body, h("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "14px", gap: "8px" } }, achMode ? h("span") : h("button", { text: shopMode ? "🎨 我的外觀" : "🛒 商店", onclick: () => { M.textContent = ""; openDlg(shopMode ? "theme" : "shop"); } }), h("button", { class: "primary", text: "完成", onclick: close }))))));
+            body, h("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "14px", gap: "8px" } }, achMode || shopMode ? h("span") : h("button", { text: "🛒 商店", onclick: () => { M.textContent = ""; openDlg("shop"); } }), h("button", { class: "primary", text: "完成", onclick: close }))))));
     };
     render();
   }
