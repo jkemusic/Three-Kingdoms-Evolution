@@ -857,13 +857,14 @@ def _wrap_pixel(name, body, kind, P, seal, small=False, equip=False, land=False)
     chk = ''.join(f'<rect x="{x}" y="{y}" width="10" height="10" fill="{c2}"/>' for y in range(14, H - 14, 10) for x in range(14 + (10 if (y // 10) % 2 else 0), W - 14, 20))
     notch = ''.join(f'<rect x="{x}" y="{y}" width="8" height="8" fill="#0b0b14"/>' for x, y in ((0, 0), (W - 8, 0), (0, H - 8), (W - 8, H - 8)))
     steps = ''.join(f'<rect x="{x}" y="{y}" width="4" height="4" fill="{fr}"/>' for x, y in ((8, 8), (W - 12, 8), (8, H - 12), (W - 12, H - 12)))
+    pixf = "" if small else ' filter="url(#pix)"'
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" shape-rendering="crispEdges">'
             f'<defs><filter id="pix" filterUnits="userSpaceOnUse" x="0" y="0" width="{W}" height="{H}" color-interpolation-filters="sRGB"><feFlood x="{C / 2 - 1}" y="{C / 2 - 1}" width="2" height="2" flood-color="#000"/><feComposite width="{C}" height="{C}"/><feTile result="g"/><feComposite in="SourceGraphic" in2="g" operator="in"/><feMorphology operator="dilate" radius="{C / 2}"/></filter>'
             f'<filter id="outline" x="-12%" y="-12%" width="124%" height="124%"><feMorphology in="SourceAlpha" operator="dilate" radius="2.4" result="d"/><feFlood flood-color="#0b0b14"/><feComposite in2="d" operator="in" result="o"/><feMerge><feMergeNode in="o"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>'
             f'<rect width="{W}" height="{H}" fill="#0b0b14"/>{notch}'
             f'<rect x="4" y="4" width="{W - 8}" height="{H - 8}" fill="{fr}"/><rect x="8" y="8" width="{W - 16}" height="{H - 16}" fill="#0b0b14"/>'
             f'<clipPath id="pn"><rect x="12" y="12" width="{W - 24}" height="{H - 24}"/></clipPath><rect x="12" y="12" width="{W - 24}" height="{H - 24}" fill="{c1}"/><g clip-path="url(#pn)">{chk}</g>{steps}'
-            f'<g{"" if small else " filter=\"url(#pix)\""}><g transform="translate({W / 2} {H / 2 - 5}) scale({.72 if land else .8}) translate(-100 -143)"><g filter="url(#outline)">{body}</g></g></g>'
+            f'<g{pixf}><g transform="translate({W / 2} {H / 2 - 5}) scale({.72 if land else .8}) translate(-100 -143)"><g filter="url(#outline)">{body}</g></g></g>'
             f'<rect x="12" y="12" width="{W - 24}" height="4" fill="#fff" fill-opacity=".18"/>'
             + ('' if equip else f'<g><rect x="{W - 68}" y="{H - 70}" width="56" height="56" fill="#0b0b14"/><rect x="{W - 64}" y="{H - 66}" width="48" height="48" fill="#d8262c"/>' + glyph + '</g>') + '</svg>')
 
