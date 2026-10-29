@@ -45,7 +45,7 @@
     const open = () => window.showPlayer && window.showPlayer(f.id);
     return [avEl(f.avatar, f.style, {style: {width: "38px", height: "38px", borderRadius: "50%", objectFit: "cover", flex: "none", cursor: "pointer"}, onclick: open}),
       el("div", {class: "grow", style: {cursor: "pointer"}, title: "查看個人資訊", onclick: open},
-        el("div", {class: "nm"}, f.remark || f.user, f.remark ? el("span", {class: "lvt", text: " (" + f.user + ")"}) : "", " ", devEl(f.dev), rkEl(f.rank)),
+        el("div", {class: "nm"}, f.remark || f.user, f.remark ? el("span", {class: "lvt", text: " (" + f.user + ")"}) : "", " ", devEl(f.dev), rkp(f.rank)),
         el("div", {class: "st"}, sub || "", mu))];
   }
 
