@@ -942,6 +942,9 @@ function bindHover() {
   V.addEventListener("mouseleave", () => { S.hvOver = false; leave(); });
 }
 function devEl(d) { return d ? h("span", {class: "rk", style: {background: "#7a3cff", color: "#fff", margin: "0 4px 0 4px"}, title: "遊戲開發者", text: "開發者"}) : null; }
+function presChip(n) {   // 段位旁的轉生次數方框
+  return h("span", {class: "prchip" + (n ? " on" : ""), title: "轉生次數"}, h("span", {text: "轉生"}), " ", h("b", {text: String(n || 0)}));
+}
 function rkEl(r, big) {   // 段位標籤 (例: 黃金2)
   if (!r) return null;
   const m = /^(★\d+) (.+)$/.exec(String(r)), base = m ? m[2] : String(r);   // Prestige: 「★2 青銅3」
@@ -1764,7 +1767,7 @@ async function showPlayer(key) {   // 看別人的個人資訊 (在線列表 / �
               h("div", {class: "pnm", style: {fontSize: "28px", fontWeight: 800, lineHeight: 1.15, wordBreak: "break-all", minWidth: 0, flex: "0 1 auto"}}, p.user, " ", devEl(p.dev)), playerFriendRow(p)),
             h("div", {class: "meta", style: {userSelect: "all"}, text: "UID " + p.uid}),
             p.self ? null : h("div", {class: "meta", style: {margin: "2px 0"}}, h("span", {class: "dot" + (p.online ? " on" : ""), style: {display: "inline-block", width: "9px", height: "9px", borderRadius: "50%", background: p.online ? "#3ddc84" : "#59657a", marginRight: "6px"}}), p.online ? "在線" + (p.where ? " · " + p.where : "") : (p.seen && window.SGS_FRIENDS ? "最後上線: " + SGS_FRIENDS.fmtSeen(p.seen, p.now) : "離線")),
-            h("div", {style: {margin: "6px 0"}}, rkEl(p.rank, true)))),
+            h("div", {style: {margin: "6px 0", display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap"}}, rkEl(p.rank, true), presChip(p.pres)))),
         ...rkProgress(p),
         streakLine(p),
         h("div", {style: {display: "flex", gap: "8px", flexWrap: "wrap", margin: "12px 0"}}, stat("總場數", p.games), stat("勝場", p.wins), stat("勝率", rate(p.wins, p.games)), stat("段位場", p.rgames), stat("段位勝率", rate(p.rwins, p.rgames)), stat("遊玩時間", fmtPlay(p.playtime))),
@@ -2364,7 +2367,7 @@ async function showProfile() {
           h("div", {style: {display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap"}},
             h("div", {style: {fontSize: "28px", fontWeight: 800, lineHeight: 1.15, wordBreak: "break-all"}, text: myNick() || "未命名"}),
             S.nickLocked ? null : h("button", {text: "✎", title: "改暱稱", style: {padding: "3px 10px"}, onclick: () => { close(); showNickGate(true); }})),
-          h("div", {style: {margin: "6px 0", display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap"}}, devEl(p.dev), rkEl(p.rank, true), h("span", {class: "prchip" + (p.pres ? " on" : ""), title: "轉生次數"}, h("span", {text: "轉生"}), " ", h("b", {text: String(p.pres || 0)}))),
+          h("div", {style: {margin: "6px 0", display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap"}}, devEl(p.dev), rkEl(p.rank, true), presChip(p.pres)),
           h("div", {style: {display: "flex", gap: "6px", flexWrap: "wrap"}},
             h("button", {text: "上傳頭貼", style: {whiteSpace: "nowrap", padding: "6px 10px"}, onclick: () => $("#avfile").click()}),
             p.avatar ? h("button", {text: "移除", style: {whiteSpace: "nowrap", padding: "6px 10px"}, onclick: async () => { await api("/api/avatar", {data: ""}); showProfile(); }}) : null,
