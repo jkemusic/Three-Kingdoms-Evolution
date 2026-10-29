@@ -34,7 +34,7 @@ window.SGS_LOG_TPL = (window.SGS_LOG_TPL || []).concat([
 ["🛒 外觀商店", "🛒 Cosmetics shop", "🛒 外観ショップ"],
 ["🎨 我的外觀", "🎨 My cosmetics", "🎨 マイ外観"],
 ["購買", "Buy", "購入"],
-["💰 遊戲幣", "💰 Coins", "💰 コイン"], ["遊戲幣", "Coins", "コイン"], ["商店", "Shop", "ショップ"], ["🛒 商店", "🛒 Shop", "🛒 ショップ"], ["商店 (用遊戲幣買外觀)", "Shop (buy cosmetics with coins)", "ショップ (コインで外観を購入)"], ["⌛錦囊", "⌛ Delayed", "⌛ 遅延"], ["攻擊範圍 1", "Range 1", "射程 1"], ["攻擊範圍 2", "Range 2", "射程 2"], ["攻擊範圍 3", "Range 3", "射程 3"], ["攻擊範圍 4", "Range 4", "射程 4"], ["攻擊範圍 5", "Range 5", "射程 5"], ["預設卡面", "Default face", "デフォルト"], ["絹帛", "Silk", "絹"], ["像素·糖粉", "Pixel · Candy", "ピクセル・キャンディ"], ["像素·掌機綠", "Pixel · Handheld green", "ピクセル・携帯緑"], ["竹簡", "Bamboo slips", "竹簡"], ["青花", "Blue-and-white", "青花"], ["玉色", "Jade", "玉色"], ["朱漆", "Vermilion lacquer", "朱漆"], ["墨黑", "Black ink", "墨黒"], ["聲望", "Renown", "名声"],
+["💰 遊戲幣", "💰 Coins", "💰 コイン"], ["遊戲幣", "Coins", "コイン"], ["⌛錦囊", "⌛ Delayed", "⌛ 遅延"], ["攻擊範圍 1", "Range 1", "射程 1"], ["攻擊範圍 2", "Range 2", "射程 2"], ["攻擊範圍 3", "Range 3", "射程 3"], ["攻擊範圍 4", "Range 4", "射程 4"], ["攻擊範圍 5", "Range 5", "射程 5"], ["預設卡面", "Default face", "デフォルト"], ["絹帛", "Silk", "絹"], ["像素·糖粉", "Pixel · Candy", "ピクセル・キャンディ"], ["像素·掌機綠", "Pixel · Handheld green", "ピクセル・携帯緑"], ["竹簡", "Bamboo slips", "竹簡"], ["青花", "Blue-and-white", "青花"], ["玉色", "Jade", "玉色"], ["朱漆", "Vermilion lacquer", "朱漆"], ["墨黑", "Black ink", "墨黒"], ["聲望", "Renown", "名声"],
 ["🌟 你已達到傳說!", "🌟 You've reached Legend!", "🌟 レジェンドに到達しました!"],
 ["轉生 1 框", "Rebirth 1 frame", "転生 1 フレーム"],
 ["轉生 2 框", "Rebirth 2 frame", "転生 2 フレーム"],

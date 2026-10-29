@@ -1153,8 +1153,6 @@ const ARTT = Date.now();   // 卡面縮圖每次開頁面都重新下載 (避免
     if (!top || document.getElementById("bTheme")) return;
     const b = document.createElement("button"); b.id = "bTheme"; b.textContent = "🎨"; b.title = "外觀 (主題、頭像框、特效)"; b.style.padding = "5px 9px";
     b.onclick = () => openDlg("theme"); top.insertBefore(b, side || null);
-    const shop = document.createElement("button"); shop.id = "bShop"; shop.textContent = "🛒 商店"; shop.title = "商店 (用遊戲幣買外觀)"; shop.onclick = () => openDlg("theme");   // 外觀視窗就是商店
-    b.after(shop);
     const board = document.getElementById("bBoard");   // 成就按鈕放在排行榜旁邊
     if (board && !document.getElementById("bAch")) {
       const c = document.createElement("button"); c.id = "bAch"; c.textContent = "🏅 成就"; c.title = "成就與解鎖進度";
