@@ -71,7 +71,7 @@ input[type=range]{accent-color:var(--accent);padding:0}
 .card img{width:100%;height:100%;object-fit:cover;display:block}
 .card .lab{position:absolute;left:0;right:0;top:0;background:linear-gradient(rgba(0,0,0,.88) 55%,transparent);font-size:12px;font-weight:700;text-align:center;padding:2px 1px 10px;z-index:1}
 .prchip{display:inline-flex;align-items:center;gap:2px;font-size:13px;font-weight:700;padding:4px 9px;border-radius:999px;border:1px solid var(--line,#555);color:#9aa3b2;background:rgba(255,255,255,.04)}
-.prchip.sm{font-size:11px;padding:1px 6px;margin-left:4px}.prchip.sm b{font-size:12px}
+.prchip.sm{font-size:11px;padding:1px 6px;margin-right:4px}.prchip.sm b{font-size:12px}
 .prchip b{font-size:15px}
 .prchip.on{color:#ffd24a;border-color:#ffd24a;background:rgba(255,210,74,.12)}
 .card .tp{position:absolute;left:3px;bottom:3px;z-index:1;background:rgba(30,20,10,.82);color:#f3e8c8;border:1px solid rgba(243,232,200,.55);border-radius:3px;font-size:10px;font-weight:700;line-height:1;padding:2px 4px;pointer-events:none;white-space:nowrap}
@@ -657,6 +657,10 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
 .role{border-radius:4px;padding:1px 8px;font-weight:800;letter-spacing:1px;border:1px solid rgba(0,0,0,.55);box-shadow:inset 0 0 0 1px rgba(255,255,255,.45),0 1px 2px rgba(0,0,0,.4);text-shadow:0 1px 0 rgba(0,0,0,.35)}
 .role.主公{background:linear-gradient(#e0504a,#8f1f1c);box-shadow:inset 0 0 0 1px #ffd24a,0 1px 2px rgba(0,0,0,.4)}
 .role.忠臣{color:#2b2000}.role.忠臣,.role.反賊,.role.內奸{text-shadow:none}
+/* 玩家資訊: 轉生方框和段位標籤同樣大小 */
+.pchips .rk.big,.pchips .prchip{display:inline-flex;align-items:center;box-sizing:border-box;height:30px;padding:0 12px;font-size:16px;font-weight:800;line-height:1;border:1px solid transparent;border-radius:8px;margin:0;vertical-align:baseline}
+.pchips .prchip{border-color:#59657a}.pchips .prchip.on{border-color:#ffd24a}
+.pchips .prchip b{font-size:16px}
 </style>
 <body>
 <div id="app">
@@ -948,7 +952,7 @@ function presChip(n) {   // 段位旁的轉生次數方框
 }
 function rkp(r) {   // 玩家列表用: 段位標籤 + 旁邊的「轉生 N」小方框 (轉生次數從段位標籤的 ★N 前綴讀)
   const f = document.createDocumentFragment(), m = /^★(\d+)/.exec(r || "");
-  f.append(rkEl(r)); const c = presChip(m ? +m[1] : 0); c.classList.add("sm"); f.append(c);
+  const c = presChip(m ? +m[1] : 0); c.classList.add("sm"); f.append(c); f.append(rkEl(r));
   return f;
 }
 function rkEl(r, big) {   // 段位標籤 (例: 黃金2)
@@ -1773,7 +1777,7 @@ async function showPlayer(key) {   // 看別人的個人資訊 (在線列表 / �
               h("div", {class: "pnm", style: {fontSize: "28px", fontWeight: 800, lineHeight: 1.15, wordBreak: "break-all", minWidth: 0, flex: "0 1 auto"}}, p.user, " ", devEl(p.dev)), playerFriendRow(p)),
             h("div", {class: "meta", style: {userSelect: "all"}, text: "UID " + p.uid}),
             p.self ? null : h("div", {class: "meta", style: {margin: "2px 0"}}, h("span", {class: "dot" + (p.online ? " on" : ""), style: {display: "inline-block", width: "9px", height: "9px", borderRadius: "50%", background: p.online ? "#3ddc84" : "#59657a", marginRight: "6px"}}), p.online ? "在線" + (p.where ? " · " + p.where : "") : (p.seen && window.SGS_FRIENDS ? "最後上線: " + SGS_FRIENDS.fmtSeen(p.seen, p.now) : "離線")),
-            h("div", {style: {margin: "6px 0", display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap"}}, rkEl(p.rank, true), presChip(p.pres)))),
+            h("div", {class: "pchips", style: {margin: "6px 0", display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap"}}, presChip(p.pres), rkEl(p.rank, true)))),
         ...rkProgress(p),
         streakLine(p),
         h("div", {style: {display: "flex", gap: "8px", flexWrap: "wrap", margin: "12px 0"}}, stat("總場數", p.games), stat("勝場", p.wins), stat("勝率", rate(p.wins, p.games)), stat("段位場", p.rgames), stat("段位勝率", rate(p.rwins, p.rgames)), stat("遊玩時間", fmtPlay(p.playtime))),
@@ -2373,7 +2377,7 @@ async function showProfile() {
           h("div", {style: {display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap"}},
             h("div", {style: {fontSize: "28px", fontWeight: 800, lineHeight: 1.15, wordBreak: "break-all"}, text: myNick() || "未命名"}),
             S.nickLocked ? null : h("button", {text: "✎", title: "改暱稱", style: {padding: "3px 10px"}, onclick: () => { close(); showNickGate(true); }})),
-          h("div", {style: {margin: "6px 0", display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap"}}, devEl(p.dev), rkEl(p.rank, true), presChip(p.pres)),
+          h("div", {class: "pchips", style: {margin: "6px 0", display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap"}}, devEl(p.dev), presChip(p.pres), rkEl(p.rank, true)),
           h("div", {style: {display: "flex", gap: "6px", flexWrap: "wrap"}},
             h("button", {text: "上傳頭貼", style: {whiteSpace: "nowrap", padding: "6px 10px"}, onclick: () => $("#avfile").click()}),
             p.avatar ? h("button", {text: "移除", style: {whiteSpace: "nowrap", padding: "6px 10px"}, onclick: async () => { await api("/api/avatar", {data: ""}); showProfile(); }}) : null,

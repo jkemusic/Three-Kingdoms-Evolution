@@ -686,6 +686,10 @@ BGS = {
     "jade": {"paper": ("#d7e8d4", "#9bbf9f"), "ink": "#1f3a2a", "dark": False, "frame": "#2f5a44", "mist": "#2f5a44", "extra": "paper"},
     "vermilion": {"paper": ("#8a1f1a", "#3a0a0a"), "ink": "#ffe2a0", "dark": True, "frame": "#e8c872", "mist": "#000000", "extra": "cloud"},
     "ink": {"paper": ("#3c3a36", "#0e0d0c"), "ink": "#e8e2d0", "dark": True, "frame": "#cfc6a8", "mist": "#000000", "extra": "paper"},
+    "ocean": {"paper": ("#1f5a8a", "#04152a"), "ink": "#d4f2ff", "dark": True, "frame": "#9fe8ff", "mist": "#000000", "extra": "wave"},
+    "sakura": {"paper": ("#f9e1ea", "#e6b2c6"), "ink": "#4a1a30", "dark": False, "frame": "#8a2a4a", "mist": "#b04a70", "extra": "petal"},
+    "night": {"paper": ("#2e2468", "#0a0620"), "ink": "#e4dcff", "dark": True, "frame": "#c9b8ff", "mist": "#000000", "extra": "stars"},
+    "neon": {"paper": ("#14143a", "#04040c"), "ink": "#8ff8ff", "dark": True, "frame": "#ff4fd8", "mist": "#000000", "extra": "scan"},
     "gold": {"paper": ("#5a3e10", "#1c1204"), "ink": "#ffe27a", "dark": True, "frame": "#ffd24a", "mist": "#000000", "extra": "cloud"},
 }
 
@@ -761,6 +765,14 @@ def wrap(name, body, kind, bg="classic"):
         extra = ''.join(f'<line x1="16" y1="{y}" x2="184" y2="{y}" stroke="#7a5a1a" stroke-opacity=".12" stroke-width=".8"/>' for y in range(18, 270, 4)) + ''.join(f'<line x1="{x}" y1="16" x2="{x}" y2="270" stroke="#7a5a1a" stroke-opacity=".1" stroke-width=".8"/>' for x in range(20, 184, 4))
     elif P["extra"] == "bamboo":   # 竹簡: 一條一條的竹片
         extra = ''.join(f'<rect x="{x}" y="16" width="1.6" height="254" fill="#4a3a18" fill-opacity=".35"/><rect x="{x + 9}" y="16" width=".8" height="254" fill="#fff" fill-opacity=".12"/>' for x in range(26, 184, 24))
+    elif P["extra"] == "wave":   # 海浪紋
+        extra = ''.join(f'<path d="M{x} {y} q7 -9 14 0 t14 0 t14 0" fill="none" stroke="{ink}" stroke-opacity=".14" stroke-width="1.4"/>' for y in range(34, 270, 18) for x in range(14 + (14 if (y // 18) % 2 else 0) - 14, 176, 42))
+    elif P["extra"] == "petal":   # 飄落的櫻花瓣
+        extra = ''.join(f'<ellipse cx="{(k * 47) % 150 + 24}" cy="{(k * 83) % 230 + 26}" rx="4" ry="2.4" transform="rotate({(k * 37) % 180} {(k * 47) % 150 + 24} {(k * 83) % 230 + 26})" fill="#d86a94" fill-opacity=".45"/>' for k in range(18))
+    elif P["extra"] == "stars":   # 星點
+        extra = ''.join(f'<circle cx="{(k * 53) % 150 + 24}" cy="{(k * 97) % 230 + 26}" r="{1 + k % 2 * .6}" fill="#fff" fill-opacity=".7"/>' for k in range(30))
+    elif P["extra"] == "scan":   # 掃描線
+        extra = ''.join(f'<line x1="16" y1="{y}" x2="184" y2="{y}" stroke="#3ff0ff" stroke-opacity=".1"/>' for y in range(22, 270, 12))
     elif P["extra"] == "cloud":   # 祥雲暗紋
         extra = ''.join(f'<path d="M{x} {y} q6 -9 14 -3 q8 -6 12 3 q-6 4 -12 2 q-6 4 -14 -2z" fill="none" stroke="{ink}" stroke-opacity=".12" stroke-width="1.4"/>' for y in range(34, 270, 36) for x in range(22 + (18 if (y // 36) % 2 else 0), 176, 40))
     inkc = "#000" if not dark else "#000"

@@ -1022,7 +1022,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
       const p = prof() || {}, sel = p.sel || {}, mine = p.avatar || null;
       const achMode = mode === "ach";   // 成就和外觀是兩個分開的視窗
       const shopMode = mode === "shop";   // 商店: 同一個視窗,只列出要用遊戲幣買的東西
-      const LST = L => (shopMode ? L.filter(x => x.req.t === "shop") : L);
+      const LST = L => L;   // 商店也列出免費 / 已擁有的項目,避免「怎麼不見了」
       const rq = x => (x.req.t === "shop" ? (x.req.cur === "renown" ? "🏵 " + x.req.price + " 聲望" : "💰 " + x.req.price) : "需要 " + x.req_text);
       const needPv = (kind, x, o) => Object.assign(o, x.req.t === "shop" ? { buy: { kind, id: x.id, n: x.n, price: x.req.price, cur: x.req.cur || "coins" } } : { need: x.req_text });
       const buyRow = () => {
@@ -1060,7 +1060,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
             class: "tile" + (ok ? "" : " lock") + (isSel ? " sel" : ""), title: ok ? x.n : x.req_text,
             onclick: () => { if (!ok) { pv = needPv("themes", x, {}); render(); return; } pv = null; if (shopMode) { render(); return; } if (!x.a) { save(null); } else { save({ a: x.a, b: x.b }); } render(); },
           }, h("span", { "data-nm": "1", style: { width: "58px", height: "40px", borderRadius: "9px", background: `linear-gradient(135deg,${x.b || GF_B} 50%,${x.a || GF_A} 50%)`, boxShadow: "inset 0 0 0 1px rgba(255,255,255,.2)" } }),
-          h("span", { class: "tn", text: (ok ? (shopMode ? "✓ " : "") : "🔒 ") + x.n }), ok ? null : h("span", { class: "rq", text: rq(x) }));
+          h("span", { class: "tn", text: (ok ? "" : "🔒 ") + x.n }), ok ? null : h("span", { class: "rq", text: rq(x) }));
         });
         body = h("div", {}, h("div", { class: "grid" }, ...sw),
           shopMode ? null : h("div", { style: { display: "flex", justifyContent: "flex-end" } }, h("button", { text: "恢復預設", onclick: () => { save(null); render(); } })));
@@ -1073,7 +1073,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
             class: "tile" + (ok ? "" : " lock") + (on ? " sel" : "") + (pv && pv.box === x.id ? " pvd" : ""), title: ok ? x.n : "需要 " + x.req_text, "aria-pressed": on ? "true" : "false",
             onclick: async () => { if (!ok) { pv = needPv("boxes", x, { box: x.id }); render(); return; } pv = null; if (shopMode) { render(); return; } const id = x.id === "classic" ? "" : x.id; sel.box = id; pickBox(id); render(); },
           }, (() => { const e = h("span", { class: "bxsw", style: { display: "block", width: "92px", height: "54px", borderRadius: "6px", background: bg, boxShadow: `inset 0 0 0 1px ${sp ? sp.bd : "#24557d"},0 0 8px ${sp ? sp.gl + "55" : "rgba(63,210,255,.25)"}` } }); if (sp) applyBox(e, x.id); return e; })(),
-          h("span", { class: "tn", text: (ok ? (shopMode ? "✓ " : "") : "🔒 ") + x.n }), ok ? null : h("span", { class: "rq", text: rq(x) }), ok ? null : lockProg(x));
+          h("span", { class: "tn", text: (ok ? "" : "🔒 ") + x.n }), ok ? null : h("span", { class: "rq", text: rq(x) }), ok ? null : lockProg(x));
         });
         body = h("div", {}, h("div", { class: "meta", style: { marginBottom: "6px" }, text: `已解鎖 ${(CAT.boxes || []).filter(x => has("boxes", x.id)).length} / ${(CAT.boxes || []).length}` }), h("div", { class: "grid" }, ...sw), h("div", { class: "meta", style: { marginTop: "10px" }, text: "玩家框是牌桌上你的座位方塊外觀,所有玩家都看得到。有些要成就解鎖。" }));
       } else if (tab === "cardbg" || tab === "cardback") {   // 卡面 (你的牌的底色風格) / 卡背: 其他玩家看得到
@@ -1085,7 +1085,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
             class: "tile" + (ok ? "" : " lock") + (on ? " sel" : "") + (pv && pv.cid === x.id && pv.ck === kind ? " pvd" : ""), title: ok ? x.n : rq(x), "aria-pressed": on ? "true" : "false",
             onclick: async () => { if (!ok) { pv = needPv(kind, x, { cid: x.id, ck: kind }); render(); return; } pv = null; if (shopMode) { render(); return; } await post(isBg ? { cardbg: x.id } : { cardback: x.id }); render(); },
           }, h("img", { src: url(x.id), alt: x.n, style: { width: "54px", height: "77px", borderRadius: "5px", display: "block" } }),
-          h("span", { class: "tn", text: (ok ? (shopMode ? "✓ " : "") : "🔒 ") + x.n }), ok ? null : h("span", { class: "rq", text: rq(x) }));
+          h("span", { class: "tn", text: (ok ? "" : "🔒 ") + x.n }), ok ? null : h("span", { class: "rq", text: rq(x) }));
         });
         body = h("div", {}, h("div", { class: "meta", style: { marginBottom: "6px" }, text: `已擁有 ${L.filter(x => has(kind, x.id)).length} / ${L.length}` }), h("div", { class: "grid" }, ...sw),
           h("div", { class: "meta", style: { marginTop: "10px" }, text: isBg ? "卡面是你的手牌和你打出的牌的底色風格,其他玩家看到你的牌時也是這個風格。" : "卡背會顯示在你座位的手牌數旁邊,所有玩家都看得到。" }));
@@ -1106,7 +1106,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
             class: "tile" + (ok ? "" : " lock") + (curv === x.id ? " sel" : "") + (pv && (isFx ? pv.fx : pv.frame) === x.id ? " pvd" : ""), title: ok ? x.n : "需要 " + x.req_text, "aria-pressed": curv === x.id ? "true" : "false",
             onclick: async () => { if (!ok) { pv = needPv(kind, x, isFx ? { fx: x.id } : { frame: x.id }); render(); return; } pv = null; if (shopMode) { render(); return; } await post(isFx ? { fx: x.id } : { frame: x.id }); render(); },
           }, h("span", { style: { padding: "6px" } }, avEl(mine, st, { style: { width: "44px", height: "44px", borderRadius: "50%", objectFit: "cover" } })),
-          h("span", { class: "tn", text: (ok ? (shopMode ? "✓ " : "") : "🔒 ") + x.n }), ok ? null : h("span", { class: "rq", text: rq(x) }), ok ? null : lockProg(x));
+          h("span", { class: "tn", text: (ok ? "" : "🔒 ") + x.n }), ok ? null : h("span", { class: "rq", text: rq(x) }), ok ? null : lockProg(x));
         })), h("div", { class: "meta", style: { marginTop: "10px" }, text: "頭像框和特效會顯示在座位、聊天室、排行榜上,所有玩家都看得到。" }));
       }
       M.append(h("div", { class: "modal", onclick: e => { if (e.target.classList.contains("modal")) close(); } },
