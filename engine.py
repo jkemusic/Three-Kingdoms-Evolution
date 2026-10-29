@@ -1343,7 +1343,7 @@ class Game:
             elif n in HELP_CARDS:
                 self.emit("help", p, tgt)
         self.chain_all_window(p, card, tgt)
-        if not p.alive and real not in p.hand and not _repeat:   # 打出這張牌的人在途中死了 (例如曹沖: 超過一張錦囊扣血扣死),手牌已經被棄光
+        if real not in p.hand and not _repeat:   # 這張牌在結算前已經離開手牌 (打出的人在途中死了被棄光,例如曹沖 / 鄧艾扣血扣死;或連鎖中被拿走、棄掉): 不再結算,避免後面 hand.remove 噴 ValueError
             return
         if n == "殺":
             self._spend(p, real)
