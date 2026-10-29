@@ -978,7 +978,7 @@ function presChip(n) {   // 段位旁的轉生次數方框
 }
 function rkp(r) {   // 玩家列表用: 段位標籤 + 旁邊的「轉生 N」小方框 (轉生次數從段位標籤的 ★N 前綴讀)
   const f = document.createDocumentFragment(), m = /^★(\d+)/.exec(r || "");
-  const c = presChip(m ? +m[1] : 0); c.classList.add("sm"); f.append(c); f.append(rkEl(r));
+  const c = presChip(m ? +m[1] : 0); c.classList.add("sm"); f.append(c); f.append(rkEl(String(r || "").replace(/^★\d+ /, "")));
   return f;
 }
 function rkEl(r, big) {   // 段位標籤 (例: 黃金2)
@@ -1093,7 +1093,7 @@ function renderTable0(snap) {
     (p.badges || []).forEach(b => tags.append(h("span", {class: "tag bd bd-" + b.k, text: b.t})));
     const inf = h("div", {class: "inf"},
       h("div", {class: "nm"}, h("span", {class: "pn", title: p.char || "", text: "P" + p.idx + " " + ((p.disguise_kind === "disguise" && !p.dg_flip && p.disguise) || p.char || "無名")}), role, winners.has(p.idx) ? h("span", {class: "winb", text: "🏆 勝"}) : ""),
-      h("div", {}, hearts(p)), (zhPick && zhPick.has(p.idx) ? h("div", {class: "meta hpick", title: "隨機選一張手牌", text: "手牌 " + p.hand_n + " ▸", onclick: ev => { ev.stopPropagation(); zsub(zhPick.get(p.idx))(); }}) : h("div", {class: "meta"}, "手牌 " + p.hand_n, bkEl(p.idx))), h("div", {class: "who " + (p.is_viewer ? "me" : p.human && p.nick ? "hum" : "ai")}, (p.nick || p.is_viewer) ? avEl(p.avatar, (snap.avstyles || {})[p.idx], {class: "av"}) : avEl("bot", (snap.avstyles || {})[p.idx], {class: "av"}), h("span", {class: "wn"}, (p.is_viewer ? "你" + (p.nick ? "(" + p.nick + ")" : "") : p.human ? (p.nick || "🤖 電腦代打") : "🤖 電腦" + (snap.ai_lv && snap.ai_lv[p.idx] ? " · " + diffLabels()[snap.ai_lv[p.idx] - 1] : ""))), p.nick || p.is_viewer ? [" ", rkEl(p.lv)] : null, p.host_seat ? " 👑房主" : ""),
+      h("div", {}, hearts(p)), (zhPick && zhPick.has(p.idx) ? h("div", {class: "meta hpick", title: "隨機選一張手牌", text: "手牌 " + p.hand_n + " ▸", onclick: ev => { ev.stopPropagation(); zsub(zhPick.get(p.idx))(); }}) : h("div", {class: "meta"}, "手牌 " + p.hand_n, bkEl(p.idx))), h("div", {class: "who " + (p.is_viewer ? "me" : p.human && p.nick ? "hum" : "ai")}, (p.nick || p.is_viewer) ? avEl(p.avatar, (snap.avstyles || {})[p.idx], {class: "av"}) : avEl("bot", (snap.avstyles || {})[p.idx], {class: "av"}), h("span", {class: "wn"}, (p.is_viewer ? "你" + (p.nick ? "(" + p.nick + ")" : "") : p.human ? (p.nick || "🤖 電腦代打") : "🤖 電腦" + (snap.ai_lv && snap.ai_lv[p.idx] ? " · " + diffLabels()[snap.ai_lv[p.idx] - 1] : ""))), p.nick || p.is_viewer ? [" ", rkp(p.lv)] : null, p.host_seat ? " 👑房主" : ""),
       tags);
     { const who = inf.querySelector(".who"), nmEl = inf.querySelector(".nm");   // 玩家資訊 (暱稱 / 等級) 寫在武將名字的上面,都放在框外
       if (who && nmEl) { const row = h("div", {class: "nr"}); while (nmEl.firstChild) row.append(nmEl.firstChild); nmEl.append(who); inf.insertBefore(row, nmEl.nextSibling); } }   // 框外左上角只放頭貼+玩家資訊;P幾/武將名稱/身分放到框裡面、體力上面一排
@@ -1934,7 +1934,7 @@ function openSetup() {
     openAll.style.display = st.ranked === "ranked" ? "none" : "";
     if (!on) return;
     const pct = p.rp_next == null ? 100 : Math.max(0, Math.min(100, (p.rp - p.rp_lo) / (p.rp_next - p.rp_lo) * 100));
-    rkIn.append(h("div", {style: {display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap"}}, h("span", {class: "meta", text: "我的段位"}), rkEl(p.rank)), ...rkProgress(p), streakLine(p));
+    rkIn.append(h("div", {style: {display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap"}}, h("span", {class: "meta", text: "我的段位"}), rkp(p.rank)), ...rkProgress(p), streakLine(p));
     rkSide.append(h("div", {class: "meta", text: "我的段位"}), h("div", {style: {margin: "6px 0"}}, rkEl(p.rank, true)),
       h("div", {class: "meta", text: "積分 " + p.rp}),
       h("div", {class: "rkbar"}, h("i", {style: {width: pct + "%"}})),

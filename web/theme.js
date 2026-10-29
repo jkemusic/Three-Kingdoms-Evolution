@@ -2,6 +2,7 @@
    主題: 把頁面 CSS 裡的藍青色系 (主色 / 底色 / 邊框) 依使用者選的顏色重新上色 (紅 / 金 / 綠等功能色與牌圖不受影響),存在 localStorage (sgs_theme)。
    頭像框 / 特效 / 部分主題要段位或成就解鎖 (目錄與條件由伺服器 /api/cosmetics 提供,玩家的解鎖狀態在 S.prof)。 */
 (function () {
+  const ARTT = Date.now();   // 卡面縮圖每次開頁面都重新下載 (避免看到瀏覽器存著的舊圖)
   const DEF = { a: "#3fd2ff", b: "#0c1830" };
   let cur = null, CAT = null;
   try { cur = JSON.parse(localStorage.getItem("sgs_theme") || "null"); } catch (e) {}
@@ -531,7 +532,6 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 .achtoast b{color:var(--gold)}
 #cosdlg .buyrow{display:flex;align-items:center;gap:10px;padding:10px 14px;margin:0 0 12px;border-radius:8px;background:rgba(60,44,8,.85);box-shadow:inset 0 0 0 1px #c99419}
 #cosdlg .buyrow button.danger{background:linear-gradient(180deg,#ff8a6a,#d6452a);color:#fff}
-const ARTT = Date.now();   // 卡面縮圖每次開頁面都重新下載 (避免看到瀏覽器存著的舊圖)
 /* ===== 商店新品: 頭像框 / 特效 / Prestige 框 ===== */
 .fr-pres1{--fb:linear-gradient(135deg,#fff3c4,#f0b429 50%,#8a5a00);box-shadow:0 0 8px rgba(255,200,60,.8)}
 .fr-pres2{--fb:linear-gradient(135deg,#e8fbff,#5ad0ff 50%,#1c6fb0);box-shadow:0 0 9px rgba(90,208,255,.85)}
