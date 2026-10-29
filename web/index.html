@@ -2487,7 +2487,7 @@ async function showBoard() {
   const close = () => { M.textContent = ""; };
   const r = await (await fetch("/api/leaderboard?tok=" + encodeURIComponent(TOK))).json();
   const rows = r.rows || [];
-  const SORTS = {"段位": (a, b) => (b.rp || 0) - (a.rp || 0) || b.wins - a.wins, "勝場": (a, b) => b.wins - a.wins || (b.rp || 0) - (a.rp || 0), "遊玩時間": (a, b) => (b.playtime || 0) - (a.playtime || 0) || (b.rp || 0) - (a.rp || 0)};
+  const SORTS = {"段位": (a, b) => ((b.pres || 0) - (a.pres || 0)) || (b.rp || 0) - (a.rp || 0) || b.wins - a.wins, "勝場": (a, b) => b.wins - a.wins || (b.rp || 0) - (a.rp || 0), "遊玩時間": (a, b) => (b.playtime || 0) - (a.playtime || 0) || (b.rp || 0) - (a.rp || 0)};
   let key = "段位";
   const body = h("div", {class: "dbody"}), tabs = h("div", {style: {display: "flex", gap: "6px", marginBottom: "8px"}});
   const draw = () => {
