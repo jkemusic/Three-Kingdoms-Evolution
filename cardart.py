@@ -455,12 +455,12 @@ def _():
 # ---------------- 坐騎 ----------------
 @reg("+1馬")
 def _():
-    return horse_head(100, 118, 1.0, "#c98a4a") + '<circle cx="46" cy="190" r="22" fill="#26407a" stroke="#9fc3ff" stroke-width="4"/><text x="46" y="199" font-size="24" font-weight="900" text-anchor="middle" fill="#fff" font-family="sans-serif">+1</text>'
+    return horse_head(100, 118, 1.0, "#eef2f8") + '<circle cx="46" cy="190" r="22" fill="#26407a" stroke="#9fc3ff" stroke-width="4"/><text x="46" y="199" font-size="24" font-weight="900" text-anchor="middle" fill="#fff" font-family="sans-serif">+1</text>'
 
 
 @reg("-1馬")
 def _():
-    return horse_head(100, 118, 1.0, "#b0663a") + '<circle cx="46" cy="190" r="22" fill="#8a2a1a" stroke="#ffb08a" stroke-width="4"/><text x="46" y="199" font-size="24" font-weight="900" text-anchor="middle" fill="#fff" font-family="sans-serif">-1</text>'
+    return horse_head(100, 118, 1.0, "#b8381c") + '<circle cx="46" cy="190" r="22" fill="#8a2a1a" stroke="#ffb08a" stroke-width="4"/><text x="46" y="199" font-size="24" font-weight="900" text-anchor="middle" fill="#fff" font-family="sans-serif">-1</text>'
 
 
 # ---------------- 武器 ----------------
