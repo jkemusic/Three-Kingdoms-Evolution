@@ -255,10 +255,10 @@ html .seg button.on,html .seg button.on:hover{background:linear-gradient(180deg,
 #hv .card{width:84px;height:120px;cursor:pointer}#hv .card.land{width:120px;height:84px}
 
 .eq.jd{width:54px;height:38px}
-.eq.jd img{position:absolute;left:50%;top:50%;width:38px;height:54px;transform:translate(-50%,-50%) rotate(90deg)}
+.eq.jd img{width:100%;height:100%}
 .eq.jd .nm2{font-size:11px}
 #table.dense .eq.jd{width:43px;height:30px}
-#table.dense .eq.jd img{width:30px;height:43px}
+
 .eq.jd:hover{transform:scale(1.5)}
 
 /* ===== 體力球 / 戰報 / 箭頭 ===== */
@@ -402,7 +402,7 @@ body:has(#modal .modal:not(.soft)) #bHand{display:none!important}   /* 新遊戲
 #log .arw .ln{display:inline-block;width:12px;height:3px;background:var(--ac);border-radius:2px;box-shadow:0 0 6px var(--ac)}
 #log .arw .ah{display:inline-block;width:0;height:0;border-left:9px solid var(--ac);border-top:6px solid transparent;border-bottom:6px solid transparent;margin-left:-1px;filter:drop-shadow(0 0 4px var(--ac))}
 #log .arw img.lc{margin:0 3px}
-#log img.lc.dl{width:62px;height:44px;margin:0 2px}#log .arw img.lc.dl{margin:0 3px}
+#log img.lc.dl{width:62px;height:44px;transform:rotate(-90deg);margin:9px -7px}#log .arw img.lc.dl{margin:9px -6px}
 #log .dmgb{color:#ffb4bf;font-weight:800;margin:0 3px}
 #log .pc{font-weight:700;color:#d7ecff}
 .picks{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0}.pk{flex:1 1 200px;max-width:260px;background:rgba(10,22,44,.8);border:1px solid #2f6f9c;border-radius:4px;padding:8px;display:flex;flex-direction:column;gap:4px}.pk img{width:100%;max-height:220px;object-fit:contain}.pk .sk{font-size:12px;color:#c3d6ea}.pk button{margin-top:6px}
@@ -678,6 +678,7 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
 .card.px.land .tp,.card.px.land .rg{width:19.6%;bottom:7%;font-size:7.6cqw}.card.px.land .rg{font-size:9cqw}
 @font-face{font-family:"SGS Pixel TW";src:url(/fonts/pixel-tw.woff2) format("woff2");font-display:swap}
 .card.px .tp:has(.pxh){flex-direction:column;gap:1cqw}.card.px .pxh{display:block;width:8cqw;height:8cqw;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 7' shape-rendering='crispEdges' fill='%23fff'%3E%3Crect x='0' y='0' width='1' height='1'/%3E%3Crect x='1' y='0' width='1' height='1'/%3E%3Crect x='2' y='0' width='1' height='1'/%3E%3Crect x='3' y='0' width='1' height='1'/%3E%3Crect x='4' y='0' width='1' height='1'/%3E%3Crect x='5' y='0' width='1' height='1'/%3E%3Crect x='6' y='0' width='1' height='1'/%3E%3Crect x='1' y='1' width='1' height='1'/%3E%3Crect x='2' y='1' width='1' height='1'/%3E%3Crect x='3' y='1' width='1' height='1'/%3E%3Crect x='4' y='1' width='1' height='1'/%3E%3Crect x='5' y='1' width='1' height='1'/%3E%3Crect x='2' y='2' width='1' height='1'/%3E%3Crect x='3' y='2' width='1' height='1'/%3E%3Crect x='4' y='2' width='1' height='1'/%3E%3Crect x='3' y='3' width='1' height='1'/%3E%3Crect x='2' y='4' width='1' height='1'/%3E%3Crect x='3' y='4' width='1' height='1'/%3E%3Crect x='4' y='4' width='1' height='1'/%3E%3Crect x='1' y='5' width='1' height='1'/%3E%3Crect x='2' y='5' width='1' height='1'/%3E%3Crect x='3' y='5' width='1' height='1'/%3E%3Crect x='4' y='5' width='1' height='1'/%3E%3Crect x='5' y='5' width='1' height='1'/%3E%3Crect x='0' y='6' width='1' height='1'/%3E%3Crect x='1' y='6' width='1' height='1'/%3E%3Crect x='2' y='6' width='1' height='1'/%3E%3Crect x='3' y='6' width='1' height='1'/%3E%3Crect x='4' y='6' width='1' height='1'/%3E%3Crect x='5' y='6' width='1' height='1'/%3E%3Crect x='6' y='6' width='1' height='1'/%3E%3C/svg%3E") center/contain no-repeat;image-rendering:pixelated}.card.px.land .pxh{width:5.4cqw;height:5.4cqw}
+.card.rot{container-type:inline-size}.card.rot img{position:absolute;left:50%;top:50%;width:142.6cqw;height:100cqw;max-width:none;transform:translate(-50%,-50%) rotate(-90deg)}
 </style>
 <body>
 <div id="app">
@@ -791,7 +792,7 @@ function bkEl(seat) {   // 手牌數旁邊顯示這位玩家選的卡背 (其他
 function cbOf(seat) { const st = S.snap && S.snap.avstyles && seat != null ? S.snap.avstyles[seat] : null; return (st && st.cb) || ""; }   // 這個座位的玩家選的卡面風格
 function cardEl(c, cls, onclick, seat) {
   const col = c.color === "紅" ? "red" : "blk";
-  const e = h("div", {class: "card " + col + (c.img ? "" : " noimg") + (c.land ? " land" : "") + (cls ? " " + cls : ""), title: c.text || c.name});
+  const e = h("div", {class: "card " + col + (c.img ? "" : " noimg") + (c.land ? " rot" : "") + (cls ? " " + cls : ""), title: c.text || c.name});
   if (seat === undefined) seat = S.snap && S.snap.viewer;   // 沒指定是誰的牌 (手牌 / 選項): 用自己的卡面;不知道是誰打的 (棄牌堆) 傳 null
   const bg = cbOf(seat), src = c.img && bg && c.img.startsWith("/cards/") ? c.img + (c.img.includes("?") ? "&" : "?") + "bg=" + encodeURIComponent(bg) : c.img;
   if (bg.startsWith("pixel")) e.classList.add("px");   // 像素風卡面: 牌種 / 攻擊範圍的框也用像素字,大小跟右下角印章一樣
