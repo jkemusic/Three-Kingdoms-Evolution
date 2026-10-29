@@ -1046,7 +1046,7 @@ def _role_eye():
             '<path d="M60 104 L72 118 M100 86 V104 M140 104 L128 118" stroke="#1a2a4a" stroke-width="4" stroke-linecap="round"/>')
 
 
-ROLE = {"主公": (_role_crown, "basic"), "忠臣": (_role_shield, "horse"), "反賊": (_role_flag, "armor"), "內奸": (_role_eye, "trick")}
+ROLE = {"主公": (_role_crown, "basic"), "忠臣": (_role_shield, "basic"), "反賊": (_role_flag, "basic"), "內奸": (_role_eye, "trick")}
 SEAL.update({"主公": "主", "忠臣": "忠", "反賊": "反", "內奸": "奸"})
 
 
