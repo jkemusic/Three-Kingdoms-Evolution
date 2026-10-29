@@ -636,7 +636,7 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
   .tag{font-size:10px;padding:0 4px}
   .eq,#table.dense .eq{width:24px;height:34px}
   .eq.jd,#table.dense .eq.jd{width:34px;height:24px}
-  .eq.jd img,#table.dense .eq.jd img{width:24px;height:34px}
+  
   .eq:hover,.eq.jd:hover{transform:none}
   .pl.cur::after{top:2px!important;bottom:auto!important;right:4px!important;left:auto!important;font-size:9px;padding:0 5px;border-radius:3px!important}
   .pl .ph .wei{font-size:9px;padding:0 3px}
@@ -1154,7 +1154,7 @@ function renderTable0(snap) {
     });
     piles2.append(h("div", {class: "pile"}, h("div", {class: "meta", text: "本次連鎖"}), st));
   }
-  if (snap.last_judge) piles.append(h("div", {class: "pile"}, h("div", {class: "meta", text: "判定結果" + (snap.last_judge.who != null ? " (P" + snap.last_judge.who + ")" : "")}), cardEl(snap.last_judge.card, "", () => showCardInfo(snap.last_judge.card))));
+  if (snap.last_judge) piles.append(h("div", {class: "pile"}, h("div", {class: "meta", text: "判定結果" + (snap.last_judge.who != null ? " (P" + snap.last_judge.who + ")" : "")}), cardEl(snap.last_judge.card, "", () => showCardInfo(snap.last_judge.card), null)));
   if (snap.reveal && snap.reveal.cards.length) {
     const st = h("div", {class: "pstack rv"});
     snap.reveal.cards.forEach(r => st.append(h("div", {class: "pile"}, h("div", {class: "meta", text: "P" + r.who}), cardEl(r.card, "", () => showCardInfo(r.card), r.who))));
