@@ -1058,7 +1058,7 @@ class Manager:
                 agents.append(HumanAgent(self, i))
             else:
                 agents.append(Observed(LeveledAgent(self._level(cfg, i)), self.rec))
-        g = Game(agents, seed=cfg["seed"], chars=cfg["chars_"], role_variant=int(cfg.get("variant", 0)), lord_seat=self.lord_seat,
+        g = Game(agents, max_rounds=100, seed=cfg["seed"], chars=cfg["chars_"], role_variant=int(cfg.get("variant", 0)), lord_seat=self.lord_seat,
                  mode="shuffle" if cfg.get("mode") == "shuffle" else "normal", role_mode=cfg.get("role_mode") or "normal", base_hp=int(cfg.get("base_hp") or 4))
         g.on_log = self.on_log
         self.game, self.lobby = g, False

@@ -176,7 +176,7 @@ class Player:
 
 
 class Game:
-    def __init__(self, agents, seed=0, verbose=False, max_rounds=10000, chars=None, role_variant=0, lord_seat=0, lord_bonus=1, mode="normal", role_mode="normal", base_hp=4):
+    def __init__(self, agents, seed=0, verbose=False, max_rounds=100, chars=None, role_variant=0, lord_seat=0, lord_bonus=1, mode="normal", role_mode="normal", base_hp=4):
         self.rng = random.Random(seed)
         self.mode, self.lord_bonus = mode, lord_bonus   # mode: normal 正常 / shuffle 百變 (第 2 輪起每次輪到自己都換新武將)
         n = len(agents)
@@ -1713,7 +1713,11 @@ class Game:
             elif c.name == "閃電":
                 if j.color == "黑":
                     self.discard.append(getattr(c, "orig", c))
-                    self.damage(src if src is not None and src.alive else None, p, 3, nature="雷")   # 傷害來源是發動 (放下) 閃電的那個人,吃他的流星錘 +1 和強化 / 弱化
+                    self._lt_dmg = True   # 閃電傷害: 華雄這類「打他的人」的技能,連放閃電的人自己 (閃電繞一圈回到自己) 也算
+                    try:
+                        self.damage(src if src is not None and src.alive else None, p, 3, nature="雷")   # 傷害來源是發動 (放下) 閃電的那個人,吃他的流星錘 +1 和強化 / 弱化
+                    finally:
+                        self._lt_dmg = False
                 else:
                     self.pass_lightning(p, c)
         return skip_play, skip_draw

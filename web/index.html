@@ -324,7 +324,7 @@ html .seg button.on,html .seg button.on:hover{background:linear-gradient(180deg,
 #hostbar.wait{color:#9eeaff}#hostbar:empty{display:none!important}
 .mini-btn{margin-top:8px;padding:3px 14px!important;font-size:12px}
 .pl.waiting .nm::after{content:" ⏳"}
-.pl.waiting{outline:2px dashed #ffb44d;outline-offset:2px}
+.pl.waiting{outline:2px dashed #ffb44d;outline-offset:-4px}   /* 虛線畫在框裡面: 放在外面會被旁邊正在動畫的座位 (被選為目標等) 蓋掉一邊 */
 .pl.dimmed{opacity:.45}
 .meta.hpick{cursor:pointer;color:#fff;background:rgba(70,224,160,.28);border:1px solid var(--green);border-radius:6px;padding:2px 8px;display:inline-block;animation:tgpulse 1.4s ease-in-out infinite}
 .pl.target{cursor:crosshair;animation:none;box-shadow:inset 0 0 0 2px var(--green),0 0 26px rgba(70,224,160,.75)}
@@ -698,7 +698,9 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
   <div id="lobbytools" role="group" aria-label="快捷功能"></div>
   <div class="rnew"><input id="rname" type="text" maxlength="20" placeholder="房間名稱 (例如: 阿明的房間)"><input id="rpw" type="password" maxlength="20" placeholder="房間密碼 (可不設)" autocomplete="new-password" style="max-width:150px"><select id="rcap" title="房間人數上限 (含觀戰的人)"><option value="0">人數不限</option><option value="2">上限 2 人</option><option value="3">上限 3 人</option><option value="4">上限 4 人</option><option value="5">上限 5 人</option><option value="6">上限 6 人</option><option value="7">上限 7 人</option><option value="8">上限 8 人</option><option value="9">上限 9 人</option><option value="10">上限 10 人</option></select><button id="rcreate" class="primary">創建房間</button></div>
   <div class="rnew"><button id="rsolo" class="primary" title="自己一個人和電腦對打 (房間不公開)">🤖 單人模式 (和電腦對打)</button></div>
+  <input id="rsearch" type="search" maxlength="20" placeholder="搜尋房間名稱 / 房主" aria-label="搜尋房間名稱 / 房主" style="width:100%;box-sizing:border-box;margin:8px 0">
   <div id="rlist"></div>
+  <div id="rpager" style="display:flex;justify-content:center;align-items:center;gap:10px;margin-top:8px"></div>
 </div></div>
 <div id="modal"></div><div id="modal2"></div>
 <div id="cardinfo"></div>
@@ -2463,12 +2465,27 @@ function leaveRoom(msg) {
   showRooms(msg);
 }
 let roomTimer = null;
+let ROOMS_ALL = [], roomPage = 0;
+const ROOMS_PER = 8;
 async function refreshRooms() {
   let list = [];
   try { list = await (await fetch("/api/rooms?tok=" + TOK)).json(); } catch (e) { return; }
+  ROOMS_ALL = list; renderRooms();
+}
+$("#rsearch").oninput = () => { roomPage = 0; renderRooms(); };
+function renderRooms() {
+  const list = ROOMS_ALL, q = ($("#rsearch").value || "").trim().toLowerCase();
   const L = $("#rlist"); L.textContent = "";
   $("#lobbycount").textContent = list.length ? "目前共 " + list[0].total + " 人在線" : "";
-  for (const r of list) {
+  const shown = q ? list.filter(r => ((r.name || "") + " " + (r.host || "")).toLowerCase().includes(q)) : list;
+  const pages = Math.max(1, Math.ceil(shown.length / ROOMS_PER));
+  if (roomPage >= pages) roomPage = pages - 1;
+  const pg = $("#rpager"); pg.textContent = "";
+  if (pages > 1) pg.append(h("button", {text: "‹", "aria-label": "上一頁", disabled: roomPage === 0, onclick: () => { roomPage--; renderRooms(); }}),
+    h("span", {class: "meta", text: (roomPage + 1) + " / " + pages}),
+    h("button", {text: "›", "aria-label": "下一頁", disabled: roomPage >= pages - 1, onclick: () => { roomPage++; renderRooms(); }}));
+  if (q && !shown.length) L.append(h("div", {class: "meta", style: {textAlign: "center", padding: "12px"}, text: "找不到符合的房間"}));
+  for (const r of shown.slice(roomPage * ROOMS_PER, (roomPage + 1) * ROOMS_PER)) {
     L.append(h("div", {class: "rrow"},
       h("div", {class: "ri"}, h("div", {class: "rn", text: (r.locked ? "🔒 " : "") + r.name}), h("div", {class: "rm", text: (r.host ? "房主: " + r.host + " · " : "") + (r.n ? r.n + " 人局 · " : "") + "目前 " + r.online + (r.cap ? " / " + r.cap : "") + " 人在線"})),
       r.ranked != null ? h("span", {class: "st" + (r.ranked ? " go" : ""), style: {marginRight: "6px"}, text: r.ranked ? "🏅 段位模式" : "🎮 休閒模式"}) : null,   // 對戰中 / 選武將 / 等待入座的房間: 標出是哪種模式

@@ -280,7 +280,7 @@ class 華雄(Char):
     def draw_count(self, g, p): return 5
 
     def on_damaged(self, g, p, src, n):  # 華雄被扣血: 「打他的人」判定,紅色回 1 血、黑色抽 1 張
-        if src is None or src is p or not src.alive or p.flipped:
+        if src is None or (src is p and not getattr(g, "_lt_dmg", False)) or not src.alive or p.flipped:   # 自己放的閃電打到自己 (閃電繞一圈) 也算: 放閃電的人判定
             return
         g.new_dmg_chain()   # 受傷之後才發動: 另開一條新連鎖
         if not g.trigger_ok(p, "華雄-判定"):

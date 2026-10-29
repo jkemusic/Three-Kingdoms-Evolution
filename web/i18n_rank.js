@@ -21,6 +21,10 @@ window.SGS_LOG_TPL = (window.SGS_LOG_TPL || []).concat([
 ["關閉", "Close", "閉じる"],
 ["🤖 電腦代打", "🤖 CPU (substitute)", "🤖 CPU(代打)"],
 ["等待開局", "Waiting to start", "開始待ち"],
+["搜尋房間名稱 / 房主", "Search room name / host", "部屋名・ホストで検索"],
+["找不到符合的房間", "No matching rooms", "該当する部屋がありません"],
+["上一頁", "Previous page", "前のページ"],
+["下一頁", "Next page", "次のページ"],
 ["等待房主開始", "Waiting for the host", "ホストの開始待ち"],
 ["房主還沒開始新遊戲,開始後這裡會自動顯示牌桌。", "The host hasn't started a new game yet. The table will appear here automatically once it starts.", "ホストがまだ新しいゲームを始めていません。始まると自動的にテーブルが表示されます。"],
 ]);

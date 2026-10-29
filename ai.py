@@ -62,10 +62,31 @@ class RandomAgent:
     def pick_pile(self, g, p, pile):
         return g.rng.choice(pile)
 
+    # 偽裝選武將: 依手牌情境查表 (殺張數 / 有無南蠻萬箭 / 血量 / 手牌數)。實測整體最好的是張角、孔融、司馬昭、李儒、曹仁、周魴;
+    # 殺多偏殺類武將,低血偏回血武將,有南蠻萬箭偏鄧艾。實測最差 (孟獲 / 黃蓋 / 袁術 / 董卓 / 公孫淵) 和淨少牌的伊籍不選。
+    DG_BASE = ("張角", "孔融", "司馬昭", "李儒", "曹仁", "周魴")
+    DG_BAD = ("孟獲", "黃蓋", "袁術", "董卓", "公孫淵", "伊籍")
+
+    def _dg_rank(self, p):
+        n_sha = sum(1 for c in p.hand if c.name in ("殺", "火殺", "冰殺", "雷殺"))
+        aoe = any(c.name in ("南", "萬", "南蠻入侵", "萬箭齊發") for c in p.hand)
+        order = []
+        if aoe:
+            order.append("鄧艾")
+        if n_sha >= 2:
+            order += ["許褚", "張飛", "周倉"]
+        if p.hp <= 2:
+            order += ["張角", "孔融", "華佗", "劉備"]
+        order += self.DG_BASE
+        return list(dict.fromkeys(order))
+
     def _best_disguise(self, g, p, names):
-        """偽裝只持續一回合,選「現在這手牌/局面」下馬上用得到、收益最大的武將。"""
+        """偽裝只持續一回合: 先照情境名次表挑第一個「場上還沒有的」,表上的人都不能選才退回原本的評分。"""
+        for nm in self._dg_rank(p):
+            if nm in names:
+                return names.index(nm)
         sc = self._disguise_scores(g, p, names)
-        best = max(names, key=lambda nm: sc.get(nm, 0) + 1.5 * g.rng.random())   # 加一點隨機,避免每次都選同一個
+        best = max(names, key=lambda nm: sc.get(nm, 0) - (4 if nm in self.DG_BAD else 0) + 1.5 * g.rng.random())   # 加一點隨機,避免每次都選同一個
         return names.index(best)
 
     def _disguise_scores(self, g, p, names):
@@ -357,7 +378,8 @@ class HeuristicAgent(RandomAgent):
             return heal_jiu[0]
         jiu = [i for i in idxs("酒") if options[i][1] != "heal"]
         sha = [i for i in idxs("殺") if att(options[i][1]) < 0]
-        if jiu and sha and g.rng.random() < 0.5:
+        first = ("樂", "兵", "毒", "草", "火攻", "拋", "鴻", "笑", "順", "過", "決")   # 這些比殺優先: 酒打出去之後下一張會先打它們,酒就白白浪費了
+        if jiu and sha and g.rng.random() < 0.5 and not any(att(options[i][1]) < 0 for n in first for i in idxs(n)):   # 只有「下一張真的打殺」才先喝酒,不再無緣無故單獨打一張酒
             return jiu[0]
         for n in ("樂", "兵", "毒", "草", "火攻", "拋", "鴻", "笑", "順", "過", "決", "殺"):
             ids = [i for i in idxs(n) if att(options[i][1]) < 0]
