@@ -984,7 +984,7 @@ function rkp(r) {   // 玩家列表用: 段位標籤 + 旁邊的「轉生 N」�
 function rkEl(r, big) {   // 段位標籤 (例: 黃金2)
   if (!r) return null;
   const m = /^(★\d+) (.+)$/.exec(String(r)), base = m ? m[2] : String(r);   // Prestige: 「★2 青銅3」
-  return h("span", {class: "rk rk-" + base.replace(/\d+$/, "") + (m ? " pres" : "") + (big ? " big" : ""), title: (m ? "轉生 " + m[1].slice(1) + " 次 · " : "") + "段位 " + base, text: r});
+  return h("span", {class: "rk rk-" + base.replace(/\d+$/, "") + (m ? " pres" : "") + (big ? " big" : ""), title: (m ? "轉生 " + m[1].slice(1) + " 次 · " : "") + "段位 " + base, text: base});   // 顯示不帶 ★N, 轉生次數由旁邊的「轉生 N」方框表示
 }
 function setRoundTag(snap) {   // 左上角: 第幾輪 + 牌堆張數
   if (snap.over && !S.overSeen) { S.overSeen = true; [1500, 4000].forEach(t => setTimeout(loadProfile, t)); }   // 對局結束: 盡快讀檔案,有升降段就跳視窗
@@ -1935,7 +1935,7 @@ function openSetup() {
     if (!on) return;
     const pct = p.rp_next == null ? 100 : Math.max(0, Math.min(100, (p.rp - p.rp_lo) / (p.rp_next - p.rp_lo) * 100));
     rkIn.append(h("div", {style: {display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap"}}, h("span", {class: "meta", text: "我的段位"}), rkp(p.rank)), ...rkProgress(p), streakLine(p));
-    rkSide.append(h("div", {class: "meta", text: "我的段位"}), h("div", {style: {margin: "6px 0"}}, rkEl(p.rank, true)),
+    rkSide.append(h("div", {class: "meta", text: "我的段位"}), h("div", {class: "pchips", style: {margin: "6px 0", display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap"}}, presChip(p.pres), rkEl(p.rank, true)),
       h("div", {class: "meta", text: "積分 " + p.rp}),
       h("div", {class: "rkbar"}, h("i", {style: {width: pct + "%"}})),
       h("div", {class: "meta", text: p.rp_next == null ? "已達最高段位" : "再 " + (p.rp_next - p.rp) + " 分升到 " + p.next_rank}));
