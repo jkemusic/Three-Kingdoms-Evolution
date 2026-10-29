@@ -981,6 +981,10 @@ function rkp(r) {   // 玩家列表用: 段位標籤 + 旁邊的「轉生 N」�
   const c = presChip(m ? +m[1] : 0); c.classList.add("sm"); f.append(c); f.append(rkEl(String(r || "").replace(/^★\d+ /, "")));
   return f;
 }
+function rkBig(r) {   // 大段位標籤 + 前面的「轉生 N」方框 (升降段彈窗用)
+  const m = /^★(\d+)/.exec(r || ""), f = document.createElement("span"); f.style.cssText = "display:inline-flex;align-items:center;gap:6px";
+  f.append(presChip(m ? +m[1] : 0), rkEl(r, true)); return f;
+}
 function rkEl(r, big) {   // 段位標籤 (例: 黃金2)
   if (!r) return null;
   const m = /^(★\d+) (.+)$/.exec(String(r)), base = m ? m[2] : String(r);   // Prestige: 「★2 青銅3」
@@ -2358,7 +2362,7 @@ function showRankNote(n) {   // 升段 / 降段 視窗
     h("div", {class: "dlg rankup" + ((n.changed ? n.up : n.won) ? " up" : " down"), style: {maxWidth: "380px", textAlign: "center"}},
       h("div", {class: "rkicon", text: n.changed ? (n.up ? "🎉" : "📉") : n.draw ? "🤝" : n.partial ? "🥈" : n.won ? "🏆" : "🏳"}),
       h("h3", {text: n.changed ? (n.up ? "段位提升!" : "段位下降") : n.draw ? "平手" : n.partial ? "次級勝利" : n.won ? "勝利" : "落敗"}),
-      n.changed ? h("div", {class: "rkflow"}, rkEl(n.from, true), h("span", {class: "rkarr", text: "➜"}), rkEl(n.to, true)) : h("div", {class: "rkflow"}, rkEl(n.to, true)),
+      n.changed ? h("div", {class: "rkflow"}, rkBig(n.from), h("span", {class: "rkarr", text: "➜"}), rkBig(n.to)) : h("div", {class: "rkflow"}, rkBig(n.to)),
       n.ranked ? h("div", {class: "rkdelta " + (n.delta > 0 ? "plus" : n.delta < 0 || (!n.won && !n.draw && !n.partial) ? "minus" : ""), text: `段位積分 ${n.draw ? (n.delta > 0 ? "+" + n.delta : "±0") : n.delta === 0 && !n.won && !n.partial ? "-0" : (n.delta > 0 ? "+" : "") + n.delta}` + (n.bonus ? ` (含連勝獎勵 +${n.bonus})` : "") + (n.won && n.streak > 1 ? ` · ${n.streak} 連勝` : "")})
                : h("div", {class: "rkdelta", text: "休閒模式 · 積分不變"}),
       n.coins ? h("div", {class: "rkcoin", text: `💰 +${n.coins} 遊戲幣 (共 ${n.total_coins})`}) : null,
