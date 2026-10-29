@@ -2305,7 +2305,11 @@ new MutationObserver(() => { if ($("#modal").childNodes.length) { const mp = $("
 $("#bSide").onclick = () => applySide(!document.body.classList.contains("hide-side"));
 try { if (localStorage.getItem("hideSide")) applySide(true); } catch (e) {}
 window.addEventListener("resize", () => { if (S.snap) renderTable(S.snap); });
-function updNickBtn() { $("#bNick").textContent = "👤 " + (myNick() || "暱稱") + " ✎"; const b = $("#bProf"); if (b && S.lvTxt) { const im = b.querySelector(".avw") || b.querySelector("img"); b.textContent = S.lvTxt + "  " + (myNick() || ""); if (im) b.prepend(im); } }
+function profChips() {   // 右上角自己的資料: 轉生過 (1 次以上) 才在段位前面多一個「轉生 N」
+  const c = []; if (S.presN > 0) { const x = presChip(S.presN); x.classList.add("sm"); c.push(x); }
+  c.push(rkEl(String(S.lvTxt).replace(/^★\d+ /, ""))); return c;
+}
+function updNickBtn() { $("#bNick").textContent = "👤 " + (myNick() || "暱稱") + " ✎"; const b = $("#bProf"); if (b && S.lvTxt) { const im = b.querySelector(".avw") || b.querySelector("img"); b.textContent = ""; b.append(...profChips(), "  " + (myNick() || "")); if (im) b.prepend(im); } }
 $("#bNick").onclick = () => { if (!S.nickLocked) showNickGate(true); };
 updNickBtn();
 if (myNick()) api("/api/nick", {name: myNick()});
@@ -2336,7 +2340,7 @@ async function loadProfile() {
     if (!p.uuid) return null;
     S.prof = p;
     if (p.rank_note) showRankNote(p.rank_note);
-    const b = $("#bProf"); S.lvTxt = p.rank; b.textContent = ""; b.append(rkEl(p.rank), "  " + (myNick() || ""));
+    const b = $("#bProf"); S.lvTxt = p.rank; S.presN = p.pres || 0; b.textContent = ""; b.append(...profChips(), "  " + (myNick() || ""));
     b.prepend(avEl(p.avatar, {fr: p.sel && p.sel.frame, fx: p.sel && p.sel.fx}, {class: "av"}));
     if (window.SGS_COS) SGS_COS.onProfile(p);
     b.title = `段位 ${p.rank} · 積分 ${p.rp}` + (p.rp_next != null ? ` (下一段 ${p.rp_next})` : "") + ` · ${p.games} 場 ${p.wins} 勝`;
