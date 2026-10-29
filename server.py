@@ -1,4 +1,4 @@
-"""三國殺重製版 GUI 伺服器 (只用標準函式庫,瀏覽器開 http://127.0.0.1:8765)。
+"""進化三國 GUI 伺服器 (只用標準函式庫,瀏覽器開 http://127.0.0.1:8765)。
 
     python server.py          # 啟動並自動開啟瀏覽器
 """
@@ -23,6 +23,7 @@ from human import HumanAgent
 from thinking import Observed, Recorder
 from view import ROOT, DATA, snapshot
 import cosmetics
+import cardart
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 WEB = os.path.join(HERE, "web")
@@ -173,7 +174,7 @@ class Profiles:
         lv = self.level(p["xp"])
         rp = p.get("rp", 0)
         nm, sub, lo, hi = self.rank(rp)
-        return {"uuid": self.uid(tok), "dev": self.dev(tok), "rank": self.rank_label(rp), "next_rank": self.rank_label(hi) if hi is not None else None, "tier": nm, "rp": rp, "rp_lo": lo, "rp_next": hi,
+        return {"uuid": self.uid(tok), "dev": self.dev(tok), "rank": self.rank_tag(p), "coins": p.get("coins", 0), "renown": p.get("renown", 0), "pres": p.get("pres", 0), "can_prestige": rp >= self.PRESTIGE_RP, "prestige_rp": self.PRESTIGE_RP, "next_rank": self.rank_label(hi) if hi is not None else None, "tier": nm, "rp": rp, "rp_lo": lo, "rp_next": hi,
                 "rstreak": p.get("rstreak", 0), "streak_bonus": min(self.STREAK_CAP, p.get("rstreak", 0) * self.STREAK_STEP), "streak_cap": self.STREAK_CAP, "streak_step": self.STREAK_STEP,
                 "rgames": p.get("rgames", 0), "rwins": p.get("rwins", 0), "rank_note": p.get("rank_note"), "level": lv, "xp": p["xp"], "xp_cur": self.xp_for(lv), "xp_next": self.xp_for(lv + 1),
                 "games": p["games"], "wins": p["wins"], "playtime": p.get("playtime", 0), "avatar": self.avatar_url(tok),
@@ -194,42 +195,122 @@ class Profiles:
             p.setdefault("ach_new", []).extend(new)
         return new
 
+    PRESTIGE_RP = 2000      # 傳說 (積分達到這個數字) 才能 Prestige
+    @staticmethod
+    def renown_for(n):
+        """第 n 次轉生拿到的聲望 (Renown): 20, 25, 30 ..."""
+        return 15 + 5 * n
+    PRESTIGE_MAX = 10
+
+    def rank_tag(self, p):
+        """名字旁邊的段位標籤: 有 Prestige 的在前面加 ★N。"""
+        lab = self.rank_label(p.get("rp", 0))
+        n = p.get("pres", 0)
+        return f"★{n} {lab}" if n else lab
+
+    def _ensure_shop(self, p):
+        """商店系統上線前靠成就拿到、現在要用買的外觀: 照舊規則補進「已擁有」(只做一次)。"""
+        if p.get("shopv") == 1:
+            return
+        with self.lock:
+            if p.get("shopv") == 1:
+                return
+            self._check_ach(p)
+            owned = set(p.get("owned", []))
+            owned.update(cosmetics.legacy_owned(self.peak_tier(p), p.get("ach", {})))
+            p["owned"] = sorted(owned)
+            p["shopv"] = 1
+            self._save()
+
+    def _ok(self, p):
+        """回傳 ok(kind, id): 這個外觀這位玩家能不能用。"""
+        self._ensure_shop(p)
+        tier, achs, owned, pres = self.peak_tier(p), p.get("ach", {}), set(p.get("owned", [])), p.get("pres", 0)
+        def ok(kind, v):
+            x = cosmetics.find(kind, v)
+            return bool(x) and cosmetics.item_ok(kind, x, tier, achs, owned, pres)
+        return ok
+
+    def buy(self, tok, kind, iid):
+        p = self.get(tok)
+        self._ensure_shop(p)
+        x = cosmetics.find(kind, iid)
+        if not x or x["req"]["t"] != "shop":
+            return {"ok": False, "error": "這個東西不能購買"}
+        key = kind + ":" + iid
+        with self.lock:
+            if key in p.get("owned", []):
+                return {"ok": False, "error": "你已經擁有了"}
+            price = x["req"]["price"]
+            cur = x["req"].get("cur", "coins")
+            name = "聲望" if cur == "renown" else "遊戲幣"
+            if p.get(cur, 0) < price:
+                return {"ok": False, "error": f"{name}不夠 (需要 {price},你有 {p.get(cur, 0)})"}
+            p[cur] = p.get(cur, 0) - price
+            p.setdefault("owned", []).append(key)
+            self._save()
+        return {"ok": True, "bought": key, "coins": p.get("coins", 0), "renown": p.get("renown", 0), **self.cos_info(tok)}
+
+    def prestige(self, tok):
+        """傳說之後按「轉生」(Prestige): 積分歸零回到青銅3,轉生次數 +1,拿到聲望 (外觀、成就、歷史最高段位都保留)。"""
+        p = self.get(tok)
+        with self.lock:
+            if p.get("rp", 0) < self.PRESTIGE_RP:
+                return {"ok": False, "error": "要先達到傳說才能轉生"}
+            if p.get("pres", 0) >= self.PRESTIGE_MAX:
+                return {"ok": False, "error": f"已經轉生到最高等級 ({self.PRESTIGE_MAX} 次)"}
+            p["peak_rp"] = max(p.get("peak_rp", 0), p.get("rp", 0))
+            p["pres"] = p.get("pres", 0) + 1
+            p["rp"] = 0; p["rstreak"] = 0
+            gain = self.renown_for(p["pres"])
+            p["renown"] = p.get("renown", 0) + gain
+            p.pop("rank_note", None)
+            self._check_ach(p)
+            self._save()
+        return {"ok": True, "pres": p["pres"], "renown": p["renown"], "reward": gain}
+
     def cos_info(self, tok):
         p = self.get(tok)
+        self._ensure_shop(p)
         with self.lock:
             if self._check_ach(p):   # 舊帳號第一次看資料時,依既有戰績補發成就
                 self._save()
         tier, achs = self.peak_tier(p), p.get("ach", {})
         st = self.style(tok)
-        return {"cos": cosmetics.unlocked_ids(tier, achs), "sel": {"frame": st["fr"], "fx": st["fx"], "theme": p.get("theme"), "box": st["bx"]},
+        return {"coins": p.get("coins", 0), "renown": p.get("renown", 0), "pres": p.get("pres", 0), "cos": cosmetics.unlocked_ids(tier, achs, set(p.get("owned", [])), p.get("pres", 0)), "sel": {"frame": st["fr"], "fx": st["fx"], "theme": p.get("theme"), "box": st["bx"], "cardbg": st["cb"], "cardback": st["bk"]},
                 "ach": achs, "ach_new": list(p.get("ach_new", [])), "peak_tier": tier, "ach_prog": cosmetics.progress(p, self.level(p["xp"]), max(p.get("peak_rp", 0), p.get("rp", 0)))}
 
     def style(self, tok):
         """目前使用的頭像框 / 特效 (沒選過: 頭像框自動用最高段位的框)。"""
         p = self.d.get(tok)
         if not p:
-            return {"fr": "", "fx": "", "bx": ""}
-        tier, achs, sel = self.peak_tier(p), p.get("ach", {}), p.get("sel", {})
-        ok = lambda L, v: any(x["id"] == v and cosmetics.is_unlocked(x["req"], tier, achs) for x in L)
-        fr = sel["frame"] if "frame" in sel and ok(cosmetics.FRAMES, sel["frame"]) else cosmetics.auto_frame(tier)
-        fx = sel.get("fx", "") if ok(cosmetics.EFFECTS, sel.get("fx", "")) else ""
-        bx = sel.get("box", "") if ok(cosmetics.BOXES, sel.get("box", "")) else ""
-        return {"fr": fr, "fx": fx, "bx": bx}
+            return {"fr": "", "fx": "", "bx": "", "cb": "", "bk": ""}
+        tier, sel = self.peak_tier(p), p.get("sel", {})
+        ok = self._ok(p)
+        fr = sel["frame"] if "frame" in sel and ok("frames", sel["frame"]) else cosmetics.auto_frame(tier)
+        fx = sel.get("fx", "") if ok("fx", sel.get("fx", "")) else ""
+        bx = sel.get("box", "") if ok("boxes", sel.get("box", "")) else ""
+        cb = sel.get("cardbg", "") if ok("cardbgs", sel.get("cardbg", "")) else ""
+        bk = sel.get("cardback", "") if ok("cardbacks", sel.get("cardback", "")) else ""
+        return {"fr": fr, "fx": fx, "bx": bx, "cb": cb, "bk": bk}
 
-    def set_style(self, tok, frame, fx, theme=None, box=None):
+    def set_style(self, tok, frame, fx, theme=None, box=None, cardbg=None, cardback=None):
         p = self.get(tok)
-        tier, achs = self.peak_tier(p), p.get("ach", {})
-        ok = lambda L, v: any(x["id"] == v and cosmetics.is_unlocked(x["req"], tier, achs) for x in L)
+        ok = self._ok(p)
         with self.lock:
             sel = p.setdefault("sel", {})
-            if frame is not None and ok(cosmetics.FRAMES, frame):
+            if frame is not None and ok("frames", frame):
                 sel["frame"] = frame
-            if fx is not None and ok(cosmetics.EFFECTS, fx):
+            if fx is not None and ok("fx", fx):
                 sel["fx"] = fx
-            if box is not None and (box == "" or ok(cosmetics.BOXES, box)):
+            if box is not None and (box == "" or ok("boxes", box)):
                 sel["box"] = box
+            if cardbg is not None and ok("cardbgs", cardbg):
+                sel["cardbg"] = cardbg
+            if cardback is not None and ok("cardbacks", cardback):
+                sel["cardback"] = cardback
             if theme is not None:
-                p["theme"] = theme if (theme == "" or ok(cosmetics.THEMES, theme)) else p.get("theme")
+                p["theme"] = theme if (theme == "" or ok("themes", theme)) else p.get("theme")
             self._save()
         return {"ok": True, **self.cos_info(tok)}
 
@@ -282,12 +363,14 @@ class Profiles:
     def lv(self, tok):
         """顯示在名字旁邊的段位標籤 (例: 黃金2)。"""
         p = self.d.get(tok)
-        return self.rank_label(p.get("rp", 0)) if p else self.rank_label(0)
+        return self.rank_tag(p) if p else self.rank_label(0)
 
     STREAK_STEP, STREAK_CAP = 3, 15
     WIN_XP = {1: 15, 2: 30, 3: 45, 4: 70}   # 電腦難度 弱/中/強/很強: 打贏給的經驗值
 
-    def award(self, tok, won, char=None, role=None, win_xp=None, ranked=False, win_rp=None, facts=None, loss_rp=None, secs=0, draw=False, partial=0):
+    COIN_LOSS, COIN_DRAW = 8, 12   # 段位模式輸 / 平手 (含內奸次級勝利) 給的遊戲幣;贏 = 贏的積分 ×0.8 + 10 (弱電腦 18 ~ 很強 36)
+
+    def award(self, tok, won, char=None, role=None, win_xp=None, ranked=False, win_rp=None, facts=None, loss_rp=None, secs=0, draw=False, partial=0, coins=None):
         """回傳 (段位積分變化, 之前段位, 之後段位);休閒模式積分不變 (變化 0)。"""
         p = self.get(tok)
         if not p:
@@ -314,13 +397,17 @@ class Profiles:
                 delta = p["rp"] - old
                 p["rgames"] = p.get("rgames", 0) + 1; p["rwins"] = p.get("rwins", 0) + (1 if won else 0)
             p["peak_rp"] = max(p.get("peak_rp", 0), p.get("rp", 0))
+            gold = 0   # 遊戲幣只有段位模式才有 (棄賽 coins=0)
+            if ranked:
+                gold = coins if coins is not None else (round((win_rp or 25) * 0.8) + 10 if won else self.COIN_DRAW if (draw or partial) else self.COIN_LOSS)
+                p["coins"] = p.get("coins", 0) + gold
             p["streak"] = p.get("streak", 0) + 1 if won else 0
             p["best_streak"] = max(p.get("best_streak", 0), p["streak"])
             after = self.rank_label(p.get("rp", 0))
             _, _, _, nxt = self.rank(p.get("rp", 0))
             # 每場結束都留一則結果通知 (積分變化 / 升降段 / 離下一段還差多少),玩家的瀏覽器讀到就跳出視窗
             p["rank_note"] = {"from": before, "to": after, "delta": delta, "rp": p.get("rp", 0), "up": delta > 0, "changed": after != before,
-                              "ranked": bool(ranked), "won": bool(won), "draw": bool(draw), "partial": bool(partial and not won), "streak": p.get("rstreak", 0) if ranked else 0, "bonus": bonus if ranked else 0, "next": self.rank_label(nxt) if nxt is not None else None,
+                              "ranked": bool(ranked), "coins": gold, "total_coins": p.get("coins", 0), "won": bool(won), "draw": bool(draw), "partial": bool(partial and not won), "streak": p.get("rstreak", 0) if ranked else 0, "bonus": bonus if ranked else 0, "next": self.rank_label(nxt) if nxt is not None else None,
                               "need": (nxt - p.get("rp", 0)) if nxt is not None else 0, "id": int(time.time() * 1000)}
             if char:
                 c = p.setdefault("chars", {}).setdefault(char, [0, 0]); c[0] += 1; c[1] += 1 if won else 0
@@ -546,7 +633,7 @@ def player_public(key):
     lv = PROFILES.level(p.get("xp", 0))
     _nm, _sub, lo, hi = PROFILES.rank(rp)
     return {"ok": True, "uid": PROFILES.uid(t), "rp_lo": lo, "rp_next": hi, "next_rank": PROFILES.rank_label(hi) if hi is not None else None, "user": a["user"], "dev": PROFILES.dev(t), "avatar": PROFILES.avatar_url(t), "style": PROFILES.style(t),
-            "rank": PROFILES.rank_label(rp), "rp": rp, "rstreak": p.get("rstreak", 0), "streak_bonus": min(PROFILES.STREAK_CAP, p.get("rstreak", 0) * PROFILES.STREAK_STEP), "streak_cap": PROFILES.STREAK_CAP, "streak_step": PROFILES.STREAK_STEP, "level": lv, "games": p.get("games", 0), "wins": p.get("wins", 0),
+            "rank": PROFILES.rank_tag(p), "pres": p.get("pres", 0), "rp": rp, "rstreak": p.get("rstreak", 0), "streak_bonus": min(PROFILES.STREAK_CAP, p.get("rstreak", 0) * PROFILES.STREAK_STEP), "streak_cap": PROFILES.STREAK_CAP, "streak_step": PROFILES.STREAK_STEP, "level": lv, "games": p.get("games", 0), "wins": p.get("wins", 0),
             "rgames": p.get("rgames", 0), "rwins": p.get("rwins", 0), "playtime": p.get("playtime", 0), "ach": len(p.get("ach", {})),
             "chars": sorted(([n, v[0], v[1]] for n, v in p.get("chars", {}).items()), key=lambda x: (-x[1], -x[2]))[:3]}
 
@@ -570,7 +657,7 @@ def leaderboard(me=""):
         p = PROFILES.d.get(t)
         if not p:
             continue
-        rows.append({"name": rk.get(k) or acc["user"], "acc": acc["user"].lower(), "me": t == me, "lv": PROFILES.rank_label(p.get("rp", 0)), "rp": p.get("rp", 0), "rp_next": PROFILES.rank(p.get("rp", 0))[3], "xp": p["xp"],
+        rows.append({"name": rk.get(k) or acc["user"], "acc": acc["user"].lower(), "me": t == me, "lv": PROFILES.rank_tag(p), "pres": p.get("pres", 0), "rp": p.get("rp", 0), "rp_next": PROFILES.rank(p.get("rp", 0))[3], "xp": p["xp"],
                      "games": p.get("rgames", 0), "wins": p.get("rwins", 0), "playtime": p.get("playtime", 0), "avatar": PROFILES.avatar_url(t), "style": PROFILES.style(t), "dev": PROFILES.dev(t)})
     return {"rows": rows}
 OPEN_API = {"/api/about", "/api/rooms", "/api/cardcat", "/api/cosmetics", "/api/i18n", "/api/roster", "/api/me", "/api/login", "/api/register"}
@@ -585,6 +672,8 @@ class Manager:
         self.lock = threading.Lock()
         self.plock = threading.RLock()
         self.room_name, self.owner, self.created = "房間", None, time.time()
+        self.act = self.created      # 房間裡最後一次有人操作 (不是單純開著網頁) 的時間
+        self.over_at = None          # 這局結束的時間 (新局開始會清掉)
         self.game = None
         self.thread = None
         self.rec = Recorder()
@@ -905,7 +994,7 @@ class Manager:
         g = self.game
         pl = g.players[seat]
         lv = [self._level(self.cfg, i) for i in range(len(g.players)) if i not in self.claims]
-        r = PROFILES.award(tok, False, pl._char.name if getattr(pl, "_char", None) else None, pl.role, None, True, None, {"hp": pl.hp, "alive": pl.alive}, loss_rp=round(1.5 * (Profiles.LOSS_RP.get(round(sum(lv) / len(lv)), 25) if lv else 25)), secs=time.time() - getattr(self, "game_t0", time.time()))
+        r = PROFILES.award(tok, False, pl._char.name if getattr(pl, "_char", None) else None, pl.role, None, True, None, {"hp": pl.hp, "alive": pl.alive}, loss_rp=round(1.5 * (Profiles.LOSS_RP.get(round(sum(lv) / len(lv)), 25) if lv else 25)), secs=time.time() - getattr(self, "game_t0", time.time()), coins=0)
         who = self.nicks.get(tok) or "未命名"
         if r:
             d, b, a = r
@@ -1042,6 +1131,7 @@ class Manager:
     def _launch(self):
         cfg, n = self.cfg, self.cfg["n"]
         want = cfg["want"]
+        self.over_at = None
         chars = []
         for i, w in enumerate(want):
             if w == "none":
@@ -1125,6 +1215,8 @@ class Manager:
             g.run()
             if not self.abort and g.winner:
                 self._award(g)
+            if self.game is g and not self.abort:
+                self.over_at = time.time()
         except AbortGame:
             pass
         except Exception as ex:  # 規則引擎錯誤: 顯示在 GUI 上
@@ -1459,6 +1551,9 @@ def list_rooms(tok=None):
     return out
 
 
+IDLE_AFTER_OVER = 300
+
+
 def reap_rooms():
     """沒人在線的自訂房間: 沒開局的 1 分鐘後刪除,對局進行中的 3 分鐘後停掉對局並刪除 (給手機切換程式 / 斷線重連一點時間)。"""
     now = time.time()
@@ -1466,7 +1561,10 @@ def reap_rooms():
         if rid == "main" or m.public:
             continue
         last = max([m.created] + list(m.seen.values()))
-        if now - last > (180 if m.game_active() else 60):
+        present = [t for t, x in m.seen.items() if now - x < m.OFFLINE_AFTER]
+        idle_over = (m.over_at is not None and not m.game_active() and len(present) <= 1
+                     and now - max(m.over_at, m.act) > IDLE_AFTER_OVER)   # 遊戲結束後只剩一個人掛機 5 分鐘: 請回大廳並刪除房間
+        if idle_over or now - last > (180 if m.game_active() else 60):
             m.abort = True; m._ans_ev.set(); m._step_ev.set()
             with ROOMS_LOCK:
                 ROOMS.pop(rid, None)
@@ -1528,7 +1626,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("X-Frame-Options", "DENY")
         self.send_header("Referrer-Policy", "no-referrer")
-        self.send_header("Cache-Control", "no-store" if ctype.startswith(("application/json", "application/javascript", "text/")) else "max-age=3600")
+        self.send_header("Cache-Control", "no-store" if ctype.startswith(("application/json", "application/javascript", "text/", "image/svg")) else "max-age=3600")
         self.end_headers()
         self.wfile.write(body)
 
@@ -1672,6 +1770,15 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(200, {"version": VERSION, "repo": REPO, "changelog": log})
             if path.startswith("/thumb/char/"):
                 return self._file(make_thumb(path[len("/thumb/char/"):]))
+            if path.startswith("/cards/"):   # 卡面 / 卡背 (SVG,程式即時產生): /cards/<牌名>.svg?bg=<卡面風格>、/cards/_back.svg?bk=<卡背>
+                fn = os.path.basename(path)
+                if not fn.endswith(".svg"):
+                    return self._send(404, {"error": "not found"})
+                nm = fn[:-4]
+                body = cardart.svg_back(q.get("bk", [""])[0]) if nm == "_back" else cardart.svg(nm, q.get("bg", [""])[0])
+                if body is None:
+                    return self._send(404, {"error": "not found"})
+                return self._send(200, body.encode("utf-8"), "image/svg+xml")
             if path.startswith("/assets/sgs_sim/web/hp/"):   # 血量圖示 (隨程式附上,不在素材資料夾)
                 return self._file(os.path.join(WEB, "hp", os.path.basename(path)))
             if path.startswith("/assets/"):
@@ -1719,7 +1826,13 @@ class Handler(BaseHTTPRequestHandler):
             if path == "/api/ach_ack":
                 return self._send(200, PROFILES.ack_ach(data.get("tok")))
             if path == "/api/cosmetic":
-                return self._send(200, PROFILES.set_style(data.get("tok"), data.get("frame"), data.get("fx"), data.get("theme"), data.get("box")))
+                return self._send(200, PROFILES.set_style(data.get("tok"), data.get("frame"), data.get("fx"), data.get("theme"), data.get("box"), data.get("cardbg"), data.get("cardback")))
+            if path == "/api/buy":
+                return self._send(200, PROFILES.buy(data.get("tok"), str(data.get("kind") or ""), str(data.get("id") or "")))
+            if path == "/api/prestige":
+                if is_playing(data.get("tok")):
+                    return self._send(200, {"ok": False, "error": "對局進行中不能轉生,請先離開或等這場結束"})
+                return self._send(200, PROFILES.prestige(data.get("tok")))
             if path == "/api/rank_ack":
                 return self._send(200, PROFILES.ack_rank(data.get("tok"), data.get("id")))
             if path == "/api/avatar":
@@ -1793,6 +1906,8 @@ class Handler(BaseHTTPRequestHandler):
             M = ROOMS.get(data.get("room") or "main")
             if M is None:
                 return self._send(200, {"ok": False, "gone": True, "error": "房間已不存在"})
+            if path != "/api/leave":
+                M.act = time.time()
             if M.is_kicked(data.get("tok")) and path != "/api/leave":
                 return self._send(200, {"ok": False, "kicked": True, "error": "你被房主踢出了這個房間"})
             if not M.can_enter(data.get("tok")):
@@ -1852,7 +1967,7 @@ def main():
                 pass
     threading.Thread(target=_tick, daemon=True).start()
     url = f"http://127.0.0.1:{PORT}/"
-    print("三國殺重製版 GUI:", url, "(Ctrl+C 結束)")
+    print("進化三國 GUI:", url, "(Ctrl+C 結束)")
     if lan:
         import socket
         try:

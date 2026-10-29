@@ -3,6 +3,7 @@ import time
 import os
 import re
 from cards import ViewCard
+import cardart
 from characters import SkillAct, ROSTER
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -28,6 +29,9 @@ def card_img(name, color):
     key = (name, color)
     if key not in _img_cache:
         url = None
+        if name in cardart.E:   # 新卡面 (SVG,不分紅黑;依牌名畫,風格由玩家選的「卡面」決定)
+            _img_cache[key] = "/cards/" + name + ".svg"
+            return _img_cache[key]
         for stem in (color + name, color + ALIAS.get(name, name)):
             for ext in (".png", ".jpg"):
                 if os.path.exists(os.path.join(CARD_DIR, stem + ext)):
@@ -79,6 +83,20 @@ def full_name(name):
     return re.sub(r"^[⚡⏳]\s*", "", m.group(1)).strip() if m else name
 
 
+def bolt_name(name):
+    """卡面上的牌名: ⚡ 連鎖型錦囊 (可在傷害結算前使用) 前面加 ⚡,例: ⚡占卜。"""
+    return ("⚡" if DESC.get(name, "").startswith("⚡") else "") + full_name(name)
+
+
+TYPE_LABEL = {"basic": "基本牌", "trick": "錦囊", "weapon": "武器", "armor": "防具", "horse": "坐騎"}
+
+
+def type_label(name, kind):
+    if cardart.KIND.get(name) == "delay":
+        return "延時錦囊"
+    return TYPE_LABEL.get(kind, "")
+
+
 def card_dict(c):
     if isinstance(c, SkillAct):
         return {"id": "skill:" + c.name, "name": c.name, "color": "", "kind": "skill", "img": _skill_img(c.name),
@@ -86,16 +104,16 @@ def card_dict(c):
     real = getattr(c, "orig", c)
     d = {"id": real.id, "name": c.name, "color": c.color, "kind": c.kind,
          "img": card_img(getattr(real, "nature", None) or real.name, real.color),
-         "text": f"{c.color}{getattr(c, 'nature', None) or ''}{full_name(c.name)}",
-         "full": full_name(c.name), "nat": getattr(real, "nature", None) or "",
-         "desc": DESC.get(real.name, "")}
+         "text": f"{bolt_name(c.name)[:1] if bolt_name(c.name)[:1] == '⚡' else ''}{c.color}{getattr(c, 'nature', None) or ''}{full_name(c.name)}",
+         "full": full_name(c.name), "bolt": "⚡" if DESC.get(c.name, "").startswith("⚡") else "", "nat": getattr(real, "nature", None) or "",
+         "desc": DESC.get(real.name, ""), "tp": type_label(real.name, c.kind)}
     if getattr(real, "nature", None):
         d["desc"] = f"{real.nature}屬性殺: " + DESC["殺"]
     if isinstance(c, ViewCard):
         d["as"] = c.name
         d["real"] = real.name
-        d["text"] = f"{c.color}{full_name(c.name)}(←{full_name(real.name)})"
-        d["as_full"], d["real_full"] = full_name(c.name), full_name(real.name)
+        d["text"] = f"{d['bolt']}{c.color}{full_name(c.name)}(←{bolt_name(real.name)})"
+        d["as_full"], d["real_full"] = bolt_name(c.name), bolt_name(real.name)
     return d
 
 

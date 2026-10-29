@@ -3,7 +3,7 @@
 <head><script>try{var _t=localStorage.getItem("sgs_theme");if(!_t||JSON.parse(_t).a.toLowerCase()==="#d4a64a")document.documentElement.classList.add("gf")}catch(e){document.documentElement.classList.add("gf")}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover">
-<title>三國殺重製版</title>
+<title>進化三國</title>
 <style>
 
 :root{
@@ -69,8 +69,15 @@ input[type=range]{accent-color:var(--accent);padding:0}
 .mini img{width:30px;height:43px;border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,.5);cursor:help}
 .card{position:relative;width:108px;height:154px;border-radius:9px;border:2px solid #2a3544;background:#0d0f13;flex:none;overflow:hidden;cursor:default;box-shadow:0 4px 10px rgba(0,0,0,.5);transition:transform .15s,box-shadow .15s}
 .card img{width:100%;height:100%;object-fit:cover;display:block}
-.card .lab{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(0,0,0,.85));font-size:12px;text-align:center;padding:10px 1px 2px}
-.card.red .lab{color:#ff9a95}.card.blk .lab{color:var(--black)}
+.card .lab{position:absolute;left:0;right:0;top:0;background:linear-gradient(rgba(0,0,0,.88) 55%,transparent);font-size:12px;font-weight:700;text-align:center;padding:2px 1px 10px;z-index:1}
+.prchip{display:inline-flex;align-items:center;gap:2px;font-size:13px;font-weight:700;padding:4px 9px;border-radius:999px;border:1px solid var(--line,#555);color:#9aa3b2;background:rgba(255,255,255,.04)}
+.prchip b{font-size:15px}
+.prchip.on{color:#ffd24a;border-color:#ffd24a;background:rgba(255,210,74,.12)}
+.card .tp{position:absolute;left:3px;bottom:3px;z-index:1;background:rgba(30,20,10,.82);color:#f3e8c8;border:1px solid rgba(243,232,200,.55);border-radius:3px;font-size:10px;font-weight:700;line-height:1;padding:2px 4px;pointer-events:none;white-space:nowrap}
+.sitem .card .tp{display:none}
+.card .lab::before{content:"";display:inline-block;width:.62em;height:.62em;border-radius:50%;margin-right:3px;vertical-align:0;background:currentColor;box-shadow:0 0 0 1px rgba(255,255,255,.7)}
+.card.red .lab{color:#ff8a84}.card.blk .lab{color:#e8edf3}.card.blk .lab::before{background:#14181e}
+.cbk{display:inline-block;width:12px;height:17px;margin-left:5px;vertical-align:-3px;border-radius:2px;box-shadow:0 0 0 1px rgba(255,255,255,.35)}
 .card.noimg{display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;background:linear-gradient(160deg,#222c38,#141a22)}
 .card.noimg.red{color:#ff9a95}.card.noimg.blk{color:var(--black)}
 .card.ok{cursor:pointer;border-color:var(--green);box-shadow:0 0 12px rgba(83,201,138,.35),0 4px 10px rgba(0,0,0,.5)}
@@ -465,6 +472,9 @@ body:has(#modal .modal:not(.soft)) #bHand{display:none!important}   /* 新遊戲
 .rnew{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}.rnew input{flex:1 1 180px;min-width:0}.rnew #rpw{flex:1 1 130px}.rnew #rcap{flex:0 1 auto;min-width:0}.rnew button{flex:none;white-space:nowrap}
 @media (max-width:560px){.rnew{flex-wrap:wrap}.rnew input{flex:1 1 100%;min-width:0;max-width:none!important;min-height:44px}.rnew #rpw{flex:1 1 0}.rnew #rcap{flex:none;min-height:44px}.rnew button{flex:none;white-space:nowrap;min-height:44px}}   /* 手機: 房間名稱獨佔一列,密碼和按鈕同一列 (原本按鈕被擠成直排、溢出卡片) */
 #rlist{display:flex;flex-direction:column;gap:8px;max-height:55vh;overflow:auto}
+.rkcoin{font-weight:700;color:#ffd24a;margin:4px 0}
+.prestbox{display:flex;gap:10px;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#2a1d04,#3a2a08);border:1px solid #c99419;border-radius:10px;padding:10px 12px;margin:10px 0}
+.rk.pres{box-shadow:0 0 0 1px #ffd24a,0 0 6px rgba(255,210,74,.55)}
 .rrow{display:flex;align-items:center;gap:10px;background:#0e2442;border:1px solid #24496f;border-radius:10px;padding:10px 12px}
 .rrow .ri{flex:1;min-width:0}.rrow .rn{font-weight:700}.rrow .rm{font-size:12px;color:var(--dim)}
 .rrow .st{font-size:12px;padding:2px 8px;border-radius:99px;background:#17304f;color:#9fe0ff;white-space:nowrap}
@@ -491,7 +501,7 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
 #roomname{margin:0 2px}
 #top input[type=range]{width:64px}
 @media(max-width:1800px){#top label:has(#peek){display:none}}
-@media(max-width:1600px){#top .title{display:none}#speedv{display:none}}
+@media(max-width:1600px){#top .title{display:none}#speedv{font-size:12px;min-width:34px;text-align:right}}
 @media(max-width:1450px){#hostbar{display:none}#roomname{display:none}}
 @media(max-width:1250px){#top label:has(#speed){display:none}}
 .profchip{display:inline-flex!important;align-items:center;gap:6px}
@@ -579,9 +589,11 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
   .snum{top:-6px;left:-5px;min-width:16px;height:16px;line-height:16px;font-size:10px}
   .swho{font-size:10px;max-width:46px;overflow:hidden;text-overflow:ellipsis}
   .sarrow{font-size:12px}
-  .card .lab{font-size:9px;padding-top:6px}
+  .card .lab{font-size:9px;padding-bottom:6px}
+  .card .tp{font-size:8px;padding:1px 3px;left:2px;bottom:2px}
+  .pile .card .tp{display:none}
   .pile .card .info,.sitem .card .info{display:none}
-  .pile .card .lab,.sitem .card .lab{font-size:8px;letter-spacing:-.3px;padding:8px 0 2px}
+  .pile .card .lab,.sitem .card .lab{font-size:8px;letter-spacing:-.3px;padding:2px 0 8px}
   #table{gap:5px}
   .pl,#table.mid .pl,#table.dense .pl{position:relative!important;left:auto!important;top:auto!important;transform:none!important;width:calc(50% - 3px);padding:4px 5px;gap:5px;align-items:flex-start;min-height:0}
   .pl .ph,#table.dense .pl .ph{width:34px;height:48px}
@@ -640,12 +652,16 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
 .rkdelta{font-size:26px;font-weight:800;margin-top:10px;white-space:nowrap;overflow:hidden}.rkdelta.plus{color:#46e0a0}.rkdelta.minus{color:#ff6b7f}
 .rkflow{display:flex;align-items:center;justify-content:center;gap:12px}.rkarr{font-size:22px;color:var(--accent)}
 .rankup .rk.big:last-child{animation:rkpop .6s ease-out}@keyframes rkpop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
+/* 身分標籤: 印章造型 (文字本身已標明身分) */
+.role{border-radius:4px;padding:1px 8px;font-weight:800;letter-spacing:1px;border:1px solid rgba(0,0,0,.55);box-shadow:inset 0 0 0 1px rgba(255,255,255,.45),0 1px 2px rgba(0,0,0,.4);text-shadow:0 1px 0 rgba(0,0,0,.35)}
+.role.主公{background:linear-gradient(#e0504a,#8f1f1c);box-shadow:inset 0 0 0 1px #ffd24a,0 1px 2px rgba(0,0,0,.4)}
+.role.忠臣{color:#2b2000}.role.忠臣,.role.反賊,.role.內奸{text-shadow:none}
 </style>
 <body>
 <div id="app">
   <div id="top">
     <button id="bMenu" type="button" aria-label="選單" aria-expanded="false" aria-controls="top"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button>
-    <span class="title">三國殺重製版</span><button id="bRooms" title="回到大廳,選擇或創建房間">🚪 大廳</button><span id="roomname"></span><button id="bMembers" title="房間裡的成員">👥 <span id="mcnt">1</span></button><span class="sepv"></span><span id="hostbar"></span>
+    <span class="title">進化三國</span><button id="bRooms" title="回到大廳,選擇或創建房間">🚪 大廳</button><span id="roomname"></span><button id="bMembers" title="房間裡的成員">👥 <span id="mcnt">1</span></button><span class="sepv"></span><span id="hostbar"></span>
     <button id="bPause" class="primary">暫停</button>
     <button id="bNew">新遊戲</button><button id="bForfeit" hidden title="段位模式: 直接認輸並扣分">🏳 棄賽</button>
     <button id="bStep" hidden style="display:none" title="暫停時前進一行紀錄">單步</button>
@@ -684,7 +700,7 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
   <div id="mnav"><button data-m="" class="on">牌桌</button><button data-m="log">紀錄</button><button data-m="ch">武將</button><button data-m="cd">卡牌</button><button data-m="cc">聊天</button></div>
 </div>
 <div id="auth"><div class="rbox">
-  <h2>三國殺重製版</h2>
+  <h2>進化三國</h2>
   <div class="meta" id="authmsg">請登入或註冊後開始遊戲</div>
   <div class="atabs"><button id="aLogin" class="on">登入</button><button id="aReg">註冊</button></div>
   <input id="auser" type="text" maxlength="10" placeholder="使用者名稱 或 UID" autocomplete="username">
@@ -694,7 +710,7 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
   <div class="meta" style="margin-top:8px" id="ahint">舊帳號 / 沒設密碼的帳號,預設密碼是 12345,登入後請到「個人資訊」修改。</div>
 </div></div>
 <div id="rooms"><div class="rbox">
-  <h2>三國殺重製版 · 大廳<span id="lobbycount"></span></h2>
+  <h2>進化三國 · 大廳<span id="lobbycount"></span></h2>
   <div id="lobbytools" role="group" aria-label="快捷功能"></div>
   <div class="rnew"><input id="rname" type="text" maxlength="20" placeholder="房間名稱 (例如: 阿明的房間)"><input id="rpw" type="password" maxlength="20" placeholder="房間密碼 (可不設)" autocomplete="new-password" style="max-width:150px"><select id="rcap" title="房間人數上限 (含觀戰的人)"><option value="0">人數不限</option><option value="2">上限 2 人</option><option value="3">上限 3 人</option><option value="4">上限 4 人</option><option value="5">上限 5 人</option><option value="6">上限 6 人</option><option value="7">上限 7 人</option><option value="8">上限 8 人</option><option value="9">上限 9 人</option><option value="10">上限 10 人</option></select><button id="rcreate" class="primary">創建房間</button></div>
   <div class="rnew"><button id="rsolo" class="primary" title="自己一個人和電腦對打 (房間不公開)">🤖 單人模式 (和電腦對打)</button></div>
@@ -746,10 +762,18 @@ async function api(path, body) {
 }
 
 /* ---------- 卡片元件 ---------- */
-function cardEl(c, cls, onclick) {
+function bkEl(seat) {   // 手牌數旁邊顯示這位玩家選的卡背 (其他人看得到)
+  const st = S.snap && S.snap.avstyles ? S.snap.avstyles[seat] : null, bk = st && st.bk;
+  return bk ? h("img", {class: "cbk", src: "/cards/_back.svg?bk=" + encodeURIComponent(bk), alt: "", title: "卡背"}) : null;
+}
+function cbOf(seat) { const st = S.snap && S.snap.avstyles && seat != null ? S.snap.avstyles[seat] : null; return (st && st.cb) || ""; }   // 這個座位的玩家選的卡面風格
+function cardEl(c, cls, onclick, seat) {
   const col = c.color === "紅" ? "red" : "blk";
   const e = h("div", {class: "card " + col + (c.img ? "" : " noimg") + (cls ? " " + cls : ""), title: c.text || c.name});
-  if (c.img) { e.append(h("img", {src: c.img, loading: "lazy"})); e.append(h("div", {class: "lab", text: c.as ? (c.as_full || c.as) + "←" + (c.real_full || c.real) : c.color + (c.nat || "") + (c.full || c.name)})); }
+  if (seat === undefined) seat = S.snap && S.snap.viewer;   // 沒指定是誰的牌 (手牌 / 選項): 用自己的卡面;不知道是誰打的 (棄牌堆) 傳 null
+  const bg = cbOf(seat), src = c.img && bg && c.img.startsWith("/cards/") ? c.img + "?bg=" + encodeURIComponent(bg) : c.img;
+  if (c.img) { e.append(h("img", {src: src, loading: "lazy"})); e.append(h("div", {class: "lab", text: c.as ? (c.as_full || c.as) + "←" + (c.real_full || c.real) : (c.bolt || "") + c.color + (c.nat || "") + (c.full || c.name)}));
+    if (c.tp) e.append(h("div", {class: "tp", text: c.tp})); }
   else e.textContent = c.text || c.name;
   if (onclick) e.onclick = onclick;
   bindPrev(e, c);
@@ -866,12 +890,12 @@ function eqEl(c, lab, judge, pick) {   // pick: 丁奉等「選一件裝備」�
 function miniEl(c) { return c.img ? (() => { const i = h("img", {src: c.img, onclick: () => c.desc && showCardInfo(c)}); bindPrev(i, c); return i; })() : h("span", {class: "tag", text: c.text}); }
 
 /* ---------- 桌面 ---------- */
-function hearts(p) {   // 體力以「陰陽球」圖示表示: 顏色依剩餘比例由綠→黃→橘,空槽為灰色
+function hearts(p) {   // 體力以「玉璧」圖示表示: 實心玉 = 剩餘體力 (顏色依剩餘比例由綠→金→橘→朱紅),虛線空心 = 已失去 (不只靠顏色分辨)
   const f = Math.max(0, p.hp), r = p.maxhp ? p.hp / p.maxhp : 0;
   const lv = p.hp <= 1 || r <= 0.25 ? 3 : r <= 0.5 ? 2 : r <= 0.75 ? 1 : 0;
   const s = h("span", {class: "hp" + (p.hp <= 1 && p.alive ? " low" : ""), title: `體力 ${p.hp}/${p.maxhp}`});
-  if (p.maxhp > 5) { s.append(h("img", {src: `/assets/sgs_sim/web/hp/orb${lv}.png`, class: "o"}), h("span", {class: "hpn", text: ` ×${p.hp}/${p.maxhp}`})); return s; }
-  for (let i = 0; i < p.maxhp; i++) s.append(h("img", {src: i < f ? `/assets/sgs_sim/web/hp/orb${lv}.png` : "/assets/sgs_sim/web/hp/orb_empty.png", class: i < f ? "o" : "o e"}));
+  if (p.maxhp > 5) { s.append(h("img", {src: `/assets/sgs_sim/web/hp/jade${lv}.svg`, class: "o"}), h("span", {class: "hpn", text: ` ×${p.hp}/${p.maxhp}`})); return s; }
+  for (let i = 0; i < p.maxhp; i++) s.append(h("img", {src: i < f ? `/assets/sgs_sim/web/hp/jade${lv}.svg` : "/assets/sgs_sim/web/hp/jade_empty.svg", class: i < f ? "o" : "o e"}));
   s.append(h("span", {class: "hpn", text: ` ${p.hp}/${p.maxhp}`}));
   return s;
 }
@@ -895,7 +919,7 @@ function showHandView() {   // 觀戰: 滑鼠移到玩家 (或點選釘住) 就�
   V.textContent = "";
   V.append(h("div", {class: "hvh"}, h("b", {text: "P" + p.idx + " " + ((p.disguise_kind === "disguise" && p.disguise) || p.char || "無名")}), h("span", {class: "meta", text: ` ${p.role === "?" ? "" : p.role + " · "}體力 ${p.hp}/${p.maxhp} · 手牌 ${p.hand.length} · 點擊其他玩家切換`})));
   const row = h("div", {class: "hvc"});
-  p.hand.forEach(c => row.append(cardEl(c, "", () => showCardInfo(c))));
+  p.hand.forEach(c => row.append(cardEl(c, "", () => showCardInfo(c), p.idx)));
   if (!p.hand.length) row.append(h("span", {class: "meta", text: "(沒有手牌)"}));
   V.append(row);
   V.style.display = "block";
@@ -920,7 +944,8 @@ function bindHover() {
 function devEl(d) { return d ? h("span", {class: "rk", style: {background: "#7a3cff", color: "#fff", margin: "0 4px 0 4px"}, title: "遊戲開發者", text: "開發者"}) : null; }
 function rkEl(r, big) {   // 段位標籤 (例: 黃金2)
   if (!r) return null;
-  return h("span", {class: "rk rk-" + String(r).replace(/\d+$/, "") + (big ? " big" : ""), title: "段位 " + r, text: r});
+  const m = /^(★\d+) (.+)$/.exec(String(r)), base = m ? m[2] : String(r);   // Prestige: 「★2 青銅3」
+  return h("span", {class: "rk rk-" + base.replace(/\d+$/, "") + (m ? " pres" : "") + (big ? " big" : ""), title: (m ? "轉生 " + m[1].slice(1) + " 次 · " : "") + "段位 " + base, text: r});
 }
 function setRoundTag(snap) {   // 左上角: 第幾輪 + 牌堆張數
   if (snap.over && !S.overSeen) { S.overSeen = true; [1500, 4000].forEach(t => setTimeout(loadProfile, t)); }   // 對局結束: 盡快讀檔案,有升降段就跳視窗
@@ -1029,7 +1054,7 @@ function renderTable0(snap) {
     (p.badges || []).forEach(b => tags.append(h("span", {class: "tag bd bd-" + b.k, text: b.t})));
     const inf = h("div", {class: "inf"},
       h("div", {class: "nm"}, h("span", {class: "pn", title: p.char || "", text: "P" + p.idx + " " + ((p.disguise_kind === "disguise" && !p.dg_flip && p.disguise) || p.char || "無名")}), role, winners.has(p.idx) ? h("span", {class: "winb", text: "🏆 勝"}) : ""),
-      h("div", {}, hearts(p)), (zhPick && zhPick.has(p.idx) ? h("div", {class: "meta hpick", title: "隨機選一張手牌", text: "手牌 " + p.hand_n + " ▸", onclick: ev => { ev.stopPropagation(); zsub(zhPick.get(p.idx))(); }}) : h("div", {class: "meta", text: "手牌 " + p.hand_n})), h("div", {class: "who " + (p.is_viewer ? "me" : p.human && p.nick ? "hum" : "ai")}, (p.nick || p.is_viewer) ? avEl(p.avatar, (snap.avstyles || {})[p.idx], {class: "av"}) : avEl("bot", (snap.avstyles || {})[p.idx], {class: "av"}), h("span", {class: "wn"}, (p.is_viewer ? "你" + (p.nick ? "(" + p.nick + ")" : "") : p.human ? (p.nick || "🤖 電腦代打") : "🤖 電腦" + (snap.ai_lv && snap.ai_lv[p.idx] ? " · " + diffLabels()[snap.ai_lv[p.idx] - 1] : ""))), p.nick || p.is_viewer ? [" ", rkEl(p.lv)] : null, p.host_seat ? " 👑房主" : ""),
+      h("div", {}, hearts(p)), (zhPick && zhPick.has(p.idx) ? h("div", {class: "meta hpick", title: "隨機選一張手牌", text: "手牌 " + p.hand_n + " ▸", onclick: ev => { ev.stopPropagation(); zsub(zhPick.get(p.idx))(); }}) : h("div", {class: "meta"}, "手牌 " + p.hand_n, bkEl(p.idx))), h("div", {class: "who " + (p.is_viewer ? "me" : p.human && p.nick ? "hum" : "ai")}, (p.nick || p.is_viewer) ? avEl(p.avatar, (snap.avstyles || {})[p.idx], {class: "av"}) : avEl("bot", (snap.avstyles || {})[p.idx], {class: "av"}), h("span", {class: "wn"}, (p.is_viewer ? "你" + (p.nick ? "(" + p.nick + ")" : "") : p.human ? (p.nick || "🤖 電腦代打") : "🤖 電腦" + (snap.ai_lv && snap.ai_lv[p.idx] ? " · " + diffLabels()[snap.ai_lv[p.idx] - 1] : ""))), p.nick || p.is_viewer ? [" ", rkEl(p.lv)] : null, p.host_seat ? " 👑房主" : ""),
       tags);
     { const who = inf.querySelector(".who"), nmEl = inf.querySelector(".nm");   // 玩家資訊 (暱稱 / 等級) 寫在武將名字的上面,都放在框外
       if (who && nmEl) { const row = h("div", {class: "nr"}); while (nmEl.firstChild) row.append(nmEl.firstChild); nmEl.append(who); inf.insertBefore(row, nmEl.nextSibling); } }   // 框外左上角只放頭貼+玩家資訊;P幾/武將名稱/身分放到框裡面、體力上面一排
@@ -1081,20 +1106,20 @@ function renderTable0(snap) {
   if (S.centerKey === ck) return;   // 內容沒變就不重畫,滑鼠停在牌上才看得到說明
   S.centerKey = ck; c.textContent = "";
   const piles = h("div", {class: "piles"}), piles2 = h("div", {class: "piles pchain"});
-  if (snap.discard_top) piles.append(h("div", {class: "pile"}, h("div", {class: "meta", text: "棄牌堆 " + snap.discard}), cardEl(snap.discard_top, "", () => showCardInfo(snap.discard_top))));
+  if (snap.discard_top) piles.append(h("div", {class: "pile"}, h("div", {class: "meta", text: "棄牌堆 " + snap.discard}), cardEl(snap.discard_top, "", () => showCardInfo(snap.discard_top), null)));
   if (snap.discard_chain && snap.discard_chain.length) {
     const st = h("div", {class: "pstack seq"});
     snap.discard_chain.forEach((dc, k) => {
       if (k) st.append(h("span", {class: "sarrow", text: "⟵"}));
       const wp = dc.who != null && snap.players[dc.who];
-      st.append(h("div", {class: "sitem"}, h("span", {class: "snum", text: String(k + 1 + (snap.discard_chain_off || 0))}), cardEl(dc, "", () => showCardInfo(dc)), wp ? h("div", {class: "swho", text: "P" + dc.who + " " + (wp.char || "")}) : ""));
+      st.append(h("div", {class: "sitem"}, h("span", {class: "snum", text: String(k + 1 + (snap.discard_chain_off || 0))}), cardEl(dc, "", () => showCardInfo(dc), dc.who), wp ? h("div", {class: "swho", text: "P" + dc.who + " " + (wp.char || "")}) : ""));
     });
     piles2.append(h("div", {class: "pile"}, h("div", {class: "meta", text: "本次連鎖"}), st));
   }
   if (snap.last_judge) piles.append(h("div", {class: "pile"}, h("div", {class: "meta", text: "判定結果" + (snap.last_judge.who != null ? " (P" + snap.last_judge.who + ")" : "")}), cardEl(snap.last_judge.card, "", () => showCardInfo(snap.last_judge.card))));
   if (snap.reveal && snap.reveal.cards.length) {
     const st = h("div", {class: "pstack rv"});
-    snap.reveal.cards.forEach(r => st.append(h("div", {class: "pile"}, h("div", {class: "meta", text: "P" + r.who}), cardEl(r.card, "", () => showCardInfo(r.card)))));
+    snap.reveal.cards.forEach(r => st.append(h("div", {class: "pile"}, h("div", {class: "meta", text: "P" + r.who}), cardEl(r.card, "", () => showCardInfo(r.card), r.who))));
     piles.append(h("div", {class: "pile"}, h("div", {class: "meta", text: snap.reveal.title + " 亮牌"}), st));
   }
   if (!snap.winner) { c.append(piles); if (piles2.children.length) c.append(piles2); }   // 遊戲結束: 收起牌堆與連鎖,留空間給「再來一局」
@@ -2292,10 +2317,33 @@ function showRankNote(n) {   // 升段 / 降段 視窗
       n.changed ? h("div", {class: "rkflow"}, rkEl(n.from, true), h("span", {class: "rkarr", text: "➜"}), rkEl(n.to, true)) : h("div", {class: "rkflow"}, rkEl(n.to, true)),
       n.ranked ? h("div", {class: "rkdelta " + (n.delta > 0 ? "plus" : n.delta < 0 || (!n.won && !n.draw && !n.partial) ? "minus" : ""), text: `段位積分 ${n.draw ? (n.delta > 0 ? "+" + n.delta : "±0") : n.delta === 0 && !n.won && !n.partial ? "-0" : (n.delta > 0 ? "+" : "") + n.delta}` + (n.bonus ? ` (含連勝獎勵 +${n.bonus})` : "") + (n.won && n.streak > 1 ? ` · ${n.streak} 連勝` : "")})
                : h("div", {class: "rkdelta", text: "休閒模式 · 積分不變"}),
-      h("div", {class: "meta", style: {margin: "6px 0 14px"}, text: `目前 ${n.rp} 分` + (n.next ? ` · 距離 ${n.next} 還差 ${n.need} 分` : " · 已是最高段位")}),
+      n.coins ? h("div", {class: "rkcoin", text: `💰 +${n.coins} 遊戲幣 (共 ${n.total_coins})`}) : null,
+      h("div", {class: "meta", style: {margin: "6px 0 14px"}, text: `目前 ${n.rp} 分` + (n.next ? ` · 距離 ${n.next} 還差 ${n.need} 分` : " · 已是最高段位,可以到「玩家資訊」按「轉生」")}),
       h("button", {class: "primary big", text: "確定", onclick: close}))));
   const rkd = box.querySelector(".rkdelta"); if (rkd) { fitText(rkd, 26); setTimeout(() => fitText(rkd, 26), 120); }   // 這行不換行,太長就縮小字
   if (window.SGS_FX && SGS_FX.sfx) try { if (n.changed) SGS_FX.sfx(n.up ? "rankup" : "rankdown"); } catch (e) {}   // 只有升降段才響 (勝負音效遊戲結束時已播)
+}
+function confirmPrestige(p) {
+  const M = $("#modal2"); M.textContent = "";
+  const close = () => { M.textContent = ""; };
+  const next = (p.pres || 0) + 1;
+  M.append(h("div", {class: "modal", onclick: e => { if (e.target.classList.contains("modal")) close(); }}, h("div", {class: "dlg", style: {maxWidth: "400px"}},
+    h("div", {class: "dh"}, h("div", {}, h("h3", {text: "🌟 轉生 " + next})), h("button", {class: "x", text: "✕", onclick: close})),
+    h("div", {class: "dbody"},
+      h("p", {text: "確定要轉生嗎?"}),
+      h("ul", {class: "meta", style: {paddingLeft: "20px", lineHeight: "1.7"}},
+        h("li", {text: "段位積分歸零,回到「青銅3」 (電腦對手也會回到最弱)。"}),
+        h("li", {text: "名字旁邊會多一個 ★" + next + " 標記。"}),
+        h("li", {text: "外觀、成就、戰績和已買的東西都保留。"}),
+        h("li", {text: "第一次轉生會解鎖成就「榮耀轉生」和轉生 1 頭像框;每次轉生獲得聲望 (" + (15 + 5 * next) + "),可到商店買聲望限定外觀。"})),
+      h("div", {style: {display: "flex", justifyContent: "flex-end", gap: "8px", marginTop: "12px"}},
+        h("button", {text: "取消", onclick: close}),
+        h("button", {class: "primary", text: "確定轉生", onclick: async e => {
+          e.target.disabled = true;
+          const r = await api("/api/prestige", {});
+          if (!r || !r.ok) { toast((r && r.error) || "失敗"); close(); return; }
+          close(); await loadProfile(); toast("🌟 轉生 " + r.pres + " 次!獲得 " + r.reward + " 聲望", "ok"); showProfile();
+        }}))))));
 }
 async function showProfile() {
   const p = (await loadProfile()) || S.prof; if (!p) return;
@@ -2316,15 +2364,18 @@ async function showProfile() {
           h("div", {style: {display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap"}},
             h("div", {style: {fontSize: "28px", fontWeight: 800, lineHeight: 1.15, wordBreak: "break-all"}, text: myNick() || "未命名"}),
             S.nickLocked ? null : h("button", {text: "✎", title: "改暱稱", style: {padding: "3px 10px"}, onclick: () => { close(); showNickGate(true); }})),
-          h("div", {style: {margin: "6px 0"}}, devEl(p.dev), rkEl(p.rank, true)),
+          h("div", {style: {margin: "6px 0", display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap"}}, devEl(p.dev), rkEl(p.rank, true), h("span", {class: "prchip" + (p.pres ? " on" : ""), title: "轉生次數"}, h("span", {text: "轉生"}), " ", h("b", {text: String(p.pres || 0)}))),
           h("div", {style: {display: "flex", gap: "6px", flexWrap: "wrap"}},
             h("button", {text: "上傳頭貼", style: {whiteSpace: "nowrap", padding: "6px 10px"}, onclick: () => $("#avfile").click()}),
             p.avatar ? h("button", {text: "移除", style: {whiteSpace: "nowrap", padding: "6px 10px"}, onclick: async () => { await api("/api/avatar", {data: ""}); showProfile(); }}) : null,
-            h("button", {text: "🎨 外觀", style: {whiteSpace: "nowrap", padding: "6px 10px"}, onclick: () => { close(); SGS_THEME.open("theme"); }}))),
+            h("button", {text: "🎨 外觀", style: {whiteSpace: "nowrap", padding: "6px 10px"}, onclick: () => { close(); SGS_THEME.open("theme"); }}),
+            h("button", {text: "🛒 商店", style: {whiteSpace: "nowrap", padding: "6px 10px"}, onclick: () => { close(); SGS_THEME.open("shop"); }}))),
         h("input", {id: "avfile", type: "file", accept: "image/*", style: {display: "none"}, onchange: e => uploadAvatar(e.target.files[0])})),
       ...rkProgress(p),
         streakLine(p),
-      h("div", {style: {display: "flex", gap: "8px", flexWrap: "wrap", margin: "12px 0"}}, stat("總場數", p.games), stat("勝場", p.wins), stat("勝率", rate(p.wins, p.games)), stat("段位場", p.rgames || 0), stat("段位勝率", rate(p.rwins || 0, p.rgames || 0)), stat("遊玩時間", fmtPlay(p.playtime))),
+      p.can_prestige ? h("div", {class: "prestbox"}, h("div", {}, h("b", {text: "🌟 你已達到傳說!"}), h("div", {class: "meta", text: "按「轉生」回到青銅3重新出發,轉生次數 +1,並獲得聲望 (外觀、成就保留)。"})),
+        h("button", {class: "primary", text: "轉生", onclick: () => { close(); confirmPrestige(p); }})) : null,
+      h("div", {style: {display: "flex", gap: "8px", flexWrap: "wrap", margin: "12px 0"}}, stat("💰 遊戲幣", p.coins || 0), stat("🏵 聲望", p.renown || 0), stat("總場數", p.games), stat("勝場", p.wins), stat("勝率", rate(p.wins, p.games)), stat("段位場", p.rgames || 0), stat("段位勝率", rate(p.rwins || 0, p.rgames || 0)), stat("遊玩時間", fmtPlay(p.playtime))),
       h("div", {style: {fontWeight: 700, margin: "10px 0 4px"}, text: "最常使用的武將"}),
       chars.length ? h("div", {}, chars) : h("div", {class: "meta", text: "還沒有紀錄 (入座打完一場就會出現)"}),
       h("div", {style: {marginTop: "14px", display: "flex", gap: "8px", alignItems: "center"}},

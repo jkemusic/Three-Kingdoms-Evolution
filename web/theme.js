@@ -505,8 +505,8 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 .fx-meteor>.fxb{height:8px;left:40%;top:-6%;animation-name:fxmt2;animation-delay:-1.1s}
 @keyframes fxmt{0%{transform:translate(0,0) rotate(-40deg);opacity:0}10%{opacity:1}60%{opacity:1}100%{transform:translate(34px,34px) rotate(-40deg);opacity:0}}
 @keyframes fxmt2{0%{transform:translate(0,0) rotate(-40deg);opacity:0}10%{opacity:1}60%{opacity:1}100%{transform:translate(26px,30px) rotate(-40deg);opacity:0}}
-#cosdlg .tabs{display:flex;gap:6px;flex-wrap:nowrap;margin:4px 0 12px}
-#cosdlg .tabs button{flex:1 1 0;min-width:0;padding:6px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#cosdlg .tabs{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 12px}
+#cosdlg .tabs button{flex:1 1 auto;min-width:max-content;padding:6px 10px;white-space:nowrap}
 #cosdlg .tabs button.on{background:linear-gradient(180deg,#46d6ff,#1b9fd6);color:#021c2a;font-weight:700}
 #cosdlg .grid{display:flex;gap:10px;flex-wrap:wrap}
 #cosdlg .tile{width:92px;padding:10px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;border-radius:10px;position:relative;overflow:hidden}   /* 光柱 / 光環等頭像特效不要超出自己的框 */
@@ -528,7 +528,44 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 #cosdlg .ach .au{font-size:11px;color:var(--accent)}
 .achtoast{position:fixed;left:50%;top:18px;transform:translateX(-50%);z-index:9700;background:linear-gradient(160deg,#13264a,#0a152b);border:1px solid var(--accent);box-shadow:0 0 24px rgba(63,210,255,.4);border-radius:10px;padding:12px 18px;max-width:92vw;text-align:center;cursor:pointer;animation:tin .4s ease-out}
 @keyframes tin{from{opacity:0;transform:translate(-50%,-14px)}}
-.achtoast b{color:var(--gold)}`;
+.achtoast b{color:var(--gold)}
+#cosdlg .buyrow{display:flex;align-items:center;gap:10px;padding:10px 14px;margin:0 0 12px;border-radius:8px;background:rgba(60,44,8,.85);box-shadow:inset 0 0 0 1px #c99419}
+#cosdlg .buyrow button.danger{background:linear-gradient(180deg,#ff8a6a,#d6452a);color:#fff}
+/* ===== 商店新品: 頭像框 / 特效 / Prestige 框 ===== */
+.fr-pres1{--fb:linear-gradient(135deg,#fff3c4,#f0b429 50%,#8a5a00);box-shadow:0 0 8px rgba(255,200,60,.8)}
+.fr-pres2{--fb:linear-gradient(135deg,#e8fbff,#5ad0ff 50%,#1c6fb0);box-shadow:0 0 9px rgba(90,208,255,.85)}
+.fr-pres3{--fb:linear-gradient(135deg,#f3e6ff,#b57bff 50%,#5a2aa0);box-shadow:0 0 10px rgba(181,123,255,.9)}
+.fr-pres4{--fb:linear-gradient(135deg,#ffe6e6,#ff5a5a 50%,#8a1010);box-shadow:0 0 11px rgba(255,90,90,.9)}
+.avw.fr-pres5::before{background:conic-gradient(#ffd24a,#ff5da2,#5ad0ff,#7dffc3,#ffd24a);animation:frspin 3s linear infinite}
+.fr-pres5{box-shadow:0 0 12px rgba(255,210,74,.9),0 0 0 1px #fff}
+.fr-bronzeedge{--fb:linear-gradient(135deg,#e7b27a,#8a5a2b 40%,#4a2d12 60%,#d9a066);box-shadow:0 0 0 1px #2a1808,0 0 5px rgba(217,160,102,.6)}
+.fr-pearl{--fb:linear-gradient(135deg,#ffffff,#e8dff0 35%,#c9d9f0 65%,#ffffff);box-shadow:0 0 8px rgba(255,255,255,.7)}
+.fr-jadebi{--fb:linear-gradient(135deg,#eafff3,#35c58a 40%,#0a6b48 70%,#7dffc3);box-shadow:0 0 0 1px #ffe27a,0 0 6px rgba(60,220,160,.6)}
+.fr-cinnabar{--fb:linear-gradient(135deg,#ffb3a0,#d6331f 50%,#6a0f08);box-shadow:0 0 0 1px #ffd24a,0 0 7px rgba(214,51,31,.7)}
+.fr-azure{--fb:linear-gradient(160deg,#cfe6ff,#3a7bff 50%,#0a2a8a);box-shadow:0 0 8px rgba(58,123,255,.8)}
+.fr-candy{--fb:repeating-linear-gradient(45deg,#ff7fb5 0 6px,#fff 6px 12px);box-shadow:0 0 6px rgba(255,127,181,.7)}
+.fr-obsidian{--fb:linear-gradient(135deg,#050507,#3a2a55 45%,#0a0a10 70%,#6a4ab0);box-shadow:0 0 0 1px #9b7bff,0 0 8px rgba(155,123,255,.6)}
+.avw.fr-dragon::before{background:conic-gradient(#fff2a8,#f0b429,#b8741a,#f0b429,#fff2a8,#f0b429,#b8741a,#f0b429,#fff2a8);animation:frspin 5s linear infinite}
+.fr-dragon{box-shadow:0 0 0 1px #4a2d00,0 0 11px rgba(255,190,50,.9)}
+.fx-halo>.fxa{inset:-6px;border-radius:50%;z-index:3;border:2px solid rgba(255,235,150,.95);box-shadow:0 0 8px #ffe27a,inset 0 0 6px rgba(255,235,150,.6);animation:fxglow2 2.4s ease-in-out infinite}
+.fx-halo>.fxb{left:20%;right:20%;top:-14px;height:6px;border-radius:50%;z-index:3;border:2px solid rgba(255,235,150,.95);box-shadow:0 0 6px #ffe27a}
+.fx-twin>.fxa,.fx-twin>.fxb{inset:-6px;border-radius:50%;z-index:3;animation:frspin 2.8s linear infinite}
+.fx-twin>.fxb{animation-direction:reverse;animation-duration:3.6s}
+.fx-twin>.fxa::before,.fx-twin>.fxb::before{content:"";position:absolute;left:50%;top:-3px;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:#fff;box-shadow:0 0 6px 2px #ff7fd0,0 0 12px 4px rgba(255,127,208,.6)}
+.fx-twin>.fxb::before{background:#e8ffff;box-shadow:0 0 6px 2px #7fe8ff,0 0 12px 4px rgba(127,232,255,.6)}
+.fx-embers>.fxa,.fx-embers>.fxb{left:-4px;right:-4px;top:-8px;bottom:-2px;z-index:3;background:radial-gradient(circle,#ffb347 0 1.6px,transparent 2.6px) 18% 100%/22px 22px no-repeat,radial-gradient(circle,#ff6a2a 0 1.3px,transparent 2.3px) 60% 100%/26px 26px no-repeat,radial-gradient(circle,#ffe27a 0 1.2px,transparent 2.2px) 90% 100%/20px 20px no-repeat;animation:fxdu 2.2s ease-out infinite}
+.fx-embers>.fxb{animation-delay:-1.1s;background-position:38% 100%,78% 100%,6% 100%}
+.fx-bubble>.fxa,.fx-bubble>.fxb{left:-4px;right:-4px;top:-8px;bottom:-2px;z-index:3;background:radial-gradient(circle,rgba(255,255,255,.1) 0 2px,rgba(160,230,255,.9) 3px,transparent 4px) 20% 100%/24px 24px no-repeat,radial-gradient(circle,rgba(255,255,255,.1) 0 1.5px,rgba(200,240,255,.9) 2.5px,transparent 3.5px) 65% 100%/28px 28px no-repeat;animation:fxdu 2.8s ease-out infinite}
+.fx-bubble>.fxb{animation-delay:-1.4s;background-position:42% 100%,88% 100%}
+.avw.fr-rn_crown::before{background:conic-gradient(#fff2a8,#ffb300,#fff2a8,#ff6a00,#fff2a8);animation:frspin 4s linear infinite}
+.fr-rn_crown{box-shadow:0 0 12px rgba(255,190,40,.95),0 0 0 1px #fff}
+.avw.fr-rn_eternal::before{background:conic-gradient(#c28bff,#5ad0ff,#7dffc3,#ffd24a,#ff5da2,#c28bff);animation:frspin 2.4s linear infinite}
+.fr-rn_eternal{box-shadow:0 0 14px rgba(194,139,255,.95),0 0 0 1px #fff}
+.fx-rn_flame>.fxa{inset:-8px;z-index:-1;border-radius:50% 50% 45% 45%;background:radial-gradient(ellipse at 50% 80%,#fff 0,#ffd24a 30%,#ff5a1a 60%,rgba(255,60,0,0) 78%);filter:blur(2px);animation:fxki .4s ease-in-out infinite alternate}
+.fx-rn_flame>.fxb{inset:-4px;z-index:3;border-radius:50%;border:1.5px dashed rgba(255,210,74,.95);animation:frspin 3s linear infinite}
+.fx-rn_ring>.fxa,.fx-rn_ring>.fxb{inset:-8px;border-radius:50%;z-index:3;border:2px solid transparent;animation:frspin 3s linear infinite}
+.fx-rn_ring>.fxa{border-top-color:#ffd24a;border-bottom-color:#c28bff;filter:drop-shadow(0 0 4px #ffd24a)}
+.fx-rn_ring>.fxb{inset:-13px;border-left-color:#5ad0ff;border-right-color:#ff5da2;animation-direction:reverse;animation-duration:4.2s;filter:drop-shadow(0 0 4px #5ad0ff)}`;
   document.head.append(css);
 
   /* ---------- 對話框 ---------- */
@@ -976,14 +1013,31 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 
   function openDlg(tab) {
     const M = document.getElementById("modal2"); if (!M) return;   // 獨立一層: 不會被打牌詢問洗掉、大廳裡也能開
-    const mode = tab === "ach" ? "ach" : "look";
-    tab = tab === "ach" ? "ach" : (tab === "frame" || tab === "fx" || tab === "box") ? tab : "theme";
+    const mode = tab === "ach" ? "ach" : tab === "shop" ? "shop" : "look";
+    tab = tab === "ach" ? "ach" : (tab === "frame" || tab === "fx" || tab === "box" || tab === "cardbg" || tab === "cardback") ? tab : "theme";
     let pv = null;   // 預覽: 點到還沒解鎖的項目時,只預覽、不套用
     const render = () => {
       M.textContent = "";
       const close = () => { M.textContent = ""; };
       const p = prof() || {}, sel = p.sel || {}, mine = p.avatar || null;
       const achMode = mode === "ach";   // 成就和外觀是兩個分開的視窗
+      const shopMode = mode === "shop";   // 商店: 同一個視窗,只列出要用遊戲幣買的東西
+      const LST = L => (shopMode ? L.filter(x => x.req.t === "shop") : L);
+      const rq = x => (x.req.t === "shop" ? (x.req.cur === "renown" ? "🏵 " + x.req.price + " 聲望" : "💰 " + x.req.price) : "需要 " + x.req_text);
+      const needPv = (kind, x, o) => Object.assign(o, x.req.t === "shop" ? { buy: { kind, id: x.id, n: x.n, price: x.req.price, cur: x.req.cur || "coins" } } : { need: x.req_text });
+      const buyRow = () => {
+        if (!pv || !pv.buy) return null;
+        const b = pv.buy, rn = b.cur === "renown", coins = (rn ? p.renown : p.coins) || 0, short = coins < b.price, ic = rn ? "🏵" : "💰", un = rn ? "聲望" : "遊戲幣";
+        return h("div", { class: "buyrow" },
+          h("div", { style: { flex: 1, minWidth: 0 } }, h("div", { style: { fontWeight: 700 }, text: b.n }), h("div", { class: "meta", text: short ? `${ic} ${b.price} · 還差 ${b.price - coins} ${un}` : `${ic} ${b.price} · 你有 ${coins}` })),
+          h("button", { class: pv.confirm ? "primary danger" : "primary", disabled: short, text: pv.confirm ? "確認花費 " + ic + b.price : "購買", onclick: async () => {
+            if (!pv.confirm) { pv.confirm = true; render(); return; }
+            let r = null; try { r = await api("/api/buy", { kind: b.kind, id: b.id }); } catch (e) {}
+            if (r && r.ok) { if (prof()) Object.assign(S.prof, { coins: r.coins, renown: r.renown, cos: r.cos, sel: r.sel, ach: r.ach, ach_new: r.ach_new, ach_prog: r.ach_prog }); pv = null; if (typeof toast === "function") toast("✅ 已購買「" + b.n + "」", "ok"); if (typeof loadProfile === "function") loadProfile(); }
+            else if (typeof toast === "function") toast((r && r.error) || "購買失敗");
+            render();
+          } }));
+      };
       const preview = () => {
         const g = k => (pv && pv[k] != null ? pv[k] : sel[k === "box" ? "box" : k]) || "";
         const seat = h("div", { class: "pvseat" }, avEl(mine, { fr: g("frame"), fx: g("fx") }, { style: { width: "54px", height: "54px", borderRadius: "50%", objectFit: "cover" } }),
@@ -993,34 +1047,48 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
       };
       const lockProg = x => { const pg = x.req && x.req.t === "ach" ? (p.ach_prog || {})[x.req.v] : null; return pg ? progBar(pg) : null; };
       const ordered = L => [...L].sort((a, b) => (has(kindOf(L), b.id) ? 1 : 0) - (has(kindOf(L), a.id) ? 1 : 0));
+      const ordered2 = (L, kind) => [...L].sort((a, b) => (has(kind, b.id) ? 1 : 0) - (has(kind, a.id) ? 1 : 0));
       const kindOf = L => (L === CAT.boxes ? "boxes" : L === CAT.fx ? "fx" : "frames");
-      const tabs = achMode ? [] : [["theme", "🎨 主題"], ["box", "🪟 玩家框"], ["frame", "🖼 頭像框"], ["fx", "✨ 頭像特效"]];
+      const tabs = achMode ? [] : [["theme", "🎨 主題"], ["box", "🪟 玩家框"], ["frame", "🖼 頭像框"], ["fx", "✨ 頭像特效"], ["cardbg", "🃏 卡面"]];
       let body;
       if (!CAT) body = h("div", { class: "meta", text: "載入中…" });
       else if (tab === "theme") {
-        const sw = CAT.themes.map(x => {
+        const sw = LST(CAT.themes).map(x => {
           const ok = has("themes", x.id);
           const isSel = x.a ? !!(cur && cur.a && cur.a.toLowerCase() === x.a.toLowerCase()) : !(cur && cur.a && cur.a.toLowerCase() !== GF_A);   // 目前套用的主題 (預設 = 古風三國)
           return h("button", {
             class: "tile" + (ok ? "" : " lock") + (isSel ? " sel" : ""), title: ok ? x.n : x.req_text,
-            onclick: () => { if (!ok) return; if (!x.a) { save(null); } else { save({ a: x.a, b: x.b }); } render(); },
+            onclick: () => { if (!ok) { pv = needPv("themes", x, {}); render(); return; } pv = null; if (shopMode) { render(); return; } if (!x.a) { save(null); } else { save({ a: x.a, b: x.b }); } render(); },
           }, h("span", { "data-nm": "1", style: { width: "58px", height: "40px", borderRadius: "9px", background: `linear-gradient(135deg,${x.b || GF_B} 50%,${x.a || GF_A} 50%)`, boxShadow: "inset 0 0 0 1px rgba(255,255,255,.2)" } }),
-          h("span", { class: "tn", text: (ok ? "" : "🔒 ") + x.n }), ok ? null : h("span", { class: "rq", text: "需要 " + x.req_text }));
+          h("span", { class: "tn", text: (ok ? (shopMode ? "✓ " : "") : "🔒 ") + x.n }), ok ? null : h("span", { class: "rq", text: rq(x) }));
         });
         body = h("div", {}, h("div", { class: "grid" }, ...sw),
-          h("div", { style: { display: "flex", justifyContent: "flex-end" } }, h("button", { text: "恢復預設", onclick: () => { save(null); render(); } })));
+          shopMode ? null : h("div", { style: { display: "flex", justifyContent: "flex-end" } }, h("button", { text: "恢復預設", onclick: () => { save(null); render(); } })));
       } else if (tab === "box") {
         const curb = sel.box || "";
-        const sw = ordered(CAT.boxes || []).map(x => {
+        const sw = ordered(LST(CAT.boxes || [])).map(x => {
           const ok = has("boxes", x.id), sp = BOX[x.id], on = (curb || "classic") === x.id;
           const bg = sp ? `${sp.fl ? sp.fl + "," : ""}linear-gradient(160deg,${sp.c[0]},${sp.c[1]})` : "linear-gradient(160deg,#12284a,#08122a)";
           return h("button", {
             class: "tile" + (ok ? "" : " lock") + (on ? " sel" : "") + (pv && pv.box === x.id ? " pvd" : ""), title: ok ? x.n : "需要 " + x.req_text, "aria-pressed": on ? "true" : "false",
-            onclick: async () => { if (!ok) { pv = { box: x.id, need: x.req_text }; render(); return; } pv = null; const id = x.id === "classic" ? "" : x.id; sel.box = id; pickBox(id); render(); },
+            onclick: async () => { if (!ok) { pv = needPv("boxes", x, { box: x.id }); render(); return; } pv = null; if (shopMode) { render(); return; } const id = x.id === "classic" ? "" : x.id; sel.box = id; pickBox(id); render(); },
           }, (() => { const e = h("span", { class: "bxsw", style: { display: "block", width: "92px", height: "54px", borderRadius: "6px", background: bg, boxShadow: `inset 0 0 0 1px ${sp ? sp.bd : "#24557d"},0 0 8px ${sp ? sp.gl + "55" : "rgba(63,210,255,.25)"}` } }); if (sp) applyBox(e, x.id); return e; })(),
-          h("span", { class: "tn", text: (ok ? "" : "🔒 ") + x.n }), ok ? null : h("span", { class: "rq", text: "需要 " + x.req_text }), ok ? null : lockProg(x));
+          h("span", { class: "tn", text: (ok ? (shopMode ? "✓ " : "") : "🔒 ") + x.n }), ok ? null : h("span", { class: "rq", text: rq(x) }), ok ? null : lockProg(x));
         });
         body = h("div", {}, h("div", { class: "meta", style: { marginBottom: "6px" }, text: `已解鎖 ${(CAT.boxes || []).filter(x => has("boxes", x.id)).length} / ${(CAT.boxes || []).length}` }), h("div", { class: "grid" }, ...sw), h("div", { class: "meta", style: { marginTop: "10px" }, text: "玩家框是牌桌上你的座位方塊外觀,所有玩家都看得到。有些要成就解鎖。" }));
+      } else if (tab === "cardbg" || tab === "cardback") {   // 卡面 (你的牌的底色風格) / 卡背: 其他玩家看得到
+        const isBg = tab === "cardbg", kind = isBg ? "cardbgs" : "cardbacks", L = CAT[kind] || [], curv = (isBg ? sel.cardbg : sel.cardback) || "classic";
+        const url = id => isBg ? "/cards/" + encodeURIComponent("殺") + ".svg?bg=" + id : "/cards/_back.svg?bk=" + id;
+        const sw = ordered2(LST(L), kind).map(x => {
+          const ok = has(kind, x.id), on = curv === x.id;
+          return h("button", {
+            class: "tile" + (ok ? "" : " lock") + (on ? " sel" : "") + (pv && pv.cid === x.id && pv.ck === kind ? " pvd" : ""), title: ok ? x.n : rq(x), "aria-pressed": on ? "true" : "false",
+            onclick: async () => { if (!ok) { pv = needPv(kind, x, { cid: x.id, ck: kind }); render(); return; } pv = null; if (shopMode) { render(); return; } await post(isBg ? { cardbg: x.id } : { cardback: x.id }); render(); },
+          }, h("img", { src: url(x.id), alt: x.n, style: { width: "54px", height: "77px", borderRadius: "5px", display: "block" } }),
+          h("span", { class: "tn", text: (ok ? (shopMode ? "✓ " : "") : "🔒 ") + x.n }), ok ? null : h("span", { class: "rq", text: rq(x) }));
+        });
+        body = h("div", {}, h("div", { class: "meta", style: { marginBottom: "6px" }, text: `已擁有 ${LST(L).filter(x => has(kind, x.id)).length} / ${LST(L).length}` }), h("div", { class: "grid" }, ...sw),
+          h("div", { class: "meta", style: { marginTop: "10px" }, text: isBg ? "卡面是你的手牌和你打出的牌的底色風格,其他玩家看到你的牌時也是這個風格。" : "卡背會顯示在你座位的手牌數旁邊,所有玩家都看得到。" }));
       } else if (tab === "ach") {
         const got = p.ach || {}, list = CAT.achs;
         body = h("div", {}, h("div", { class: "meta", style: { marginBottom: "6px" }, text: `已完成 ${list.filter(a => got[a.id]).length} / ${list.length}` }),
@@ -1032,22 +1100,24 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
           }));
       } else {
         const isFx = tab === "fx", L = isFx ? CAT.fx : CAT.frames, kind = isFx ? "fx" : "frames", curv = isFx ? (sel.fx || "") : (sel.frame || "");
-        body = h("div", {}, h("div", { class: "meta", style: { marginBottom: "6px" }, text: `已解鎖 ${L.filter(x => has(kind, x.id)).length} / ${L.length}` }), h("div", { class: "grid" }, ...ordered(L).map(x => {
+        body = h("div", {}, h("div", { class: "meta", style: { marginBottom: "6px" }, text: `已解鎖 ${LST(L).filter(x => has(kind, x.id)).length} / ${LST(L).length}` }), h("div", { class: "grid" }, ...ordered(LST(L)).map(x => {
           const ok = has(kind, x.id), st = isFx ? { fr: sel.frame, fx: x.id } : { fr: x.id, fx: sel.fx };
           return h("button", {
             class: "tile" + (ok ? "" : " lock") + (curv === x.id ? " sel" : "") + (pv && (isFx ? pv.fx : pv.frame) === x.id ? " pvd" : ""), title: ok ? x.n : "需要 " + x.req_text, "aria-pressed": curv === x.id ? "true" : "false",
-            onclick: async () => { if (!ok) { pv = isFx ? { fx: x.id, need: x.req_text } : { frame: x.id, need: x.req_text }; render(); return; } pv = null; await post(isFx ? { fx: x.id } : { frame: x.id }); render(); },
+            onclick: async () => { if (!ok) { pv = needPv(kind, x, isFx ? { fx: x.id } : { frame: x.id }); render(); return; } pv = null; if (shopMode) { render(); return; } await post(isFx ? { fx: x.id } : { frame: x.id }); render(); },
           }, h("span", { style: { padding: "6px" } }, avEl(mine, st, { style: { width: "44px", height: "44px", borderRadius: "50%", objectFit: "cover" } })),
-          h("span", { class: "tn", text: (ok ? "" : "🔒 ") + x.n }), ok ? null : h("span", { class: "rq", text: "需要 " + x.req_text }), ok ? null : lockProg(x));
+          h("span", { class: "tn", text: (ok ? (shopMode ? "✓ " : "") : "🔒 ") + x.n }), ok ? null : h("span", { class: "rq", text: rq(x) }), ok ? null : lockProg(x));
         })), h("div", { class: "meta", style: { marginTop: "10px" }, text: "頭像框和特效會顯示在座位、聊天室、排行榜上,所有玩家都看得到。" }));
       }
       M.append(h("div", { class: "modal", onclick: e => { if (e.target.classList.contains("modal")) close(); } },
         h("div", { class: "dlg", id: "cosdlg", style: { maxWidth: "520px" } },
-          h("div", { class: "dh" }, h("div", {}, h("h3", { text: achMode ? "🏅 成就" : "🎨 外觀" }), h("div", { class: "meta", text: achMode ? "完成成就可以解鎖主題、頭像框與特效" : "主題 / 頭像框 / 特效,有些要段位或成就解鎖" })), h("button", { class: "x", text: "✕", onclick: close })),
+          h("div", { class: "dh" }, h("div", {}, h("div", { style: { display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" } }, h("h3", { style: { margin: 0 }, text: achMode ? "🏅 成就" : shopMode ? "🛒 外觀商店" : "🎨 外觀" }),
+            achMode ? null : [["💰 ", p.coins || 0, " 遊戲幣"], ["🏵 ", p.renown || 0, " 聲望"]].map(([ic, n, lb]) => h("span", { style: { display: "inline-flex", alignItems: "center", gap: "4px", padding: "3px 9px", border: "1px solid #ffd24a", borderRadius: "6px", background: "rgba(255,210,74,.1)", fontSize: "13px", fontWeight: "700", whiteSpace: "nowrap" } }, ic, h("b", { style: { color: "#ffd24a", fontVariantNumeric: "tabular-nums" }, text: String(n) }), lb))),
+          achMode ? h("div", { class: "meta", text: "每個成就解鎖一個外觀;其他外觀到商店用遊戲幣買" }) : shopMode ? null : h("div", { class: "meta", text: "主題 / 頭像框 / 特效" })), h("button", { class: "x", text: "✕", onclick: close })),
           h("div", { style: { padding: "6px 22px 18px", maxHeight: "70vh", overflowY: "auto" } },
-            achMode || tab === "theme" ? null : preview(),
+            achMode || tab === "theme" || tab === "cardbg" || tab === "cardback" ? null : preview(), achMode ? null : buyRow(),
             achMode ? null : h("div", { class: "tabs" }, ...tabs.map(([k, n]) => h("button", { class: k === tab ? "on" : "", text: n, onclick: () => { tab = k; pv = null; render(); } }))),
-            body, h("div", { style: { display: "flex", justifyContent: "flex-end", marginTop: "14px" } }, h("button", { class: "primary", text: "完成", onclick: close }))))));
+            body, h("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "14px", gap: "8px" } }, achMode ? h("span") : h("button", { text: shopMode ? "🎨 我的外觀" : "🛒 商店", onclick: () => { M.textContent = ""; openDlg(shopMode ? "theme" : "shop"); } }), h("button", { class: "primary", text: "完成", onclick: close }))))));
     };
     render();
   }
@@ -1086,6 +1156,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
     if (board && !document.getElementById("bAch")) {
       const c = document.createElement("button"); c.id = "bAch"; c.textContent = "🏅 成就"; c.title = "成就與解鎖進度";
       c.onclick = () => openDlg("ach"); board.after(c);
+      const d = document.createElement("button"); d.id = "bShop"; d.textContent = "🛒 商店"; d.title = "用遊戲幣買外觀"; d.onclick = () => openDlg("shop"); c.after(d);
     }
   });
 })();

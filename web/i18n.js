@@ -11,7 +11,7 @@ if (!LANGS.some(l => l[0] === lang)) lang = "zh";
 /* ---------- 詞典: [中文, English, 日本語] ---------- */
 const W = [
   // 介面
-  ["三國殺重製版", "Sanguosha Remake", "三国殺リメイク"], ["暫停", "Pause", "一時停止"], ["繼續", "Resume", "再開"],
+  ["進化三國", "Evolved Three Kingdoms", "進化三国"], ["基本牌", "Basic", "基本"], ["錦囊", "Trick", "錦嚢"], ["延時錦囊", "Delayed Trick", "遅延錦嚢"], ["武器", "Weapon", "武器"], ["防具", "Armor", "防具"], ["坐騎", "Mount", "騎乗"], ["暫停", "Pause", "一時停止"], ["繼續", "Resume", "再開"],
   ["新遊戲", "New game", "新規ゲーム"], ["單步", "Step", "コマ送り"], ["每步延遲 ", "Step delay ", "ステップ間隔 "],
   ["即時顯示 AI 思考", "Show AI thoughts live", "AIの思考を即表示"], ["暱稱", "Nickname", "ニックネーム"],
   ["側欄 ▸", "Sidebar ▸", "サイド ▸"], ["側欄", "Sidebar", "サイド"], ["對局紀錄", "Game log", "対局ログ"],
@@ -142,7 +142,7 @@ const W = [
   ["打出", "plays", "出す"], ["的傷害被抵銷", "'s damage is cancelled", "のダメージが相殺された"], ["是否出桃/酒救", "whether to save with Peach/Wine", "桃/酒で救うか"], ["是否出桃救", "whether to save", "桃で救うか"],
   ["依序詢問", "Asking in turn:", "順に確認:"], ["使用", "uses", "使用"], ["放入", "puts into", "置く"], ["裝備", "equips", "装備"],
   ["🚪 大廳", "🚪 Lobby", "🚪 ロビー"], ["回到大廳,選擇或創建房間", "Back to the lobby to pick or create a room", "ロビーに戻って部屋を選ぶ/作る"],
-  ["三國殺重製版 · 大廳", "Sanguosha Remake · Lobby", "三国殺リメイク · ロビー"], ["選一個房間加入,或自己創建一個。房間沒人超過 10 分鐘會自動刪除。", "Join a room or create your own. Rooms empty for over 10 minutes are deleted automatically.", "部屋に参加するか、自分で作成します。10分以上無人の部屋は自動削除されます。"],
+  ["進化三國 · 大廳", "Evolved Three Kingdoms · Lobby", "進化三国 · ロビー"], ["選一個房間加入,或自己創建一個。房間沒人超過 10 分鐘會自動刪除。", "Join a room or create your own. Rooms empty for over 10 minutes are deleted automatically.", "部屋に参加するか、自分で作成します。10分以上無人の部屋は自動削除されます。"],
   ["房間名稱 (例如: 阿明的房間)", "Room name (e.g. Ming's room)", "部屋の名前(例: ミンの部屋)"], ["創建房間", "Create room", "部屋を作成"], ["加入", "Join", "参加"], ["刪除", "Delete", "削除"], ["刪除這個房間", "Delete this room", "この部屋を削除"],
   ["公共房間", "Public room", "公開ルーム"], ["新房間", "New room", "新しい部屋"], ["進行中", "In game", "対局中"], ["等待玩家", "Waiting", "待機中"], ["空房", "Empty", "空き"], ["選武將", "Picking", "武将選択"],
   ["目前 ", "", ""], [" 人在線", " online", "人オンライン"], [" 人局 · ", "-player · ", "人戦 · "],
@@ -210,6 +210,7 @@ const TUT = {
       ["最常用的牌", "• 殺: 打人,對方要出「閃」,否則扣 1 血。每回合只能出一張。\n• 閃: 躲掉一次殺。\n• 桃: 回 1 血,也能救瀕死的人。\n• 酒: 搭配殺傷害 +1。\n• 錦囊 (順手牽羊、決鬥、南蠻入侵…) 與裝備,滑鼠移上去就能看說明。⚡ 標記的可以在別人出牌時搶著用。"],
       ["瀕死與勝負", "體力降到 0 會瀕死,大家可以出桃救他,沒人救就陣亡。\n達成自己身分的目標就獲勝。\n遊戲最多進行 100 輪,超過算平手。"],
       ["段位與模式", "新遊戲可選「🎮 休閒」(不影響積分) 或「🏅 段位」(贏加分、輸扣分)。\n段位由低到高: 青銅 → 白銀 → 黃金 → 白金 → 鑽石 → 大師 → 傳說。\n詳細計分按開新遊戲畫面裡的「段位說明」。\n剛開始建議先打休閒或練習局。"],
+      ["遊戲幣與商店", "• 只有「🏅 段位」對局會得到遊戲幣: 贏 18~36 (依電腦難度)、輸 8、平手 12;棄賽沒有。\n• 遊戲幣可以到「🛒 商店」買主題、玩家框、頭像框和特效。每個成就也會直接送你一個外觀。\n• 積分到「傳說」後可以按「轉生」: 回到青銅3,名字旁多一顆 ★,並得到聲望;聲望可以買轉生限定外觀。"],
       ["練習局", "按下方「開始練習局」會開一場 4 人局 (你 vs 3 個 AI),畫面上方會提示你現在該做什麼。玩得開心!"],
     ],
     hints: {
@@ -233,6 +234,7 @@ const TUT = {
       ["Key cards", "• Slash: attack; the target must play a Dodge or lose 1 HP. One per turn.\n• Dodge: avoids one Slash.\n• Peach: restore 1 HP, or save a dying player.\n• Wine: +1 damage on your Slash.\n• Tricks (Steal, Duel, Barbarians...) and equipment: hover for details. Cards marked ⚡ can be played in response to others."],
       ["Dying & winning", "At 0 HP a player is dying; others may play a Peach to save them, otherwise they die.\nAchieve your role's goal to win.\nA game lasts at most 100 rounds; beyond that it's a draw."],
       ["Ranks & modes", "A new game can be 🎮 Casual (no points change) or 🏅 Ranked (win = gain points, loss = lose points).\nRanks, low to high: Bronze → Silver → Gold → Platinum → Diamond → Master → Legend.\nFor the full scoring, press \"Rank guide\" on the new game screen.\nNew here? Start with Casual or the practice game."],
+      ["Coins & shop", "• Only 🏅 Ranked games give coins: win 18-36 (by AI difficulty), loss 8, draw 12; forfeiting gives none.\n• Spend coins in the 🛒 Shop on themes, seat boxes, avatar frames and effects. Each achievement also gives one cosmetic for free.\n• After reaching Legend you can press Rebirth: back to Bronze 3 with a ★ next to your name, and you earn Renown, which buys Rebirth-only cosmetics."],
       ["Practice game", "Press \"Start practice game\" below for a 4-player game (you vs 3 AIs). A banner at the top tells you what to do. Have fun!"],
     ],
     hints: {
@@ -256,6 +258,7 @@ const TUT = {
       ["よく使うカード", "• 殺: 攻撃。相手は「閃」を出さないと体力-1。1ターンに1枚まで。\n• 閃: 殺を1回避ける。\n• 桃: 体力を1回復、瀕死の人も救える。\n• 酒: 殺のダメージ+1。\n• 錦囊(順手牽羊・決闘・南蛮入侵…)と装備は、マウスを乗せると説明が出ます。⚡のカードは他人の行動に割り込めます。"],
       ["瀕死と勝敗", "体力が0になると瀕死。他の人が桃で救えなければ死亡します。\n自分の役職の目的を達成すれば勝ちです。\nゲームは最大100巡。超えると引き分けです。"],
       ["ランクとモード", "新規ゲームでは 🎮 カジュアル(ポイント変動なし)か 🏅 ランク戦(勝てば加点、負ければ減点)を選べます。\nランクは低い順に ブロンズ → シルバー → ゴールド → プラチナ → ダイヤ → マスター → レジェンド。\n詳しい計算は新規ゲーム画面の「ランクの説明」で確認できます。\n最初はカジュアルか練習ゲームがおすすめです。"],
+      ["コインとショップ", "• コインがもらえるのは 🏅 ランク戦だけ: 勝利 18~36(CPU難易度による)、敗北 8、引き分け 12。途中放棄はなし。\n• コインは 🛒 ショップでテーマ・席の枠・アイコン枠・エフェクトに使えます。実績を達成すると外観が1つもらえます。\n• レジェンドに到達すると「転生」できます: ブロンズ3に戻り、名前の横に ★ が付き、名声がもらえます。名声は転生限定の外観に使えます。"],
       ["練習ゲーム", "下の「練習ゲームを始める」で4人戦(あなた vs AI 3人)が始まります。画面上部のヒントが次にやることを教えてくれます。楽しんでください!"],
     ],
     hints: {

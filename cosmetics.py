@@ -24,7 +24,7 @@ ACHIEVEMENTS = [
     ("streak3", "三連勝", "連續贏 3 場", lambda p, lv, pt, f: p.get("best_streak", 0) >= 3),
     ("streak5", "勢如破竹", "連續贏 5 場", lambda p, lv, pt, f: p.get("best_streak", 0) >= 5),
     ("ranked1", "初入戰場", "完成 1 場段位模式", lambda p, lv, pt, f: p.get("rgames", 0) >= 1),
-    ("ranked10", "段位常客I", "段位模式贏 10 場 (獎勵: 冰藍主題、青玉框)", lambda p, lv, pt, f: p.get("rwins", 0) >= 10),
+    ("ranked10", "段位常客I", "段位模式贏 10 場 (獎勵: 青玉框)", lambda p, lv, pt, f: p.get("rwins", 0) >= 10),
     ("ranked30", "段位常客II", "段位模式贏 30 場 (獎勵: 漣漪特效)", lambda p, lv, pt, f: p.get("rwins", 0) >= 30),
     ("ranked100", "段位常客III", "段位模式贏 100 場 (獎勵: 脈衝特效)", lambda p, lv, pt, f: p.get("rwins", 0) >= 100),
     ("roles4", "四方通達", "主公、忠臣、反賊、內奸各贏過一次", lambda p, lv, pt, f: all(p.get("roles", {}).get(r, [0, 0])[1] > 0 for r in ROLES4)),
@@ -44,6 +44,7 @@ ACHIEVEMENTS = [
     ("hand20", "手牌收藏家", "手牌同時超過 20 張", lambda p, lv, pt, f: f.get("maxhand", 0) > 20),
     ("chain11", "連鎖大師", "接出第 11 個以上的連鎖", lambda p, lv, pt, f: bool(f.get("chain11"))),
     ("wei5", "易容大師", "單場使用「偽」5 次以上", lambda p, lv, pt, f: f.get("wei", 0) >= 5),
+    ("prestige1", "榮耀轉生", "達到傳說後按下「轉生」,重新從青銅3出發 (獎勵: 轉生 1 頭像框)", lambda p, lv, pt, f: p.get("pres", 0) >= 1),
     ("clones", "千人一面", "在所有人武將都一樣的對局中獲勝", lambda p, lv, pt, f: bool(f.get("won") and f.get("same"))),
 ]
 ACH_BY_ID = {a[0]: a for a in ACHIEVEMENTS}
@@ -53,6 +54,9 @@ ACH_NAME = {a[0]: a[1] for a in ACHIEVEMENTS}
 def F(): return {"t": "free"}
 def T(i): return {"t": "tier", "v": i}
 def A(a): return {"t": "ach", "v": a}
+def P(n): return {"t": "pres", "v": n}   # Prestige 次數達到 n
+def S(price): return {"t": "shop", "price": price, "cur": "coins"}   # 遊戲幣商店購買
+def R(price): return {"t": "shop", "price": price, "cur": "renown"}   # 聲望 (轉生才會拿到) 商店購買
 
 
 # 顏色主題 (a 主色 / b 底色)、頭像框 (id 對應前端 CSS fr-<id>)、頭像特效 (fx-<id>)
@@ -86,6 +90,18 @@ THEMES = [
     {"id": "mono", "n": "黑白", "a": "#ffffff", "b": "#0a0a0a", "req": A("no_sha")},
     {"id": "lavender", "n": "薰衣草", "a": "#c9a7ff", "b": "#1a1230", "req": T(4)},
     {"id": "royal", "n": "皇家", "a": "#ffd700", "b": "#1a0f3a", "req": A("tier_dia")},
+    # 以下為商店新品
+    {"id": "bamboo", "n": "青竹", "a": "#8fd694", "b": "#0d1f14", "req": S(160)},
+    {"id": "plum", "n": "紅梅", "a": "#ff7b8f", "b": "#2a0f18", "req": S(160)},
+    {"id": "dusk", "n": "暮色", "a": "#ff9f7a", "b": "#1d1029", "req": S(180)},
+    {"id": "teal", "n": "青碧", "a": "#35e0d0", "b": "#07201f", "req": S(180)},
+    {"id": "ink", "n": "墨染", "a": "#e8e2d0", "b": "#101010", "req": S(200)},
+    {"id": "rosegold", "n": "玫瑰金", "a": "#f4b6a0", "b": "#241519", "req": S(260)},
+    {"id": "aurora", "n": "極光夜", "a": "#7dffc3", "b": "#0b1233", "req": S(300)},
+    {"id": "sapphire", "n": "藍寶石", "a": "#5aa2ff", "b": "#071a3d", "req": S(320)},
+    # 聲望限定 (轉生後才買得到)
+    {"id": "rn_gold", "n": "轉生·曜金", "a": "#ffd24a", "b": "#241a02", "req": R(20)},
+    {"id": "rn_void", "n": "轉生·虛空", "a": "#c28bff", "b": "#07030f", "req": R(30)},
 ]
 FRAMES = [
     {"id": "", "n": "無框", "req": F()},
@@ -117,6 +133,23 @@ FRAMES = [
     {"id": "galaxy", "n": "星空框", "req": A("hand20")},
     {"id": "lava", "n": "熔岩框", "req": A("clutch")},
     {"id": "yinyang", "n": "陰陽框", "req": A("clones")},
+    {"id": "pres1", "n": "轉生 1 框", "req": A("prestige1")},
+    {"id": "pres2", "n": "轉生 2 框", "req": P(2)},
+    {"id": "pres3", "n": "轉生 3 框", "req": P(3)},
+    {"id": "pres4", "n": "轉生 4 框", "req": P(4)},
+    {"id": "pres5", "n": "轉生 5 框", "req": P(5)},
+    # 以下為商店新品
+    {"id": "bronzeedge", "n": "古銅雕花框", "req": S(220)},
+    {"id": "pearl", "n": "珍珠框", "req": S(240)},
+    {"id": "jadebi", "n": "玉璧框", "req": S(260)},
+    {"id": "cinnabar", "n": "朱砂框", "req": S(260)},
+    {"id": "azure", "n": "蒼藍框", "req": S(280)},
+    {"id": "candy", "n": "糖果框", "req": S(280)},
+    {"id": "obsidian", "n": "黑曜石框", "req": S(320)},
+    {"id": "dragon", "n": "金龍框", "req": S(420)},
+    # 聲望限定
+    {"id": "rn_crown", "n": "聲望之冠", "req": R(25)},
+    {"id": "rn_eternal", "n": "永恆框", "req": R(45)},
 ]
 EFFECTS = [
     {"id": "", "n": "無特效", "req": F()},
@@ -148,7 +181,50 @@ EFFECTS = [
     {"id": "vortex", "n": "漩渦", "req": A("tier_dia")},
     {"id": "beam", "n": "光柱", "req": A("tier_legend")},
     {"id": "sun", "n": "烈陽", "req": A("chars30")},
+    # 以下為商店新品
+    {"id": "halo", "n": "聖輝", "req": S(380)},
+    {"id": "twin", "n": "雙星", "req": S(420)},
+    {"id": "embers", "n": "餘燼", "req": S(460)},
+    {"id": "bubble", "n": "泡泡", "req": S(360)},
+    # 聲望限定
+    {"id": "rn_flame", "n": "轉生之焰", "req": R(40)},
+    {"id": "rn_ring", "n": "星環", "req": R(60)},
 ]
+
+
+# 一個成就只給一個獎勵: 同一個成就原本解鎖多個外觀的,只保留下面指定 (或第一個) 的那個,其餘改到商店買。
+ACH_REWARD = {
+    "first_win": ("frames", "blossom"), "games50": ("themes", "ocean"), "games100": ("frames", "hund"), "wins25": ("frames", "vic"),
+    "streak3": ("themes", "sakura"), "streak5": ("fx", "bolt"), "ranked1": ("fx", "heart"), "ranked10": ("frames", "jade"),
+    "ranked30": ("fx", "ripple"), "ranked100": ("fx", "pulse"), "roles4": ("themes", "gold"), "chars10": ("fx", "meteor"),
+    "chars30": ("frames", "coll"), "no_sha": ("frames", "crystal"), "tier_gold": ("fx", "radar"), "tier_dia": ("themes", "royal"),
+    "tier_legend": ("fx", "beam"), "hand20": ("frames", "galaxy"), "chain11": ("fx", "dust"),
+}
+_HARD = {"tier_legend", "ranked100", "chars30", "tier_dia", "ten_free", "hand20", "chain11", "clones", "clutch"}
+_MID = {"games100", "wins25", "streak5", "ranked30", "roles4", "tier_gold", "no_sha", "main10", "ranked10", "games50", "dmg32", "speed", "comeback", "wei5"}
+_BASE = {"themes": 120, "frames": 200, "fx": 300, "boxes": 250}
+
+
+def _to_shop():
+    seen = set()
+    for kind, L in _KINDS:
+        for x in L:
+            r = x["req"]
+            if r["t"] != "ach":
+                continue
+            a = r["v"]
+            keep = ACH_REWARD.get(a)
+            if keep is None and a not in seen:
+                keep = (kind, x["id"])
+            if keep == (kind, x["id"]):
+                seen.add(a)
+                continue
+            mult = 2.5 if a in _HARD else 1.5 if a in _MID else 1
+            x["old"] = r   # 舊規則的解鎖條件 (只用來把以前已經拿到的人補進「已擁有」)
+            x["req"] = S(int(round(_BASE[kind] * mult / 10.0)) * 10)
+    for a, (kind, i) in ACH_REWARD.items():
+        assert any(x["id"] == i and x["req"] == A(a) for x in dict(_KINDS)[kind]), (a, kind, i)
+
 
 
 def req_text(r):
@@ -156,6 +232,10 @@ def req_text(r):
         return "免費"
     if r["t"] == "tier":
         return f"段位達到{TIER_NAMES[r['v']]}"
+    if r["t"] == "pres":
+        return f"轉生 {r['v']} 次"
+    if r["t"] == "shop":
+        return f"商店 🏵{r['price']} 聲望" if r.get("cur") == "renown" else f"商店 💰{r['price']}"
     return "成就「" + ACH_NAME.get(r["v"], r["v"]) + "」"
 
 
@@ -189,24 +269,77 @@ BOXES = [
 ]
 
 
+_KINDS = (("themes", THEMES), ("frames", FRAMES), ("fx", EFFECTS), ("boxes", BOXES))
+_to_shop()
+
+
+# 卡面 (你打出的牌、手牌的底色風格,其他玩家看得到) / 卡背 (座位上顯示的卡背,其他玩家看得到): 全部商店買 (經典免費)
+CARDBGS = [
+    {"id": "classic", "n": "經典", "req": F()},
+    {"id": "ink", "n": "水墨", "req": S(180)},
+    {"id": "ocean", "n": "深海", "req": S(200)},
+    {"id": "jade", "n": "翡翠", "req": S(220)},
+    {"id": "sakura", "n": "櫻花", "req": S(240)},
+    {"id": "night", "n": "星夜", "req": S(280)},
+    {"id": "gold", "n": "鎏金", "req": S(320)},
+    {"id": "neon", "n": "霓虹", "req": S(360)},
+]
+CARDBACKS = [
+    {"id": "classic", "n": "經典", "req": F()},
+    {"id": "azure", "n": "蒼浪", "req": S(150)},
+    {"id": "jade", "n": "翡翠錢紋", "req": S(170)},
+    {"id": "ink", "n": "太極", "req": S(190)},
+    {"id": "sakura", "n": "櫻花", "req": S(220)},
+    {"id": "gold", "n": "鎏金", "req": S(260)},
+    # 聲望限定
+    {"id": "rn_void", "n": "轉生·虛空", "req": R(35)},
+]
+_KINDS = _KINDS + (("cardbgs", CARDBGS), ("cardbacks", CARDBACKS))
+
+
 def catalog():
     """前端用的目錄 (不含玩家資料)。"""
     def pack(L):
-        return [dict(x, req_text=req_text(x["req"])) for x in L]
-    return {"tiers": TIER_NAMES, "themes": pack(THEMES), "frames": pack(FRAMES), "fx": pack(EFFECTS), "boxes": pack(BOXES),
+        return [{k: v for k, v in dict(x, req_text=req_text(x["req"])).items() if k != "old"} for x in L]
+    return {"tiers": TIER_NAMES, "themes": pack(THEMES), "frames": pack(FRAMES), "fx": pack(EFFECTS), "boxes": pack(BOXES), "cardbgs": pack(CARDBGS), "cardbacks": pack(CARDBACKS),
             "achs": [{"id": a[0], "n": a[1], "d": a[2]} for a in ACHIEVEMENTS]}
 
 
-def is_unlocked(req, tier, achs):
-    if req["t"] == "free":
+def is_unlocked(req, tier, achs, owned=(), pres=0, key=""):
+    """key = "<種類>:<id>",商店的東西看有沒有買過。"""
+    t = req["t"]
+    if t == "free":
         return True
-    if req["t"] == "tier":
+    if t == "tier":
         return tier >= req["v"]
+    if t == "pres":
+        return pres >= req["v"]
+    if t == "shop":
+        return key in owned
     return req["v"] in achs or (req.get("alt") in achs if req.get("alt") else False)
 
 
-def unlocked_ids(tier, achs):
-    return {k: [x["id"] for x in L if is_unlocked(x["req"], tier, achs)] for k, L in (("themes", THEMES), ("frames", FRAMES), ("fx", EFFECTS), ("boxes", BOXES))}
+def item_ok(kind, item, tier, achs, owned=(), pres=0):
+    return is_unlocked(item["req"], tier, achs, owned, pres, kind + ":" + item["id"])
+
+
+def unlocked_ids(tier, achs, owned=(), pres=0):
+    return {k: [x["id"] for x in L if item_ok(k, x, tier, achs, owned, pres)] for k, L in _KINDS}
+
+
+def find(kind, iid):
+    return next((x for x in dict(_KINDS).get(kind, []) if x["id"] == iid), None)
+
+
+def legacy_owned(tier, achs):
+    """第一次進商店系統時: 以前靠成就拿到、現在改到商店的東西,照舊規則補給玩家。"""
+    out = []
+    for kind, L in _KINDS:
+        for x in L:
+            o = x.get("old")
+            if o and is_unlocked(o, tier, achs):
+                out.append(kind + ":" + x["id"])
+    return out
 
 
 def check_achievements(p, level, peak_tier, facts):
