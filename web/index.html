@@ -335,7 +335,7 @@ html .seg button.on,html .seg button.on:hover{background:linear-gradient(180deg,
 #hostbar.wait{color:#9eeaff}#hostbar:empty{display:none!important}
 .mini-btn{margin-top:8px;padding:3px 14px!important;font-size:12px}
 .pl.waiting .nm::after{content:" ⏳"}
-.pl.waiting{outline:2px dashed #ffb44d;outline-offset:-4px}   /* 虛線畫在框裡面: 放在外面會被旁邊正在動畫的座位 (被選為目標等) 蓋掉一邊 */
+.pl.waiting{outline:none}.pl .wfr{position:absolute;inset:4px;border:2px dashed #ffb44d;pointer-events:none;z-index:5}   /* 虛線畫在框裡面: 放在外面會被旁邊正在動畫的座位 (被選為目標等) 蓋掉一邊 */
 .pl.dimmed{opacity:.45}
 .meta.hpick{cursor:pointer;color:#fff;background:rgba(70,224,160,.28);border:1px solid var(--green);border-radius:6px;padding:2px 8px;display:inline-block;animation:tgpulse 1.4s ease-in-out infinite}
 .pl.target{cursor:crosshair;animation:none;box-shadow:inset 0 0 0 2px var(--green),0 0 26px rgba(70,224,160,.75)}
@@ -431,6 +431,7 @@ body:has(#modal .modal:not(.soft)) #bHand{display:none!important}   /* 新遊戲
   #center .big{display:inline;font-size:16px;margin-right:8px}
   #winner{display:inline;margin-left:8px;font-size:16px}
   .pl{position:static!important;transform:none;width:calc(50% - 3px);padding:5px;gap:5px}
+  .pl.waiting{position:relative!important}
   .pl .ph{width:42px;height:60px}
   .pl .ph.hz{margin:0 9px}
   .pl .mini,.bubble{display:none}
@@ -1099,6 +1100,7 @@ function renderTable0(snap) {
     if (p.hand && p.hand.length && snap.viewer == null) inf.append(h("div", {class: "mini"}, p.hand.map(miniEl)));
     const el = h("div", {"data-idx": p.idx, class: "pl" + (snap.cur === p.idx && !snap.over ? " cur" : "") + (winners.has(p.idx) ? " win" : "") + (p.is_viewer ? " me" : "") + (snap.waiting === p.idx && !snap.over ? " waiting" : "") + (p.alive ? "" : " dead") + (S.sel === p.idx ? " sel" : "") + (targetIdx.has(p.idx) ? " target" : "") + (pickMode && S.tgtPick.chosen && S.tgtPick.chosen.includes(p.idx) ? " tp1" : "") + (pickMode && !targetIdx.has(p.idx) && !(S.tgtPick.mv && !S.tgtPick.cid) ? " dimmed" : ""),
                          style: rp ? {left: rp[0] + "px", top: rp[1] + "px", order: k} : {left: `clamp(var(--hw),${x}%,calc(100% - var(--hw)))`, top: `clamp(var(--hh),${y}%,calc(100% - var(--hh)))`, order: k}, onclick: () => { if (pickMode) { tpClick(S.tgtPick, p.idx, pend); return; } S.sel = S.sel === p.idx ? null : p.idx; $("#thf").value = S.sel == null ? "" : String(S.sel); renderThoughts(); renderTable(S.snap); }}, ph, inf);
+    if (snap.waiting === p.idx && !snap.over) el.append(h("i", {class: "wfr"}));   // 等待操作的虛線框: 用獨立圖層畫 (手機瀏覽器的虛線 outline 會漏掉其中一邊)
     { const bx = ((snap.avstyles || {})[p.idx] || {}).bx; if (bx && window.SGS_BOX) SGS_BOX.apply(el, bx); }   // 玩家框
     if (exn) el.style.setProperty("--exn", exn);
     const t = S.lastTh[p.idx];
