@@ -464,11 +464,30 @@ def _():
 
 
 # ---------------- 武器 ----------------
+# ---------------- 武器 (依實物外型重畫: 鋼身 + 金色配件 + 深色描邊) ----------------
+_GOLD, _GD = "#e8c35a", "#6a4a10"
+_ST, _STD, _STL = "#b6bcc4", "#2a2f36", "#e8edf2"
+_WOOD, _WOODD = "#9a6a34", "#3a2410"
+
+
+def _tassel(x, y, c="#d8262c", n=5, ln=26):
+    return (f'<circle cx="{x}" cy="{y}" r="5" fill="{_GOLD}" stroke="{_GD}" stroke-width="2.5"/>'
+            + ''.join(f'<path d="M{x + (k - n // 2) * 3} {y + 4} q{(k - n // 2) * 2} {ln * .5} {(k - n // 2) * 3} {ln}" fill="none" stroke="{c}" stroke-width="3" stroke-linecap="round"/>' for k in range(n)))
+
+
 @reg("諸葛連弩")
-def _():
-    arrows = ''.join(f'<line x1="40" y1="{y}" x2="170" y2="{y}" stroke="#c9a060" stroke-width="5"/><polygon points="184,{y} 166,{y-8} 166,{y+8}" fill="#e8eef5"/>' for y in (96, 124, 152))
-    return ('<path d="M52 56 Q22 124 52 192" ' + st("#c9a060", 10) + '/><line x1="52" y1="56" x2="52" y2="192" stroke="#e8e0c0" stroke-width="3"/><rect x="48" y="104" width="100" height="40" rx="8" fill="#8a4318" stroke="#3a1a08" stroke-width="4"/>'
-            + arrows)
+def _():   # 連弩: 木製弩身 + 頂上的箭匣 + 前端的弩臂和弦 + 後面的扳機槓桿
+    bolts = ''.join(f'<line x1="{x}" y1="86" x2="{x}" y2="100" stroke="{_STL}" stroke-width="4" stroke-linecap="round"/><path d="M{x - 3} 86 l3 -8 l3 8z" fill="{_ST}" stroke="{_STD}" stroke-width="1.5"/>' for x in (82, 96, 110))
+    return ('<g transform="rotate(-14 100 150)">'
+            f'<path d="M150 70 Q202 150 150 230" fill="none" stroke="{_WOODD}" stroke-width="12" stroke-linecap="round"/><path d="M150 70 Q202 150 150 230" fill="none" stroke="{_WOOD}" stroke-width="7" stroke-linecap="round"/>'
+            '<line x1="150" y1="70" x2="116" y2="150" stroke="#f1ead0" stroke-width="2.5"/><line x1="150" y1="230" x2="116" y2="150" stroke="#f1ead0" stroke-width="2.5"/>'
+            f'<rect x="30" y="136" width="130" height="26" rx="8" fill="{_WOOD}" stroke="{_WOODD}" stroke-width="4.5"/><line x1="40" y1="149" x2="150" y2="149" stroke="{_WOODD}" stroke-width="2"/>'
+            f'<rect x="64" y="100" width="62" height="38" rx="5" fill="#b8843e" stroke="{_WOODD}" stroke-width="4.5"/>'
+            + ''.join(f'<line x1="{x}" y1="106" x2="{x}" y2="132" stroke="{_WOODD}" stroke-width="2.2"/>' for x in (78, 92, 106, 120))
+            + bolts
+            + f'<rect x="146" y="132" width="14" height="34" rx="3" fill="{_GOLD}" stroke="{_GD}" stroke-width="3.5"/>'
+            f'<path d="M36 156 L18 196" fill="none" stroke="{_WOODD}" stroke-width="11" stroke-linecap="round"/><path d="M36 156 L18 196" fill="none" stroke="{_WOOD}" stroke-width="6" stroke-linecap="round"/><circle cx="16" cy="200" r="7" fill="none" stroke="{_GOLD}" stroke-width="4"/>'
+            f'<line x1="44" y1="132" x2="190" y2="132" stroke="{_ST}" stroke-width="4" stroke-linecap="round"/><path d="M192 132 l-12 -7 v14z" fill="{_ST}" stroke="{_STD}" stroke-width="2"/></g>')
 
 
 @reg("孔雀羽扇")
@@ -477,57 +496,123 @@ def _():   # 一把半圓形的孔雀翎羽扇: 七片羽毛從扇柄放射開�
                       '<line x1="100" y1="212" x2="100" y2="118" stroke="#8be0c0" stroke-width="1.6"/>'
                       '<ellipse cx="100" cy="126" rx="8" ry="12" fill="#1a5aa0" stroke="#e8c872" stroke-width="2"/><ellipse cx="100" cy="126" rx="3.5" ry="6" fill="#ffd24a"/></g>'
                       for a in sorted((-48, -32, -16, 0, 16, 32, 48), key=lambda v: -abs(v)))
-    return (feather + '<path d="M64 214 Q100 190 136 214" fill="none" stroke="#e8c872" stroke-width="5" stroke-linecap="round"/>'
-            '<path d="M92 214 L108 214 L104 262 Q100 266 96 262Z" fill="#8a4318" stroke="#3a1a08" stroke-width="3" stroke-linejoin="round"/><circle cx="100" cy="214" r="9" fill="#e8c872" stroke="#8a6a2a" stroke-width="2"/>')
+    return ('<g transform="translate(0 -38)">' + feather + '<path d="M64 214 Q100 190 136 214" fill="none" stroke="#e8c872" stroke-width="5" stroke-linecap="round"/>'
+            '<path d="M92 214 L108 214 L104 262 Q100 266 96 262Z" fill="#8a4318" stroke="#3a1a08" stroke-width="3" stroke-linejoin="round"/><circle cx="100" cy="214" r="9" fill="#e8c872" stroke="#8a6a2a" stroke-width="2"/></g>')
 
 
 @reg("青龍偃月刀")
-def _():
-    return ('<g transform="rotate(32 100 130)"><line x1="100" y1="40" x2="100" y2="228" stroke="#3a6a3a" stroke-width="8" stroke-linecap="round"/><path d="M100 36 C150 40 168 84 140 120 C130 100 116 96 100 100Z" fill="#dfe8f0" stroke="#6a7a8a" stroke-width="4" stroke-linejoin="round"/>'
-            '<path d="M104 52 C132 56 146 84 132 104" fill="none" stroke="#8aa0b8" stroke-width="3"/><circle cx="100" cy="112" r="8" fill="#e8c872"/><path d="M96 124 q-10 24 0 40 M104 124 q10 24 0 40" stroke="#3ab870" stroke-width="5" fill="none" stroke-linecap="round"/></g>')
+def _():   # 長柄大刀: 寬闊彎曲的刀身 (背面有缺口)、刀面刻龍、金色刀座 / 握把 / 柄尾
+    GOLD_, GD = "#e8c35a", "#6a4a10"
+    blade = ('<path d="M90 110 C70 92 68 58 82 40 C92 28 114 22 142 20 C130 32 126 44 128 54 L140 58 L127 64 L142 74 C132 88 124 100 112 110Z" fill="#b6bcc4" stroke="#2a2f36" stroke-width="4.5" stroke-linejoin="round"/>'
+             '<path d="M90 110 C70 92 68 58 82 40" fill="none" stroke="#e8edf2" stroke-width="3" stroke-linecap="round" stroke-opacity=".85"/>'
+             '<path d="M118 46 C98 50 100 66 108 74 C116 82 100 90 106 100" fill="none" stroke="#2a2f36" stroke-width="3.2" stroke-linecap="round"/>'
+             '<circle cx="119" cy="45" r="4.5" fill="#2a2f36"/><path d="M121 41 L128 36 M118 40 L119 33" stroke="#2a2f36" stroke-width="2.4" stroke-linecap="round"/>'
+             '<path d="M86 62 C92 58 96 64 94 70 M84 84 C92 80 98 88 94 96" fill="none" stroke="#2a2f36" stroke-width="2.2" stroke-linecap="round" stroke-opacity=".7"/>')
+    collar = (f'<path d="M88 108 L114 108 L110 134 L92 134Z" fill="{GOLD_}" stroke="{GD}" stroke-width="4" stroke-linejoin="round"/>'
+              f'<path d="M94 112 Q101 120 98 130 M104 112 Q108 120 104 130" fill="none" stroke="{GD}" stroke-width="2.4" stroke-linecap="round"/>'
+              f'<rect x="86" y="134" width="30" height="8" rx="2" fill="{GOLD_}" stroke="{GD}" stroke-width="3.5"/>')
+    grip = (f'<rect x="95" y="142" width="12" height="46" fill="{GOLD_}" stroke="{GD}" stroke-width="3.5"/>'
+            + ''.join(f'<path d="M95 {y} L107 {y + 8}" stroke="{GD}" stroke-width="2"/>' for y in range(146, 184, 8)))
+    pole = ('<rect x="97" y="188" width="8" height="58" fill="#aab0b8" stroke="#2a2f36" stroke-width="3.5"/>'
+            '<line x1="99.5" y1="190" x2="99.5" y2="244" stroke="#e8edf2" stroke-width="1.6" stroke-opacity=".8"/>')
+    butt = (f'<rect x="95" y="246" width="12" height="22" fill="{GOLD_}" stroke="{GD}" stroke-width="3.5"/>'
+            f'<path d="M96 268 L106 268 L101 284Z" fill="{GOLD_}" stroke="{GD}" stroke-width="3.5" stroke-linejoin="round"/>')
+    return '<g transform="translate(0 -6)">' + blade + collar + grip + pole + butt + '</g>'
 
 
 @reg("寒冰劍")
-def _():
-    return snow(100, 118, 78, "#7fd8ff", 3) + sword(-40, "#d8f4ff", "#4aa8d8", s=1.0)
+def _():   # 冰藍的直劍: 劍身有血槽、刃緣參差像冰晶、護手是水晶、周圍飄著雪花
+    stars = ''.join(f'<path d="M{x} {y - r} L{x + r * .28} {y - r * .28} L{x + r} {y} L{x + r * .28} {y + r * .28} L{x} {y + r} L{x - r * .28} {y + r * .28} L{x - r} {y} L{x - r * .28} {y - r * .28}Z" fill="#fff" stroke="#6ab8e0" stroke-width="1.5"/>' for x, y, r in ((52, 70, 9), (156, 112, 11), (60, 190, 7), (150, 214, 8)))
+    return ('<g transform="rotate(24 100 143)">'
+            '<path d="M100 18 L113 40 L110 56 L114 70 L110 86 L113 102 L110 150 L100 172 L90 150 L87 102 L90 86 L86 70 L90 56 L87 40Z" fill="#dff4ff" stroke="#2f6f98" stroke-width="4.5" stroke-linejoin="round"/>'
+            '<path d="M100 26 V160" stroke="#7ec4ec" stroke-width="5" stroke-linecap="round"/><path d="M96 40 V150" stroke="#fff" stroke-width="1.8" stroke-opacity=".9"/>'
+            '<path d="M60 172 L88 160 L100 172 L112 160 L140 172 L126 186 L74 186Z" fill="#8fd6ff" stroke="#2a6a90" stroke-width="4" stroke-linejoin="round"/><path d="M80 174 L100 168 L120 174" fill="none" stroke="#fff" stroke-width="2"/>'
+            f'<rect x="93" y="186" width="14" height="40" rx="4" fill="#27486a" stroke="#0e1e30" stroke-width="3.5"/>' + ''.join(f'<path d="M93 {y} l14 6" stroke="#8fd6ff" stroke-width="2"/>' for y in (192, 202, 212))
+            + '<path d="M100 226 L109 236 L100 248 L91 236Z" fill="#8fd6ff" stroke="#2a6a90" stroke-width="3.5"/></g>' + stars)
 
 
 @reg("方天畫戟")
-def _():
-    return ('<g transform="rotate(20 100 130)"><line x1="100" y1="30" x2="100" y2="232" stroke="#c9a060" stroke-width="8" stroke-linecap="round"/><polygon points="100,18 112,56 100,66 88,56" fill="#e8eef5" stroke="#6a7a8a" stroke-width="3"/>'
-            '<path d="M100 74 C132 66 142 92 126 112 C116 96 108 92 100 94Z" fill="#dfe8f0" stroke="#6a7a8a" stroke-width="3"/><path d="M100 74 C68 66 58 92 74 112 C84 96 92 92 100 94Z" fill="#dfe8f0" stroke="#6a7a8a" stroke-width="3"/><circle cx="100" cy="120" r="7" fill="#d6452a"/></g>')
+def _():   # 方天畫戟: 長桿 + 中間的矛尖 + 兩側的月牙刃 + 紅纓
+    moon = lambda sg: (f'<path d="M{100 + sg * 4} 76 C{100 + sg * 46} 66 {100 + sg * 58} 104 {100 + sg * 34} 128 C{100 + sg * 30} 108 {100 + sg * 18} 100 {100 + sg * 4} 100Z" fill="{_ST}" stroke="{_STD}" stroke-width="4.5" stroke-linejoin="round"/>'
+                       f'<path d="M{100 + sg * 12} 82 C{100 + sg * 40} 78 {100 + sg * 48} 102 {100 + sg * 34} 120" fill="none" stroke="{_STL}" stroke-width="2.4" stroke-linecap="round"/>')
+    return ('<g transform="rotate(10 100 143)">'
+            f'<rect x="96" y="70" width="8" height="196" fill="{_WOOD}" stroke="{_WOODD}" stroke-width="3.5"/>'
+            + moon(-1) + moon(1)
+            + f'<path d="M100 14 C114 32 114 52 100 74 C86 52 86 32 100 14Z" fill="{_ST}" stroke="{_STD}" stroke-width="4.5" stroke-linejoin="round"/><path d="M100 26 V68" stroke="{_STL}" stroke-width="2.4"/>'
+            f'<rect x="90" y="72" width="20" height="9" rx="2" fill="{_GOLD}" stroke="{_GD}" stroke-width="3.5"/>'
+            + _tassel(100, 130, ln=34)
+            + f'<rect x="94" y="236" width="12" height="22" fill="{_GOLD}" stroke="{_GD}" stroke-width="3.5"/><path d="M95 258 L105 258 L100 276Z" fill="{_GOLD}" stroke="{_GD}" stroke-width="3.5" stroke-linejoin="round"/></g>')
 
 
 @reg("流星錘")
-def _():
-    spikes = ''.join(f'<polygon points="{150+22*math.cos(math.radians(a)):.1f},{86+22*math.sin(math.radians(a)):.1f} {150+36*math.cos(math.radians(a)):.1f},{86+36*math.sin(math.radians(a)):.1f} {150+22*math.cos(math.radians(a+20)):.1f},{86+22*math.sin(math.radians(a+20)):.1f}" fill="#c8d0dc"/>' for a in range(0, 360, 45))
-    return ('<path d="M30 200 Q70 150 140 96" stroke="#ff9a2a" stroke-width="10" fill="none" stroke-linecap="round" opacity=".5"/><path d="M40 204 Q80 160 140 98" stroke="#c9a060" stroke-width="5" stroke-dasharray="10 5" fill="none"/>'
-            + spikes + '<circle cx="150" cy="86" r="24" fill="#5a6a7c" stroke="#10141c" stroke-width="4"/><circle cx="142" cy="78" r="7" fill="#9aa8bc"/><rect x="26" y="192" width="30" height="14" rx="5" fill="#8a4318" stroke="#3a1a08" stroke-width="3"/>')
+def _():   # 流星錘: 帶尖刺的鐵球 + 一節一節的鐵鏈 + 握把和紅穗
+    cx, cy, r = 134, 96, 32
+    spikes = ''.join(f'<path d="M{cx + (r - 4) * math.cos(math.radians(a - 11)):.1f} {cy + (r - 4) * math.sin(math.radians(a - 11)):.1f} L{cx + (r + 17) * math.cos(math.radians(a)):.1f} {cy + (r + 17) * math.sin(math.radians(a)):.1f} L{cx + (r - 4) * math.cos(math.radians(a + 11)):.1f} {cy + (r - 4) * math.sin(math.radians(a + 11)):.1f}Z" fill="#8c95a0" stroke="{_STD}" stroke-width="3" stroke-linejoin="round"/>' for a in range(0, 360, 30))
+    pts = [((1 - t) ** 2 * 112 + 2 * (1 - t) * t * 70 + t * t * 48, (1 - t) ** 2 * 122 + 2 * (1 - t) * t * 190 + t * t * 226) for t in [k / 9 for k in range(10)]]
+    links = ''
+    for k in range(len(pts) - 1):
+        (x0, y0), (x1, y1) = pts[k], pts[k + 1]
+        ang = math.degrees(math.atan2(y1 - y0, x1 - x0))
+        links += f'<ellipse cx="{(x0 + x1) / 2:.1f}" cy="{(y0 + y1) / 2:.1f}" rx="9" ry="{4 if k % 2 else 6}" transform="rotate({ang:.0f} {(x0 + x1) / 2:.1f} {(y0 + y1) / 2:.1f})" fill="none" stroke="#8c95a0" stroke-width="3.6"/>'
+    return (links + spikes
+            + f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="#6a7482" stroke="{_STD}" stroke-width="4.5"/><circle cx="{cx - 10}" cy="{cy - 11}" r="9" fill="#c5ccd6" fill-opacity=".85"/><path d="M{cx - r + 4} {cy} h{2 * r - 8}" stroke="{_STD}" stroke-width="2.2" stroke-opacity=".55"/>'
+            + f'<rect x="30" y="218" width="30" height="14" rx="6" transform="rotate(-30 45 225)" fill="{_WOOD}" stroke="{_WOODD}" stroke-width="3.5"/>' + _tassel(34, 240, ln=24))
 
 
 @reg("麒麟弓")
-def _():
-    return ('<path d="M150 40 Q36 124 150 208" ' + st("#e8c872", 11) + '/><line x1="150" y1="40" x2="150" y2="208" stroke="#e8e0c0" stroke-width="3"/><line x1="150" y1="124" x2="32" y2="124" stroke="#c9a060" stroke-width="6"/><polygon points="22,124 46,112 46,136" fill="#e8eef5"/>'
-            + flame(70, 124, .32) + '<path d="M120 124 h26" ' + st("#ff6b5a", 7) + '/>')
+def _():   # 麒麟弓: 鑲金的長弓,弓梢是麒麟角 / 雲紋,搭著一支箭
+    return ('<g>'
+            f'<path d="M126 24 Q44 143 126 262" fill="none" stroke="{_WOODD}" stroke-width="13" stroke-linecap="round"/><path d="M126 24 Q44 143 126 262" fill="none" stroke="#7a2a1a" stroke-width="8" stroke-linecap="round"/><path d="M126 24 Q44 143 126 262" fill="none" stroke="{_GOLD}" stroke-width="2.6" stroke-dasharray="10 7" stroke-linecap="round"/>'
+            f'<path d="M126 24 q14 -10 22 2 q-12 -2 -18 8z M126 262 q14 10 22 -2 q-12 2 -18 -8z" fill="{_GOLD}" stroke="{_GD}" stroke-width="3" stroke-linejoin="round"/>'
+            '<line x1="126" y1="26" x2="152" y2="143" stroke="#f1ead0" stroke-width="2.6"/><line x1="126" y1="260" x2="152" y2="143" stroke="#f1ead0" stroke-width="2.6"/>'
+            f'<rect x="56" y="124" width="14" height="38" rx="5" fill="#2fa07a" stroke="#0e4a38" stroke-width="3.5"/><circle cx="63" cy="143" r="4" fill="{_GOLD}"/>'
+            f'<line x1="70" y1="143" x2="190" y2="143" stroke="{_WOOD}" stroke-width="5" stroke-linecap="round"/><path d="M194 143 l-16 -8 v16z" fill="{_ST}" stroke="{_STD}" stroke-width="2.5" stroke-linejoin="round"/>'
+            '<path d="M152 143 l-12 -9 m12 9 l-12 9 m22 -9 l-12 -9 m12 9 l-12 9" stroke="#d8262c" stroke-width="3" stroke-linecap="round" fill="none"/></g>')
 
 
 @reg("青釭劍")
-def _():
-    return '<circle cx="100" cy="122" r="66" fill="#2ad0b0" opacity=".25"/>' + sword(-45, "#aef0e0", "#2a8a78", s=1.02, guard="#2ad0b0") + '<circle cx="100" cy="122" r="5" fill="#fff"/>'
+def _():   # 青釭劍: 細長的碧玉色劍身發著青光,金色護手和紅色劍穗
+    return ('<circle cx="100" cy="150" r="70" fill="#2ad0b0" opacity=".22"/>'
+            '<g transform="rotate(32 100 143)">'
+            '<path d="M100 10 L110 36 L108 170 L100 184 L92 170 L90 36Z" fill="#d8f7ee" stroke="#1f7a68" stroke-width="4.5" stroke-linejoin="round"/>'
+            '<path d="M100 18 V176" stroke="#2ad0b0" stroke-width="4"/><path d="M96 40 V160" stroke="#fff" stroke-width="1.8"/>'
+            f'<path d="M70 186 Q100 170 130 186 L124 196 Q100 186 76 196Z" fill="{_GOLD}" stroke="{_GD}" stroke-width="4" stroke-linejoin="round"/><circle cx="100" cy="186" r="5" fill="#2ad0b0" stroke="#0e5a4a" stroke-width="2"/>'
+            f'<rect x="94" y="195" width="12" height="38" rx="4" fill="#1d5a4a" stroke="#0a2a22" stroke-width="3.5"/>' + ''.join(f'<path d="M94 {y} l12 6" stroke="{_GOLD}" stroke-width="2"/>' for y in (201, 211, 221))
+            + f'<circle cx="100" cy="238" r="8" fill="{_GOLD}" stroke="{_GD}" stroke-width="3.5"/>' + _tassel(100, 246, ln=30) + '</g>')
 
 
 @reg("丈八蛇矛")
-def _():
-    return ('<g transform="rotate(24 100 130)"><line x1="100" y1="96" x2="100" y2="232" stroke="#8a4318" stroke-width="8" stroke-linecap="round"/>'
-            '<path d="M100 26 C122 40 78 58 100 74 C122 90 78 106 100 120" ' + st("#dfe8f0", 12) + '/><path d="M100 26 C122 40 78 58 100 74 C122 90 78 106 100 120" ' + st("#6a7a8a", 3) + '/><circle cx="100" cy="124" r="8" fill="#d6452a"/></g>')
+def _():   # 丈八蛇矛: 矛頭像蛇一樣彎彎曲曲 (波浪形刃)
+    L, Rr = [], []
+    for k in range(0, 21):
+        t = k / 20
+        y = 126 - t * 106
+        cxx = 100 + 11 * math.sin(t * 9.5)
+        w = 9 * (1 - t) ** .8 + .6
+        L.append((cxx - w, y)); Rr.append((cxx + w, y))
+    pts = L + Rr[::-1]
+    d = 'M' + ' L'.join(f'{x:.1f} {y:.1f}' for x, y in pts) + 'Z'
+    mid = ' L'.join(f'{100 + 11 * math.sin((k / 20) * 9.5):.1f} {126 - (k / 20) * 106:.1f}' for k in range(1, 20))
+    return ('<g transform="rotate(14 100 143)">'
+            f'<rect x="96" y="126" width="8" height="144" fill="{_WOOD}" stroke="{_WOODD}" stroke-width="3.5"/>'
+            f'<path d="{d}" fill="{_ST}" stroke="{_STD}" stroke-width="4.5" stroke-linejoin="round"/><path d="M{mid}" fill="none" stroke="{_STL}" stroke-width="2.2" stroke-linecap="round" stroke-opacity=".9"/>'
+            f'<rect x="90" y="122" width="20" height="12" rx="3" fill="{_GOLD}" stroke="{_GD}" stroke-width="3.5"/>'
+            + _tassel(100, 142, ln=30)
+            + f'<rect x="94" y="244" width="12" height="16" fill="{_GOLD}" stroke="{_GD}" stroke-width="3.5"/><path d="M95 260 L105 260 L100 276Z" fill="{_GOLD}" stroke="{_GD}" stroke-width="3.5" stroke-linejoin="round"/></g>')
 
 
 @reg("貫石斧")
-def _():
-    return ('<g transform="rotate(-24 100 130)"><line x1="100" y1="56" x2="100" y2="230" stroke="#8a4318" stroke-width="9" stroke-linecap="round"/><path d="M100 54 C150 40 176 84 150 126 C130 110 114 108 100 110Z" fill="#dfe8f0" stroke="#6a7a8a" stroke-width="4" stroke-linejoin="round"/>'
-            '<path d="M108 66 C134 60 152 84 140 108" fill="none" stroke="#9aa8bc" stroke-width="3"/></g>'
-            '<path d="M30 168 L56 150 L74 176 L100 156 L116 190 L40 200Z" fill="#7a7a82" stroke="#2a2a30" stroke-width="3" stroke-linejoin="round"/><path d="M58 152 L66 172 L60 198" fill="none" stroke="#2a2a30" stroke-width="3"/>')
-
+def _():   # 貫石斧: 長柄大斧,斧刃寬大,下面是被劈開的石頭
+    rock = ('<path d="M30 252 L44 214 L76 200 L100 214 L124 204 L152 222 L164 252Z" fill="#8a8f98" stroke="#2a2d34" stroke-width="4.5" stroke-linejoin="round"/>'
+            '<path d="M98 214 L90 232 L102 242 L94 252" fill="none" stroke="#2a2d34" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round"/><path d="M52 222 L66 212 M124 214 L140 226" stroke="#c5cad2" stroke-width="3" stroke-linecap="round"/>')
+    return (rock + '<g transform="rotate(-14 100 143)">'
+            f'<rect x="96" y="40" width="9" height="190" fill="{_WOOD}" stroke="{_WOODD}" stroke-width="3.5"/>'
+            f'<path d="M104 46 C168 24 198 92 164 146 C148 124 126 118 104 118Z" fill="{_ST}" stroke="{_STD}" stroke-width="4.5" stroke-linejoin="round"/>'
+            '<path d="M112 58 C158 46 180 92 158 128" fill="none" stroke="#e8edf2" stroke-width="3" stroke-linecap="round"/>'
+            f'<path d="M96 70 L74 60 L82 88 L96 92Z" fill="{_ST}" stroke="{_STD}" stroke-width="4" stroke-linejoin="round"/>'
+            f'<rect x="92" y="44" width="17" height="80" rx="3" fill="none" stroke="{_GOLD}" stroke-width="3" stroke-dasharray="14 6"/>'
+            f'<rect x="92" y="118" width="17" height="10" rx="3" fill="{_GOLD}" stroke="{_GD}" stroke-width="3.5"/>'
+            f'<circle cx="100" cy="236" r="7" fill="{_GOLD}" stroke="{_GD}" stroke-width="3.5"/></g>')
 
 
 SKIN = "#f2c9a0"
@@ -639,18 +724,6 @@ def _():   # 發憤圖強: 握緊拳頭
             + '<path d="M70 132 H138 M76 150 H132" stroke="#c4824a" stroke-width="3"/><rect x="48" y="128" width="40" height="18" rx="9" transform="rotate(-25 68 137)" fill="' + SKIN + '" stroke="' + SKINE + '" stroke-width="3"/><rect x="86" y="170" width="30" height="40" rx="8" fill="#c4252a" stroke="#6a1408" stroke-width="3"/>')
 
 
-_old_qinglong = E["青龍偃月刀"][0]
-
-
-@reg("青龍偃月刀")
-def _():   # 加上青龍盤在刀桿上
-    return (_old_qinglong() + '<g transform="rotate(32 100 130)"><path d="M100 228 C66 206 134 184 100 162 C66 140 134 118 100 96" fill="none" stroke="#2ab8d8" stroke-width="9" stroke-linecap="round" opacity=".95"/>'
-            '<path d="M100 228 C66 206 134 184 100 162 C66 140 134 118 100 96" fill="none" stroke="#bff2ff" stroke-width="2" stroke-dasharray="3 6"/>'
-            '<path d="M86 96 Q100 76 118 92 L112 106 Q100 100 90 108Z" fill="#2ab8d8" stroke="#0a5a6a" stroke-width="3"/><circle cx="104" cy="94" r="3" fill="#fff"/><path d="M94 80 l-8 -12 M108 78 l8 -12" stroke="#ffd24a" stroke-width="3" stroke-linecap="round"/></g>')
-
-
-
-
 KIND = {}
 for n in ("殺", "火", "冰", "雷", "閃", "桃", "酒"):
     KIND[n] = "basic"
@@ -668,6 +741,7 @@ for n in ("諸葛連弩", "孔雀羽扇", "青龍偃月刀", "寒冰劍", "方�
 
 # ---------------- 底色風格 (卡面) / 卡背: 古風 (宣紙 / 絹帛 / 竹簡 / 青花 / 玉色 / 朱漆 ...) ----------------
 import colorsys
+import cardglyph
 import re as _re
 
 FONT = "'Noto Serif TC','Songti TC','SimSun','Microsoft JhengHei',serif"
@@ -690,6 +764,8 @@ BGS = {
     "sakura": {"paper": ("#f9e1ea", "#e6b2c6"), "ink": "#4a1a30", "dark": False, "frame": "#8a2a4a", "mist": "#b04a70", "extra": "petal"},
     "night": {"paper": ("#2e2468", "#0a0620"), "ink": "#e4dcff", "dark": True, "frame": "#c9b8ff", "mist": "#000000", "extra": "stars"},
     "neon": {"paper": ("#14143a", "#04040c"), "ink": "#8ff8ff", "dark": True, "frame": "#ff4fd8", "mist": "#000000", "extra": "scan"},
+    "pixel": {"paper": ("#2a3a7a", "#12183a"), "ink": "#fff1e8", "dark": True, "frame": "#ffa300", "mist": "#000000", "extra": "none", "pixel": ("#2a3a7a", "#222f6a", "#ff77a8", "#ffec27")},
+    "pixel_gb": {"paper": ("#8bac0f", "#306230"), "ink": "#0f380f", "dark": False, "frame": "#0f380f", "mist": "#0f380f", "extra": "none", "pixel": ("#9bbc0f", "#8bac0f", "#0f380f", "#306230")},
     "gold": {"paper": ("#5a3e10", "#1c1204"), "ink": "#ffe27a", "dark": True, "frame": "#ffd24a", "mist": "#000000", "extra": "cloud"},
 }
 
@@ -750,38 +826,85 @@ def _scroll(x, y, n, vertical=False, c="#e8c872"):
     return f'<path d="{d}" fill="none" stroke="{c}" stroke-opacity=".5" stroke-width="1.3" stroke-linecap="round"/>'
 
 
-def wrap(name, body, kind, bg="classic"):
+def _pixel_glyph(ch, x0=142, y0=226, cell=3, color="#ffffff"):
+    """像素風印章字: 12x12 點陣 (cardglyph.GLYPH),每列把連續的點合成一個長方形。沒有這個字就用一般字體。"""
+    rows = cardglyph.GLYPH.get(ch)
+    if not rows:
+        return f'<text x="160" y="258" font-size="32" font-weight="900" text-anchor="middle" fill="{color}" font-family="{FONT}" shape-rendering="auto">{ch}</text>'
+    out = []
+    for r, bits in enumerate(rows):
+        c = 0
+        while c < 12:
+            if bits >> (11 - c) & 1:
+                k = c
+                while k < 12 and bits >> (11 - k) & 1:
+                    k += 1
+                out.append(f'<rect x="{x0 + c * cell}" y="{y0 + r * cell}" width="{(k - c) * cell}" height="{cell}"/>')
+                c = k
+            else:
+                c += 1
+    return f'<g fill="{color}" shape-rendering="crispEdges">' + ''.join(out) + '</g>'
+
+
+def _wrap_pixel(name, body, kind, P, seal, small=False, equip=False, land=False):
+    """像素風卡面: 圖示用 SVG 濾鏡「降解析度」成方塊像素、階梯狀像素邊框、棋盤格底、方形像素印章。"""
+    W, H = (286, 200) if land else (200, 286)
+    c1, c2, hi, fr = P["pixel"]
+    dark, ink = P["dark"], P["ink"]
+    body = ancient(body, dark, ink)
+    C = 6   # 一格像素的大小 (卡面座標)
+    glyph = _pixel_glyph(seal, W - 58, H - 60)
+    chk = ''.join(f'<rect x="{x}" y="{y}" width="10" height="10" fill="{c2}"/>' for y in range(14, H - 14, 10) for x in range(14 + (10 if (y // 10) % 2 else 0), W - 14, 20))
+    notch = ''.join(f'<rect x="{x}" y="{y}" width="8" height="8" fill="#0b0b14"/>' for x, y in ((0, 0), (W - 8, 0), (0, H - 8), (W - 8, H - 8)))
+    steps = ''.join(f'<rect x="{x}" y="{y}" width="4" height="4" fill="{fr}"/>' for x, y in ((8, 8), (W - 12, 8), (8, H - 12), (W - 12, H - 12)))
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" shape-rendering="crispEdges">'
+            f'<defs><filter id="pix" filterUnits="userSpaceOnUse" x="0" y="0" width="{W}" height="{H}" color-interpolation-filters="sRGB"><feFlood x="{C / 2 - 1}" y="{C / 2 - 1}" width="2" height="2" flood-color="#000"/><feComposite width="{C}" height="{C}"/><feTile result="g"/><feComposite in="SourceGraphic" in2="g" operator="in"/><feMorphology operator="dilate" radius="{C / 2}"/></filter>'
+            f'<filter id="outline" x="-12%" y="-12%" width="124%" height="124%"><feMorphology in="SourceAlpha" operator="dilate" radius="2.4" result="d"/><feFlood flood-color="#0b0b14"/><feComposite in2="d" operator="in" result="o"/><feMerge><feMergeNode in="o"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>'
+            f'<rect width="{W}" height="{H}" fill="#0b0b14"/>{notch}'
+            f'<rect x="4" y="4" width="{W - 8}" height="{H - 8}" fill="{fr}"/><rect x="8" y="8" width="{W - 16}" height="{H - 16}" fill="#0b0b14"/>'
+            f'<clipPath id="pn"><rect x="12" y="12" width="{W - 24}" height="{H - 24}"/></clipPath><rect x="12" y="12" width="{W - 24}" height="{H - 24}" fill="{c1}"/><g clip-path="url(#pn)">{chk}</g>{steps}'
+            f'<g{"" if small else " filter=\"url(#pix)\""}><g transform="translate({W / 2} {H / 2 - 5}) scale({.72 if land else .8}) translate(-100 -143)"><g filter="url(#outline)">{body}</g></g></g>'
+            f'<rect x="12" y="12" width="{W - 24}" height="4" fill="#fff" fill-opacity=".18"/>'
+            + ('' if equip else f'<g><rect x="{W - 68}" y="{H - 70}" width="56" height="56" fill="#0b0b14"/><rect x="{W - 64}" y="{H - 66}" width="48" height="48" fill="#d8262c"/>' + glyph + '</g>') + '</svg>')
+
+
+def wrap(name, body, kind, bg="classic", small=False, land=False):
     """卡面統一概念: 深色浮雕金屬邊框 + 宣紙內框 + 水墨暈染 / 飛濺 + 火星 + 墨線圖示 + 朱砂印章 (印章是這張牌的關鍵字)。"""
+    W, H = (286, 200) if land else (200, 286)   # 延時錦囊是橫的
     P = BGS.get(bg) or BGS["classic"]
     top, bot = P["paper"]
     dark, ink, fr, mist = P["dark"], P["ink"], P["frame"], P["mist"]
     seal = SEAL.get(name, name[0])
+    equip = kind in ("weapon", "armor", "horse")   # 武器 / 防具 / 坐騎: 右下角不放印章 (武器改寫攻擊範圍,見前端)
+    if P.get("pixel"):
+        return _wrap_pixel(name, body, kind, P, seal, small, equip, land)
     wash = WASH.get(kind, "#4f7f96")
     ember = EMBER.get(kind, "#ff9a4a")
     body = ancient(body, dark, ink)
     rnd = _rng(sum(ord(ch) * (k + 3) for k, ch in enumerate(name)) + 7)
     extra = ''
     if P["extra"] == "silk":   # 絹帛: 細織紋
-        extra = ''.join(f'<line x1="16" y1="{y}" x2="184" y2="{y}" stroke="#7a5a1a" stroke-opacity=".12" stroke-width=".8"/>' for y in range(18, 270, 4)) + ''.join(f'<line x1="{x}" y1="16" x2="{x}" y2="270" stroke="#7a5a1a" stroke-opacity=".1" stroke-width=".8"/>' for x in range(20, 184, 4))
+        extra = ''.join(f'<line x1="16" y1="{y}" x2="{W - 16}" y2="{y}" stroke="#7a5a1a" stroke-opacity=".12" stroke-width=".8"/>' for y in range(18, H, 4)) + ''.join(f'<line x1="{x}" y1="16" x2="{x}" y2="{H - 16}" stroke="#7a5a1a" stroke-opacity=".1" stroke-width=".8"/>' for x in range(20, W, 4))
     elif P["extra"] == "bamboo":   # 竹簡: 一條一條的竹片
-        extra = ''.join(f'<rect x="{x}" y="16" width="1.6" height="254" fill="#4a3a18" fill-opacity=".35"/><rect x="{x + 9}" y="16" width=".8" height="254" fill="#fff" fill-opacity=".12"/>' for x in range(26, 184, 24))
+        extra = ''.join(f'<rect x="{x}" y="16" width="1.6" height="254" fill="#4a3a18" fill-opacity=".35"/><rect x="{x + 9}" y="16" width=".8" height="254" fill="#fff" fill-opacity=".12"/>' for x in range(26, W, 24))
     elif P["extra"] == "wave":   # 海浪紋
-        extra = ''.join(f'<path d="M{x} {y} q7 -9 14 0 t14 0 t14 0" fill="none" stroke="{ink}" stroke-opacity=".14" stroke-width="1.4"/>' for y in range(34, 270, 18) for x in range(14 + (14 if (y // 18) % 2 else 0) - 14, 176, 42))
+        extra = ''.join(f'<path d="M{x} {y} q7 -9 14 0 t14 0 t14 0" fill="none" stroke="{ink}" stroke-opacity=".14" stroke-width="1.4"/>' for y in range(34, H, 18) for x in range(14 + (14 if (y // 18) % 2 else 0) - 14, W - 24, 42))
     elif P["extra"] == "petal":   # 飄落的櫻花瓣
-        extra = ''.join(f'<ellipse cx="{(k * 47) % 150 + 24}" cy="{(k * 83) % 230 + 26}" rx="4" ry="2.4" transform="rotate({(k * 37) % 180} {(k * 47) % 150 + 24} {(k * 83) % 230 + 26})" fill="#d86a94" fill-opacity=".45"/>' for k in range(18))
+        extra = ''.join(f'<ellipse cx="{(k * 47) % (W - 50) + 24}" cy="{(k * 83) % (H - 50) + 26}" rx="4" ry="2.4" transform="rotate({(k * 37) % 180} {(k * 47) % (W - 50) + 24} {(k * 83) % (H - 50) + 26})" fill="#d86a94" fill-opacity=".45"/>' for k in range(18))
     elif P["extra"] == "stars":   # 星點
-        extra = ''.join(f'<circle cx="{(k * 53) % 150 + 24}" cy="{(k * 97) % 230 + 26}" r="{1 + k % 2 * .6}" fill="#fff" fill-opacity=".7"/>' for k in range(30))
+        extra = ''.join(f'<circle cx="{(k * 53) % (W - 50) + 24}" cy="{(k * 97) % (H - 50) + 26}" r="{1 + k % 2 * .6}" fill="#fff" fill-opacity=".7"/>' for k in range(30))
     elif P["extra"] == "scan":   # 掃描線
-        extra = ''.join(f'<line x1="16" y1="{y}" x2="184" y2="{y}" stroke="#3ff0ff" stroke-opacity=".1"/>' for y in range(22, 270, 12))
+        extra = ''.join(f'<line x1="16" y1="{y}" x2="{W - 16}" y2="{y}" stroke="#3ff0ff" stroke-opacity=".1"/>' for y in range(22, H, 12))
     elif P["extra"] == "cloud":   # 祥雲暗紋
-        extra = ''.join(f'<path d="M{x} {y} q6 -9 14 -3 q8 -6 12 3 q-6 4 -12 2 q-6 4 -14 -2z" fill="none" stroke="{ink}" stroke-opacity=".12" stroke-width="1.4"/>' for y in range(34, 270, 36) for x in range(22 + (18 if (y // 36) % 2 else 0), 176, 40))
+        extra = ''.join(f'<path d="M{x} {y} q6 -9 14 -3 q8 -6 12 3 q-6 4 -12 2 q-6 4 -14 -2z" fill="none" stroke="{ink}" stroke-opacity=".12" stroke-width="1.4"/>' for y in range(34, H, 36) for x in range(22 + (18 if (y // 36) % 2 else 0), W - 24, 40))
     inkc = "#000" if not dark else "#000"
-    blobs = ''.join(f'<path d="{_blob(100 + (next(rnd) - .5) * 40, 138 + (next(rnd) - .5) * 40, 52 + 14 * next(rnd), rnd)}" fill="{inkc}" fill-opacity="{.16 + .2 * next(rnd):.2f}"/>' for _ in range(5))
-    spat = ''.join(f'<circle cx="{100 + math.cos(a) * rr:.1f}" cy="{138 + math.sin(a) * rr:.1f}" r="{.7 + 2.4 * next(rnd) ** 2:.1f}" fill="{inkc}" fill-opacity=".6"/>'
+    mt = f"translate(16 {H - 286}) scale({(W - 32) / 168:.4f} 1) translate(-16 0)" if land else ""
+    blobs = ''.join(f'<path d="{_blob(W / 2 + (next(rnd) - .5) * 40, H / 2 - 5 + (next(rnd) - .5) * 40, 52 + 14 * next(rnd), rnd)}" fill="{inkc}" fill-opacity="{.16 + .2 * next(rnd):.2f}"/>' for _ in range(5))
+    spat = ''.join(f'<circle cx="{W / 2 + math.cos(a) * rr:.1f}" cy="{H / 2 - 5 + math.sin(a) * rr:.1f}" r="{.7 + 2.4 * next(rnd) ** 2:.1f}" fill="{inkc}" fill-opacity=".6"/>'
                    for a, rr in ((next(rnd) * 6.283, 46 + 48 * next(rnd)) for _ in range(34)))
-    embers = ''.join(f'<circle cx="{100 + (next(rnd) - .5) * 100:.1f}" cy="{150 + (next(rnd) - .5) * 120:.1f}" r="{.8 + 1.4 * next(rnd):.1f}" fill="{ember}" fill-opacity="{.5 + .5 * next(rnd):.2f}"/>' for _ in range(24))
-    studs = ''.join(f'<circle cx="{x}" cy="{y}" r="2.6" fill="url(#stud)" stroke="#0a0908" stroke-width=".6"/>' for x, y in ((9, 9), (191, 9), (9, 277), (191, 277), (9, 143), (191, 143), (100, 8)))
-    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 286" width="200" height="286">'
+    embers = ''.join(f'<circle cx="{W / 2 + (next(rnd) - .5) * W * .5:.1f}" cy="{H / 2 + 7 + (next(rnd) - .5) * H * .42:.1f}" r="{.8 + 1.4 * next(rnd):.1f}" fill="{ember}" fill-opacity="{.5 + .5 * next(rnd):.2f}"/>' for _ in range(24))
+    studs = ''.join(f'<circle cx="{x}" cy="{y}" r="2.6" fill="url(#stud)" stroke="#0a0908" stroke-width=".6"/>' for x, y in ((9, 9), (W - 9, 9), (9, H - 9), (W - 9, H - 9), (9, H // 2), (W - 9, H // 2), (W // 2, 8)))
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}">'
             f'<defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{top}"/><stop offset="1" stop-color="{bot}"/></linearGradient>'
             f'<linearGradient id="mt" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4a4640"/><stop offset=".5" stop-color="#23211f"/><stop offset="1" stop-color="#3a3733"/></linearGradient>'
             f'<radialGradient id="stud" cx="35%" cy="30%" r="70%"><stop offset="0" stop-color="#d8b878"/><stop offset="1" stop-color="#4a3a1c"/></radialGradient>'
@@ -791,25 +914,25 @@ def wrap(name, body, kind, bg="classic"):
             f'<filter id="rough" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency=".05" numOctaves="2" seed="11" result="t"/><feDisplacementMap in="SourceGraphic" in2="t" scale="3.2" xChannelSelector="R" yChannelSelector="G"/></filter>'
             f'<filter id="inkr" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="3" seed="3" result="t"/><feDisplacementMap in="SourceGraphic" in2="t" scale="22" xChannelSelector="R" yChannelSelector="G"/><feGaussianBlur stdDeviation="1.4"/></filter>'
             f'<filter id="outline" x="-12%" y="-12%" width="124%" height="124%"><feMorphology in="SourceAlpha" operator="dilate" radius="2.2" result="d"/><feFlood flood-color="{ink}" flood-opacity=".92"/><feComposite in2="d" operator="in" result="o"/><feMerge><feMergeNode in="o"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'
-            f'<clipPath id="panel"><rect x="16" y="16" width="168" height="254"/></clipPath></defs>'
+            f'<clipPath id="panel"><rect x="16" y="16" width="{W - 32}" height="{H - 32}"/></clipPath></defs>'
             # 內框: 宣紙
-            f'<rect width="200" height="286" fill="#1c1b19"/><g clip-path="url(#panel)"><rect width="200" height="286" fill="url(#bg)"/><rect width="200" height="286" filter="url(#paper)" opacity=".55"/>{extra}'
-            f'<circle cx="100" cy="138" r="82" fill="url(#glow)"/>'
+            f'<rect width="{W}" height="{H}" fill="#1c1b19"/><g clip-path="url(#panel)"><rect width="{W}" height="{H}" fill="url(#bg)"/><rect width="{W}" height="{H}" filter="url(#paper)" opacity=".55"/>{extra}'
+            f'<circle cx="{W / 2}" cy="{H / 2 - 5}" r="{76 if land else 82}" fill="url(#glow)"/>'
             f'<g filter="url(#inkr)">{blobs}</g>{spat}'
-            f'<path d="M16 240 Q36 214 54 232 Q74 202 98 232 Q118 210 140 232 Q164 206 184 228 V270 H16Z" fill="{mist}" fill-opacity=".18"/>'
-            f'<g transform="translate(100 140) scale(.86) translate(-100 -143)"><g filter="url(#outline)"><g filter="url(#rough)">{body}</g></g></g>'
-            f'{embers}<rect width="200" height="286" fill="url(#vg)"/></g>'
-            f'<rect x="21" y="21" width="158" height="244" fill="none" stroke="{fr}" stroke-opacity=".55" stroke-width="1"/>'
+            f'<g transform="{mt}"><path d="M16 240 Q36 214 54 232 Q74 202 98 232 Q118 210 140 232 Q164 206 184 228 V270 H16Z" fill="{mist}" fill-opacity=".18"/></g>'
+            f'<g transform="translate({W / 2} {H / 2 - 3}) scale({.78 if land else .86}) translate(-100 -143)"><g filter="url(#outline)"><g filter="url(#rough)">{body}</g></g></g>'
+            f'{embers}<rect width="{W}" height="{H}" fill="url(#vg)"/></g>'
+            f'<rect x="21" y="21" width="{W - 42}" height="{H - 42}" fill="none" stroke="{fr}" stroke-opacity=".55" stroke-width="1"/>'
             # 外框: 深色浮雕金屬
-            f'<path fill-rule="evenodd" fill="url(#mt)" d="M6 0 H194 Q200 0 200 6 V280 Q200 286 194 286 H6 Q0 286 0 280 V6 Q0 0 6 0Z M16 16 V270 H184 V16Z"/>'
-            f'<rect x="1" y="1" width="198" height="284" rx="5" fill="none" stroke="{fr}" stroke-opacity=".6" stroke-width="1.2"/>'
-            f'<rect x="15" y="15" width="170" height="256" fill="none" stroke="#0a0908" stroke-width="2"/><rect x="16.5" y="16.5" width="167" height="253" fill="none" stroke="{fr}" stroke-opacity=".5" stroke-width=".8"/>'
-            + _scroll(24, 9, 12, False, fr) + _scroll(24, 281, 12, False, fr) + _scroll(9, 30, 16, True, fr) + _scroll(191, 30, 16, True, fr)
-            + f'<path d="M92 9 L100 3 L108 9 L100 15Z" fill="url(#stud)" stroke="#0a0908" stroke-width=".7"/>' + studs
+            f'<path fill-rule="evenodd" fill="url(#mt)" d="M6 0 H{W - 6} Q{W} 0 {W} 6 V{H - 6} Q{W} {H} {W - 6} {H} H6 Q0 {H} 0 {H - 6} V6 Q0 0 6 0Z M16 16 V{H - 16} H{W - 16} V16Z"/>'
+            f'<rect x="1" y="1" width="{W - 2}" height="{H - 2}" rx="5" fill="none" stroke="{fr}" stroke-opacity=".6" stroke-width="1.2"/>'
+            f'<rect x="15" y="15" width="{W - 30}" height="{H - 30}" fill="none" stroke="#0a0908" stroke-width="2"/><rect x="16.5" y="16.5" width="{W - 33}" height="{H - 33}" fill="none" stroke="{fr}" stroke-opacity=".5" stroke-width=".8"/>'
+            + _scroll(24, 9, (W - 32) // 14, False, fr) + _scroll(24, H - 5, (W - 32) // 14, False, fr) + _scroll(9, 30, (H - 60) // 14, True, fr) + _scroll(W - 9, 30, (H - 60) // 14, True, fr)
+            + f'<path d="M{W / 2 - 8} 9 L{W / 2} 3 L{W / 2 + 8} 9 L{W / 2} 15Z" fill="url(#stud)" stroke="#0a0908" stroke-width=".7"/>' + studs
             # 印章 (壓在邊框上)
-            + f'<g transform="rotate(-2 166 246)"><rect x="143" y="224" width="46" height="46" rx="4" fill="#3a1412" stroke="#0a0908" stroke-width="2"/><rect x="146" y="227" width="40" height="40" rx="3" fill="#b3232a" stroke="#e8c872" stroke-opacity=".6" stroke-width="1.2"/>'
-              f'<rect x="150" y="231" width="32" height="32" fill="none" stroke="#ffd9d0" stroke-opacity=".6" stroke-width="1"/>'
-              f'<text x="166" y="257" font-size="28" font-weight="900" text-anchor="middle" fill="#ffe9e0" font-family="{FONT}">{seal}</text></g>'
+            + ('' if equip else f'<g><rect x="{W - 57}" y="{H - 62}" width="46" height="46" rx="4" fill="#3a1412" stroke="#0a0908" stroke-width="2"/><rect x="{W - 54}" y="{H - 59}" width="40" height="40" rx="3" fill="#b3232a" stroke="#e8c872" stroke-opacity=".6" stroke-width="1.2"/>'
+              f'<rect x="{W - 50}" y="{H - 55}" width="32" height="32" fill="none" stroke="#ffd9d0" stroke-opacity=".6" stroke-width="1"/>'
+              f'<text x="{W - 34}" y="{H - 29}" font-size="28" font-weight="900" text-anchor="middle" fill="#ffe9e0" font-family="{FONT}">{seal}</text></g>')
             + '</svg>')
 
 
@@ -850,6 +973,21 @@ BACKS = {   # id: (背景亮, 背景暗, 線條色, 中央圖示, 底紋)
 }
 
 
+# 像素主題的配色 (亮, 暗): 每種像素主題各有一款像素卡面 (id 跟主題 id 相同)
+PIXEL_PAL = {"pixel": ("#ff77a8", "#1d2b53"), "pixel_gb": ("#9bbc0f", "#0f380f"), "pixel_blue": ("#29adff", "#0b1a3a"), "pixel_amber": ("#ffa300", "#2e1706"),
+             "pixel_violet": ("#83769c", "#1f1633"), "pixel_red": ("#ff004d", "#2a0a14"), "pixel_bw": ("#c2c3c7", "#1a1a1a")}
+
+
+def _mix(c1, c2, t):
+    a, b = _hx(c1), _hx(c2)
+    return "#%02x%02x%02x" % tuple(round((x + (y - x) * t) * 255) for x, y in zip(a, b))
+
+
+for _id, (_a, _b) in PIXEL_PAL.items():
+    if _id not in BGS:
+        BGS[_id] = {"paper": (_mix(_b, _a, .2), _b), "ink": "#fff1e8", "dark": True, "frame": _a, "mist": "#000000", "extra": "none", "pixel": (_mix(_b, _a, .2), _mix(_b, _a, .1), _a, _a)}
+
+
 def back(bk="classic"):
     c1, c2, ln, emb, pat = BACKS.get(bk) or BACKS["classic"]
     if pat == "diamond":
@@ -864,13 +1002,13 @@ def back(bk="classic"):
 _cache = {}
 
 
-def svg(name, bg="classic"):
-    """某張牌的卡面 SVG;沒有這張牌回傳 None。bg = 卡面風格 id。"""
+def svg(name, bg="classic", small=False):
+    """某張牌的卡面 SVG;沒有這張牌回傳 None。bg = 卡面風格 id;small = 很小的縮圖 (像素風不做降解析度,不然太小會看不到圖)。"""
     if name not in E:
         return None
-    key = (name, bg if bg in BGS else "classic")
+    key = (name, bg if bg in BGS else "classic", bool(small))
     if key not in _cache:
-        _cache[key] = wrap(name, E[name][0](), KIND.get(name, "trick"), key[1])
+        _cache[key] = wrap(name, E[name][0](), KIND.get(name, "trick"), key[1], small, KIND.get(name) == "delay")
     return _cache[key]
 
 
@@ -879,3 +1017,48 @@ def svg_back(bk="classic"):
     if key not in _cache:
         _cache[key] = back(key[1])
     return _cache[key]
+
+
+# ---------------- 身分牌 (教學用): 主公 / 忠臣 / 反賊 / 內奸,跟卡牌同一套古風畫法 ----------------
+def _role_crown():
+    return ('<path d="M52 172 L44 104 L78 134 L100 90 L122 134 L156 104 L148 172Z" fill="#e8c35a" stroke="#6a4a10" stroke-width="5" stroke-linejoin="round"/>'
+            '<rect x="50" y="172" width="100" height="18" rx="4" fill="#c99a2a" stroke="#6a4a10" stroke-width="5"/>'
+            + ''.join(f'<circle cx="{x}" cy="{y}" r="8" fill="#d6452a" stroke="#6a1a10" stroke-width="3"/>' for x, y in ((44, 104), (100, 90), (156, 104)))
+            + '<circle cx="100" cy="150" r="9" fill="#2a8a8a" stroke="#0a3a3a" stroke-width="3"/>')
+
+
+def _role_shield():
+    return ('<path d="M100 78 L152 98 V152 Q152 194 100 218 Q48 194 48 152 V98Z" fill="#d9b34a" stroke="#6a4a10" stroke-width="5" stroke-linejoin="round"/>'
+            '<path d="M100 78 L152 98 V152 Q152 194 100 218Z" fill="#b8902a" fill-opacity=".5"/>'
+            '<path d="M100 102 V204 M62 140 H138" stroke="#6a4a10" stroke-width="7" stroke-linecap="round"/><circle cx="100" cy="140" r="12" fill="#d6452a" stroke="#6a1a10" stroke-width="3"/>')
+
+
+def _role_flag():
+    return ('<line x1="66" y1="78" x2="66" y2="226" stroke="#8a5a2a" stroke-width="8" stroke-linecap="round"/>'
+            '<path d="M70 86 L154 104 L128 128 L158 150 L70 146Z" fill="#3aa86a" stroke="#14502a" stroke-width="5" stroke-linejoin="round"/>'
+            '<path d="M84 104 L128 112 M84 124 L120 130" stroke="#14502a" stroke-width="3.5" stroke-linecap="round"/>'
+            '<circle cx="66" cy="76" r="8" fill="#e8c35a" stroke="#6a4a10" stroke-width="3"/>')
+
+
+def _role_eye():
+    return ('<path d="M42 143 Q100 84 158 143 Q100 202 42 143Z" fill="#f6ecd0" stroke="#1a2a4a" stroke-width="5" stroke-linejoin="round"/>'
+            '<circle cx="100" cy="143" r="26" fill="#2a5aa8" stroke="#10244a" stroke-width="4"/><circle cx="100" cy="143" r="11" fill="#10142a"/><circle cx="108" cy="134" r="5" fill="#fff"/>'
+            '<path d="M60 104 L72 118 M100 86 V104 M140 104 L128 118" stroke="#1a2a4a" stroke-width="4" stroke-linecap="round"/>')
+
+
+ROLE = {"主公": (_role_crown, "basic"), "忠臣": (_role_shield, "horse"), "反賊": (_role_flag, "armor"), "內奸": (_role_eye, "trick")}
+SEAL.update({"主公": "主", "忠臣": "忠", "反賊": "反", "內奸": "奸"})
+
+
+def svg_role(name, bg="classic"):
+    if name not in ROLE:
+        return None
+    key = ("_role", name, bg if bg in BGS else "classic")
+    if key not in _cache:
+        fn, kind = ROLE[name]
+        _cache[key] = wrap(name, fn(), kind, key[2])
+    return _cache[key]
+
+
+import hashlib as _hl
+VER = _hl.md5(open(__file__, "rb").read()).hexdigest()[:8]   # 卡面程式的版本碼: 加在圖片網址後面,圖改了瀏覽器就會重新下載 (不會看到舊圖)

@@ -2,7 +2,7 @@
 import time
 import os
 import re
-from cards import ViewCard
+from cards import ViewCard, WEAPON
 import cardart
 from characters import SkillAct, ROSTER
 
@@ -30,7 +30,7 @@ def card_img(name, color):
     if key not in _img_cache:
         url = None
         if name in cardart.E:   # 新卡面 (SVG,不分紅黑;依牌名畫,風格由玩家選的「卡面」決定)
-            _img_cache[key] = "/cards/" + name + ".svg"
+            _img_cache[key] = "/cards/" + name + ".svg?v=" + cardart.VER
             return _img_cache[key]
         for stem in (color + name, color + ALIAS.get(name, name)):
             for ext in (".png", ".jpg"):
@@ -83,17 +83,25 @@ def full_name(name):
     return re.sub(r"^[⚡⏳]\s*", "", m.group(1)).strip() if m else name
 
 
+WEAPON_RANGE = {n: r for n, _c, r in WEAPON}
+
+
+def range_label(name):
+    """武器牌右下角方框裡的數字: 攻擊範圍。"""
+    return str(WEAPON_RANGE[name]) if name in WEAPON_RANGE else ""
+
+
 def bolt_name(name):
     """卡面上的牌名: ⚡ 連鎖型錦囊 (可在傷害結算前使用) 前面加 ⚡,例: ⚡占卜。"""
     return ("⚡" if DESC.get(name, "").startswith("⚡") else "") + full_name(name)
 
 
-TYPE_LABEL = {"basic": "基本牌", "trick": "錦囊", "weapon": "武器", "armor": "防具", "horse": "坐騎"}
+TYPE_LABEL = {"basic": "基本", "trick": "錦囊", "weapon": "武器", "armor": "防具", "horse": "坐騎"}
 
 
 def type_label(name, kind):
     if cardart.KIND.get(name) == "delay":
-        return "延時錦囊"
+        return "⌛錦囊"
     return TYPE_LABEL.get(kind, "")
 
 
@@ -106,7 +114,7 @@ def card_dict(c):
          "img": card_img(getattr(real, "nature", None) or real.name, real.color),
          "text": f"{bolt_name(c.name)[:1] if bolt_name(c.name)[:1] == '⚡' else ''}{c.color}{getattr(c, 'nature', None) or ''}{full_name(c.name)}",
          "full": full_name(c.name), "bolt": "⚡" if DESC.get(c.name, "").startswith("⚡") else "", "nat": getattr(real, "nature", None) or "",
-         "desc": DESC.get(real.name, ""), "tp": type_label(real.name, c.kind)}
+         "desc": DESC.get(real.name, ""), "tp": type_label(real.name, c.kind), "rng": range_label(real.name), "land": cardart.KIND.get(real.name) == "delay"}
     if getattr(real, "nature", None):
         d["desc"] = f"{real.nature}屬性殺: " + DESC["殺"]
     if isinstance(c, ViewCard):

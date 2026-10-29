@@ -11,7 +11,7 @@ if (!LANGS.some(l => l[0] === lang)) lang = "zh";
 /* ---------- 詞典: [中文, English, 日本語] ---------- */
 const W = [
   // 介面
-  ["進化三國", "Evolved Three Kingdoms", "進化三国"], ["基本牌", "Basic", "基本"], ["錦囊", "Trick", "錦嚢"], ["延時錦囊", "Delayed Trick", "遅延錦嚢"], ["武器", "Weapon", "武器"], ["防具", "Armor", "防具"], ["坐騎", "Mount", "騎乗"], ["暫停", "Pause", "一時停止"], ["繼續", "Resume", "再開"],
+  ["進化三國", "Evolved Three Kingdoms", "進化三国"], ["基本", "Basic", "基本"], ["錦囊", "Trick", "錦嚢"], ["延時錦囊", "Delayed Trick", "遅延錦嚢"], ["武器", "Weapon", "武器"], ["防具", "Armor", "防具"], ["坐騎", "Mount", "騎乗"], ["暫停", "Pause", "一時停止"], ["繼續", "Resume", "再開"],
   ["新遊戲", "New game", "新規ゲーム"], ["單步", "Step", "コマ送り"], ["每步延遲 ", "Step delay ", "ステップ間隔 "],
   ["即時顯示 AI 思考", "Show AI thoughts live", "AIの思考を即表示"], ["暱稱", "Nickname", "ニックネーム"],
   ["側欄 ▸", "Sidebar ▸", "サイド ▸"], ["側欄", "Sidebar", "サイド"], ["對局紀錄", "Game log", "対局ログ"],
@@ -210,7 +210,7 @@ const TUT = {
       ["最常用的牌", "• 殺: 打人,對方要出「閃」,否則扣 1 血。每回合只能出一張。\n• 閃: 躲掉一次殺。\n• 桃: 回 1 血,也能救瀕死的人。\n• 酒: 搭配殺傷害 +1。\n• 錦囊 (順手牽羊、決鬥、南蠻入侵…) 與裝備,滑鼠移上去就能看說明。⚡ 標記的可以在別人出牌時搶著用。"],
       ["瀕死與勝負", "體力降到 0 會瀕死,大家可以出桃救他,沒人救就陣亡。\n達成自己身分的目標就獲勝。\n遊戲最多進行 100 輪,超過算平手。"],
       ["段位與模式", "新遊戲可選「🎮 休閒」(不影響積分) 或「🏅 段位」(贏加分、輸扣分)。\n段位由低到高: 青銅 → 白銀 → 黃金 → 白金 → 鑽石 → 大師 → 傳說。\n詳細計分按開新遊戲畫面裡的「段位說明」。\n剛開始建議先打休閒或練習局。"],
-      ["遊戲幣與商店", "• 只有「🏅 段位」對局會得到遊戲幣: 贏 18~36 (依電腦難度)、輸 8、平手 12;棄賽沒有。\n• 遊戲幣可以到「🛒 商店」買主題、玩家框、頭像框和特效。每個成就也會直接送你一個外觀。\n• 積分到「傳說」後可以按「轉生」: 回到青銅3,名字旁多一顆 ★,並得到聲望;聲望可以買轉生限定外觀。"],
+      ["遊戲幣與外觀", "• 只有「🏅 段位」對局會得到遊戲幣: 贏 18~36 (依電腦難度)、輸 8、平手 12;棄賽沒有。\n• 遊戲幣可以到「🎨 外觀」買主題、玩家框、頭像框和特效。每個成就也會直接送你一個外觀。\n• 積分到「傳說」後可以按「轉生」: 回到青銅3,名字旁多一顆 ★,並得到聲望;聲望可以買轉生限定外觀。"],
       ["練習局", "按下方「開始練習局」會開一場 4 人局 (你 vs 3 個 AI),畫面上方會提示你現在該做什麼。玩得開心!"],
     ],
     hints: {
@@ -234,7 +234,7 @@ const TUT = {
       ["Key cards", "• Slash: attack; the target must play a Dodge or lose 1 HP. One per turn.\n• Dodge: avoids one Slash.\n• Peach: restore 1 HP, or save a dying player.\n• Wine: +1 damage on your Slash.\n• Tricks (Steal, Duel, Barbarians...) and equipment: hover for details. Cards marked ⚡ can be played in response to others."],
       ["Dying & winning", "At 0 HP a player is dying; others may play a Peach to save them, otherwise they die.\nAchieve your role's goal to win.\nA game lasts at most 100 rounds; beyond that it's a draw."],
       ["Ranks & modes", "A new game can be 🎮 Casual (no points change) or 🏅 Ranked (win = gain points, loss = lose points).\nRanks, low to high: Bronze → Silver → Gold → Platinum → Diamond → Master → Legend.\nFor the full scoring, press \"Rank guide\" on the new game screen.\nNew here? Start with Casual or the practice game."],
-      ["Coins & shop", "• Only 🏅 Ranked games give coins: win 18-36 (by AI difficulty), loss 8, draw 12; forfeiting gives none.\n• Spend coins in the 🛒 Shop on themes, seat boxes, avatar frames and effects. Each achievement also gives one cosmetic for free.\n• After reaching Legend you can press Rebirth: back to Bronze 3 with a ★ next to your name, and you earn Renown, which buys Rebirth-only cosmetics."],
+      ["Coins & cosmetics", "• Only 🏅 Ranked games give coins: win 18-36 (by AI difficulty), loss 8, draw 12; forfeiting gives none.\n• Spend coins in 🎨 Cosmetics on themes, seat boxes, avatar frames and effects. Each achievement also gives one cosmetic for free.\n• After reaching Legend you can press Rebirth: back to Bronze 3 with a ★ next to your name, and you earn Renown, which buys Rebirth-only cosmetics."],
       ["Practice game", "Press \"Start practice game\" below for a 4-player game (you vs 3 AIs). A banner at the top tells you what to do. Have fun!"],
     ],
     hints: {
@@ -258,7 +258,7 @@ const TUT = {
       ["よく使うカード", "• 殺: 攻撃。相手は「閃」を出さないと体力-1。1ターンに1枚まで。\n• 閃: 殺を1回避ける。\n• 桃: 体力を1回復、瀕死の人も救える。\n• 酒: 殺のダメージ+1。\n• 錦囊(順手牽羊・決闘・南蛮入侵…)と装備は、マウスを乗せると説明が出ます。⚡のカードは他人の行動に割り込めます。"],
       ["瀕死と勝敗", "体力が0になると瀕死。他の人が桃で救えなければ死亡します。\n自分の役職の目的を達成すれば勝ちです。\nゲームは最大100巡。超えると引き分けです。"],
       ["ランクとモード", "新規ゲームでは 🎮 カジュアル(ポイント変動なし)か 🏅 ランク戦(勝てば加点、負ければ減点)を選べます。\nランクは低い順に ブロンズ → シルバー → ゴールド → プラチナ → ダイヤ → マスター → レジェンド。\n詳しい計算は新規ゲーム画面の「ランクの説明」で確認できます。\n最初はカジュアルか練習ゲームがおすすめです。"],
-      ["コインとショップ", "• コインがもらえるのは 🏅 ランク戦だけ: 勝利 18~36(CPU難易度による)、敗北 8、引き分け 12。途中放棄はなし。\n• コインは 🛒 ショップでテーマ・席の枠・アイコン枠・エフェクトに使えます。実績を達成すると外観が1つもらえます。\n• レジェンドに到達すると「転生」できます: ブロンズ3に戻り、名前の横に ★ が付き、名声がもらえます。名声は転生限定の外観に使えます。"],
+      ["コインと外観", "• コインがもらえるのは 🏅 ランク戦だけ: 勝利 18~36(CPU難易度による)、敗北 8、引き分け 12。途中放棄はなし。\n• コインは 🎨 外観でテーマ・席の枠・アイコン枠・エフェクトに使えます。実績を達成すると外観が1つもらえます。\n• レジェンドに到達すると「転生」できます: ブロンズ3に戻り、名前の横に ★ が付き、名声がもらえます。名声は転生限定の外観に使えます。"],
       ["練習ゲーム", "下の「練習ゲームを始める」で4人戦(あなた vs AI 3人)が始まります。画面上部のヒントが次にやることを教えてくれます。楽しんでください!"],
     ],
     hints: {
@@ -564,7 +564,7 @@ function cardImg(name, cap) {
   const src = CC && CC[name] && CC[name].img ? CC[name].img[name === "殺" ? "紅" : "紅"] : "";
   return el("div", { class: "icard" }, src ? el("img", { src, alt: name }) : el("div", { class: "iph", text: name }), el("div", { class: "icap", text: cap || NM[name][li()] }));
 }
-function roleImg(r) { return el("div", { class: "icard" }, el("img", { src: IMG + r + ".png", alt: r }), el("div", { class: "icap", text: NM[r][li()] }), el("div", { class: "isub", text: ROLEG[r][li()] })); }
+function roleImg(r) { return el("div", { class: "icard" }, el("img", { src: "/cards/_role_" + encodeURIComponent(r) + ".svg", alt: r }), el("div", { class: "icap", text: NM[r][li()] }), el("div", { class: "isub", text: ROLEG[r][li()] })); }
 function chip(t, on) { return el("span", { class: "ichip" + (on ? " on" : ""), text: t }); }
 function arrow() { return el("span", { class: "iarr", text: "➜" }); }
 function mockPlayer(hl, hpn) {
@@ -629,7 +629,7 @@ function cardItems(cat) {   // 卡牌圖鑑的每一格 (教學彈窗與側欄�
     const nm = lang !== "zh" && !eq && SHORT[k] ? ((full.match(/^[⚡⏳]\s*/) || [""])[0]) + SHORT[k][lang === "en" ? 0 : 1] : T(full);
     const ds = eq ? T(v.desc) : (exact[v.desc] ? exact[v.desc].replace(/^[⚡⏳]\s*/, "") : T(v.desc.replace(/^[^:：]+[:：]\s*/, "")));
     out.push({ text: (k + " " + full + " " + v.desc + " " + nm + " " + ds).toLowerCase(),
-      node: el("div", { class: "cgi" }, el("img", { src: v.img["紅"] || v.img["黑"], loading: "lazy" }),
+      node: el("div", { class: "cgi" }, el("span", { class: "bigw", style: "flex:none" }, el("img", { src: v.img["紅"] || v.img["黑"], loading: "lazy" }), v.tp ? el("span", { class: "tp", text: T(v.tp) }) : null),
         el("div", {}, el("b", { text: nm }), el("div", { class: "cgd", text: ds }))) });
   }
   return out;
@@ -731,7 +731,7 @@ const CSS = `
 .imlab,.imside{font-size:11px;color:#8fa3bf;text-align:center}.imbot{display:flex;flex-direction:column;align-items:center;gap:4px}
 body.hint-on #modal .modal:not(.soft){padding-top:var(--hintpush,0)!important;box-sizing:border-box;align-items:safe center!important}
 #hintbar{position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:600;background:#16324a;color:#fff;border:1px solid #3fd2ff;border-radius:10px;padding:8px 14px;display:flex;gap:10px;align-items:center;width:max-content;max-width:min(calc(100vw - 16px),720px);box-sizing:border-box;box-shadow:0 4px 18px rgba(0,0,0,.5);font-size:14px}
-.tdlg.cgdlg{max-width:760px;width:min(760px,96vw)}#cdl{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px;max-height:62vh;overflow:auto;padding:4px 2px}.cgi{display:flex;gap:10px;align-items:flex-start;background:#0c1d36;border:1px solid #24557d;border-radius:8px;padding:6px}.cgi img{width:56px;border-radius:4px;flex:none}.cgd{font-size:12px;color:#a9c4de;margin-top:2px;line-height:1.4}
+.tdlg.cgdlg{max-width:760px;width:min(760px,96vw)}#cdl{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px;max-height:62vh;overflow:auto;padding:4px 2px}.cgi{display:flex;gap:10px;align-items:flex-start;background:#0c1d36;border:1px solid #24557d;border-radius:8px;padding:6px}.cgi img{width:56px;border-radius:4px;flex:none}.cgi .bigw{width:56px}.cgi .bigw .tp{font-size:9px;left:2px;bottom:2px;padding:1px 3px;border-width:1px}.cgd{font-size:12px;color:#a9c4de;margin-top:2px;line-height:1.4}
 #hintbar b{color:#3fd2ff;white-space:nowrap}#hintbar button{background:none;border:0;color:#9fb0c8;cursor:pointer;font-size:15px}
 `;
 function openLangPop() {

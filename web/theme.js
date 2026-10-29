@@ -531,6 +531,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
 .achtoast b{color:var(--gold)}
 #cosdlg .buyrow{display:flex;align-items:center;gap:10px;padding:10px 14px;margin:0 0 12px;border-radius:8px;background:rgba(60,44,8,.85);box-shadow:inset 0 0 0 1px #c99419}
 #cosdlg .buyrow button.danger{background:linear-gradient(180deg,#ff8a6a,#d6452a);color:#fff}
+const ARTT = Date.now();   // 卡面縮圖每次開頁面都重新下載 (避免看到瀏覽器存著的舊圖)
 /* ===== 商店新品: 頭像框 / 特效 / Prestige 框 ===== */
 .fr-pres1{--fb:linear-gradient(135deg,#fff3c4,#f0b429 50%,#8a5a00);box-shadow:0 0 8px rgba(255,200,60,.8)}
 .fr-pres2{--fb:linear-gradient(135deg,#e8fbff,#5ad0ff 50%,#1c6fb0);box-shadow:0 0 9px rgba(90,208,255,.85)}
@@ -1058,12 +1059,12 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
           const isSel = x.a ? !!(cur && cur.a && cur.a.toLowerCase() === x.a.toLowerCase()) : !(cur && cur.a && cur.a.toLowerCase() !== GF_A);   // 目前套用的主題 (預設 = 古風三國)
           return h("button", {
             class: "tile" + (ok ? "" : " lock") + (isSel ? " sel" : ""), title: ok ? x.n : x.req_text,
-            onclick: () => { if (!ok) { pv = needPv("themes", x, {}); render(); return; } pv = null; if (shopMode) { render(); return; } if (!x.a) { save(null); } else { save({ a: x.a, b: x.b }); } render(); },
+            onclick: () => { if (!ok) { pv = needPv("themes", x, {}); render(); return; } pv = null; if (!x.a) { save(null); } else { save({ a: x.a, b: x.b }); } render(); },
           }, h("span", { "data-nm": "1", style: { width: "58px", height: "40px", borderRadius: "9px", background: `linear-gradient(135deg,${x.b || GF_B} 50%,${x.a || GF_A} 50%)`, boxShadow: "inset 0 0 0 1px rgba(255,255,255,.2)" } }),
           h("span", { class: "tn", text: (ok ? "" : "🔒 ") + x.n }), ok ? null : h("span", { class: "rq", text: rq(x) }));
         });
         body = h("div", {}, h("div", { class: "grid" }, ...sw),
-          shopMode ? null : h("div", { style: { display: "flex", justifyContent: "flex-end" } }, h("button", { text: "恢復預設", onclick: () => { save(null); render(); } })));
+          h("div", { style: { display: "flex", justifyContent: "flex-end" } }, h("button", { text: "恢復預設", onclick: () => { save(null); render(); } })));
       } else if (tab === "box") {
         const curb = sel.box || "";
         const sw = ordered(LST(CAT.boxes || [])).map(x => {
@@ -1071,19 +1072,19 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
           const bg = sp ? `${sp.fl ? sp.fl + "," : ""}linear-gradient(160deg,${sp.c[0]},${sp.c[1]})` : "linear-gradient(160deg,#12284a,#08122a)";
           return h("button", {
             class: "tile" + (ok ? "" : " lock") + (on ? " sel" : "") + (pv && pv.box === x.id ? " pvd" : ""), title: ok ? x.n : "需要 " + x.req_text, "aria-pressed": on ? "true" : "false",
-            onclick: async () => { if (!ok) { pv = needPv("boxes", x, { box: x.id }); render(); return; } pv = null; if (shopMode) { render(); return; } const id = x.id === "classic" ? "" : x.id; sel.box = id; pickBox(id); render(); },
+            onclick: async () => { if (!ok) { pv = needPv("boxes", x, { box: x.id }); render(); return; } pv = null; const id = x.id === "classic" ? "" : x.id; sel.box = id; pickBox(id); render(); },
           }, (() => { const e = h("span", { class: "bxsw", style: { display: "block", width: "92px", height: "54px", borderRadius: "6px", background: bg, boxShadow: `inset 0 0 0 1px ${sp ? sp.bd : "#24557d"},0 0 8px ${sp ? sp.gl + "55" : "rgba(63,210,255,.25)"}` } }); if (sp) applyBox(e, x.id); return e; })(),
           h("span", { class: "tn", text: (ok ? "" : "🔒 ") + x.n }), ok ? null : h("span", { class: "rq", text: rq(x) }), ok ? null : lockProg(x));
         });
         body = h("div", {}, h("div", { class: "meta", style: { marginBottom: "6px" }, text: `已解鎖 ${(CAT.boxes || []).filter(x => has("boxes", x.id)).length} / ${(CAT.boxes || []).length}` }), h("div", { class: "grid" }, ...sw), h("div", { class: "meta", style: { marginTop: "10px" }, text: "玩家框是牌桌上你的座位方塊外觀,所有玩家都看得到。有些要成就解鎖。" }));
       } else if (tab === "cardbg" || tab === "cardback") {   // 卡面 (你的牌的底色風格) / 卡背: 其他玩家看得到
         const isBg = tab === "cardbg", kind = isBg ? "cardbgs" : "cardbacks", L = CAT[kind] || [], curv = (isBg ? sel.cardbg : sel.cardback) || "classic";
-        const url = id => isBg ? "/cards/" + encodeURIComponent("殺") + ".svg?bg=" + id : "/cards/_back.svg?bk=" + id;
+        const url = id => isBg ? "/cards/" + encodeURIComponent("殺") + ".svg?bg=" + id + "&t=" + ARTT : "/cards/_back.svg?bk=" + id + "&t=" + ARTT;
         const sw = ordered2(L, kind).map(x => {
           const ok = has(kind, x.id), on = curv === x.id;
           return h("button", {
             class: "tile" + (ok ? "" : " lock") + (on ? " sel" : "") + (pv && pv.cid === x.id && pv.ck === kind ? " pvd" : ""), title: ok ? x.n : rq(x), "aria-pressed": on ? "true" : "false",
-            onclick: async () => { if (!ok) { pv = needPv(kind, x, { cid: x.id, ck: kind }); render(); return; } pv = null; if (shopMode) { render(); return; } await post(isBg ? { cardbg: x.id } : { cardback: x.id }); render(); },
+            onclick: async () => { if (!ok) { pv = needPv(kind, x, { cid: x.id, ck: kind }); render(); return; } pv = null; await post(isBg ? { cardbg: x.id } : { cardback: x.id }); render(); },
           }, h("img", { src: url(x.id), alt: x.n, style: { width: "54px", height: "77px", borderRadius: "5px", display: "block" } }),
           h("span", { class: "tn", text: (ok ? "" : "🔒 ") + x.n }), ok ? null : h("span", { class: "rq", text: rq(x) }));
         });
@@ -1104,7 +1105,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
           const ok = has(kind, x.id), st = isFx ? { fr: sel.frame, fx: x.id } : { fr: x.id, fx: sel.fx };
           return h("button", {
             class: "tile" + (ok ? "" : " lock") + (curv === x.id ? " sel" : "") + (pv && (isFx ? pv.fx : pv.frame) === x.id ? " pvd" : ""), title: ok ? x.n : "需要 " + x.req_text, "aria-pressed": curv === x.id ? "true" : "false",
-            onclick: async () => { if (!ok) { pv = needPv(kind, x, isFx ? { fx: x.id } : { frame: x.id }); render(); return; } pv = null; if (shopMode) { render(); return; } await post(isFx ? { fx: x.id } : { frame: x.id }); render(); },
+            onclick: async () => { if (!ok) { pv = needPv(kind, x, isFx ? { fx: x.id } : { frame: x.id }); render(); return; } pv = null; await post(isFx ? { fx: x.id } : { frame: x.id }); render(); },
           }, h("span", { style: { padding: "6px" } }, avEl(mine, st, { style: { width: "44px", height: "44px", borderRadius: "50%", objectFit: "cover" } })),
           h("span", { class: "tn", text: (ok ? "" : "🔒 ") + x.n }), ok ? null : h("span", { class: "rq", text: rq(x) }), ok ? null : lockProg(x));
         })), h("div", { class: "meta", style: { marginTop: "10px" }, text: "頭像框和特效會顯示在座位、聊天室、排行榜上,所有玩家都看得到。" }));
@@ -1113,11 +1114,11 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
         h("div", { class: "dlg", id: "cosdlg", style: { maxWidth: "520px" } },
           h("div", { class: "dh" }, h("div", {}, h("div", { style: { display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" } }, h("h3", { style: { margin: 0 }, text: achMode ? "🏅 成就" : shopMode ? "🛒 外觀商店" : "🎨 外觀" }),
             achMode ? null : [["💰 ", p.coins || 0, " 遊戲幣"], ["🏵 ", p.renown || 0, " 聲望"]].map(([ic, n, lb]) => h("span", { style: { display: "inline-flex", alignItems: "center", gap: "4px", padding: "3px 9px", border: "1px solid #ffd24a", borderRadius: "6px", background: "rgba(255,210,74,.1)", fontSize: "13px", fontWeight: "700", whiteSpace: "nowrap" } }, ic, h("b", { style: { color: "#ffd24a", fontVariantNumeric: "tabular-nums" }, text: String(n) }), lb))),
-          achMode ? h("div", { class: "meta", text: "每個成就解鎖一個外觀;其他外觀到商店用遊戲幣買" }) : shopMode ? null : h("div", { class: "meta", text: "主題 / 頭像框 / 特效" })), h("button", { class: "x", text: "✕", onclick: close })),
+          achMode ? h("div", { class: "meta", text: "每個成就解鎖一個外觀;其他外觀到「外觀」用遊戲幣買" }) : shopMode ? null : h("div", { class: "meta", text: "主題 / 頭像框 / 特效" })), h("button", { class: "x", text: "✕", onclick: close })),
           h("div", { style: { padding: "6px 22px 18px", maxHeight: "70vh", overflowY: "auto" } },
             achMode || tab === "theme" || tab === "cardbg" || tab === "cardback" ? null : preview(), achMode ? null : buyRow(),
             achMode ? null : h("div", { class: "tabs" }, ...tabs.map(([k, n]) => h("button", { class: k === tab ? "on" : "", text: n, onclick: () => { tab = k; pv = null; render(); } }))),
-            body, h("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "14px", gap: "8px" } }, achMode || shopMode ? h("span") : h("button", { text: "🛒 商店", onclick: () => { M.textContent = ""; openDlg("shop"); } }), h("button", { class: "primary", text: "完成", onclick: close }))))));
+            body, h("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "14px", gap: "8px" } }, h("span"), h("button", { class: "primary", text: "完成", onclick: close }))))));
     };
     render();
   }
@@ -1156,7 +1157,6 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
     if (board && !document.getElementById("bAch")) {
       const c = document.createElement("button"); c.id = "bAch"; c.textContent = "🏅 成就"; c.title = "成就與解鎖進度";
       c.onclick = () => openDlg("ach"); board.after(c);
-      const d = document.createElement("button"); d.id = "bShop"; d.textContent = "🛒 商店"; d.title = "用遊戲幣買外觀"; d.onclick = () => openDlg("shop"); c.after(d);
     }
   });
 })();

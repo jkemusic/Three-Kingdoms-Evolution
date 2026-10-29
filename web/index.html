@@ -68,14 +68,17 @@ input[type=range]{accent-color:var(--accent);padding:0}
 .mini{display:flex;flex-wrap:wrap;gap:2px;margin-top:4px}
 .mini img{width:30px;height:43px;border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,.5);cursor:help}
 .card{position:relative;width:108px;height:154px;border-radius:9px;border:2px solid #2a3544;background:#0d0f13;flex:none;overflow:hidden;cursor:default;box-shadow:0 4px 10px rgba(0,0,0,.5);transition:transform .15s,box-shadow .15s}
+.card.land{width:154px;height:108px}
 .card img{width:100%;height:100%;object-fit:cover;display:block}
 .card .lab{position:absolute;left:0;right:0;top:0;background:linear-gradient(rgba(0,0,0,.88) 55%,transparent);font-size:12px;font-weight:700;text-align:center;padding:2px 1px 10px;z-index:1}
 .prchip{display:inline-flex;align-items:center;gap:2px;font-size:13px;font-weight:700;padding:4px 9px;border-radius:999px;border:1px solid var(--line,#555);color:#9aa3b2;background:rgba(255,255,255,.04)}
 .prchip.sm{font-size:11px;padding:1px 6px;margin-right:4px}.prchip.sm b{font-size:12px}
 .prchip b{font-size:15px}
 .prchip.on{color:#ffd24a;border-color:#ffd24a;background:rgba(255,210,74,.12)}
-.card .tp{position:absolute;left:3px;bottom:3px;z-index:1;background:rgba(30,20,10,.82);color:#f3e8c8;border:1px solid rgba(243,232,200,.55);border-radius:3px;font-size:10px;font-weight:700;line-height:1;padding:2px 4px;pointer-events:none;white-space:nowrap}
-.sitem .card .tp{display:none}
+.card .rg,.bigw .rg{position:absolute;right:5px;bottom:4px;z-index:1;min-width:20px;box-sizing:border-box;text-align:center;background:rgba(14,28,52,.92);color:#fff;border:2px solid #8fc8ff;border-radius:4px;font-weight:800;font-size:13px;line-height:1;padding:3px 5px;pointer-events:none}.bigw .rg{font-size:18px;min-width:28px;right:12px;bottom:12px;padding:4px 7px}
+.card .tp,.bigw .tp,.lcb .tp{position:absolute;left:4px;bottom:4px;z-index:1;background:rgba(80,8,10,.9);color:#fff;border:2px solid #e23a3a;border-radius:3px;font-size:10px;font-weight:700;line-height:1;padding:2px 5px;pointer-events:none;white-space:nowrap}
+.bigw{display:block;position:relative;line-height:0}.bigw .tp{font-size:14px;left:10px;bottom:10px;padding:3px 7px}
+#log .lcb{position:relative;display:inline-block;line-height:0}#log .lcb .tp{font-size:8px;left:2px;bottom:2px;padding:1px 3px;border-width:1px}
 .card .lab::before{content:"";display:inline-block;width:.62em;height:.62em;border-radius:50%;margin-right:3px;vertical-align:0;background:currentColor;box-shadow:0 0 0 1px rgba(255,255,255,.7)}
 .card.red .lab{color:#ff8a84}.card.blk .lab{color:#e8edf3}.card.blk .lab::before{background:#14181e}
 .cbk{display:inline-block;width:12px;height:17px;margin-left:5px;vertical-align:-3px;border-radius:2px;box-shadow:0 0 0 1px rgba(255,255,255,.35)}
@@ -249,7 +252,7 @@ html .seg button.on,html .seg button.on:hover{background:linear-gradient(180deg,
 #hv .hvh{margin-bottom:6px}
 #hv .hvh b{color:var(--accent);font-size:15px}
 #hv .hvc{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-#hv .card{width:84px;height:120px;cursor:pointer}
+#hv .card{width:84px;height:120px;cursor:pointer}#hv .card.land{width:120px;height:84px}
 
 .eq.jd{width:54px;height:38px}
 .eq.jd img{position:absolute;left:50%;top:50%;width:38px;height:54px;transform:translate(-50%,-50%) rotate(90deg)}
@@ -344,7 +347,7 @@ html .pl.target{filter:drop-shadow(0 0 5px #46e0a0) drop-shadow(0 0 14px rgba(70
 .pickbar b{color:var(--green)}
 .ts{display:flex;flex-direction:column;align-items:center;gap:4px}
 #center .decks{white-space:pre;display:inline-block;margin-bottom:8px;padding:3px 14px;border:1px solid #24557d;border-radius:2px;background:rgba(4,12,26,.65)}
-.piles{display:flex;gap:14px;justify-content:center;margin-top:8px}.pile{text-align:center}.pile .card{width:64px;height:92px}.pstack.rv .card+.card{margin-left:0}.pstack.rv{gap:8px}.pstack{display:flex;max-width:380px;overflow-x:auto;padding-bottom:4px}.pstack .card{flex:none}.pstack .card+.card{margin-left:-34px}.pstack.seq{align-items:center;gap:2px;padding:12px 10px 4px 12px;flex-wrap:wrap;max-width:470px;overflow:visible;justify-content:center;row-gap:12px}.pstack.seq .card+.card{margin-left:0}.sitem{position:relative;flex:none}.snum{position:absolute;top:-8px;left:-6px;z-index:2;min-width:20px;height:20px;line-height:20px;border-radius:50%;background:var(--accent);color:#04101f;font-size:12px;font-weight:800;text-align:center;box-shadow:0 0 6px rgba(63,210,255,.7)}.swho{margin-top:2px;font-size:12px;color:var(--accent);text-align:center;white-space:nowrap}.sarrow{flex:none;color:var(--accent);font-size:18px}
+.piles{display:flex;gap:14px;justify-content:center;margin-top:8px}.pile{text-align:center}.pile .card{width:64px;height:92px}.pile .card.land{width:92px;height:64px}.pstack.rv .card+.card{margin-left:0}.pstack.rv{gap:8px}.pstack{display:flex;max-width:380px;overflow-x:auto;padding-bottom:4px}.pstack .card{flex:none}.pstack .card+.card{margin-left:-34px}.pstack.seq{align-items:center;gap:2px;padding:12px 10px 4px 12px;flex-wrap:wrap;max-width:470px;overflow:visible;justify-content:center;row-gap:12px}.pstack.seq .card+.card{margin-left:0}.sitem{position:relative;flex:none}.snum{position:absolute;top:-8px;left:-6px;z-index:2;min-width:20px;height:20px;line-height:20px;border-radius:50%;background:var(--accent);color:#04101f;font-size:12px;font-weight:800;text-align:center;box-shadow:0 0 6px rgba(63,210,255,.7)}.swho{margin-top:2px;font-size:12px;color:var(--accent);text-align:center;white-space:nowrap}.sarrow{flex:none;color:var(--accent);font-size:18px}
 /* ===== 桌面版: 手牌欄收在螢幕底部,滑鼠移上去才升起 (出牌輪到你時自動升起) ===== */
 @media (min-width:821px) and (not ((pointer:coarse) and (max-height:500px))){
   #app{grid-template-rows:auto minmax(0,1fr)}
@@ -399,7 +402,7 @@ body:has(#modal .modal:not(.soft)) #bHand{display:none!important}   /* 新遊戲
 #log .arw .ln{display:inline-block;width:12px;height:3px;background:var(--ac);border-radius:2px;box-shadow:0 0 6px var(--ac)}
 #log .arw .ah{display:inline-block;width:0;height:0;border-left:9px solid var(--ac);border-top:6px solid transparent;border-bottom:6px solid transparent;margin-left:-1px;filter:drop-shadow(0 0 4px var(--ac))}
 #log .arw img.lc{margin:0 3px}
-#log img.lc.dl{transform:rotate(90deg);margin:-9px 11px}#log .arw img.lc.dl{margin:-9px 12px}
+#log img.lc.dl{width:62px;height:44px;margin:0 2px}#log .arw img.lc.dl{margin:0 3px}
 #log .dmgb{color:#ffb4bf;font-weight:800;margin:0 3px}
 #log .pc{font-weight:700;color:#d7ecff}
 .picks{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0}.pk{flex:1 1 200px;max-width:260px;background:rgba(10,22,44,.8);border:1px solid #2f6f9c;border-radius:4px;padding:8px;display:flex;flex-direction:column;gap:4px}.pk img{width:100%;max-height:220px;object-fit:contain}.pk .sk{font-size:12px;color:#c3d6ea}.pk button{margin-top:6px}
@@ -435,6 +438,7 @@ body:has(#modal .modal:not(.soft)) #bHand{display:none!important}   /* 新遊戲
   #side{display:none;position:absolute;inset:0;border-left:0;z-index:6}
   body.m-side #side{display:flex}
   .card{width:76px;height:108px}
+  .card.land{width:108px;height:76px}
   .card.ok:hover{transform:none}
   .card .lab{font-size:10px}
   #bottom{padding:4px 8px;min-height:0}
@@ -447,6 +451,7 @@ body:has(#modal .modal:not(.soft)) #bHand{display:none!important}   /* 新遊戲
   .modal:not(.soft) .dlg{width:calc(100vw - 20px);max-width:calc(100vw - 20px);border-radius:14px}   /* 手機: 一般視窗 (暱稱 / 大廳 / 設定…) 放螢幕中間;打牌詢問 (.soft) 才貼在底部 */
   .dlg{width:100vw;max-width:100vw;border-radius:14px 14px 0 0;max-height:78dvh;padding:12px}
   .opts .card{width:64px;height:92px}
+  .opts .card.land{width:92px;height:64px}
   .seatgrid{grid-template-columns:1fr}
   .chars{grid-template-columns:repeat(2,1fr)}
   #tablewrap::before,#tablewrap::after{display:none}
@@ -551,6 +556,7 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
   #bottom{padding:2px 6px 2px}
   #hand{min-height:0!important;padding:4px 2px 2px!important;gap:5px}
   #hand .card{width:46px;height:66px}
+  #hand .card.land{width:66px;height:46px}
   #bar{min-height:32px!important;margin:0 0 2px!important}
   #roundtag{margin:0!important}
   #center:not(:empty){display:flex!important;flex-wrap:nowrap;gap:10px;height:112px!important;grid-template-rows:none;align-items:flex-start;margin:0 0 4px!important}
@@ -562,6 +568,7 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
   .modal.soft{padding-bottom:0!important}
   .modal.soft .dlg{padding:6px 10px!important;max-height:52dvh!important;overflow-y:auto}
   .modal.soft .dlg .card{width:46px;height:66px}
+  .modal.soft .dlg .card.land{width:66px;height:46px}
   .modal.soft .dlg h3{font-size:14px;margin:0 0 4px}
   .modal.soft .dlg button{min-height:36px;padding:3px 10px}
 }
@@ -585,14 +592,16 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
   .piles{gap:8px;margin-top:4px;flex-wrap:wrap}
   .pile .meta{font-size:11px}
   .pile .card{width:46px;height:66px}
+  .pile .card.land{width:66px;height:46px}
   .pstack.seq{max-width:100%;padding:8px 2px 2px 8px;row-gap:6px;gap:1px}
   .sitem .card{width:40px;height:57px}
+  .sitem .card.land{width:57px;height:40px}
   .snum{top:-6px;left:-5px;min-width:16px;height:16px;line-height:16px;font-size:10px}
   .swho{font-size:10px;max-width:46px;overflow:hidden;text-overflow:ellipsis}
   .sarrow{font-size:12px}
   .card .lab{font-size:9px;padding-bottom:6px}
   .card .tp{font-size:8px;padding:1px 3px;left:2px;bottom:2px}
-  .pile .card .tp{display:none}
+  .pile .card .tp,
   .pile .card .info,.sitem .card .info{display:none}
   .pile .card .lab,.sitem .card .lab{font-size:8px;letter-spacing:-.3px;padding:2px 0 8px}
   #table{gap:5px}
@@ -636,6 +645,7 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
   #bottom{display:flex;flex-direction:column;position:relative}#bar{order:-1;margin:0 0 4px}   /* 按鈕列放到手牌上方,手牌貼著底部導覽,下面不留黑色空位 */
   #hand{min-height:0;padding:14px 2px 4px;gap:5px}
   .card{width:66px;height:94px}
+  .card.land{width:94px;height:66px}
   #bar{margin-top:2px;gap:6px}
   #bar .pr{font-size:13px;line-height:1.35}
   .modal.soft .dlg{max-height:55dvh}
@@ -661,6 +671,13 @@ img.av{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:
 .pchips .rk.big,.pchips .prchip{display:inline-flex;align-items:center;box-sizing:border-box;height:30px;padding:0 12px;font-size:16px;font-weight:800;line-height:1;border:1px solid transparent;border-radius:8px;margin:0;vertical-align:baseline}
 .pchips .prchip{border-color:#59657a}.pchips .prchip.on{border-color:#ffd24a}
 .pchips .prchip b{font-size:16px}
+/* 像素風卡面: 左下角牌種框 / 武器攻擊範圍框 跟右下角印章同大小 (方形),字用像素字體 */
+.card.px{container-type:inline-size}
+.card.px .tp,.card.px .rg{font-family:"SGS Pixel TW","SGS Pixel JA",monospace;left:6%;bottom:4.9%;width:28%;height:auto;aspect-ratio:1;box-sizing:border-box;display:flex;align-items:center;justify-content:center;text-align:center;padding:0;border:max(1px,2.2cqw) solid #d8262c;border-radius:0;background:#0b0b14;color:#fff;font-size:11cqw;font-weight:400;line-height:1.05;word-break:break-all;white-space:normal}
+.card.px .rg{left:auto;right:6%;border-color:#8fc8ff;font-size:14cqw}
+.card.px.land .tp,.card.px.land .rg{width:19.6%;bottom:7%;font-size:7.6cqw}.card.px.land .rg{font-size:9cqw}
+@font-face{font-family:"SGS Pixel TW";src:url(/fonts/pixel-tw.woff2) format("woff2");font-display:swap}
+.card.px .tp:has(.pxh){flex-direction:column;gap:1cqw}.card.px .pxh{display:block;width:8cqw;height:8cqw;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 7' shape-rendering='crispEdges' fill='%23fff'%3E%3Crect x='0' y='0' width='1' height='1'/%3E%3Crect x='1' y='0' width='1' height='1'/%3E%3Crect x='2' y='0' width='1' height='1'/%3E%3Crect x='3' y='0' width='1' height='1'/%3E%3Crect x='4' y='0' width='1' height='1'/%3E%3Crect x='5' y='0' width='1' height='1'/%3E%3Crect x='6' y='0' width='1' height='1'/%3E%3Crect x='1' y='1' width='1' height='1'/%3E%3Crect x='2' y='1' width='1' height='1'/%3E%3Crect x='3' y='1' width='1' height='1'/%3E%3Crect x='4' y='1' width='1' height='1'/%3E%3Crect x='5' y='1' width='1' height='1'/%3E%3Crect x='2' y='2' width='1' height='1'/%3E%3Crect x='3' y='2' width='1' height='1'/%3E%3Crect x='4' y='2' width='1' height='1'/%3E%3Crect x='3' y='3' width='1' height='1'/%3E%3Crect x='2' y='4' width='1' height='1'/%3E%3Crect x='3' y='4' width='1' height='1'/%3E%3Crect x='4' y='4' width='1' height='1'/%3E%3Crect x='1' y='5' width='1' height='1'/%3E%3Crect x='2' y='5' width='1' height='1'/%3E%3Crect x='3' y='5' width='1' height='1'/%3E%3Crect x='4' y='5' width='1' height='1'/%3E%3Crect x='5' y='5' width='1' height='1'/%3E%3Crect x='0' y='6' width='1' height='1'/%3E%3Crect x='1' y='6' width='1' height='1'/%3E%3Crect x='2' y='6' width='1' height='1'/%3E%3Crect x='3' y='6' width='1' height='1'/%3E%3Crect x='4' y='6' width='1' height='1'/%3E%3Crect x='5' y='6' width='1' height='1'/%3E%3Crect x='6' y='6' width='1' height='1'/%3E%3C/svg%3E") center/contain no-repeat;image-rendering:pixelated}.card.px.land .pxh{width:5.4cqw;height:5.4cqw}
 </style>
 <body>
 <div id="app">
@@ -774,11 +791,15 @@ function bkEl(seat) {   // 手牌數旁邊顯示這位玩家選的卡背 (其他
 function cbOf(seat) { const st = S.snap && S.snap.avstyles && seat != null ? S.snap.avstyles[seat] : null; return (st && st.cb) || ""; }   // 這個座位的玩家選的卡面風格
 function cardEl(c, cls, onclick, seat) {
   const col = c.color === "紅" ? "red" : "blk";
-  const e = h("div", {class: "card " + col + (c.img ? "" : " noimg") + (cls ? " " + cls : ""), title: c.text || c.name});
+  const e = h("div", {class: "card " + col + (c.img ? "" : " noimg") + (c.land ? " land" : "") + (cls ? " " + cls : ""), title: c.text || c.name});
   if (seat === undefined) seat = S.snap && S.snap.viewer;   // 沒指定是誰的牌 (手牌 / 選項): 用自己的卡面;不知道是誰打的 (棄牌堆) 傳 null
-  const bg = cbOf(seat), src = c.img && bg && c.img.startsWith("/cards/") ? c.img + "?bg=" + encodeURIComponent(bg) : c.img;
-  if (c.img) { e.append(h("img", {src: src, loading: "lazy"})); e.append(h("div", {class: "lab", text: c.as ? (c.as_full || c.as) + "←" + (c.real_full || c.real) : (c.bolt || "") + c.color + (c.nat || "") + (c.full || c.name)}));
-    if (c.tp) e.append(h("div", {class: "tp", text: c.tp})); }
+  const bg = cbOf(seat), src = c.img && bg && c.img.startsWith("/cards/") ? c.img + (c.img.includes("?") ? "&" : "?") + "bg=" + encodeURIComponent(bg) : c.img;
+  if (bg.startsWith("pixel")) e.classList.add("px");   // 像素風卡面: 牌種 / 攻擊範圍的框也用像素字,大小跟右下角印章一樣
+  if (c.img) { const im = h("img", {src: src, loading: "lazy"}); e.append(im);
+    if (bg.startsWith("pixel")) setTimeout(() => { if (im.isConnected && im.clientWidth && im.clientWidth < 80) im.src = src + "&s=1"; }, 60);   // 像素風卡面用濾鏡降解析度,縮圖太小時改用不降解析度的版本
+    e.append(h("div", {class: "lab", text: c.as ? (c.as_full || c.as) + "←" + (c.real_full || c.real) : (c.bolt || "") + c.color + (c.nat || "") + (c.full || c.name)}));
+    if (c.tp) e.append(bg.startsWith("pixel") && c.tp.startsWith("⌛") ? h("div", {class: "tp"}, h("span", {class: "pxh"}), h("span", {text: c.tp.slice(1)})) : h("div", {class: "tp", text: c.tp}));   // 像素風: 沙漏也用像素圖
+    if (c.rng) e.append(h("div", {class: "rg", title: "攻擊範圍 " + c.rng, text: c.rng})); }
   else e.textContent = c.text || c.name;
   if (onclick) e.onclick = onclick;
   bindPrev(e, c);
@@ -807,14 +828,17 @@ function bindHold(e, c) {   // 手機沒有滑鼠移上去 / 右鍵: 長按牌 (
     try { if (!localStorage.getItem("sgs_holdhint")) { localStorage.setItem("sgs_holdhint", "1"); setTimeout(() => toast("長按卡牌可以查看詳細說明", "host"), 1200); } } catch (er) {}
   }
 }
+function bigImg(c) {   // 大圖 (預覽 / 詳細說明): 圖 + 左下角的牌種紅框
+  return h("span", {class: "bigw"}, h("img", {src: c.img}), c.tp ? h("span", {class: "tp", text: c.tp}) : null, c.rng ? h("span", {class: "rg", title: "攻擊範圍 " + c.rng, text: c.rng}) : null);
+}
 function bindPrev(e, c) {   // 滑鼠移上去: 左側顯示大圖與效果 (類似 Master Duel)
   if (!c.desc) return;
   e.classList.add("hasprev");
   bindHold(e, c);
   e.addEventListener("mouseenter", () => {
     const P = $("#prev"); P.textContent = "";
-    if (c.img) P.append(h("img", {src: c.img}));
-    P.append(h("h4", {text: c.as ? c.text : c.color + c.name}), h("p", {text: c.desc}));
+    if (c.img) P.append(bigImg(c));
+    P.append(h("h4", {text: c.text || c.color + c.name}), h("p", {text: c.desc}));
     P.style.display = "block";
   });
   e.addEventListener("mouseleave", () => { $("#prev").style.display = "none"; });
@@ -880,8 +904,8 @@ function syncSpeed(snap) {   // 房客也看得到目前的每步延遲 (房主�
 }
 function showCardInfo(c) {
   const box = $("#cardinfo"); box.textContent = "";
-  const body = h("div", {class: "ci"}, c.img ? h("img", {src: c.img}) : "",
-    h("div", {}, h("h3", {text: c.as ? c.text : c.color + c.name}), h("p", {text: c.desc})));
+  const body = h("div", {class: "ci"}, c.img ? bigImg(c) : "",
+    h("div", {}, h("h3", {text: c.text || c.color + c.name}), h("p", {text: c.desc})));
   box.append(h("div", {class: "modal", onclick: () => { box.textContent = ""; }}, body));
 }
 function eqEl(c, lab, judge, pick) {   // pick: 丁奉等「選一件裝備」時,可選的裝備發光、直接點
@@ -1438,11 +1462,11 @@ fetch("/api/cardcat").then(r => r.json()).then(c => {
 function catCard(color, nat, name) {
   const e = S.cat[nat ? nat + name : name] || S.cat[name] || S.cat[(S.fullKey || {})[name]]; if (!e) return null;
   const col = color || "紅";
-  return {name, full: e.full || name, color: col, img: e.img[col] || e.img["紅"] || e.img["黑"], desc: e.desc, text: (color || "") + (nat || "") + (e.full || name)};
+  return {name, full: e.full || name, color: col, img: e.img[col] || e.img["紅"] || e.img["黑"], desc: e.desc, tp: e.tp || "", rng: e.rng || "", land: !!e.land, bolt: e.bolt || "", text: (e.bolt || "") + (color || "") + (nat || "") + (e.full || name)};
 }
 const DELAYED = new Set(["樂", "兵", "草", "閃電", "毒"]);   // 延時錦囊: 戰報裡橫放
 function lcw(im, c) {   // 戰報裡的牌: 圖下面標出花色 + 圖鑑全名
-  return h("span", {class: "lcw"}, im, h("span", {class: "lcn", text: c.text}));
+  return h("span", {class: "lcw"}, h("span", {class: "lcb"}, im, c.tp ? h("span", {class: "tp", text: c.tp}) : null), h("span", {class: "lcn", text: c.text}));
 }
 function fullInText(t) {   // 一行文字裡「使用 南」→「使用 黑南蠻入侵」
   if (!S.cat) return t;
@@ -2348,7 +2372,7 @@ function confirmPrestige(p) {
         h("li", {text: "段位積分歸零,回到「青銅3」 (電腦對手也會回到最弱)。"}),
         h("li", {text: "名字旁邊會多一個 ★" + next + " 標記。"}),
         h("li", {text: "外觀、成就、戰績和已買的東西都保留。"}),
-        h("li", {text: "第一次轉生會解鎖成就「榮耀轉生」和轉生 1 頭像框;每次轉生獲得聲望 (" + (15 + 5 * next) + "),可到商店買聲望限定外觀。"})),
+        h("li", {text: "第一次轉生會解鎖成就「榮耀轉生」和轉生 1 頭像框;每次轉生獲得聲望 (" + (15 + 5 * next) + "),可到「外觀」買聲望限定外觀。"})),
       h("div", {style: {display: "flex", justifyContent: "flex-end", gap: "8px", marginTop: "12px"}},
         h("button", {text: "取消", onclick: close}),
         h("button", {class: "primary", text: "確定轉生", onclick: async e => {
@@ -2381,8 +2405,7 @@ async function showProfile() {
           h("div", {style: {display: "flex", gap: "6px", flexWrap: "wrap"}},
             h("button", {text: "上傳頭貼", style: {whiteSpace: "nowrap", padding: "6px 10px"}, onclick: () => $("#avfile").click()}),
             p.avatar ? h("button", {text: "移除", style: {whiteSpace: "nowrap", padding: "6px 10px"}, onclick: async () => { await api("/api/avatar", {data: ""}); showProfile(); }}) : null,
-            h("button", {text: "🎨 外觀", style: {whiteSpace: "nowrap", padding: "6px 10px"}, onclick: () => { close(); SGS_THEME.open("theme"); }}),
-            h("button", {text: "🛒 商店", style: {whiteSpace: "nowrap", padding: "6px 10px"}, onclick: () => { close(); SGS_THEME.open("shop"); }}))),
+            h("button", {text: "🎨 外觀", style: {whiteSpace: "nowrap", padding: "6px 10px"}, onclick: () => { close(); SGS_THEME.open("theme"); }}))),
         h("input", {id: "avfile", type: "file", accept: "image/*", style: {display: "none"}, onchange: e => uploadAvatar(e.target.files[0])})),
       ...rkProgress(p),
         streakLine(p),

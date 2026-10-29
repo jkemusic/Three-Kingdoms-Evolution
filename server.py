@@ -904,6 +904,37 @@ class Manager:
                     if cand:
                         self.host = random.choice(cand)
                         self._event(f"👑 房主離開了,房主已隨機讓給 {self.nicks.get(self.host) or '未命名'}", "host")
+            self._maybe_reset_public(True)
+
+    def _maybe_reset_public(self, left=False):
+        """公共房間: 唯一的真人離開 (或掉線超過 25 秒) 後,整個房間重置 (停掉對局、清空入座 / 設定 / 聊天),下一個進來的人看到全新的房間。
+        段位局進行中的掉線不在這裡處理 (照原本的棄賽流程);主動離開 (left) 已經先棄賽了。"""
+        if not self.public:
+            return
+        now = time.time()
+        if any(now - x < self.OFFLINE_AFTER for x in self.seen.values()):
+            return
+        if not (self.game is not None or self.lobby or self.claims or self.cfg or self.chat or self.events):
+            return   # 已經是乾淨的房間
+        if not left and self.game_active() and (self.cfg or {}).get("ranked"):
+            return
+        self.abort = True
+        self._ans_ev.set(); self._step_ev.set(); self._multi_ev.set()
+        th = self.thread
+        if th and th.is_alive() and th is not threading.current_thread():
+            th.join(timeout=3)
+        self.abort = False
+        self._ans_ev.clear(); self._step_ev.clear(); self._multi_ev.clear()
+        self.game, self.thread, self.rec = None, None, Recorder()
+        self.humans, self.claims, self.ips, self.kicked, self.alive = set(), {}, {}, {}, {}
+        self.seen, self.nicks, self.events, self.ev_id = {}, {}, [], 0
+        self.host, self.host_cleared, self.lobby = None, False, False
+        self.picking, self.offers, self.picks = False, {}, {}
+        self.chat, self.chat_id, self.chat_t = [], 0, {}
+        self.cfg, self.paused, self.speed, self.error, self.pending = {}, False, 0.35, None, None
+        self.multi, self.multi_res, self.multi_win = {}, {}, None
+        self.over_at, self._ans, self._req = None, None, 0
+        self.act = now
 
     def _event(self, text, kind="info", actor=None):   # actor: 這件事的當事人 (自己不用被通知)
         self.ev_id += 1
@@ -960,6 +991,7 @@ class Manager:
                     seated = [t for t in cand if self.seat_of(t) is not None]
                     self.host = random.choice(seated or cand)
                     self._event(f"👑 房主不在房間,房主已讓給 {self.nicks.get(self.host) or self._name_of(self.host)}", "host")
+            self._maybe_reset_public()
 
     def online(self):
         now = time.time()
@@ -1024,12 +1056,12 @@ class Manager:
     def seat_styles(self):
         out = {s: PROFILES.style(t) for s, t in self.claims.items()}
         g = self.game
-        if g is not None:   # 電腦玩家: 每局隨機套用頭像框 / 特效 / 玩家框 (同一局固定不變)
+        if g is not None:   # 電腦玩家: 每局隨機套用頭像框 / 特效 / 玩家框 / 卡面 (同一局固定不變)
             if getattr(self, "_bot_gid", None) != id(g):
                 rnd = random.Random(id(g))
                 pick = lambda L, none: rnd.choice([x["id"] for x in L if x["id"]] + [""] * none)
                 self._bot_gid = id(g)
-                self._bot_sty = {i: {"fr": pick(cosmetics.FRAMES, 1), "fx": pick(cosmetics.EFFECTS, 3), "bx": pick(cosmetics.BOXES, 2)} for i in range(len(g.players))}
+                self._bot_sty = {i: {"fr": pick(cosmetics.FRAMES, 1), "fx": pick(cosmetics.EFFECTS, 3), "bx": pick(cosmetics.BOXES, 2), "cb": rnd.choice([x["id"] if x["id"] != "classic" else "" for x in cosmetics.CARDBGS]), "bk": ""} for i in range(len(g.players))}
             for i, st in self._bot_sty.items():
                 out.setdefault(i, st)
         return out
@@ -1707,8 +1739,17 @@ class Handler(BaseHTTPRequestHandler):
                 from view import full_name
                 cat = {k: {"desc": v, "full": full_name(k), "img": {c: card_img(k, c) for c in ("紅", "黑")}} for k, v in DESC.items()}
                 for nat in ("火", "冰", "雷"):
-                    cat[nat + "殺"] = {"desc": nat + "屬性殺: " + DESC["殺"], "full": nat + "殺", "img": {c: card_img(nat, c) for c in ("紅", "黑")}}
+                    cat[nat + "殺"] = {"desc": nat + "屬性殺: " + DESC["殺"], "full": nat + "殺", "img": {c: card_img(nat, c) for c in ("紅", "黑")}, "nat": True}
                 import cards as _cd
+                from view import type_label
+                _kd = {x[0]: "weapon" for x in _cd.WEAPON}
+                _kd.update({x[0]: "armor" for x in _cd.ARMOR}); _kd.update({x[0]: "horse" for x in _cd.HORSE}); _kd.update({k: "basic" for k in ("殺", "閃", "桃", "酒", "火殺", "冰殺", "雷殺")})
+                for k, e in cat.items():
+                    e["tp"] = type_label("殺" if e.get("nat") else k, _kd.get(k, "trick"))
+                    e["bolt"] = "⚡" if e["desc"].startswith("⚡") else ""
+                    from view import range_label
+                    e["rng"] = range_label(k)
+                    e["land"] = k in ("樂", "兵", "草", "閃電", "毒")
                 for n in [x[0] for x in _cd.WEAPON] + [x[0] for x in _cd.ARMOR] + [x[0] for x in _cd.HORSE]:
                     if n in cat:
                         cat[n]["eq"] = True   # 裝備牌: 前端動畫不往場中央飛
@@ -1775,7 +1816,7 @@ class Handler(BaseHTTPRequestHandler):
                 if not fn.endswith(".svg"):
                     return self._send(404, {"error": "not found"})
                 nm = fn[:-4]
-                body = cardart.svg_back(q.get("bk", [""])[0]) if nm == "_back" else cardart.svg(nm, q.get("bg", [""])[0])
+                body = cardart.svg_back(q.get("bk", [""])[0]) if nm == "_back" else cardart.svg_role(nm[6:]) if nm.startswith("_role_") else cardart.svg(nm, q.get("bg", [""])[0], q.get("s", [""])[0] == "1")
                 if body is None:
                     return self._send(404, {"error": "not found"})
                 return self._send(200, body.encode("utf-8"), "image/svg+xml")
