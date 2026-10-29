@@ -1288,6 +1288,12 @@ class Game:
                     if q.flipped and snap.get(q.idx) is False:   # 連鎖處理完是背面 (偶數個降雷會翻回正面,就不會有事): 標記全部消失
                         q._char.lose_marks(self, q)
 
+    def _spend(self, p, real):
+        """使用的牌離開手牌進棄牌堆; 若這張牌在結算途中已被交給別人 / 棄掉 (例如曹沖交換武將後的技能), 就不重複處理。"""
+        if real in p.hand:
+            p.hand.remove(real)
+            self.discard.append(real)
+
     def _execute(self, p, card, tgt, _repeat=False):
         n = card.name
         self.new_chain()
@@ -1340,8 +1346,7 @@ class Game:
         if not p.alive and real not in p.hand and not _repeat:   # 打出這張牌的人在途中死了 (例如曹沖: 超過一張錦囊扣血扣死),手牌已經被棄光
             return
         if n == "殺":
-            p.hand.remove(real)
-            self.discard.append(real)
+            self._spend(p, real)
             if isinstance(tgt, tuple):  # 方天畫戟: 同時攻擊最多 3 人
                 self.log(f"  方天畫戟: 同時攻擊 " + "、".join(t.name for t in tgt))
                 for k, t in enumerate(tgt):
@@ -1353,15 +1358,15 @@ class Game:
                 self.use_sha(p, tgt, card)
             return
         if self.void and card.kind == "trick" and n not in DELAYED:
-            p.hand.remove(real)
-            self.discard.append(real)
+            self._spend(p, real)
             self.log(f"  呂布「無效」: {card} 沒有效果")
             return
         if card.kind in ("weapon", "armor", "horse"):
             self.equip_card(p, card)
             return
         if n in DELAYED:
-            p.hand.remove(real)
+            if real in p.hand:
+                p.hand.remove(real)
             owner = p if n in SELF_DELAYED else tgt
             card.placed_by = p
             owner.judge.append(card)
@@ -1371,8 +1376,7 @@ class Game:
                     q.char.on_le_placed(self, q, owner)
             return
         if not _repeat:
-            p.hand.remove(real)
-            self.discard.append(real)
+            self._spend(p, real)
         if card.kind == "trick" and isinstance(tgt, Player) and tgt is not p and n not in ("降雷", "強", "弱", "無懈"):
             if self.sha_window(p, tgt, card) and card.kind == "trick":   # 被指定的錦囊: 目標也能接連鎖使用 ⚡ (呂布發動無效 → 這張沒有效果)
                 self.log(f"  呂布「無效」: {card} 沒有效果")
