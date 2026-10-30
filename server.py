@@ -1071,7 +1071,7 @@ class Manager:
                 rnd = random.Random(id(g))
                 pick = lambda L, none: rnd.choice([x["id"] for x in L if x["id"]] + [""] * none)
                 self._bot_gid = id(g)
-                self._bot_sty = {i: {"fr": pick(cosmetics.FRAMES, 1), "fx": pick(cosmetics.EFFECTS, 3), "bx": pick(cosmetics.BOXES, 2), "cb": rnd.choice([x["id"] if x["id"] != "classic" else "" for x in cosmetics.CARDBGS]), "bk": "", "ca": "", "ga": ""} for i in range(len(g.players))}
+                self._bot_sty = {i: {"fr": pick(cosmetics.FRAMES, 1), "fx": pick(cosmetics.EFFECTS, 3), "bx": pick(cosmetics.BOXES, 2), "cb": rnd.choice([x["id"] if x["id"] != "classic" else "" for x in cosmetics.CARDBGS]), "bk": ""} for i in range(len(g.players))}
             for i, st in self._bot_sty.items():
                 out.setdefault(i, st)
         return out

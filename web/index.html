@@ -794,15 +794,16 @@ function bkEl(seat) {   // 手牌數旁邊顯示這位玩家選的卡背 (其他
   const st = S.snap && S.snap.avstyles ? S.snap.avstyles[seat] : null, bk = st && st.bk;
   return bk ? h("img", {class: "cbk", src: "/cards/_back.svg?bk=" + encodeURIComponent(bk), alt: "", title: "卡背"}) : null;
 }
-function caOf(seat) { const st = S.snap && S.snap.avstyles && seat != null ? S.snap.avstyles[seat] : null; return st && st.ca === "svg" ? "svg" : ""; }   // 這個座位的玩家選的卡圖外觀 (空 = 新水墨圖)
+function mySel() { return (S.prof && S.prof.sel) || {}; }   // 新 / 舊卡圖、武將圖只看自己的選擇 (全部的牌和武將都用自己選的,不看對方選什麼)
+function caOf() { return mySel().cardart === "svg" ? "svg" : ""; }
 function setRosterArt(v) { S.roster = (S.roster || []).map(c => c.img ? Object.assign({}, c, {img: c.img.replace(/&art=old/, "") + (v === "old" ? "&art=old" : "")}) : c); }   // 選單 / 圖鑑裡的武將圖: 依自己選的新 / 舊版
-function gaQ(seat) { const st = S.snap && S.snap.avstyles && seat != null ? S.snap.avstyles[seat] : null; return st && st.ga === "old" ? "&art=old" : ""; }   // 這個座位的玩家選舊版武將圖
+function gaQ() { return mySel().genart === "old" ? "&art=old" : ""; }
 function cbOf(seat) { const st = S.snap && S.snap.avstyles && seat != null ? S.snap.avstyles[seat] : null; return (st && st.cb) || ""; }   // 這個座位的玩家選的卡面風格
 function cardEl(c, cls, onclick, seat) {
   const col = c.color === "紅" ? "red" : "blk";
   const e = h("div", {class: "card " + col + (c.img ? "" : " noimg") + (c.land ? " rot" : "") + (cls ? " " + cls : ""), title: c.text || c.name});
   if (seat === undefined) seat = S.snap && S.snap.viewer;   // 沒指定是誰的牌 (手牌 / 選項): 用自己的卡面;不知道是誰打的 (棄牌堆) 傳 null
-  const bg = cbOf(seat), ca = caOf(seat), src = c.img && (bg || ca) && c.img.startsWith("/cards/") ? c.img + (c.img.includes("?") ? "&" : "?") + (bg ? "bg=" + encodeURIComponent(bg) : "") + (ca ? (bg ? "&" : "") + "art=" + ca : "") : c.img;
+  const bg = cbOf(seat), ca = caOf(seat), src = c.img && c.img.startsWith("/thumb/char/") ? c.img.replace(/&art=old/, "") + gaQ(seat) : c.img && (bg || ca) && c.img.startsWith("/cards/") ? c.img + (c.img.includes("?") ? "&" : "?") + (bg ? "bg=" + encodeURIComponent(bg) : "") + (ca ? (bg ? "&" : "") + "art=" + ca : "") : c.img;
   if (bg.startsWith("pixel")) e.classList.add("px");   // 像素風卡面: 牌種 / 攻擊範圍的框也用像素字,大小跟右下角印章一樣
   if (c.img) { const im = h("img", {src: src, loading: "lazy"}); e.append(im);
     if (bg.startsWith("pixel")) setTimeout(() => { if (im.isConnected && im.clientWidth && im.clientWidth < 80) im.src = src + "&s=1"; }, 60);   // 像素風卡面用濾鏡降解析度,縮圖太小時改用不降解析度的版本
