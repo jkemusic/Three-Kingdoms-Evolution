@@ -55,7 +55,11 @@ body.ls-on #modal .modal{padding-top:var(--lspush,0)!important;box-sizing:border
 
   const close = () => { const b = document.getElementById("lsov"); if (b) b.remove(); };
 
+  const ranked = () => typeof S !== "undefined" && S.rankedLive;   // 自己正在打段位局: 不能開練習關卡 (會離開對局)
+  const rankedMsg = () => ({ zh: "段位對局進行中,無法開始練習關卡", en: "Can't start a practice level during a ranked game", ja: "ランク戦の最中は練習ステージを始められません" })[(window.SGS_I18N && SGS_I18N.lang) || "zh"];
+
   async function open(t) {
+    if (ranked()) { toast(rankedMsg()); return; }
     addCss(); close();
     const box = el("div", { id: "lsov", onclick: e => { if (e.target === box) close(); } });
     document.body.append(box);
@@ -87,6 +91,7 @@ body.ls-on #modal .modal{padding-top:var(--lspush,0)!important;box-sizing:border
 
   async function start(id) {
     close();
+    if (ranked()) { toast(rankedMsg()); return; }
     try {
       if (window.SGS_HINT_OFF) SGS_HINT_OFF();
       curId = id; tipsOn = false; saved = false;
