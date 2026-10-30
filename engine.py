@@ -248,6 +248,8 @@ class Game:
         self.chain_view = []            # 連鎖演示: 這條連鎖實際打出的牌 / 發動的技能 (不含被棄掉的牌)
         self.chain_used: set = set()    # 本連鎖已發動過的技能 (玩家 idx, 技能名)
         self.chain_pcount: dict = {}    # 被動技能在本連鎖的觸發次數
+        self.scn = None                 # 教學關卡: 開局時呼叫 scn(game) 佈置牌桌 (沒有就照一般規則發牌)
+        self.scn_nodraw = ()            # 教學關卡: 這些座位第 1 輪的抽牌階段不抽牌 (手牌完全照關卡設定)
 
     # ---------- 連鎖 ----------
     def new_chain(self):
@@ -367,6 +369,8 @@ class Game:
 
     def draw_phase(self, p, n):
         """抽牌階段的一般抽牌 (不受張紘限制)。"""
+        if self.round == 1 and p.idx in self.scn_nodraw:
+            n = 0
         old, self.ordinary = self.ordinary, True
         try:
             return self.draw(p, n)
@@ -1936,8 +1940,11 @@ class Game:
     def run(self):
         try:
             self.ordinary = True
-            for p in self.players:
-                self.draw(p, 5)
+            if self.scn:   # 教學關卡: 手牌 / 裝備 / 體力 / 牌堆順序都由關卡指定
+                self.scn(self)
+            else:
+                for p in self.players:
+                    self.draw(p, 5)
             self.ordinary = False
             for p in self.players:
                 p._char.on_game_start(self, p)
@@ -1950,7 +1957,7 @@ class Game:
                         self.take_turn(p)
                         assert self.count_cards() == self.total_cards, "牌數不守恆"
                     if self.round == 1 and k == 0:   # 主公第一回合結束後,由主公決定往左還是往右輪
-                        ask = self.lord.alive and len(self.alive_players()) > 2   # 第一回合結束只剩兩個人 (或更少): 往哪邊輪都一樣,不用問
+                        ask = self.lord.alive and len(self.alive_players()) > 2 and not self.scn   # 第一回合結束只剩兩個人 (或更少): 往哪邊輪都一樣,不用問
                         i = self.lord.agent.choose_option(self, self.lord, "輪次方向", ["往左 (座位號遞增)", "往右 (座位號遞減)"]) if ask else 0
                         self.dir = 1 if i == 0 else -1
                         if ask:

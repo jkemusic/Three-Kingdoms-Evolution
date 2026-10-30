@@ -21,6 +21,7 @@ from characters import ROSTER
 from engine import Game, ROLES
 from human import HumanAgent
 from thinking import Observed, Recorder
+import lessons
 from view import ROOT, DATA, snapshot
 import cosmetics
 import cardart
@@ -660,7 +661,7 @@ def leaderboard(me=""):
         rows.append({"name": rk.get(k) or acc["user"], "acc": acc["user"].lower(), "me": t == me, "lv": PROFILES.rank_tag(p), "pres": p.get("pres", 0), "rp": p.get("rp", 0), "rp_next": PROFILES.rank(p.get("rp", 0))[3], "xp": p["xp"],
                      "games": p.get("rgames", 0), "wins": p.get("rwins", 0), "playtime": p.get("playtime", 0), "avatar": PROFILES.avatar_url(t), "style": PROFILES.style(t), "dev": PROFILES.dev(t)})
     return {"rows": rows}
-OPEN_API = {"/api/about", "/api/rooms", "/api/cardcat", "/api/cosmetics", "/api/i18n", "/api/roster", "/api/me", "/api/login", "/api/register"}
+OPEN_API = {"/api/about", "/api/rooms", "/api/cardcat", "/api/lessons", "/api/cosmetics", "/api/i18n", "/api/roster", "/api/me", "/api/login", "/api/register"}
 
 
 class AbortGame(Exception):
@@ -731,6 +732,10 @@ class Manager:
                 return {"ok": False, "error": "ranked game in progress"}   # 段位局打完前不能開新遊戲 (要先棄賽)
             for t in list(self.claims.values()):   # 入座的人都離開很久了: 房主可以收掉這局,離開的人照棄賽算輸
                 self.forfeit(t)
+        lesson = lessons.by_id(cfg.get("lesson")) if cfg.get("lesson") else None
+        if lesson:   # 教學關卡: 人數 / 武將 / 主公座位都由關卡決定,固定休閒、不計經驗
+            cfg = dict(cfg, players=lesson["n"], human="0", humans=[], ranked=False, practice=True, chars=[c or "none" for c in lesson["chars"]],
+                       lord=lesson["lord"], variant=0, mode="normal", role_mode="normal", base_hp=4, diffs=[], difficulty=2)
         if cfg.get("ranked"):   # 段位模式: 固定規則 (正常模式 / 4 體力 / 隨機主公 / 正常身分)
             cfg = dict(cfg, spec_all=False, players=max(4, int(cfg.get("players", 5))), mode="normal", base_hp=4, lord="random", chars=["" for _ in (cfg.get("chars") or [])], role_mode="normal")
         self.abort = True
@@ -1175,14 +1180,21 @@ class Manager:
                 chars.append(ROSTER[nm]() if nm in ROSTER else None)
         cfg["chars_"] = chars
         agents = []
+        lesson = lessons.by_id(cfg.get("lesson")) if cfg.get("lesson") else None
+        self.les = {"id": lesson["id"], "step": 0, "done": False, "manual": False} if lesson else None
         for i in range(n):
             if i in self.claims:
                 agents.append(HumanAgent(self, i))
+            elif lesson and not lesson["real_ai"]:
+                ps = lesson["players"][i]
+                agents.append(lessons.ScriptAgent(ps.get("plan", ()), ps.get("resp", ())))
             else:
                 agents.append(Observed(LeveledAgent(self._level(cfg, i)), self.rec))
         g = Game(agents, max_rounds=100, seed=cfg["seed"], chars=cfg["chars_"], role_variant=int(cfg.get("variant", 0)), lord_seat=self.lord_seat,
                  mode="shuffle" if cfg.get("mode") == "shuffle" else "normal", role_mode=cfg.get("role_mode") or "normal", base_hp=int(cfg.get("base_hp") or 4))
         g.on_log = self.on_log
+        if lesson:
+            g.scn = lambda gg, L=lesson: lessons.apply(gg, L)
         self.game, self.lobby = g, False
         self.game_t0 = time.time()
         self.thread = threading.Thread(target=self._run, args=(g,), daemon=True)
@@ -1245,7 +1257,7 @@ class Manager:
     def _run(self, g):
         try:
             g.run()
-            if not self.abort and g.winner:
+            if not self.abort and g.winner and not self.cfg.get("lesson"):
                 self._award(g)
             if self.game is g and not self.abort:
                 self.over_at = time.time()
@@ -1267,7 +1279,44 @@ class Manager:
         except Exception:
             return False
 
+    def lesson_view(self):
+        st = getattr(self, "les", None)
+        L = lessons.by_id(st["id"]) if st else None
+        if not L or not (self.cfg or {}).get("lesson"):
+            return None
+        return {"id": L["id"], "name": L["name"], "group": L["group"], "intro": L["intro"], "tips": L["tips"], "free": bool(L.get("free")),
+                "steps": [x[0] for x in L["steps"]], "cur": st["step"], "done": st["done"]}
+
+    def lesson_leave(self, tok):
+        self.les = None
+        if self.cfg:
+            self.cfg["lesson"] = None
+        return {"ok": True}
+
+    def lesson_done(self, tok):
+        st = getattr(self, "les", None)
+        if st and not st["done"]:
+            st["done"] = True
+            self._event("🎓 過關! 這一關完成了", "ok")
+        return {"ok": True}
+
+    def lesson_track(self, msg):
+        """教學關卡: 紀錄的每一行都拿來比對目前這一步的 regex,比到就進下一步。"""
+        st, L = getattr(self, "les", None), None
+        if not st or st["done"]:
+            return
+        L = lessons.by_id(st["id"])
+        if L is None or st["step"] >= len(L["steps"]):
+            return
+        rx = L["steps"][st["step"]][1]
+        if rx and re.search(rx, msg):
+            st["step"] += 1
+            if st["step"] >= len(L["steps"]):
+                st["done"] = True
+                self._event("🎓 過關! 這一關完成了", "ok")
+
     def on_log(self, msg):
+        self.lesson_track(msg)
         if msg[:1] == chr(1):   # 動畫用的隱藏行: 不佔步驟延遲 / 單步
             return
         if self.abort:
@@ -1310,6 +1359,8 @@ class Manager:
                 nopass = next((o["i"] for o in options if str(o.get("label", "")).startswith(("不出", "不發動", "不使用"))), None)
                 rec = [o["i"] for o in options if o.get("rec")]
                 default = [nopass] if nopass is not None else ((rec + [i for i in idx if i not in rec])[:mn])
+        if (self.cfg or {}).get("lesson"):
+            timeout = None   # 練習關卡: 慢慢想,不倒數、不會自動出牌
         with self.lock:
             self._req += 1
             rid = self._req
@@ -1623,9 +1674,36 @@ def load_roster():
 
 
 ROSTER_DATA, CHAR_IMGS = load_roster()
+lessons.add_generals(ROSTER_DATA)
+
+
+WUMING_SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 360"><defs>
+<linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9dcc0"/><stop offset="1" stop-color="#c9b48a"/></linearGradient>
+<radialGradient id="mist" cx=".5" cy=".62" r=".6"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>
+<rect width="260" height="360" fill="url(#bg)"/>
+<path d="M0 250 L40 190 L70 225 L110 160 L150 230 L190 180 L260 250 L260 360 L0 360Z" fill="#8a7a5c" opacity=".35"/>
+<path d="M0 290 L60 240 L100 270 L160 225 L220 275 L260 255 L260 360 L0 360Z" fill="#5c5038" opacity=".4"/>
+<rect width="260" height="360" fill="url(#mist)"/>
+<g stroke="#1d1a14" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+<path d="M130 282 L174 120 L186 124 L142 286Z" fill="#9aa1a8" transform="translate(40 24) rotate(8 130 200)"/>
+<path d="M96 150 C92 200 84 250 76 326 L184 326 C176 250 168 200 164 150 C150 138 110 138 96 150Z" fill="#3b3a36"/>
+<path d="M112 150 C116 190 118 240 114 326 M148 150 C144 190 142 240 146 326" fill="none" stroke="#1d1a14" stroke-width="3" opacity=".6"/>
+<path d="M108 138 C108 122 152 122 152 138 C150 150 110 150 108 138Z" fill="#d9c8a4"/>
+<path d="M54 112 L130 52 L206 112 C170 124 90 124 54 112Z" fill="#a8864a"/>
+<path d="M70 108 L130 64 L190 108" fill="none" stroke="#6d5426" stroke-width="3"/>
+<path d="M84 114 L176 114" stroke="#6d5426" stroke-width="3"/></g>
+<text x="130" y="142" text-anchor="middle" font-size="26" font-family="serif" fill="#1d1a14" opacity=".55">?</text>
+</svg>"""
 
 
 def make_thumb(name):
+    if name == "無名":   # 沒有指定武將 (練習關卡 / 無武將): 畫一個斗笠無面人
+        os.makedirs(CACHE, exist_ok=True)
+        dst = os.path.join(CACHE, "wuming.svg")
+        if not os.path.exists(dst):
+            with open(dst, "w", encoding="utf-8") as f:
+                f.write(WUMING_SVG)
+        return dst
     rel = CHAR_IMGS.get(name, {}).get("image")
     if not rel:
         return None
@@ -1729,10 +1807,12 @@ class Handler(BaseHTTPRequestHandler):
                 tk = q.get("tok", [""])[0]
                 return self._send(200, SOCIAL.thread(SOCIAL.key_of(tk), q.get("with", [""])[0]))
             M = ROOMS.get(q.get("room", ["main"])[0] or "main")
-            if M is None and path.startswith("/api/") and path not in ("/api/cardcat", "/api/i18n", "/api/roster"):
+            if M is None and path.startswith("/api/") and path not in ("/api/cardcat", "/api/i18n", "/api/roster", "/api/lessons"):
                 return self._send(200, {"gone": True, "ready": False})
             if path in ("/", "/index.html"):
                 return self._file(os.path.join(WEB, "index.html"))
+            if path == "/api/lessons":   # 教學關卡目錄
+                return self._send(200, {"groups": lessons.GROUPS, "lessons": lessons.catalog()})
             if path == "/api/cardcat":   # 牌的目錄: 戰報把牌名換成圖片、滑過去顯示說明用
                 from view import card_img
                 from card_desc import DESC
@@ -1794,13 +1874,14 @@ class Handler(BaseHTTPRequestHandler):
                 snap["host_name"] = M.host_name()
                 snap["events"] = M.events
                 snap["avstyles"] = M.seat_styles(); snap["locked"] = M.game_active(); snap["ranked"] = bool((M.cfg or {}).get("ranked"))
+                snap["lesson"] = M.lesson_view()
                 if M.cfg and "players" in snap:   # 每個電腦座位的難度 (1~4)
                     snap["ai_lv"] = [M._level(M.cfg, i) for i in range(len(snap["players"]))]
                 snap.update(M.chat_since(int(q.get("chat", ["0"])[0]), tok))
                 return self._send(200, apply_remarks(snap, M, tok))
             if path in ("/fonts/pixel-tw.woff2", "/fonts/pixel-ja.woff2"):   # 像素主題的字體 (Fusion Pixel Font, OFL 授權)
                 return self._file(os.path.join(WEB, "fonts", path[len("/fonts/"):]))
-            if path in ("/i18n.js", "/i18n_log.js", "/i18n_ui.js", "/i18n_log2.js", "/i18n_new.js", "/i18n_rank.js", "/fx.js", "/theme.js", "/friends.js"):
+            if path in ("/i18n.js", "/i18n_log.js", "/i18n_ui.js", "/i18n_log2.js", "/i18n_new.js", "/i18n_rank.js", "/fx.js", "/theme.js", "/friends.js", "/lessons.js"):
                 return self._file(os.path.join(WEB, path[1:]))
             if path == "/api/about":
                 from version import VERSION, REPO
@@ -1961,6 +2042,10 @@ class Handler(BaseHTTPRequestHandler):
                     return self._send(200, {"ok": True})
                 M.leave(data.get("tok"))
                 return self._send(200, {"ok": True})
+            if path == "/api/lesson_leave":
+                return self._send(200, M.lesson_leave(data.get("tok")))
+            if path == "/api/lesson_done":
+                return self._send(200, M.lesson_done(data.get("tok")))
             if path == "/api/rematch":
                 return self._send(200, M.rematch(data.get("tok")))
             if path == "/api/new":

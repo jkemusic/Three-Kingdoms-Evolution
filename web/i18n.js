@@ -610,6 +610,7 @@ function openTut(p) {
     el("div", { class: "tb" }, body.split("\n").map(l => el("p", { text: l }))),
     dots,
     el("div", { class: "tf" },
+      el("button", { text: { zh: "🎓 練習關卡", en: "🎓 Practice levels", ja: "🎓 練習ステージ" }[lang], onclick: () => { closeTut(); if (window.SGS_LESSON) SGS_LESSON.open(); } }),
       el("span", { style: "flex:1" }),
       el("button", { id: "tutprev", text: T.prev, onclick: () => openTut(tutPage - 1) }),
       last ? el("button", { class: "primary", text: T.done, onclick: startPractice })

@@ -318,6 +318,7 @@ html .seg button.on,html .seg button.on:hover{background:linear-gradient(180deg,
 .pl .nick{font-size:12px;color:var(--gold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .onl{margin-top:6px;font-size:13px;color:var(--text);display:flex;align-items:center;gap:7px}
 .onl .dot{width:9px;height:9px;border-radius:50%;background:#46e0a0;box-shadow:0 0 8px #46e0a0}
+@media (max-width:820px),(pointer:coarse){.pl .who .hstx{display:none}}   /* 手機座位太窄: 房主只留皇冠 */
 .pl .who{font-size:12px;font-weight:700;white-space:nowrap;overflow:visible;text-overflow:ellipsis}   /* 不能切掉頭像特效 */
 .who.me{color:#46e0a0}.who.hum{color:var(--gold)}.who.ai{color:#8aa4c4;font-weight:400}
 .pl.me::before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:4px;border-radius:0 3px 3px 0;background:#46e0a0;box-shadow:0 0 10px #46e0a0}
@@ -382,9 +383,9 @@ html .pl.target{filter:drop-shadow(0 0 5px #46e0a0) drop-shadow(0 0 14px rgba(70
 .eq.pk{outline:2px solid #ffd54a;outline-offset:0;box-shadow:0 0 5px 1px #ffd54a;cursor:pointer;animation:pkp 1s ease-in-out infinite;position:relative;z-index:5;padding:0;margin:0;flex:none;max-width:none;background:#0d0f13;gap:0;display:block}@keyframes pkp{50%{box-shadow:0 0 8px 2px #ffd54a}}
 #status:empty{display:none}
 .hasprev{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
-#bHand{display:none;position:absolute;right:8px;top:-36px;z-index:31;min-height:30px;padding:3px 12px;font-size:13px;border-radius:15px;background:rgba(8,16,30,.88);color:var(--text);border:1px solid var(--line);cursor:pointer}
+#bHand{display:none;position:relative;order:9;margin:4px 8px 0 auto;z-index:31;min-height:30px;padding:3px 12px;font-size:13px;border-radius:15px;background:rgba(8,16,30,.88);color:var(--text);border:1px solid var(--line);cursor:pointer}
 body.hand-off #hand{display:none!important}
-body.hand-off #bHand{position:relative;top:auto;right:auto;margin:0 8px 4px auto}   /* 手牌收起來時,按鈕變成下方方框最上面的一列,跟著方框一起動 (不會蓋到牌桌) */
+/* 收起 / 顯示手牌的按鈕: 兩種狀態都是下方方框最底下一列,位置固定不會跳 */   /* 手牌收起來時,按鈕變成下方方框最上面的一列,跟著方框一起動 (不會蓋到牌桌) */
 body.paused #hand .card,body.paused #bar button,body.paused #modal .modal.soft .dlg,body.paused .pickbar{pointer-events:none;opacity:.55}   /* 暫停中不能出牌 / 回應 */
 @media (max-width:820px),(pointer:coarse){#bHand{display:block}}   /* 手機 / 平板才有收起手牌按鈕 */
 body:has(#modal .modal:not(.soft)) #bHand{display:none!important}   /* 新遊戲 / 等待入座 / 選武將等視窗開著時,收起手牌按鈕不要蓋在視窗上 */
@@ -1075,7 +1076,7 @@ function renderTable0(snap) {
     const rp = n >= 7 ? perimPos(k / n, T.clientWidth, T.clientHeight, HW[T.className], HH[T.className]) : null;
     const ph = h("div", {class: "ph", title: "點擊查看武將詳細資訊", onclick: ev => { ev.stopPropagation(); showCharInfo(p); }});
     bindCharPrev(ph, p);
-    if (p.char) ph.style.backgroundImage = `url("/thumb/char/${encodeURIComponent(p.char)}")`;
+    ph.style.backgroundImage = `url("/thumb/char/${encodeURIComponent(p.char || "無名")}")`;   // 沒有武將: 用「無名」的斗笠圖
     const dgFlip = !!p.dg_flip && p.disguise_kind === "disguise";   // 偽裝的那張翻面 → 牌背;本尊翻面看 p.flipped
     if (p.disguise && (!p.flipped || p.disguise_kind === "disguise")) {   // 偽裝: 把偽裝的武將蓋在原本的武將牌上面
       const cv = h("div", {class: "cover", title: (p.disguise_kind === "alias" ? "化身為 " : "偽裝成 ") + p.disguise});
@@ -1097,7 +1098,7 @@ function renderTable0(snap) {
     (p.badges || []).forEach(b => tags.append(h("span", {class: "tag bd bd-" + b.k, text: b.t})));
     const inf = h("div", {class: "inf"},
       h("div", {class: "nm"}, h("span", {class: "pn", title: p.char || "", text: "P" + p.idx + " " + ((p.disguise_kind === "disguise" && !p.dg_flip && p.disguise) || p.char || "無名")}), role, winners.has(p.idx) ? h("span", {class: "winb", text: "🏆 勝"}) : ""),
-      h("div", {}, hearts(p)), (zhPick && zhPick.has(p.idx) ? h("div", {class: "meta hpick", title: "隨機選一張手牌", text: "手牌 " + p.hand_n + " ▸", onclick: ev => { ev.stopPropagation(); zsub(zhPick.get(p.idx))(); }}) : h("div", {class: "meta"}, "手牌 " + p.hand_n, bkEl(p.idx))), h("div", {class: "who " + (p.is_viewer ? "me" : p.human && p.nick ? "hum" : "ai")}, (p.nick || p.is_viewer) ? avEl(p.avatar, (snap.avstyles || {})[p.idx], {class: "av"}) : avEl("bot", (snap.avstyles || {})[p.idx], {class: "av"}), h("span", {class: "wn"}, (p.is_viewer ? "你" + (p.nick ? "(" + p.nick + ")" : "") : p.human ? (p.nick || "🤖 電腦代打") : "🤖 電腦" + (snap.ai_lv && snap.ai_lv[p.idx] ? " · " + diffLabels()[snap.ai_lv[p.idx] - 1] : ""))), p.nick || p.is_viewer ? [" ", rkp(p.lv)] : null, p.host_seat ? " 👑房主" : ""),
+      h("div", {}, hearts(p)), (zhPick && zhPick.has(p.idx) ? h("div", {class: "meta hpick", title: "隨機選一張手牌", text: "手牌 " + p.hand_n + " ▸", onclick: ev => { ev.stopPropagation(); zsub(zhPick.get(p.idx))(); }}) : h("div", {class: "meta"}, "手牌 " + p.hand_n, bkEl(p.idx))), h("div", {class: "who " + (p.is_viewer ? "me" : p.human && p.nick ? "hum" : "ai")}, (p.nick || p.is_viewer) ? avEl(p.avatar, (snap.avstyles || {})[p.idx], {class: "av"}) : avEl("bot", (snap.avstyles || {})[p.idx], {class: "av"}), h("span", {class: "wn"}, (p.is_viewer ? "你" + (p.nick ? "(" + p.nick + ")" : "") : p.human ? (p.nick || "🤖 電腦代打") : "🤖 電腦" + (snap.ai_lv && snap.ai_lv[p.idx] ? " · " + diffLabels()[snap.ai_lv[p.idx] - 1] : ""))), p.nick || p.is_viewer ? [" ", rkp(p.lv)] : null, p.host_seat ? h("span", {class: "hst", title: "房主"}, " 👑", h("span", {class: "hstx", text: "房主"})) : ""),
       tags);
     { const who = inf.querySelector(".who"), nmEl = inf.querySelector(".nm");   // 玩家資訊 (暱稱 / 等級) 寫在武將名字的上面,都放在框外
       if (who && nmEl) { const row = h("div", {class: "nr"}); while (nmEl.firstChild) row.append(nmEl.firstChild); nmEl.append(who); inf.insertBefore(row, nmEl.nextSibling); } }   // 框外左上角只放頭貼+玩家資訊;P幾/武將名稱/身分放到框裡面、體力上面一排
@@ -1998,11 +1999,11 @@ function openSetup() {
 }
 
 function showNickGate(rename) {
-  const M = $("#modal"); const prevModal = rename ? S.modalOpen : null;
-  if (rename && M.firstChild) { S.nickBack = M.firstChild; M.removeChild(M.firstChild); } else { S.nickBack = null; M.textContent = ""; }
-  S.modalOpen = "nick";
+  const M = rename ? $("#modal2") : $("#modal");   // 改名放在另一層 (跟個人資訊同一層): 在房間列表 / 打牌中都不會被別的畫面蓋住或洗掉
+  M.textContent = "";
+  if (!rename) S.modalOpen = "nick";
   const inp = h("input", {type: "text", maxlength: 10, placeholder: "例如: 阿明", class: "seed", value: rename ? myNick() : "", style: {width: "100%", fontSize: "18px", padding: "10px 12px"}});
-  const close = () => { M.textContent = ""; if (S.nickBack) { M.append(S.nickBack); S.modalOpen = prevModal; } else S.modalOpen = null; S.nickBack = null; };
+  const close = () => { M.textContent = ""; if (!rename) S.modalOpen = null; };
   const ok = async () => {
     const v = inp.value.replace(/[\s<>&"']/g, "").slice(0, 10);
     if (!v) { inp.focus(); inp.style.borderColor = "#ff5d73"; return; }
@@ -2193,6 +2194,7 @@ async function poll(force) {
     if (room0 !== ROOM) return;   // 換房間時還沒回來的舊房間狀態: 丟掉 (不然會把舊房間的模式 / 牌桌畫到新房間)
     addChat(snap); S.canManage = !!snap.can_manage; S.roomLocked = !!snap.room_locked;
     S.roomNow = snap.room_name;
+    if (window.SGS_LESSON) SGS_LESSON.sync(snap);   // 練習關卡的步驟列 (不是關卡就移除)
     if (snap.room_name) $("#roomname").textContent = "「" + snap.room_name + "」";
     for (const id of ["#bNew", "#bPause", "#bStep", "#speed"]) { $(id).disabled = !snap.is_host; $(id).title = snap.is_host ? "" : "只有房主可以操作"; }
     syncSpeed(snap);
@@ -2709,6 +2711,7 @@ $("#rname").onkeydown = e => { if (e.key === "Enter" && !e.isComposing && e.keyC
 </script>
 <script src="/fx.js"></script>
 <script src="/friends.js"></script>
+<script src="/lessons.js"></script>
 <script src="/theme.js"></script>
 <script src="/i18n_log.js"></script>
 <script src="/i18n_ui.js"></script>
