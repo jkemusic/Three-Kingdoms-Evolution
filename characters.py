@@ -1077,7 +1077,7 @@ class 曹植(Char):
         if base is None or g.round - last > (1 if p._char is not self else 3):   # 第一次擁有 (或中斷了才又變成他): 從第一輪重新算
             base = g.round - 1
         st[p.idx] = (base, g.round)
-        if g.round - base > 7:
+        if g.round - base >= 7:   # 第 7 輪開頭就贏
             from engine import GameOver
             if p._char is not self and p.alias and self not in p.alias:   # 左慈: 同一個回合開頭已換了新化身,勝利畫面要顯示真正獲勝的曹植
                 p.alias = [self]

@@ -212,7 +212,8 @@ def _badges(g, p, c=None):
         elif n == "諸葛亮" and not p.equip.get("armor") and not p.equip.get("armor2"):
             add("無防具: 視為八卦陣", "st")
         elif n == "曹植":
-            add(f"第 {g.round}/7 輪", "cnt")
+            b = g.__dict__.get("_cz_rounds", {}).get(p.idx)   # 跟勝利判定同一個起算點: 現在是第幾輪 (1~7)
+            add(f"第 {max(1, min(7, g.round - b[0])) if b else 1}/7 輪", "cnt")
         elif n == "虞翻" and c.base is not None:
             add(f"全場殺 {g.sha_total - c.base}/7", "cnt")
         elif n == "郭圖&逢紀" and c.next_char:
