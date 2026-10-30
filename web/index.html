@@ -802,6 +802,17 @@ function bkEl(seat) {   // 手牌數旁邊顯示這位玩家選的卡背 (其他
 function mySel() { return (S.prof && S.prof.sel) || {}; }   // 新 / 舊卡圖、武將圖只看自己的選擇 (全部的牌和武將都用自己選的,不看對方選什麼)
 function caOf() { return mySel().cardart === "svg" ? "svg" : ""; }
 function setRosterArt(v) { S.roster = (S.roster || []).map(c => c.img ? Object.assign({}, c, {img: c.img.replace(/&art=old/, "") + (v === "old" ? "&art=old" : "")}) : c); }   // 選單 / 圖鑑裡的武將圖: 依自己選的新 / 舊版
+function gi(u) {   // 圖片網址: 依自己選的新 / 舊卡圖、武將圖、卡面風格 (詳細資訊、戰報、選武將、圖鑑都走這裡)
+  if (typeof u !== "string") return u;
+  if (u.startsWith("/thumb/char/")) return u.replace(/&art=old/, "") + gaQ();
+  if (u.startsWith("/cards/") && u.indexOf("_back") < 0 && !/[?&](bg|art)=/.test(u)) {
+    const ms = mySel(), q = [];
+    if (ms.cardbg && ms.cardbg !== "classic") q.push("bg=" + encodeURIComponent(ms.cardbg));
+    if (ms.cardart === "svg") q.push("art=svg");
+    if (q.length) return u + (u.includes("?") ? "&" : "?") + q.join("&");
+  }
+  return u;
+}
 function gaQ() { return mySel().genart === "old" ? "&art=old" : ""; }
 function cbOf(seat) { const st = S.snap && S.snap.avstyles && seat != null ? S.snap.avstyles[seat] : null; return (st && st.cb) || ""; }   // 這個座位的玩家選的卡面風格
 function cardEl(c, cls, onclick, seat) {
@@ -844,7 +855,7 @@ function bindHold(e, c) {   // 手機沒有滑鼠移上去 / 右鍵: 長按牌 (
   }
 }
 function bigImg(c) {   // 大圖 (預覽 / 詳細說明): 圖 + 左下角的牌種紅框
-  return h("span", {class: "bigw"}, h("img", {src: c.img}), c.tp ? h("span", {class: "tp", text: c.tp}) : null, c.rng ? h("span", {class: "rg", title: "攻擊範圍 " + c.rng, text: c.rng}) : null);
+  return h("span", {class: "bigw"}, h("img", {src: gi(c.img)}), c.tp ? h("span", {class: "tp", text: c.tp}) : null, c.rng ? h("span", {class: "rg", title: "攻擊範圍 " + c.rng, text: c.rng}) : null);
 }
 function bindPrev(e, c) {   // 滑鼠移上去: 左側顯示大圖與效果 (類似 Master Duel)
   if (!c.desc) return;
@@ -867,7 +878,7 @@ function bindCharPrev(e, p) {   // 滑鼠移到場上武將牌: 跟卡牌一樣�
     }
     if (!c) return;
     const P = $("#prev"); P.textContent = "";
-    if (c.img) P.append(h("img", {src: c.img}));
+    if (c.img) P.append(h("img", {src: gi(c.img)}));
     const st = [`體力 ${p.hp}/${p.maxhp}`, `手牌 ${p.hand_n}`]; if (p.role !== "?" && p.role !== "無") st.push(p.role);
     P.append(...[h("h4", {text: `${c.faction} ${c.name}`}), note ? h("p", {style: {color: "var(--gold)", fontWeight: 700}, text: note}) : null, h("p", {class: "meta", text: st.join(" / ")}),
       ...(c.skills || []).map((t, i) => h("p", {text: /^\d+[.、]/.test(t) || c.skills.length < 2 ? t : (i + 1) + ". " + t}))].filter(Boolean));   // 不能把 null 直接丟給 append (會顯示成文字 null)
@@ -876,7 +887,7 @@ function bindCharPrev(e, p) {   // 滑鼠移到場上武將牌: 跟卡牌一樣�
   e.addEventListener("mouseleave", () => { $("#prev").style.display = "none"; });
 }
 function charBody(c, st, tag, p) {
-  return h("div", {class: "ci char"}, c.img ? h("img", {src: c.img}) : "",
+  return h("div", {class: "ci char"}, c.img ? h("img", {src: gi(c.img)}) : "",
     h("div", {}, tag ? h("div", {class: "recb", text: tag}) : "", h("h3", {text: `${c.faction} ${c.name}`}), h("div", {class: "meta", text: st}),
       c.skills.map((s, i) => h("p", {class: "sk", text: /^\d+[.、]/.test(s) || c.skills.length < 2 ? s : (i + 1) + ". " + s})),
       ...(p ? borrowNodes(p) : [])));
@@ -907,7 +918,7 @@ function showCharInfo(p) {   // 點武將頭像: 顯示技能全文與目前狀�
   const st = [`體力 ${p.hp}/${p.maxhp}`, `手牌 ${p.hand_n}`];
   if (p.role !== "?" && p.role !== "無") st.push(p.role);
   if (p.chained) st.push("橫置"); if (p.flipped) st.push("翻面"); if (!p.alive) st.push("已陣亡");
-  const body = h("div", {class: "ci char"}, c.img ? h("img", {src: c.img}) : "",
+  const body = h("div", {class: "ci char"}, c.img ? h("img", {src: gi(c.img)}) : "",
     h("div", {}, h("h3", {text: `${c.faction} ${c.name}`}), h("div", {class: "meta", text: `體力上限 ${c.maxhp} · 目前: ${st.join(" / ")}`}),
       c.skills.map((s, i) => h("p", {class: "sk", text: /^\d+[.、]/.test(s) || c.skills.length < 2 ? s : (i + 1) + ". " + s})),
       ...borrowNodes(p)));
@@ -925,13 +936,13 @@ function showCardInfo(c) {
 }
 function eqEl(c, lab, judge, pick) {   // pick: 丁奉等「選一件裝備」時,可選的裝備發光、直接點
   const e = h("div", {class: "eq" + (judge ? " jd" : "") + (pick ? " pk" : ""), title: pick ? "點擊選擇這件裝備" : (c.text || c.name), onclick: ev => { ev.stopPropagation(); if (pick) pick(); else if (c.desc) showCardInfo(c); }});
-  if (c.img) e.append(h("img", {src: c.img}));
+  if (c.img) e.append(h("img", {src: gi(c.img)}));
   else e.append(h("span", {class: "nm2", text: c.name}));
   e.append(h("i", {text: lab}));
   bindPrev(e, c);
   return e;
 }
-function miniEl(c) { return c.img ? (() => { const i = h("img", {src: c.img, onclick: () => c.desc && showCardInfo(c)}); bindPrev(i, c); return i; })() : h("span", {class: "tag", text: c.text}); }
+function miniEl(c) { return c.img ? (() => { const i = h("img", {src: gi(c.img), onclick: () => c.desc && showCardInfo(c)}); bindPrev(i, c); return i; })() : h("span", {class: "tag", text: c.text}); }
 
 /* ---------- 桌面 ---------- */
 function hearts(p) {   // 體力以「玉璧」圖示表示: 實心玉 = 剩餘體力 (顏色依剩餘比例由綠→金→橘→朱紅),虛線空心 = 已失去 (不只靠顏色分辨)
@@ -1322,7 +1333,7 @@ function renderDisguise(pend, M) {   // 偽裝: 搜尋 (名字 / 勢力 / 技能
   const rows = pend.options.map(o => {
     const c = info[o.label] || {name: o.label, skills: [], faction: ""};
     const row = h("div", {class: "dsg" + (o.rec ? " rec" : ""), onclick: () => submit(pend.id, [o.i])},
-      c.img ? h("img", {src: c.img}) : "",
+      c.img ? h("img", {src: gi(c.img)}) : "",
       h("div", {style: {flex: 1, minWidth: 0}}, h("b", {text: (c.faction ? c.faction + " " : "") + c.name}), o.sub ? h("span", {class: "meta", style: {marginLeft: "8px"}, text: o.sub}) : "", o.rec ? h("span", {class: "recb", text: "⭐ 推薦"}) : "",
         h("div", {class: "meta", text: (c.skills || []).join(" ")})));
     return {o, c, row, hay: (c.name + " " + (c.faction || "") + " " + (c.skills || []).join(" ")).toLowerCase()};
@@ -1504,7 +1515,7 @@ function fullTxt(t) {   // 箭頭文字: 簡稱 → 花色 + 全名
 function cardNodes(str) {
   if (!S.cat || !S.catRe) return [str];
   const t0 = str.trim();
-  if ((S.cat[t0] || (S.fullKey || {})[t0]) && !/^[火冰雷]殺$/.test(t0)) { const c = catCard("", "", t0); if (c && c.img) { const im = h("img", {class: "lc" + (DELAYED.has(c.name) ? " dl" : ""), src: c.img, title: c.text, onclick: () => showCardInfo(c)}); bindPrev(im, c); return [lcw(im, c)]; } }
+  if ((S.cat[t0] || (S.fullKey || {})[t0]) && !/^[火冰雷]殺$/.test(t0)) { const c = catCard("", "", t0); if (c && c.img) { const im = h("img", {class: "lc" + (DELAYED.has(c.name) ? " dl" : ""), src: gi(c.img), title: c.text, onclick: () => showCardInfo(c)}); bindPrev(im, c); return [lcw(im, c)]; } }
   const out = []; let last = 0; S.catRe.lastIndex = 0; let m;
   while ((m = S.catRe.exec(str))) {
     let c = null;
@@ -1515,7 +1526,7 @@ function cardNodes(str) {
     let start = m.index, end = m.index + m[0].length;
     if (m[5]) { start = end - m[5].length; }
     if (start > last) out.push(str.slice(last, start));
-    const im = h("img", {class: "lc" + (DELAYED.has(c.name) ? " dl" : ""), src: c.img, title: c.text, onclick: () => showCardInfo(c)}); bindPrev(im, c);
+    const im = h("img", {class: "lc" + (DELAYED.has(c.name) ? " dl" : ""), src: gi(c.img), title: c.text, onclick: () => showCardInfo(c)}); bindPrev(im, c);
     const cw = lcw(im, c); cw.dataset.zh = str.slice(start, end); out.push(cw); last = end;
   }
   if (last < str.length) out.push(str.slice(last));
@@ -2121,7 +2132,7 @@ function renderPicking(snap) {   // 隨機武將: 每人抽 3 張選 1,大家同
     dlg.append(h("h3", {text: "選擇你的武將 (三選一)"}), h("div", {class: "meta", text: "大家同時選;這三張是專屬抽給你的,不會和其他人重複。選了什麼要到開局才會公開。"}));
     const row = h("div", {class: "picks"});
     snap.pick.offers.forEach(c => row.append(h("div", {class: "pk"},
-      c.img ? h("img", {src: c.img}) : "", h("b", {text: `${c.faction} ${c.name}`}), h("span", {class: "meta", text: ` ${c.maxhp}體力`}),
+      c.img ? h("img", {src: gi(c.img)}) : "", h("b", {text: `${c.faction} ${c.name}`}), h("span", {class: "meta", text: ` ${c.maxhp}體力`}),
       c.skills.map(s => h("div", {class: "sk", text: s})),
       h("button", {class: "primary", text: "選這位", onclick: async () => { try { if (window.SGS_FX) SGS_FX.sfx("pickChoose"); } catch (e) {} await api("/api/pick", {name: c.name}); S.lobbyKey = null; poll(true); }}))));
     dlg.append(row);
@@ -2190,7 +2201,7 @@ function renderLobby(snap) {
 function renderChars() {
   const L = $("#chl"); L.textContent = "";
   const q = ($("#chq").value || "").trim().toLowerCase();
-  S.roster.filter(c => !q || (c.name + " " + c.faction + " " + c.skills.join(" ")).toLowerCase().includes(q)).forEach(c => L.append(h("div", {class: "cc"}, c.img ? h("img", {src: c.img, loading: "lazy"}) : null,
+  S.roster.filter(c => !q || (c.name + " " + c.faction + " " + c.skills.join(" ")).toLowerCase().includes(q)).forEach(c => L.append(h("div", {class: "cc"}, c.img ? h("img", {src: gi(c.img), loading: "lazy"}) : null,
     h("b", {text: `${c.faction} ${c.name}`}), h("span", {class: "meta", text: ` ${c.maxhp}體力`}), c.skills.map(s => h("div", {text: s})))));
   if (!L.children.length) L.append(h("div", {class: "meta", text: "找不到符合的武將"}));
 }
