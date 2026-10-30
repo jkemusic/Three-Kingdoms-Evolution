@@ -1725,7 +1725,7 @@ class Handler(BaseHTTPRequestHandler):
     def log_message(self, *a):
         pass
 
-    def _send(self, code, body, ctype="application/json; charset=utf-8"):
+    def _send(self, code, body, ctype="application/json; charset=utf-8", cache=None):
         if isinstance(body, (dict, list)):
             body = json.dumps(body, ensure_ascii=False).encode("utf-8")
         elif isinstance(body, str):
@@ -1736,16 +1736,16 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("X-Frame-Options", "DENY")
         self.send_header("Referrer-Policy", "no-referrer")
-        self.send_header("Cache-Control", "no-store" if ctype.startswith(("application/json", "application/javascript", "text/", "image/svg")) else "max-age=3600")
+        self.send_header("Cache-Control", cache or ("no-store" if ctype.startswith(("application/json", "application/javascript", "text/", "image/svg")) else "max-age=3600"))
         self.end_headers()
         self.wfile.write(body)
 
-    def _file(self, path):
+    def _file(self, path, cache=None):
         if not path or not os.path.isfile(path):
             return self._send(404, {"error": "not found"})
         ctype = mimetypes.guess_type(path)[0] or "application/octet-stream"
         with open(path, "rb") as f:
-            self._send(200, f.read(), ctype)
+            self._send(200, f.read(), ctype, cache)
 
     def do_GET(self):
         u = urlparse(self.path)
@@ -1891,7 +1891,8 @@ class Handler(BaseHTTPRequestHandler):
                     log = ""
                 return self._send(200, {"version": VERSION, "repo": REPO, "changelog": log})
             if path.startswith("/thumb/char/"):
-                return self._file(make_thumb(path[len("/thumb/char/"):]))
+                nm = path[len("/thumb/char/"):]
+                return self._file(make_thumb(nm), "max-age=86400" if nm == "無名" else None)   # 無名的圖是 SVG,預設不快取: 牌桌每次重畫都重抓會一直閃
             if path.startswith("/cards/"):   # 卡面 / 卡背 (SVG,程式即時產生): /cards/<牌名>.svg?bg=<卡面風格>、/cards/_back.svg?bk=<卡背>
                 fn = os.path.basename(path)
                 if not fn.endswith(".svg"):
