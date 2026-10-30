@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 """卡面 / 卡背 (SVG) 產生器: 依牌名畫圖 (成語、典故),可換底色風格 (商店賣的「卡面」) 和卡背。統一風格: 深色底 + 雙線框 + 粗線條向量圖示。"""
 import math
+import os
+
+HERE = os.path.dirname(os.path.abspath(__file__))
 
 GOLD = "#e8c872"
 PAR = "#f6ecd0"     # 米白 (描邊 / 亮部)
@@ -753,6 +756,7 @@ INKC = "#2a2018"   # 墨
 WASH = {"basic": "#c4452f", "trick": "#4f7f96", "delay": "#7a5a96", "weapon": "#6a7078", "armor": "#5b8a6a", "horse": "#a8643a"}   # 朱砂 / 石青 / 紫 / 鐵灰 / 石綠 / 赭石
 # paper: 紙色 (上, 下); ink: 墨色; dark: 深色底 (圖示維持亮色); frame: 外框; mist: 遠山 / 薄霧色; extra: 底紋
 BGS = {
+    "line": {"paper": ("#efe3c2", "#cdb98a"), "ink": INKC, "dark": False, "frame": "#6b3a1e", "mist": "#4a5560", "extra": "paper"},
     "classic": {"paper": ("#efe3c2", "#cdb98a"), "ink": INKC, "dark": False, "frame": "#6b3a1e", "mist": "#4a5560", "extra": "paper"},
     "silk": {"paper": ("#f0d68a", "#c79a44"), "ink": "#3a2410", "dark": False, "frame": "#8a2a1a", "mist": "#6a4a1a", "extra": "silk"},
     "bamboo": {"paper": ("#d9c58a", "#a98f55"), "ink": "#2a2010", "dark": False, "frame": "#4a3a18", "mist": "#4a3a18", "extra": "bamboo"},
@@ -1031,8 +1035,38 @@ def svg(name, bg="classic", small=False, lg=""):
     lg = lg if lg in ("en", "ja") else ""
     key = (name, bg if bg in BGS else "classic", bool(small), lg)
     if key not in _cache:
-        _cache[key] = wrap(name, E[name][0](), KIND.get(name, "trick"), key[1], small, KIND.get(name) == "delay", lg)
+        out = wrap(name, E[name][0](), KIND.get(name, "trick"), key[1], small, KIND.get(name) == "delay", lg)
+        if key[1] == "classic":
+            out = _ink_overlay(out, name, bool(small), KIND.get(name) == "delay")
+        _cache[key] = out
     return _cache[key]
+
+
+def _ink_overlay(svg_text, name, small, land):
+    """預設卡面 = 水墨卡圖: 把內框 (宣紙 + 程式畫的圖示) 換成 ComfyUI 生成的水墨圖,外框 / 印章 / 角標照舊。沒有這張圖就維持程式畫的。"""
+    fn = os.path.join(HERE, "web", "ink", "cards", ("s_" if small else "") + name + ".jpg")
+    if not os.path.isfile(fn):
+        return svg_text
+    W, H = (286, 200) if land else (200, 286)
+    a = svg_text.find('<g clip-path="url(#panel)">')
+    end = f'<rect width="{W}" height="{H}" fill="url(#vg)"/></g>'
+    b = svg_text.find(end, a)
+    if a < 0 or b < 0:
+        return svg_text
+    uri = _ink_uri(fn)
+    panel = (f'<g clip-path="url(#panel)"><image href="{uri}" x="16" y="16" width="{W - 32}" height="{H - 32}" preserveAspectRatio="xMidYMid slice"/>'
+             f'<rect width="{W}" height="{H}" fill="url(#vg)" opacity=".55"/></g>')
+    return svg_text[:a] + panel + svg_text[b + len(end):]
+
+
+_uri_cache = {}
+
+
+def _ink_uri(fn):
+    if fn not in _uri_cache:
+        import base64
+        _uri_cache[fn] = "data:image/jpeg;base64," + base64.b64encode(open(fn, "rb").read()).decode()
+    return _uri_cache[fn]
 
 
 def svg_back(bk="classic"):

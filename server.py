@@ -1704,6 +1704,9 @@ def make_thumb(name):
             with open(dst, "w", encoding="utf-8") as f:
                 f.write(WUMING_SVG)
         return dst
+    ink = os.path.join(WEB, "ink", "generals", name + ".jpg")   # 水墨武將圖 (ComfyUI 生成) 優先
+    if os.path.isfile(ink):
+        return ink
     rel = CHAR_IMGS.get(name, {}).get("image")
     if not rel:
         return None
@@ -1879,6 +1882,10 @@ class Handler(BaseHTTPRequestHandler):
                     snap["ai_lv"] = [M._level(M.cfg, i) for i in range(len(snap["players"]))]
                 snap.update(M.chat_since(int(q.get("chat", ["0"])[0]), tok))
                 return self._send(200, apply_remarks(snap, M, tok))
+            if path.startswith("/bg/"):   # 主題背景圖 (水墨山水)
+                return self._file(os.path.join(WEB, "bg", os.path.basename(path)), "max-age=86400")
+            if path.startswith("/icons/") or path == "/favicon.ico":   # 分頁圖示 / 手機加到主畫面的圖示
+                return self._file(os.path.join(WEB, "icons", os.path.basename(path)), "max-age=86400")
             if path in ("/fonts/pixel-tw.woff2", "/fonts/pixel-ja.woff2"):   # 像素主題的字體 (Fusion Pixel Font, OFL 授權)
                 return self._file(os.path.join(WEB, "fonts", path[len("/fonts/"):]))
             if path in ("/i18n.js", "/i18n_log.js", "/i18n_ui.js", "/i18n_log2.js", "/i18n_new.js", "/i18n_rank.js", "/fx.js", "/theme.js", "/friends.js", "/lessons.js"):
@@ -1901,7 +1908,17 @@ class Handler(BaseHTTPRequestHandler):
                 body = cardart.svg_back(q.get("bk", [""])[0]) if nm == "_back" else cardart.svg_role(nm[6:], lg=self._lang()) if nm.startswith("_role_") else cardart.svg(nm, q.get("bg", [""])[0], q.get("s", [""])[0] == "1", self._lang())
                 if body is None:
                     return self._send(404, {"error": "not found"})
-                return self._send(200, body.encode("utf-8"), "image/svg+xml")
+                raw = body.encode("utf-8")
+                etag = '"' + hashlib.md5(raw).hexdigest() + '"'
+                if self.headers.get("If-None-Match") == etag:   # 卡面 SVG 內嵌水墨圖很大: 沒變就回 304
+                    self.send_response(304); self.send_header("ETag", etag); self.send_header("Cache-Control", "no-cache"); self.end_headers()
+                    return
+                self.send_response(200)
+                self.send_header("Content-Type", "image/svg+xml"); self.send_header("Content-Length", str(len(raw)))
+                self.send_header("ETag", etag); self.send_header("Cache-Control", "no-cache")
+                self.send_header("X-Content-Type-Options", "nosniff"); self.send_header("Referrer-Policy", "no-referrer")
+                self.end_headers(); self.wfile.write(raw)
+                return
             if path.startswith("/assets/sgs_sim/web/hp/"):   # 血量圖示 (隨程式附上,不在素材資料夾)
                 return self._file(os.path.join(WEB, "hp", os.path.basename(path)))
             if path.startswith("/assets/"):

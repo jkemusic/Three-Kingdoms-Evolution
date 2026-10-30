@@ -38,10 +38,10 @@
   const gf = document.createElement("style"); gf.dataset.cos = "1";
   gf.textContent = `
 html.gf{--gold:#d9ad4f;--red:#d2412f;--felt1:#3a281a;--felt2:#140d08;--ser:var(--ff,serif)}
-html.gf,html.gf body{background:radial-gradient(ellipse at 50% -10%,#3a2316 0,#150d08 62%)}
+html.gf,html.gf body{background:linear-gradient(rgba(14,8,4,.28),rgba(14,8,4,.5)),url(/bg/gf.jpg) center/cover no-repeat fixed #150d08}   /* 水墨山水背景,上面蓋一層暗色讓字看得清楚 */
 html.gf #top{background:linear-gradient(90deg,#1c120b,#26180e 50%,#1c120b);border-bottom:1px solid #8a6a30;box-shadow:0 1px 0 rgba(217,173,79,.3),0 4px 18px rgba(0,0,0,.55)}
 html.gf #top .title{font-family:var(--ser);letter-spacing:.3em;color:#e8c872;text-shadow:0 0 12px rgba(217,173,79,.45)}
-html.gf #tablewrap::before{border:3px double #b88a3a;background:repeating-linear-gradient(45deg,rgba(217,173,79,.045) 0 2px,transparent 2px 16px),repeating-linear-gradient(-45deg,rgba(217,173,79,.045) 0 2px,transparent 2px 16px),radial-gradient(ellipse at 50% 42%,#4a3322 0,#26180f 58%,#120a06 100%);box-shadow:0 0 0 5px #1a0f08,0 0 0 6px rgba(217,173,79,.55),0 0 40px rgba(217,173,79,.12),inset 0 0 80px rgba(0,0,0,.7)}
+html.gf #tablewrap::before{border:3px double #b88a3a;background:repeating-linear-gradient(45deg,rgba(217,173,79,.045) 0 2px,transparent 2px 16px),repeating-linear-gradient(-45deg,rgba(217,173,79,.045) 0 2px,transparent 2px 16px),radial-gradient(ellipse at 50% 42%,rgba(74,51,34,.5) 0,rgba(38,24,15,.68) 58%,rgba(18,10,6,.86) 100%);box-shadow:0 0 0 5px #1a0f08,0 0 0 6px rgba(217,173,79,.55),0 0 40px rgba(217,173,79,.12),inset 0 0 80px rgba(0,0,0,.7)}
 html.gf #tablewrap::after{box-shadow:inset 0 0 0 1px rgba(217,173,79,.3);margin:30px}
 html.gf #center .big{font-family:var(--ser);color:#e8c872;text-shadow:0 0 16px rgba(217,173,79,.5)}
 html.gf #center{color:#c9b48a}
