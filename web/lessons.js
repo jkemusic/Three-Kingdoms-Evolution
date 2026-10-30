@@ -11,7 +11,7 @@
   const tx = k => (T[(window.SGS_I18N && SGS_I18N.lang) || "zh"] || T.zh)[k];
   const GN = { "基本牌": { en: "Basic", ja: "基本" }, "錦囊": { en: "Tricks", ja: "錦囊" }, "裝備": { en: "Equipment", ja: "装備" }, "身分": { en: "Roles", ja: "身分" }, "武將": { en: "Generals", ja: "武将" } };
   const gname = g => { const l = (window.SGS_I18N && SGS_I18N.lang) || "zh"; return l === "zh" ? g : (GN[g] && GN[g][l]) || g; };
-  let CAT = null, fac = "", tab = null, curId = null, tipsOn = false, saved = false;
+  let CAT = null, lessonRoom = "", fac = "", tab = null, curId = null, tipsOn = false, saved = false;
 
   const el = (tag, attrs, ...kids) => {
     const e = document.createElement(tag);
@@ -90,9 +90,12 @@ body.ls-on #modal .modal{padding-top:var(--lspush,0)!important;box-sizing:border
     try {
       if (window.SGS_HINT_OFF) SGS_HINT_OFF();
       curId = id; tipsOn = false; saved = false;
-      if (!ROOM) {   // 還在房間列表: 先開一間只有自己的單人房 (不要動到公共房間)
+      if (!ROOM || ROOM !== lessonRoom) {   // 練習關卡一律開自己的私人單人房 (不動到公共房間 / 別人的房間)
+        const old = ROOM;
         const r = await (await fetch("/api/room_create", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tok: TOK, name: "練習關卡", solo: true }) })).json();
         if (!r.ok) { toast("開房失敗: " + (r.error || "")); return; }
+        if (old) { try { fetch("/api/leave", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tok: TOK, room: old }) }); } catch (e) {} }   // 先離開原本的房間
+        lessonRoom = r.room;
         enterRoom(r.room, r.name);
       }
       S.logN = 0; S.thN = 0; S.thoughts = []; S.lastTh = {}; S.sel = null; S.picked = null; S.pendId = 0;
