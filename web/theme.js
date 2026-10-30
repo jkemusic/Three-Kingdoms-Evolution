@@ -1072,7 +1072,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
           const bg = sp ? `${sp.fl ? sp.fl + "," : ""}linear-gradient(160deg,${sp.c[0]},${sp.c[1]})` : "linear-gradient(160deg,#12284a,#08122a)";
           return h("button", {
             class: "tile" + (ok ? "" : " lock") + (on ? " sel" : "") + (pv && pv.box === x.id ? " pvd" : ""), title: ok ? x.n : "需要 " + x.req_text, "aria-pressed": on ? "true" : "false",
-            onclick: async () => { if (!ok) { pv = needPv("boxes", x, { box: x.id }); render(); return; } pv = null; const id = x.id === "classic" ? "" : x.id; sel.box = id; pickBox(id); render(); },
+            onclick: async () => { if (!ok) { pv = needPv("boxes", x, { box: x.id }); render(); return; } pv = null; const id = x.id === "classic" ? "" : x.id; sel.box = id; render(); await post({ box: id }); render(); },
           }, (() => { const e = h("span", { class: "bxsw", style: { display: "block", width: "92px", height: "54px", borderRadius: "6px", background: bg, boxShadow: `inset 0 0 0 1px ${sp ? sp.bd : "#24557d"},0 0 8px ${sp ? sp.gl + "55" : "rgba(63,210,255,.25)"}` } }); if (sp) applyBox(e, x.id); return e; })(),
           h("span", { class: "tn", text: (ok ? "" : "🔒 ") + x.n }), ok ? null : h("span", { class: "rq", text: rq(x) }), ok ? null : lockProg(x));
         });
