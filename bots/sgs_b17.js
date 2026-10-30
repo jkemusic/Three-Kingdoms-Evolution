@@ -1,0 +1,4 @@
+async function(){ const B=window.SGSBOT,P=window.SGSPANEL;
+  // 訓練佇列 / 連打: 一律開「普通公開房間」(不是單人模式), 這樣可以觀戰
+  B.startQueue=async(list)=>{ const r=await (await fetch("/api/room_create",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({tok:TOK,name:"訓練房 (LoneAChess)",password:"",cap:0})})).json(); if(!r.ok) throw new Error(r.error); enterRoom(r.room,r.name); B.cfg.ranked=false; B.cfg.difficulty=2; B.cfg.autoNext=true; B.cfg.maxGames=100000; B.cfg.useRotate=false; B.cfg.forceChar=null; B.cfg.lord=null; B.cfg.vs=null; if(B.cfg.queueLord==null) B.cfg.queueLord=1; B.qstats={}; B.cfg.queue=list; if(P){ P.series=1; P.auto=true; } B.start(); return r.room; };
+  return 'patch b17 loaded (一律公開房間, 不開單人模式)'; }
