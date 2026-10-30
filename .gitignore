@@ -27,3 +27,4 @@ social.json
 profiles.json.bak*
 
 sgs_proxy/secret.txt
+out/
