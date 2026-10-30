@@ -114,7 +114,7 @@ T = {
 "黃忠": [("If you play no cards this turn, restore 1 HP", "このターン出牌しなければ体力1回復"),
         ("Your Self-Improvement draws at most 3 cards, but you need not discard or lose HP for it", "発憤図強で引けるのは最大3枚。ただし捨てる必要も体力を失うこともない")],
 "龐統": [("A Slash can be used as Iron Chain or recast", "殺1枚を鉄索連環として使うか再鋳造できる"),
-        ("When dying, discard all cards, return to 4 HP, draw 4 and flip face-up", "瀕死の時、全カードを捨て体力を4に戻し、4枚引いて表に戻る")],
+        ("When dying, discard all cards, return to 4 HP, draw 4 and flip face-up (once per turn)", "瀕死の時、全カードを捨て体力を4に戻し、4枚引いて表に戻る (1ターンに1回)")],
 "丁奉": [("When another player takes damage, you may draw X cards (X = damage)", "他のプレイヤーがダメージを受けた時、ダメージ量X枚引ける"),
         ("You may discard your weapon, armor or horse to draw 1", "武器・防具・馬を捨てて1枚引ける")],
 "呂蒙": [("If you play no Slash this turn, you don't need to discard", "このターン殺を出さなければ捨て札不要"),

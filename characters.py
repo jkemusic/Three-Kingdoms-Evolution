@@ -1343,9 +1343,12 @@ class 龐統(Char):
 
     def views(self, g, p, c): return ["鐵"] if c.name == "殺" else []
 
-    def on_dying(self, g, p):  # 瀕死: 棄掉所有牌,體力回到 4,抽 4 張,翻回正面
-        if p.hp > 0 or not p.agent.choose_skill(g, p, "龐統-浴火"):
+    used = -1   # 上次發動的回合 (一回合最多一次)
+
+    def on_dying(self, g, p):  # 瀕死: 棄掉所有牌,體力回到 4,抽 4 張,翻回正面 (一回合一次)
+        if p.hp > 0 or self.used == g.turn_id or not p.agent.choose_skill(g, p, "龐統-浴火"):
             return
+        self.used = g.turn_id
         for c in list(p.all_cards()) + list(p.judge):   # 區域內所有牌 (含判定區的延時錦囊)
             g.discard_card(p, c)
         p.hp = min(4, p.maxhp) if p.maxhp < 4 else 4
