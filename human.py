@@ -193,7 +193,8 @@ class HumanAgent:
         return r[0] + 1
 
     def choose_offturn(self, g, p, options, cur, when):
-        sig = (re.sub(r"\d+", "", when),) + tuple(sorted({getattr(o[0], "name", str(o[0])) for o in options}))
+        wk = "回合" if when in ("回合開始", "出牌階段結束") else re.sub(r"\d+", "", when)   # 回合開始和出牌階段結束是同一類「別人回合的時機」: 選了「本回合不再詢問」兩個時機都不要再問
+        sig = (wk,) + tuple(sorted({getattr(o[0], "name", str(o[0])) for o in options}))
         m = self.muted.get(sig)
         if m and ((m[0] == "round" and m[1] == g.round) or (m[0] == "turn" and m[1] == g.turn_id)):
             return None

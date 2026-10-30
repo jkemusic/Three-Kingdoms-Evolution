@@ -503,6 +503,11 @@ class Game:
                 n //= 2 ** src.dmg_half   # 弱: 該玩家本回合「造成」的傷害 ÷2 (無條件捨去)
             if n > 0:
                 n = self._damage_window(src, tgt, n0, n, raw)
+                if self.__dict__.get("_pre_react") is not None:   # 傷害結算前已經選了反 / 調 / 占: 「要受到傷害時」就先結算,不管後面緩衝盾 / 曹真阻擋之類會不會把傷害減掉
+                    n = self.damage_reactions(src, tgt, n, nature, raw)
+                    self._react_declined = True   # 已經問過了,後面不再問第二次
+                    if n <= 0 or not tgt.alive:
+                        return
         if not qg:
             n -= tgt.armor_names().count("緩衝盾")
         n = tgt.char.cap_damage(self, tgt, n)
@@ -1176,6 +1181,8 @@ class Game:
 
     def after_play(self, p, card):
         real = getattr(card, "orig", card)
+        if isinstance(card, ViewCard) and card.kind == "trick":   # 手牌當錦囊 (陳群 4 血當突襲…): 算錦囊牌,曹沖 / 鄧艾等「有人使用錦囊」的技能要觸發
+            real = card
         if real.kind == "trick":
             for q in self.alive_players():
                 q.char.on_any_trick(self, q, p, real)
@@ -1319,6 +1326,7 @@ class Game:
         self.cur_card = card
         self.cur_user = p
         real = getattr(card, "orig", card)
+        vtrick = isinstance(card, ViewCard) and card.kind == "trick"   # 手牌當錦囊使用: 也算一張錦囊 (曹沖: 超過一張扣血)
         d = self.stats["cards_played"]
         d[n] = d.get(n, 0) + 1
         p.played += 1
@@ -1326,7 +1334,7 @@ class Game:
             p.wei_n += 1
         for q in list(self.alive_players()):
             q.char.on_card_used(self, q, p, card)
-        if real.kind == "trick":
+        if real.kind == "trick" or vtrick:
             p.turn_flags["tricks"] = p.turn_flags.get("tricks", 0) + 1
             tk = getattr(p, "_trk", None)
             if tk is None or tk[0] != self.turn_id:

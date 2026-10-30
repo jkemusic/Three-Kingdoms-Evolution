@@ -903,7 +903,8 @@ def wrap(name, body, kind, bg="classic", small=False, land=False, lg=""):
     seal = seal_for(name, lg)
     equip = kind in ("weapon", "armor", "horse")   # 武器 / 防具 / 坐騎: 右下角不放印章 (武器改寫攻擊範圍,見前端)
     if P.get("pixel"):
-        return _wrap_pixel(name, body, kind, P, seal, small, equip, land)
+        out = _wrap_pixel(name, body, kind, P, seal, small, equip, land)
+        return _ink_pixel(out, name, P, land)
     wash = WASH.get(kind, "#4f7f96")
     ember = EMBER.get(kind, "#ff9a4a")
     body = ancient(body, dark, ink)
@@ -1036,7 +1037,7 @@ def svg(name, bg="classic", small=False, lg=""):
     key = (name, bg if bg in BGS else "classic", bool(small), lg)
     if key not in _cache:
         out = wrap(name, E[name][0](), KIND.get(name, "trick"), key[1], small, KIND.get(name) == "delay", lg)
-        if key[1] != "line" and not (BGS.get(key[1]) or {}).get("pixel"):   # 古風線稿 / 像素風以外的卡面都用水墨圖 (框 / 色調各自不同)
+        if True:   # 所有卡面風格都用同一套水墨圖 (只有邊框 / 色調不同)
             out = _ink_overlay(out, name, bool(small), KIND.get(name) == "delay")
         _cache[key] = out
     return _cache[key]
@@ -1057,6 +1058,25 @@ def _ink_overlay(svg_text, name, small, land, sub="cards"):
     panel = (f'<g clip-path="url(#panel)"><image href="{uri}" x="16" y="16" width="{W - 32}" height="{H - 32}" preserveAspectRatio="xMidYMid slice"/>'
              f'<rect width="{W}" height="{H}" fill="url(#vg)" opacity=".55"/></g>')
     return svg_text[:a] + panel + svg_text[b + len(end):]
+
+
+def _ink_pixel(svg_text, name, P, land):
+    """像素風卡面: 內框放同一張水墨圖 (外框 / 印章維持像素風)。沒圖就維持原本的像素圖示。"""
+    fn = os.path.join(HERE, "web", "ink", "cards", name + ".jpg")
+    if not os.path.isfile(fn):
+        fn = os.path.join(HERE, "web", "ink", "roles", name + ".jpg")
+    if not os.path.isfile(fn):
+        return svg_text
+    W, H = (286, 200) if land else (200, 286)
+    a = svg_text.find('<g filter="url(#pix)"><g transform="translate(')
+    if a < 0:
+        a = svg_text.find('<g><g transform="translate(')
+    end = f'<rect x="12" y="12" width="{W - 24}" height="4" fill="#fff" fill-opacity=".18"/>'
+    b2 = svg_text.find(end)
+    if a < 0 or b2 < 0:
+        return svg_text
+    img = f'<image href="{_ink_uri(fn)}" x="12" y="12" width="{W - 24}" height="{H - 24}" preserveAspectRatio="xMidYMid slice"/>'
+    return svg_text[:a] + img + svg_text[b2:]
 
 
 _uri_cache = {}
@@ -1115,8 +1135,7 @@ def svg_role(name, bg="classic", lg=""):
     if key not in _cache:
         fn, kind = ROLE[name]
         out = wrap(name, fn(), kind, key[2], lg=lg)
-        if key[2] != "line" and not (BGS.get(key[2]) or {}).get("pixel"):
-            out = _ink_overlay(out, name, False, False, "roles")
+        out = _ink_overlay(out, name, False, False, "roles")
         _cache[key] = out
     return _cache[key]
 
