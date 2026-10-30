@@ -801,7 +801,7 @@ function bkEl(seat) {   // 手牌數旁邊顯示這位玩家選的卡背 (其他
 }
 function mySel() { return (S.prof && S.prof.sel) || {}; }   // 新 / 舊卡圖、武將圖只看自己的選擇 (全部的牌和武將都用自己選的,不看對方選什麼)
 function caOf() { return mySel().cardart === "svg" ? "svg" : ""; }
-function setRosterArt(v) { S.roster = (S.roster || []).map(c => c.img ? Object.assign({}, c, {img: c.img.replace(/&art=old/, "") + (v === "old" ? "&art=old" : "")}) : c); }   // 選單 / 圖鑑裡的武將圖: 依自己選的新 / 舊版
+function setRosterArt(v) { S.roster = (S.roster || []).map(c => c.img ? Object.assign({}, c, {img: c.img.replace(/&art=old/, "") + (v === "old" ? "&art=old" : "")}) : c);  if (typeof renderChars === "function") { try { renderChars(); } catch (e) {} } if (typeof poll === "function") poll(true); }   // 選單 / 圖鑑裡的武將圖: 依自己選的新 / 舊版
 function gi(u) {   // 圖片網址: 依自己選的新 / 舊卡圖、武將圖、卡面風格 (詳細資訊、戰報、選武將、圖鑑都走這裡)
   if (typeof u !== "string") return u;
   if (u.startsWith("/thumb/char/")) return u.replace(/&art=old/, "") + gaQ();
@@ -1103,10 +1103,10 @@ function renderTable0(snap) {
     const dgFlip = !!p.dg_flip && p.disguise_kind === "disguise";   // 偽裝的那張翻面 → 牌背;本尊翻面看 p.flipped
     if (p.disguise && (!p.flipped || p.disguise_kind === "disguise")) {   // 偽裝: 把偽裝的武將蓋在原本的武將牌上面
       const cv = h("div", {class: "cover", title: (p.disguise_kind === "alias" ? "化身為 " : "偽裝成 ") + p.disguise});
-      cv.style.backgroundImage = `url("${dgFlip ? "/assets/三國殺牌/武將.jpg" : "/thumb/char/" + encodeURIComponent(p.disguise) + "?v=ink2" + gaQ(p.idx)}")`;
+      cv.style.backgroundImage = `url("${dgFlip ? "/thumb/char/_back?v=ink4" : "/thumb/char/" + encodeURIComponent(p.disguise) + "?v=ink2" + gaQ(p.idx)}")`;
       ph.append(cv, h("span", {class: "wei", text: p.disguise_kind === "alias" ? "化" : "偽"}));
     }
-    if (p.flipped) { ph.style.backgroundImage = `url("/assets/三國殺牌/武將.jpg")`; ph.classList.add("back"); }   // 翻面: 武將牌顯示牌背
+    if (p.flipped) { ph.style.backgroundImage = `url("/thumb/char/_back?v=ink4")`; ph.classList.add("back"); }   // 翻面: 武將牌顯示牌背
     const role = p.role === "無" ? "" : p.role === "?" ? h("span", {class: "role", text: "?"}) : h("span", {class: "role " + p.role, text: p.role});
     const tags = h("div", {class: "tags"});
     const eq = p.equip;

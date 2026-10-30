@@ -1735,7 +1735,7 @@ def make_thumb(name, old=False):
 
 
 def _make_thumb(name, old):
-    if name != "無名" and name not in ROSTER:   # 只認得出的武將名 (擋掉 ../ 之類的路徑)
+    if name not in ("無名", "_back") and name not in ROSTER:   # 只認得出的武將名 (擋掉 ../ 之類的路徑)
         return None
     ink = os.path.join(WEB, "ink", "generals", name + ".jpg")   # 水墨武將圖 (含「無名」) 優先
     if os.path.isfile(ink) and not old:

@@ -25,3 +25,5 @@ run.py
 social.json
 *.bak*
 profiles.json.bak*
+
+sgs_proxy/secret.txt
