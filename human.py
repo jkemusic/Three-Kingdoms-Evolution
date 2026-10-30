@@ -75,7 +75,9 @@ class HumanAgent:
             if t is p:
                 prompt = "你瀕死了,要使用桃/酒救自己嗎?"
         if need == "無懈":
-            prompt = (f"{pname(ctx['source'])} 對 " + ("全體" if ctx.get("targets") else pname(ctx["target"])) + f" 使用 {full_name(ctx['trick'])}" +
+            who = "全體" if ctx.get("targets") else pname(ctx["target"])
+            on = "" if ctx.get("target") is ctx["source"] and not ctx.get("targets") else f" 對 {who}"   # 對自己 / 沒有對象的牌 (五穀豐登、無中生有…) 不寫「對 自己」
+            prompt = (f"{pname(ctx['source'])}{on} 使用 {full_name(ctx['trick'])}" +
                       f"{' (已被無懈)' if ctx.get('negated') else ''},要使用無懈嗎?")
         if need == "受傷響應":
             prompt = f"你即將受到 {ctx['n']} 點傷害,要使用 ⚡ 牌嗎?"

@@ -1470,7 +1470,7 @@ fetch("/api/cardcat").then(r => r.json()).then(c => {
 function catCard(color, nat, name) {
   const e = S.cat[nat ? nat + name : name] || S.cat[name] || S.cat[(S.fullKey || {})[name]]; if (!e) return null;
   const col = color || "紅";
-  return {name, full: e.full || name, color: col, img: e.img[col] || e.img["紅"] || e.img["黑"], desc: e.desc, tp: e.tp || "", rng: e.rng || "", land: !!e.land, bolt: e.bolt || "", text: (e.bolt || "") + (color || "") + (nat || "") + (e.full || name)};
+  return {name, full: e.full || name, color: col, img: e.img[col] || e.img["紅"] || e.img["黑"], desc: e.desc, tp: e.tp || "", rng: e.rng || "", land: !!e.land, bolt: e.bolt || "", text: (e.bolt || "") + (color || "") + (nat && !(e.full || "").startsWith(nat) ? nat : "") + (e.full || name)};   // 圖鑑裡冰殺的全名就叫「冰殺」,不要再多加一個冰
 }
 const DELAYED = new Set(["樂", "兵", "草", "閃電", "毒"]);   // 延時錦囊: 戰報裡橫放
 function lcw(im, c) {   // 戰報裡的牌: 圖下面標出花色 + 圖鑑全名

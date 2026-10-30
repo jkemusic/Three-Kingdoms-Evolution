@@ -311,6 +311,13 @@ class 董卓(Char):
             p.skip_play_flag = True
             g.log(f"  {p.name} 也被樂 (不判定,下個出牌階段跳過)")
 
+    def on_flipped(self, g, p):   # 翻面時體力上限變 4 (體力超過就降到 4)
+        if p.maxhp > 4:
+            p.maxhp = 4
+            g.log(f"  {p.name}[董卓] 翻面,體力上限變成 4")
+            if p.hp > 4:
+                p.hp = 4
+
 
 class 曹彰(Char):
     name, faction = "曹彰", "魏"
