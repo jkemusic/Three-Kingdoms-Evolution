@@ -1226,7 +1226,9 @@ function renderHand(snap) {
   if (pend && pend.kind === "act") for (const o of pend.options) { if (!groups.has(String(o.group))) groups.set(String(o.group), []); groups.get(String(o.group)).push(o); }
   const jiuBtn = opts => !(opts[0].card && opts[0].card.name === "殺" && pend && pend.options.some(x => x.card && x.card.name === "酒" && !x.target)) ? "" :
     h("button", {class: S.jiuOn ? "primary" : "", title: "出殺時一起喝酒 (酒殺: 這張殺傷害 +1)", text: S.jiuOn ? "🍶 酒殺: 開" : "🍶 酒殺: 關", onclick: () => { S.jiuOn = !S.jiuOn; S.handKey = null; renderHand(S.snap); }});
+  const kindsOf = opts => { const m = new Map(); opts.forEach(o => { const k = (o.card && o.card.as) || ""; if (!m.has(k)) m.set(k, []); m.get(k).push(o); }); return m; };   // 同一張牌有幾種用法 (原本的 / 技能當作別的牌): 劉諶的手牌當決鬥…
   const beginTarget = opts => {   // 需要選玩家的牌: 點下去就直接進入「點玩家」
+    if (kindsOf(opts).size > 1) return;   // 有多種用法: 先讓玩家在下方按鈕選一種,不然點對象時永遠只會用到第一種
     const nm = opts[0].card ? (opts[0].card.text || opts[0].card.name) : opts[0].label;
     if (opts.every(tpPl)) S.tgtPick = {pend: pend.id, opts, label: "使用 " + nm, chosen: []};
     else if (opts.every(tpMulti)) S.tgtPick = {pend: pend.id, opts, label: "使用 " + nm, multi: true, chosen: []};
@@ -1294,7 +1296,9 @@ function renderHand(snap) {
       const opts = groups.get(String(S.picked)), c0 = opts[0].card;
       const nm = c0 ? (c0.text || c0.name) : opts[0].label;
       B.append(jiuBtn(opts));
-      if (!(opts.every(tpPl) || opts.every(tpMulti) || opts.every(tpMv))) B.append(h("button", {class: "primary", text: "使用 " + nm, onclick: () => use(opts, "使用 " + nm)}));
+      const ks = kindsOf(opts);
+      if (ks.size > 1) ks.forEach((os, k) => { const c1 = os[0].card, lab = k ? "當作 " + (c1.as_full || c1.as) : "使用 " + (c1.real_full || c1.text || c1.name); B.append(h("button", {class: "primary", text: lab, onclick: () => { S.tgtPick = null; beginTarget(os); if (S.tgtPick) { S.handKey = null; renderHand(S.snap); renderTable(S.snap); } else use(os, lab); }})); });
+      else if (!(opts.every(tpPl) || opts.every(tpMulti) || opts.every(tpMv))) B.append(h("button", {class: "primary", text: "使用 " + nm, onclick: () => use(opts, "使用 " + nm)}));
     }
     B.append(h("button", {text: "結束出牌", onclick: () => submit(pend.id, [])}));
   }
