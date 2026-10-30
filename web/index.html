@@ -1079,11 +1079,11 @@ function renderTable0(snap) {
     const rp = n >= 7 ? perimPos(k / n, T.clientWidth, T.clientHeight, HW[T.className], HH[T.className]) : null;
     const ph = h("div", {class: "ph", title: "點擊查看武將詳細資訊", onclick: ev => { ev.stopPropagation(); showCharInfo(p); }});
     bindCharPrev(ph, p);
-    ph.style.backgroundImage = `url("/thumb/char/${encodeURIComponent(p.char || "無名")}?v=ink1")`;   // 沒有武將: 用「無名」的斗笠圖
+    ph.style.backgroundImage = `url("/thumb/char/${encodeURIComponent(p.char || "無名")}?v=ink2")`;   // 沒有武將: 用「無名」的斗笠圖
     const dgFlip = !!p.dg_flip && p.disguise_kind === "disguise";   // 偽裝的那張翻面 → 牌背;本尊翻面看 p.flipped
     if (p.disguise && (!p.flipped || p.disguise_kind === "disguise")) {   // 偽裝: 把偽裝的武將蓋在原本的武將牌上面
       const cv = h("div", {class: "cover", title: (p.disguise_kind === "alias" ? "化身為 " : "偽裝成 ") + p.disguise});
-      cv.style.backgroundImage = `url("${dgFlip ? "/assets/三國殺牌/武將.jpg" : "/thumb/char/" + encodeURIComponent(p.disguise) + "?v=ink1"}")`;
+      cv.style.backgroundImage = `url("${dgFlip ? "/assets/三國殺牌/武將.jpg" : "/thumb/char/" + encodeURIComponent(p.disguise) + "?v=ink2"}")`;
       ph.append(cv, h("span", {class: "wei", text: p.disguise_kind === "alias" ? "化" : "偽"}));
     }
     if (p.flipped) { ph.style.backgroundImage = `url("/assets/三國殺牌/武將.jpg")`; ph.classList.add("back"); }   // 翻面: 武將牌顯示牌背
