@@ -7,6 +7,8 @@ const LANGS = [["zh", "繁體中文"], ["en", "English"], ["ja", "日本語"]];
 let lang = "zh";
 try { lang = localStorage.getItem("sgs_lang") || "zh"; } catch (e) {}
 if (!LANGS.some(l => l[0] === lang)) lang = "zh";
+function saveLangCookie() { try { document.cookie = "sgs_lang=" + lang + ";path=/;max-age=31536000;SameSite=Lax"; } catch (e) {} }   // 卡面印章字由伺服器依語言畫,要讓它知道目前語言
+saveLangCookie();
 
 /* ---------- 詞典: [中文, English, 日本語] ---------- */
 const W = [
@@ -35,7 +37,7 @@ const W = [
   ["把房主讓給目前在線的某人", "Hand the host role to someone online", "オンラインの誰かにホストを譲る"],
   ["人數", "Players", "人数"], ["我的位置", "My seat", "自分の席"], ["觀戰 = 全部由 AI 對戰", "Spectate = all AI", "観戦 = 全員AI"],
   ["👁 觀戰", "👁 Spectate", "👁 観戦"], ["🎲 隨機", "🎲 Random", "🎲 ランダム"], ["座位 ", "Seat ", "席 "], ["座位", "Seat", "席"],
-  ["主公座位", "Emperor's seat", "主公の席"], ["主公從哪個座位開始;身分會在開局時才揭曉", "Which seat the Emperor starts from; roles are revealed at the start", "主公の開始席。役職は開始時に公開"],
+  ["主公座位", "Emperor's seat", "君主の席"], ["主公從哪個座位開始;身分會在開局時才揭曉", "Which seat the Emperor starts from; roles are revealed at the start", "君主の開始席。役職は開始時に公開"],
   ["身分配置", "Role set-up", "役職配置"], ["配置 ", "Set-up ", "配置 "], ["進階", "Advanced", "詳細"], ["亂數種子", "Random seed", "乱数シード"],
   ["隨機", "Random", "ランダム"], ["開放玩家", "Open to players", "プレイヤーに開放"],
   ["全部開放玩家", "Open all seats to players", "全席をプレイヤーに開放"], ["全部關閉 (不開放)", "Close all seats", "全席を閉じる"],
@@ -66,7 +68,7 @@ const W = [
   ["你已選好武將", "You have picked", "武将を選択済み"], ["玩家選擇武將中", "Players are picking characters", "プレイヤーが武将を選択中"], ["還沒選: ", "Not yet picked: ", "未選択: "],
   ["等待還沒選的玩家: ", "Waiting for: ", "未選択のプレイヤーを待っています: "], ["選這位", "Pick this", "これにする"],
   ["觀戰模式: 可在左上調整速度、暫停、單步;右側 AI 思考可看每個決定的理由。", "Spectator mode: adjust speed, pause and step at top-left; the AI thoughts tab shows reasons for each decision.", "観戦モード: 左上で速度・一時停止・コマ送りを調整。右のAI思考で各判断の理由を確認できます。"],
-  ["考慮過的選項:", "Options considered:", "検討した選択肢:"], ["身分推理:", "Role inference:", "役職推理:"], ["疑似反賊分", "Rebel score", "反賊らしさ"],
+  ["考慮過的選項:", "Options considered:", "検討した選択肢:"], ["身分推理:", "Role inference:", "役職推理:"], ["疑似反賊分", "Rebel score", "反逆者らしさ"],
   ["恨意", "Grudge", "恨み"], ["態度", "Attitude", "態度"], ["思考", "Thinking", "思考"], ["判斷", "Judgement", "判断"],
   ["對方", "Opponent", "相手"], ["第 ", "Round ", "第"],   // 手牌 / 操作
   ["手牌", "Hand", "手札"], ["沒有手牌)", "no hand cards)", "手札なし)"], ["體力", "HP", "体力"], ["體力上限 ", "Max HP ", "体力上限 "],
@@ -74,7 +76,7 @@ const W = [
   ["請選擇", "Choose", "選択してください"], ["操作…", "Act…", "操作…"], ["行動…", "Action…", "行動…"],
   ["不出", "Pass", "出さない"], ["不發動", "Don't activate", "発動しない"], ["不發動,這類選項本回合不再詢問", "Don't activate; stop asking about this this turn", "発動しない(このターンはもう聞かない)"],
   ["已陣亡", "Dead", "死亡"], ["檢視中", "Viewing", "表示中"], ["橫置", "Chained", "横向き"], ["翻面", "Flipped", "裏向き"],
-  ["亮牌", "Reveal", "公開"], ["內奸", "Spy", "内通者"], ["主公", "Emperor", "主公"], ["忠臣", "Loyalist", "忠臣"], ["反賊", "Rebel", "反賊"],
+  ["亮牌", "Reveal", "公開"], ["內奸", "Spy", "内通者"], ["主公", "Emperor", "君主"], ["忠臣", "Loyalist", "家来"], ["反賊", "Rebel", "反逆者"],
   ["點擊其他玩家切換", "click another player to switch", "他のプレイヤーをクリックで切替"],
   ["牌堆 ", "Deck ", "山札 "], ["本次連鎖", "This chain", "今回のチェーン"], ["棄牌堆 ", "Discard ", "捨て札 "], ["棄牌堆", "Discard pile", "捨て札"],
   ["判定結果", "Judgement", "判定結果"], ["連鎖回應", "Chain response", "チェーン応答"], ["詳細", "Details", "詳細"], ["全部", "All", "全て"],
@@ -99,7 +101,7 @@ const W = [
   // 紀錄動詞
   ["回合", "turn", "のターン"], ["受到 ", "takes ", "受けた: "], ["點火傷害", " fire damage", "点の火ダメージ"], ["點冰傷害", " ice damage", "点の氷ダメージ"],
   ["點雷傷害", " thunder damage", "点の雷ダメージ"], ["點傷害", " damage", "点のダメージ"], ["來源 ", "from ", "原因: "],
-  ["瀕死 (體力 ", "is dying (HP ", "瀕死 (体力 "], ["陣亡", "has died", "死亡"], ["擊殺反賊,抽3張", "killed a rebel and draws 3", "反賊を倒して3枚引く"],
+  ["瀕死 (體力 ", "is dying (HP ", "瀕死 (体力 "], ["陣亡", "has died", "死亡"], ["擊殺反賊,抽3張", "killed a rebel and draws 3", "反逆者を倒して3枚引く"],
   ["無人出桃", "Nobody plays a Peach", "誰も桃を出さない"],
   ["依序詢問 ", "Asking in turn: ", "順に確認: "], [" 是否出桃/酒救 ", " whether to save with Peach/Wine: ", " が桃/酒で救うか: "], [" 是否出桃救 ", " whether to save ", " が桃で救うか: "],
   ["展示 ", "shows ", "公開: "], ["棄置 ", "discards ", "捨てる: "], ["亮出 ", "reveals ", "公開: "], ["判定 ", "judges ", "判定: "],
@@ -169,7 +171,7 @@ const W = [
   ["🏆 排行榜", "🏆 Leaderboard", "🏆 ランキング"], ["玩家排行榜", "Leaderboard", "プレイヤーランキング"], ["依等級", "By level", "レベル順"], ["依勝場", "By wins", "勝利数順"], ["依勝率", "By win rate", "勝率順"], ["還沒有玩家資料", "No players yet", "プレイヤーなし"], ["尚無對局", "No games yet", "対局なし"],
   ["輸入你的 UID (8 位數字)", "Enter your UID (8 digits)", "UID(8桁の数字)を入力"], ["設定使用者名稱 (2~10 字)", "Choose a username (2–10 chars)", "ユーザー名(2~10文字)"], ["UID 或密碼錯誤", "Wrong UID or password", "UIDまたはパスワードが違います"],
   ["登入只需要 UID,請不要把你的 UID 給別人。", "Logging in only needs your UID — don't share it with anyone.", "ログインにはUIDだけが必要です。他人に教えないでください。"], ["找不到這個 UID", "UID not found", "このUIDは見つかりません"],
-  ["主公陣營", "Emperor's side", "主公陣営"], ["陣營", "side", "陣営"], ["平手(超過回合上限)", "Draw (round limit reached)", "引き分け(ラウンド上限超過)"], ["平手", "Draw", "引き分け"],
+  ["主公陣營", "Emperor's side", "君主陣営"], ["陣營", "side", "陣営"], ["平手(超過回合上限)", "Draw (round limit reached)", "引き分け(ラウンド上限超過)"], ["平手", "Draw", "引き分け"],
   ["你的帳號已在另一個裝置登入,請重新登入", "Your account was logged in on another device. Please log in again.", "別の端末でログインされました。もう一度ログインしてください。"],
   ["音效 開/關", "Sound on/off", "効果音 オン/オフ"],
   ["🔁 再來一局 (同樣設定)", "🔁 Play again (same settings)", "🔁 もう一局(同じ設定)"], ["只有房主可以再來一局", "Only the host can start a rematch", "再戦できるのはホストだけです"], ["還沒有上一局的設定", "No previous game settings", "前回の設定がありません"],
@@ -201,76 +203,40 @@ const W = [
 ];
 const TUT = {
   zh: {
-    btn: "📖 教學", title: "新手教學", prev: "上一步", next: "下一步", done: "開始練習局", close: "關閉", skip: "跳過",
+    btn: "📖 教學", title: "新手教學", prev: "上一步", next: "下一步", fin: "完成", close: "關閉", skip: "跳過",
     page: "第 {a} / {b} 頁",
-    hintTitle: "練習提示", hintOff: "關閉提示",
     steps: [
       ["遊戲目標", "每人有一個隱藏身分,只有主公公開:\n• 主公、忠臣: 打倒所有反賊和內奸。\n• 反賊: 打倒主公。\n• 內奸: 先清掉別人,最後單挑贏主公。\n不確定的時候,先觀察誰在幫誰、誰在打誰。"],
       ["你的回合", "每回合: 摸 2 張牌 → 出牌 → 手牌不能比體力多 (多的要棄掉)。\n出牌時點一張手牌,再點目標;不想出了就按「結束出牌」。\n被攻擊時會跳出視窗,選牌回應或按「不出」。"],
       ["最常用的牌", "• 殺: 打人,對方要出「閃」,否則扣 1 血。每回合只能出一張。\n• 閃: 躲掉一次殺。\n• 桃: 回 1 血,也能救瀕死的人。\n• 酒: 搭配殺傷害 +1。\n• 錦囊 (順手牽羊、決鬥、南蠻入侵…) 與裝備,滑鼠移上去就能看說明。⚡ 標記的可以在別人出牌時搶著用。"],
       ["瀕死與勝負", "體力降到 0 會瀕死,大家可以出桃救他,沒人救就陣亡。\n達成自己身分的目標就獲勝。\n遊戲最多進行 100 輪,超過算平手。"],
-      ["段位與模式", "新遊戲可選「🎮 休閒」(不影響積分) 或「🏅 段位」(贏加分、輸扣分)。\n段位由低到高: 青銅 → 白銀 → 黃金 → 白金 → 鑽石 → 大師 → 傳說。\n詳細計分按開新遊戲畫面裡的「段位說明」。\n剛開始建議先打休閒或練習局。"],
+      ["段位與模式", "新遊戲可選「🎮 休閒」(不影響積分) 或「🏅 段位」(贏加分、輸扣分)。\n段位由低到高: 青銅 → 白銀 → 黃金 → 白金 → 鑽石 → 大師 → 傳說。\n詳細計分按開新遊戲畫面裡的「段位說明」。\n剛開始建議先打休閒。"],
       ["遊戲幣與外觀", "• 只有「🏅 段位」對局會得到遊戲幣: 贏 18~36 (依電腦難度)、輸 8、平手 12;棄賽沒有。\n• 遊戲幣可以到「🎨 外觀」買主題、玩家框、頭像框和特效。每個成就也會直接送你一個外觀。\n• 積分到「傳說」後可以按「轉生」: 回到青銅3,名字旁多一顆 ★,並得到聲望;聲望可以買轉生限定外觀。"],
-      ["練習局", "按下方「開始練習局」會開一場 4 人局 (你 vs 3 個 AI),畫面上方會提示你現在該做什麼。玩得開心!"],
     ],
-    hints: {
-      act: "輪到你了! 點下方一張手牌,再選目標;或按「結束出牌」。",
-      respond: "你被攻擊或被要求回應: 選一張符合的牌打出,或按「不出」。",
-      skill: "這是一個可選的技能/連鎖提示: 想發動就選,否則按「不發動」。",
-      discard: "手牌超過體力了,請選擇要棄置的牌。",
-      pick: "請選擇一張牌或目標。",
-      wait: "等待其他玩家行動…",
-      pickgen: "選一位武將,每個武將都有不同的技能,可以先看技能說明。",
-      over: "遊戲結束! 可到「對局紀錄」回顧。想再練習請按「新遊戲」。",
-    },
   },
   en: {
-    btn: "📖 Tutorial", title: "Beginner's Tutorial", prev: "Back", next: "Next", done: "Start practice game", close: "Close", skip: "Skip",
+    btn: "📖 Tutorial", title: "Beginner's Tutorial", prev: "Back", next: "Next", fin: "Done", close: "Close", skip: "Skip",
     page: "Page {a} / {b}",
-    hintTitle: "Practice hint", hintOff: "Hide hints",
     steps: [
       ["Goal", "Everyone has a hidden role; only the Emperor is public:\n• Emperor & Loyalists: defeat all Rebels and Spies.\n• Rebels: defeat the Emperor.\n• Spy: clear everyone else, then win the final duel against the Emperor.\nNot sure who's who? Watch who helps whom and who attacks whom."],
       ["Your turn", "Each turn: draw 2 → play cards → keep no more cards than your HP (discard the rest).\nTo play, click a hand card, then a target; press \"End play phase\" when done.\nWhen attacked, a window pops up: pick a card to respond or press \"Pass\"."],
       ["Key cards", "• Slash: attack; the target must play a Dodge or lose 1 HP. One per turn.\n• Dodge: avoids one Slash.\n• Peach: restore 1 HP, or save a dying player.\n• Wine: +1 damage on your Slash.\n• Tricks (Steal, Duel, Barbarians...) and equipment: hover for details. Cards marked ⚡ can be played in response to others."],
       ["Dying & winning", "At 0 HP a player is dying; others may play a Peach to save them, otherwise they die.\nAchieve your role's goal to win.\nA game lasts at most 100 rounds; beyond that it's a draw."],
-      ["Ranks & modes", "A new game can be 🎮 Casual (no points change) or 🏅 Ranked (win = gain points, loss = lose points).\nRanks, low to high: Bronze → Silver → Gold → Platinum → Diamond → Master → Legend.\nFor the full scoring, press \"Rank guide\" on the new game screen.\nNew here? Start with Casual or the practice game."],
+      ["Ranks & modes", "A new game can be 🎮 Casual (no points change) or 🏅 Ranked (win = gain points, loss = lose points).\nRanks, low to high: Bronze → Silver → Gold → Platinum → Diamond → Master → Legend.\nFor the full scoring, press \"Rank guide\" on the new game screen.\nNew here? Start with Casual."],
       ["Coins & cosmetics", "• Only 🏅 Ranked games give coins: win 18-36 (by AI difficulty), loss 8, draw 12; forfeiting gives none.\n• Spend coins in 🎨 Cosmetics on themes, seat boxes, avatar frames and effects. Each achievement also gives one cosmetic for free.\n• After reaching Legend you can press Rebirth: back to Bronze 3 with a ★ next to your name, and you earn Renown, which buys Rebirth-only cosmetics."],
-      ["Practice game", "Press \"Start practice game\" below for a 4-player game (you vs 3 AIs). A banner at the top tells you what to do. Have fun!"],
     ],
-    hints: {
-      act: "Your turn! Click a hand card at the bottom, then pick a target — or press \"End play phase\".",
-      respond: "You are being attacked or asked to respond: pick a matching card to play, or press \"Pass\".",
-      skill: "An optional skill / chain prompt: choose it to activate, or press \"Don't activate\".",
-      discard: "Your hand exceeds your HP — choose cards to discard.",
-      pick: "Pick a card or a target.",
-      wait: "Waiting for other players…",
-      pickgen: "Pick a general; each has different skills — read the skill text first.",
-      over: "Game over! Review it in the game log. Press \"New game\" to practise again.",
-    },
   },
   ja: {
-    btn: "📖 チュートリアル", title: "初心者チュートリアル", prev: "戻る", next: "次へ", done: "練習ゲームを始める", close: "閉じる", skip: "スキップ",
+    btn: "📖 チュートリアル", title: "初心者チュートリアル", prev: "戻る", next: "次へ", fin: "完了", close: "閉じる", skip: "スキップ",
     page: "{a} / {b} ページ",
-    hintTitle: "練習ヒント", hintOff: "ヒントを隠す",
     steps: [
-      ["目的", "各プレイヤーには隠された役職があり、公開されるのは主公だけです:\n• 主公・忠臣: 反賊と内通者を全員倒す。\n• 反賊: 主公を倒す。\n• 内通者: 他を全員倒し、最後に主公と一騎打ちで勝つ。\n誰が誰か分からない時は、誰が誰を助け・攻撃しているかを見ましょう。"],
-      ["自分のターン", "毎ターン: 2枚引く → カードを使う → 手札は体力以下にする(超えた分は捨てる)。\nカードは手札をクリックして対象を選びます。終わる時は「出牌終了」。\n攻撃されるとウィンドウが出るので、カードを選ぶか「出さない」を押します。"],
-      ["よく使うカード", "• 殺: 攻撃。相手は「閃」を出さないと体力-1。1ターンに1枚まで。\n• 閃: 殺を1回避ける。\n• 桃: 体力を1回復、瀕死の人も救える。\n• 酒: 殺のダメージ+1。\n• 錦囊(順手牽羊・決闘・南蛮入侵…)と装備は、マウスを乗せると説明が出ます。⚡のカードは他人の行動に割り込めます。"],
-      ["瀕死と勝敗", "体力が0になると瀕死。他の人が桃で救えなければ死亡します。\n自分の役職の目的を達成すれば勝ちです。\nゲームは最大100巡。超えると引き分けです。"],
-      ["ランクとモード", "新規ゲームでは 🎮 カジュアル(ポイント変動なし)か 🏅 ランク戦(勝てば加点、負ければ減点)を選べます。\nランクは低い順に ブロンズ → シルバー → ゴールド → プラチナ → ダイヤ → マスター → レジェンド。\n詳しい計算は新規ゲーム画面の「ランクの説明」で確認できます。\n最初はカジュアルか練習ゲームがおすすめです。"],
-      ["コインと外観", "• コインがもらえるのは 🏅 ランク戦だけ: 勝利 18~36(CPU難易度による)、敗北 8、引き分け 12。途中放棄はなし。\n• コインは 🎨 外観でテーマ・席の枠・アイコン枠・エフェクトに使えます。実績を達成すると外観が1つもらえます。\n• レジェンドに到達すると「転生」できます: ブロンズ3に戻り、名前の横に ★ が付き、名声がもらえます。名声は転生限定の外観に使えます。"],
-      ["練習ゲーム", "下の「練習ゲームを始める」で4人戦(あなた vs AI 3人)が始まります。画面上部のヒントが次にやることを教えてくれます。楽しんでください!"],
+      ["目的", "役職隠しのカードバトル。公開されるのは君主だけです。\n• 君主・家来: 反逆者と内通者を全員倒す。\n• 反逆者: 君主を倒す。\n• 内通者: 他を全員倒し、最後に君主と一騎打ちで勝つ。\n誰が味方か分からない時は、誰が誰を攻撃しているかを見ましょう。"],
+      ["自分のターン", "① 2枚引く → ② カードを使う → ③ 手札を体力以下にする(超えた分は捨てる)。\n• 手札をクリック → 対象をクリック。\n• 終わったら「出牌終了」。\n• 攻撃されたら、カードで応じるか「出さない」を押す。\n迷ったら画面上部のヒントを見てください。"],
+      ["基本の4枚", "• 殺: 攻撃。相手が「閃」を出せなければ体力-1。1ターンに1枚まで。\n• 閃: 殺を1回避ける。攻撃された時に出す。\n• 桃: 体力+1。瀕死の人も救える。\n• 酒: 次の殺のダメージ+1。\n錦嚢(順手牽羊・決闘・南蛮入侵…)と装備は、マウスを乗せると説明が出ます。⚡付きは他人の行動に割り込めます。"],
+      ["瀕死と勝敗", "体力0で瀕死。誰かが桃を出せば助かり、出なければ死亡。\n自分の役職の目的を達成したチームの勝ちです。\n最大100巡で、超えると引き分け。"],
+      ["ランクとモード", "• 🎮 カジュアル: ポイント変動なし。\n• 🏅 ランク戦: 勝てば加点、負ければ減点。\nランク: ブロンズ → シルバー → ゴールド → プラチナ → ダイヤ → マスター → レジェンド。\n計算は新規ゲーム画面の「ランクの説明」へ。最初はカジュアルがおすすめ。"],
+      ["コインと外観", "• コインはランク戦のみ: 勝利 18~36(CPU難易度による)、敗北 8、引き分け 12、途中放棄 0。\n• 🎨 外観で、テーマ・枠・エフェクトに交換できます。実績ごとに外観が1つもらえます。\n• レジェンド到達後に「転生」: ブロンズ3に戻り、名前の横に ★ が付き、名声がもらえます(転生限定の外観に使用)。"],
     ],
-    hints: {
-      act: "あなたの番です! 下の手札をクリックして対象を選ぶか、「出牌終了」を押してください。",
-      respond: "攻撃または応答を求められています。出せるカードを選ぶか「出さない」を押してください。",
-      skill: "任意のスキル/チェーン確認です。使うなら選び、使わないなら「発動しない」。",
-      discard: "手札が体力を超えています。捨てるカードを選んでください。",
-      pick: "カードまたは対象を選んでください。",
-      wait: "他のプレイヤーを待っています…",
-      pickgen: "武将を選びます。スキルがそれぞれ違うので説明を読みましょう。",
-      over: "ゲーム終了! ログで振り返れます。もう一度練習するには「新規ゲーム」を押してください。",
-    },
   },
 };
 
@@ -518,6 +484,8 @@ async function setLang(l) {
   if (lang !== "zh") { lang = "zh"; apply(); }   // 先還原成中文原文,再翻成新語言 (否則譯文無法再被翻譯)
   lang = l;
   try { localStorage.setItem("sgs_lang", l); } catch (e) {}
+  saveLangCookie();
+  document.querySelectorAll('img[src^="/cards/"]').forEach(im => { im.src = im.getAttribute("src"); });   // 已畫出的卡面重抓,印章字換成新語言
   await loadExact();
   apply();
   refreshTut();
@@ -529,7 +497,7 @@ async function setLang(l) {
 }
 
 /* ---------- 教學 ---------- */
-let tutPage = 0, hintOn = false;
+let tutPage = 0;
 function el(tag, props, ...kids) {
   const e = document.createElement(tag);
   for (const [k, v] of Object.entries(props || {})) { if (k === "class") e.className = v; else if (k.startsWith("on")) e[k] = v; else if (k === "text") e.textContent = v; else e.setAttribute(k, v); }
@@ -545,11 +513,11 @@ const NM = {   // 圖說: [中, 英, 日]
   殺: ["殺", "Strike", "殺"], 閃: ["閃", "Dodge", "閃"], 桃: ["桃", "Peach", "桃"], 酒: ["酒", "Wine", "酒"],
   順: ["順手牽羊", "Snatch", "順手牽羊"], 過: ["過河拆橋", "Dismantle", "過河拆橋"], 決: ["決鬥", "Duel", "決鬥"], 南: ["南蠻入侵", "Barbarians", "南蛮入侵"], 萬: ["萬箭齊發", "Arrow Barrage", "万箭斉発"], 無: ["無中生有", "Draw 2", "無中生有"],
   諸葛連弩: ["諸葛連弩", "Repeating Crossbow", "諸葛連弩"], 八卦陣: ["八卦陣", "Eight Trigrams", "八卦陣"], "+1馬": ["+1 馬", "+1 Horse", "+1 馬"], "-1馬": ["-1 馬", "-1 Horse", "-1 馬"],
-  主公: ["主公", "Emperor", "主公"], 忠臣: ["忠臣", "Loyalist", "忠臣"], 反賊: ["反賊", "Rebel", "反賊"], 內奸: ["內奸", "Spy", "内通者"],
+  主公: ["主公", "Emperor", "君主"], 忠臣: ["忠臣", "Loyalist", "家来"], 反賊: ["反賊", "Rebel", "反逆者"], 內奸: ["內奸", "Spy", "内通者"],
 };
 const ROLEG = {   // 身分目標
-  主公: ["殺光反賊與內奸", "Defeat all rebels and spies", "反賊と内通者を倒す"], 忠臣: ["保護主公", "Protect the emperor", "主公を守る"],
-  反賊: ["擊殺主公", "Kill the emperor", "主公を倒す"], 內奸: ["最後存活", "Be the last one alive", "最後まで生き残る"],
+  主公: ["殺光反賊與內奸", "Defeat all rebels and spies", "反逆者と内通者を倒す"], 忠臣: ["保護主公", "Protect the emperor", "君主を守る"],
+  反賊: ["擊殺主公", "Kill the emperor", "君主を倒す"], 內奸: ["最後存活", "Be the last one alive", "最後まで生き残る"],
 };
 const ILLT = {   // 其他圖說
   flow: [["判定", "摸牌", "出牌", "棄牌"], ["Judge", "Draw", "Play", "Discard"], ["判定", "ドロー", "出牌", "捨て札"]],
@@ -613,7 +581,7 @@ function openTut(p) {
       el("button", { text: { zh: "🎓 練習關卡", en: "🎓 Practice levels", ja: "🎓 練習ステージ" }[lang], onclick: () => { closeTut(); if (window.SGS_LESSON) SGS_LESSON.open(); } }),
       el("span", { style: "flex:1" }),
       el("button", { id: "tutprev", text: T.prev, onclick: () => openTut(tutPage - 1) }),
-      last ? el("button", { class: "primary", text: T.done, onclick: startPractice })
+      last ? el("button", { class: "primary", text: T.fin, onclick: closeTut })
            : el("button", { class: "primary", text: T.next, onclick: () => openTut(tutPage + 1) })));
   if (tutPage === 0) dlg.querySelector("#tutprev").disabled = true;
   const ill = tutIll(tutPage);
@@ -658,52 +626,7 @@ async function openCatalog() {
   for (const it of cardItems(cat)) grid.append(it.node);
 }
 function refreshTut() { if (document.getElementById("tutov")) openTut(tutPage); }
-async function startPractice() {
-  closeTut();
-  hintOn = true;
-  try {
-    S.logN = 0; S.thN = 0; S.thoughts = []; S.lastTh = {}; S.sel = null; S.picked = null; S.pendId = 0;
-    document.getElementById("log").textContent = ""; document.getElementById("thl").textContent = "";
-    await api("/api/new", { players: 4, human: "0", humans: [], chars: ["", "", "", ""], variant: 0, lord: "random", seed: "", speed: 0.5, practice: true });
-    const M = document.getElementById("modal"); M.textContent = ""; S.modalOpen = null;
-    poll(true);
-  } catch (e) { alert(String(e)); }
-}
-function hintFor(snap) {
-  const T = TUT[lang].hints;
-  if (!snap) return T.pickgen;   // 還沒進入對局 (選武將階段)
-  if (snap.lobby) return snap.picking || snap.pick ? T.pickgen : T.wait;
-  if (snap.over || snap.game_over || snap.winner) return T.over;
-  const p = snap.pending;
-  if (!p) return T.wait;
-  if (p.kind === "act") return T.act;
-  if (p.kind === "respond") return T.respond;
-  if (p.kind === "skill") return T.skill;
-  if (p.kind === "discard") return T.discard;
-  return T.pick;
-}
-function updHint() {
-  let b = document.getElementById("hintbar");
-  if (!hintOn) { if (b) b.remove(); document.body.classList.remove("hint-on"); return; }
-  if (!b) {
-    b = el("div", { id: "hintbar" }, el("b", { id: "hbt" }), el("span", { id: "hbx" }), el("button", { id: "hbc", text: "✕", onclick: () => { hintOn = false; updHint(); } }));
-    document.body.append(b);
-  }
-  const T = TUT[lang];
-  const t = document.getElementById("hbt"), x = document.getElementById("hbx");
-  const txt = hintFor(typeof S !== "undefined" ? S.snap : null);   // S 是 index.html 的 const,不是 window 的屬性
-  if (t.textContent !== T.hintTitle) t.textContent = T.hintTitle;
-  if (x.textContent !== txt) x.textContent = txt;
-  document.getElementById("hbc").title = T.hintOff;
-  const bar = document.getElementById("bar"), r = bar && bar.getBoundingClientRect();   // 放在提示 / 操作列的正上方,不要擋住它
-  b.style.top = (r && r.height > 0 ? Math.max(8, r.top - b.offsetHeight - 8) : 60) + "px";
-  if (r && r.height > 0 && r.width > 0) { const half = b.offsetWidth / 2; b.style.left = Math.max(half + 8, Math.min(innerWidth - half - 8, r.left + r.width / 2)) + "px"; }   // 跟操作列水平置中對齊
-  else b.style.left = "50%";
-  document.body.style.setProperty("--hintpush", Math.ceil(b.offsetTop + b.offsetHeight + 8) + "px");   // 詢問視窗往下讓開,不被提示列蓋住標題
-  document.body.classList.add("hint-on");
-}
-
-window.SGS_HINT_OFF = () => { hintOn = false; updHint(); };   // 開新局 (不是練習局) 時,練習提示橫幅要消失
+window.SGS_HINT_OFF = () => {};   // 舊的練習提示橫幅已移除,保留空函式給其他檔案呼叫
 
 /* ---------- 啟動 ---------- */
 const CSS = `
@@ -730,10 +653,7 @@ const CSS = `
 .imock{position:relative;display:flex;flex-direction:column;gap:8px;align-items:center;padding-right:0}
 .imtop{display:flex;gap:8px;justify-content:center}.imc{padding:5px 18px;border:1px solid #2a5a7c;border-radius:99px;color:#7fb7dd;font-size:12px}
 .imlab,.imside{font-size:11px;color:#8fa3bf;text-align:center}.imbot{display:flex;flex-direction:column;align-items:center;gap:4px}
-body.hint-on #modal .modal:not(.soft){padding-top:var(--hintpush,0)!important;box-sizing:border-box;align-items:safe center!important}
-#hintbar{position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:600;background:#16324a;color:#fff;border:1px solid #3fd2ff;border-radius:10px;padding:8px 14px;display:flex;gap:10px;align-items:center;width:max-content;max-width:min(calc(100vw - 16px),720px);box-sizing:border-box;box-shadow:0 4px 18px rgba(0,0,0,.5);font-size:14px}
 .tdlg.cgdlg{max-width:760px;width:min(760px,96vw)}#cdl{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px;max-height:62vh;overflow:auto;padding:4px 2px}.cgi{display:flex;gap:10px;align-items:flex-start;background:#0c1d36;border:1px solid #24557d;border-radius:8px;padding:6px}.cgi img{width:56px;border-radius:4px;flex:none}.cgi .bigw{width:56px}.cgi .bigw .tp{font-size:9px;left:2px;bottom:2px;padding:1px 3px;border-width:1px}.cgd{font-size:12px;color:#a9c4de;margin-top:2px;line-height:1.4}
-#hintbar b{color:#3fd2ff;white-space:nowrap}#hintbar button{background:none;border:0;color:#9fb0c8;cursor:pointer;font-size:15px}
 `;
 function openLangPop() {
   if (document.getElementById("langpop")) return;
@@ -759,7 +679,6 @@ function init() {
   if (top && bn) top.insertBefore(tb, bn);   // 語言選單移進設定頁
   start();
   loadExact().then(() => { apply(); });
-  setInterval(updHint, 400);
   try { if (!localStorage.getItem("sgs_tut_seen")) { localStorage.setItem("sgs_tut_seen", "1"); } } catch (e) {}
 }
 function mark(n) { orig.set(n, { zh: n.nodeValue, out: n.nodeValue }); return n; }   // 已經翻好的文字節點: 不要讓逐節點翻譯再碰一次

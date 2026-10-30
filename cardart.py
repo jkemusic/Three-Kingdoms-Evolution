@@ -830,7 +830,7 @@ def _pixel_glyph(ch, x0=142, y0=226, cell=3, color="#ffffff"):
     """像素風印章字: 12x12 點陣 (cardglyph.GLYPH),每列把連續的點合成一個長方形。沒有這個字就用一般字體。"""
     rows = cardglyph.GLYPH.get(ch)
     if not rows:
-        return f'<text x="160" y="258" font-size="32" font-weight="900" text-anchor="middle" fill="{color}" font-family="{FONT}" shape-rendering="auto">{ch}</text>'
+        return f'<text x="160" y="258" font-size="{32 if len(ch) == 1 else 22 if len(ch) == 2 else 15}" font-weight="900" text-anchor="middle" fill="{color}" font-family="{FONT}" shape-rendering="auto">{ch}</text>'
     out = []
     for r, bits in enumerate(rows):
         c = 0
@@ -869,13 +869,34 @@ def _wrap_pixel(name, body, kind, P, seal, small=False, equip=False, land=False)
             + ('' if equip else f'<g><rect x="{W - 68}" y="{H - 70}" width="56" height="56" fill="#0b0b14"/><rect x="{W - 64}" y="{H - 66}" width="48" height="48" fill="#d8262c"/>' + glyph + '</g>') + '</svg>')
 
 
-def wrap(name, body, kind, bg="classic", small=False, land=False):
+SEAL_JA = str.maketrans({"樂": "楽", "鐵": "鉄", "龍": "竜", "萬": "万", "聲": "声", "增": "増", "發": "発", "轉": "転", "雷": "雷", "釭": "釭", "麒": "麒"})
+ROLE_SEAL = {"zh": {}, "ja": {"主公": "君", "忠臣": "家", "反賊": "逆", "內奸": "内"}, "en": {"主公": "EMP", "忠臣": "LOY", "反賊": "REB", "內奸": "SPY"}}
+EN_SEAL = {   # 英文介面: 印章字改成英文牌名前三個字母 (撞名的另外指定)
+    "殺": "SLA", "火": "FIR", "冰": "ICE", "雷": "THU", "閃": "DOD", "桃": "PEA", "酒": "WIN", "順": "STE", "過": "DIS", "反": "CNT", "調": "DIV", "占": "DVN", "南": "BAR", "萬": "ARR",
+    "無": "WFL", "無懈": "NUL", "轉": "SWP", "突": "RAI", "桃園": "GAR", "樂": "CMP", "聲": "FNT", "增": "RNF", "決": "DUE", "強": "EMP", "弱": "WKN", "火攻": "ATK", "借": "BOR",
+    "飢": "FAM", "草": "SCA", "閃電": "LTN", "降雷": "CAL", "發": "RSV", "毒": "PSN", "兵": "STV", "偽": "DSG", "出": "SUR", "拋": "BRK", "未": "PLN", "笑": "DGR", "鴻": "HGM",
+    "隔": "WCH", "孤": "ALL", "投": "RTN", "五": "HAR", "鐵": "CHN", "八卦陣": "8TG", "仁王盾": "REN", "藤甲": "RAT", "緩衝盾": "BUF", "雷盾": "TSH", "火盾": "FSH", "冰盾": "ISH",
+    "+1馬": "+1", "-1馬": "-1", "諸葛連弩": "ZHU", "孔雀羽扇": "FAN", "青龍偃月刀": "GDB", "寒冰劍": "FRS", "方天畫戟": "SKY", "流星錘": "MET", "麒麟弓": "KIR", "青釭劍": "BLU",
+    "丈八蛇矛": "SER", "貫石斧": "AXE"}
+
+
+def seal_for(name, lg=""):
+    """印章字: 依介面語言換 (zh 原樣、ja 換成日文字形與日文身分名、en 用英文牌名縮寫)。"""
+    z = SEAL.get(name, name[0])
+    if lg == "en":
+        return ROLE_SEAL["en"].get(name) or EN_SEAL.get(name) or name[:3].upper()
+    if lg == "ja":
+        return ROLE_SEAL["ja"].get(name) or z.translate(SEAL_JA)
+    return z
+
+
+def wrap(name, body, kind, bg="classic", small=False, land=False, lg=""):
     """卡面統一概念: 深色浮雕金屬邊框 + 宣紙內框 + 水墨暈染 / 飛濺 + 火星 + 墨線圖示 + 朱砂印章 (印章是這張牌的關鍵字)。"""
     W, H = (286, 200) if land else (200, 286)   # 延時錦囊是橫的
     P = BGS.get(bg) or BGS["classic"]
     top, bot = P["paper"]
     dark, ink, fr, mist = P["dark"], P["ink"], P["frame"], P["mist"]
-    seal = SEAL.get(name, name[0])
+    seal = seal_for(name, lg)
     equip = kind in ("weapon", "armor", "horse")   # 武器 / 防具 / 坐騎: 右下角不放印章 (武器改寫攻擊範圍,見前端)
     if P.get("pixel"):
         return _wrap_pixel(name, body, kind, P, seal, small, equip, land)
@@ -933,7 +954,7 @@ def wrap(name, body, kind, bg="classic", small=False, land=False):
             # 印章 (壓在邊框上)
             + ('' if equip else f'<g><rect x="{W - 57}" y="{H - 62}" width="46" height="46" rx="4" fill="#3a1412" stroke="#0a0908" stroke-width="2"/><rect x="{W - 54}" y="{H - 59}" width="40" height="40" rx="3" fill="#b3232a" stroke="#e8c872" stroke-opacity=".6" stroke-width="1.2"/>'
               f'<rect x="{W - 50}" y="{H - 55}" width="32" height="32" fill="none" stroke="#ffd9d0" stroke-opacity=".6" stroke-width="1"/>'
-              f'<text x="{W - 34}" y="{H - 29}" font-size="28" font-weight="900" text-anchor="middle" fill="#ffe9e0" font-family="{FONT}">{seal}</text></g>')
+              f'<text x="{W - 34}" y="{H - 29}" font-size="{28 if len(seal) == 1 else 20 if len(seal) == 2 else 14}" font-weight="900" text-anchor="middle" fill="#ffe9e0" font-family="{FONT}">{seal}</text></g>')
             + '</svg>')
 
 
@@ -1003,13 +1024,14 @@ def back(bk="classic"):
 _cache = {}
 
 
-def svg(name, bg="classic", small=False):
+def svg(name, bg="classic", small=False, lg=""):
     """某張牌的卡面 SVG;沒有這張牌回傳 None。bg = 卡面風格 id;small = 很小的縮圖 (像素風不做降解析度,不然太小會看不到圖)。"""
     if name not in E:
         return None
-    key = (name, bg if bg in BGS else "classic", bool(small))
+    lg = lg if lg in ("en", "ja") else ""
+    key = (name, bg if bg in BGS else "classic", bool(small), lg)
     if key not in _cache:
-        _cache[key] = wrap(name, E[name][0](), KIND.get(name, "trick"), key[1], small, KIND.get(name) == "delay")
+        _cache[key] = wrap(name, E[name][0](), KIND.get(name, "trick"), key[1], small, KIND.get(name) == "delay", lg)
     return _cache[key]
 
 
@@ -1051,13 +1073,14 @@ ROLE = {"主公": (_role_crown, "basic"), "忠臣": (_role_shield, "basic"), "�
 SEAL.update({"主公": "主", "忠臣": "忠", "反賊": "反", "內奸": "奸"})
 
 
-def svg_role(name, bg="classic"):
+def svg_role(name, bg="classic", lg=""):
     if name not in ROLE:
         return None
-    key = ("_role", name, bg if bg in BGS else "classic")
+    lg = lg if lg in ("en", "ja") else ""
+    key = ("_role", name, bg if bg in BGS else "classic", lg)
     if key not in _cache:
         fn, kind = ROLE[name]
-        _cache[key] = wrap(name, fn(), kind, key[2])
+        _cache[key] = wrap(name, fn(), kind, key[2], lg=lg)
     return _cache[key]
 
 

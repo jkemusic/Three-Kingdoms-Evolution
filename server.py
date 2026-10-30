@@ -1898,7 +1898,7 @@ class Handler(BaseHTTPRequestHandler):
                 if not fn.endswith(".svg"):
                     return self._send(404, {"error": "not found"})
                 nm = fn[:-4]
-                body = cardart.svg_back(q.get("bk", [""])[0]) if nm == "_back" else cardart.svg_role(nm[6:]) if nm.startswith("_role_") else cardart.svg(nm, q.get("bg", [""])[0], q.get("s", [""])[0] == "1")
+                body = cardart.svg_back(q.get("bk", [""])[0]) if nm == "_back" else cardart.svg_role(nm[6:], lg=self._lang()) if nm.startswith("_role_") else cardart.svg(nm, q.get("bg", [""])[0], q.get("s", [""])[0] == "1", self._lang())
                 if body is None:
                     return self._send(404, {"error": "not found"})
                 return self._send(200, body.encode("utf-8"), "image/svg+xml")
@@ -1912,6 +1912,14 @@ class Handler(BaseHTTPRequestHandler):
             self._send(404, {"error": "not found"})
         except (BrokenPipeError, ConnectionResetError):
             pass
+
+    def _lang(self):
+        """介面語言 (前端存在 cookie sgs_lang): 卡面的印章字要跟著換。"""
+        for part in (self.headers.get("Cookie") or "").split(";"):
+            k, _, v = part.strip().partition("=")
+            if k == "sgs_lang":
+                return v if v in ("en", "ja") else ""
+        return ""
 
     def _ip(self):
         """連線來源 IP。只有本機反向代理 (Caddy) 轉來的連線才相信 X-Forwarded-For。"""

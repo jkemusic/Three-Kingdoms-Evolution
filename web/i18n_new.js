@@ -51,7 +51,7 @@ window.SGS_LOG_TPL = (window.SGS_LOG_TPL || []).concat([
 ["段位模式贏 10 場 (獎勵: 冰藍主題、青玉框)", "Win 10 ranked games (reward: Ice Blue theme, Jade frame)", "ランクモードで10勝(報酬: アイスブルーのテーマ、翡翠フレーム)"],
 ["段位模式贏 30 場 (獎勵: 漣漪特效)", "Win 30 ranked games (reward: Ripple effect)", "ランクモードで30勝(報酬: さざ波エフェクト)"],
 ["段位模式贏 100 場 (獎勵: 脈衝特效)", "Win 100 ranked games (reward: Pulse effect)", "ランクモードで100勝(報酬: パルスエフェクト)"],
-["主公、忠臣、反賊、內奸各贏過一次", "Win once as each role: Lord, Loyalist, Rebel, Traitor", "主公・忠臣・反賊・内奸でそれぞれ1回勝つ"],
+["主公、忠臣、反賊、內奸各贏過一次", "Win once as each role: Lord, Loyalist, Rebel, Traitor", "君主・家来・反逆者・内奸でそれぞれ1回勝つ"],
 ["使用過 10 位不同武將", "Play 10 different generals", "10人の異なる武将を使う"], ["使用過 30 位不同武將", "Play 30 different generals", "30人の異なる武将を使う"],
 ["同一位武將贏 10 場", "Win 10 games with the same general", "同じ武将で10勝する"], ["累計完成 50 場對局", "Complete 50 games in total", "通算50局を完了する"],
 ["段位達到黃金", "Reach Gold rank", "ゴールドランクに到達"], ["段位達到鑽石", "Reach Diamond rank", "ダイヤランクに到達"], ["段位達到傳說", "Reach Legend rank", "レジェンドランクに到達"],
