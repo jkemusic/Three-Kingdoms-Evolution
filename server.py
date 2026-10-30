@@ -190,6 +190,20 @@ class Profiles:
     def peak_tier(self, p):
         return self.tier_idx(max(p.get("peak_rp", 0), p.get("rp", 0)))
 
+    def lesson_clear(self, tok, ids):
+        """記下這個帳號通關的練習關卡 (只收有效的關卡 id);全部通關就解鎖「新兵報到」(新兵框)。"""
+        p = self.get(tok)
+        if not p:
+            return {"ok": False}
+        valid = {L["id"] for L in lessons.LESSONS}
+        with self.lock:
+            have = set(p.get("lessons", []))
+            have |= {i for i in ids if i in valid}
+            p["lessons"] = sorted(have)
+            self._check_ach(p)
+            self._save()
+        return {"ok": True, "n": len(have), "total": len(valid)}
+
     def _check_ach(self, p, facts=None):
         new = cosmetics.check_achievements(p, self.level(p["xp"]), self.peak_tier(p), facts or {})
         if new:
@@ -1303,7 +1317,12 @@ class Manager:
         if st and not st["done"]:
             st["done"] = True
             self._event("🎓 過關! 這一關完成了", "ok")
+            self._lesson_credit(st["id"])
         return {"ok": True}
+
+    def _lesson_credit(self, lid):
+        for t in set(self.claims.values()):   # 坐在位子上的真人都記一次通關
+            PROFILES.lesson_clear(t, [lid])
 
     def lesson_track(self, msg):
         """教學關卡: 紀錄的每一行都拿來比對目前這一步的 regex,比到就進下一步。"""
@@ -1319,6 +1338,7 @@ class Manager:
             if st["step"] >= len(L["steps"]):
                 st["done"] = True
                 self._event("🎓 過關! 這一關完成了", "ok")
+                self._lesson_credit(st["id"])
 
     def on_log(self, msg):
         self.lesson_track(msg)
@@ -1828,7 +1848,15 @@ class Handler(BaseHTTPRequestHandler):
             if path in ("/", "/index.html"):
                 return self._file(os.path.join(WEB, "index.html"))
             if path == "/api/lessons":   # 教學關卡目錄
-                return self._send(200, {"groups": lessons.GROUPS, "lessons": lessons.catalog()})
+                from view import full_name
+                full2key = {full_name(k): k for k in cardart.E}
+                full2key.update({k: k for k in cardart.E})
+                out = []
+                for L in lessons.catalog():   # 每關附一張代表圖 (牌 / 身分牌 / 武將),選單用圖加名字顯示
+                    g, nm = L["group"], L["name"]
+                    img = ("/cards/_role_" + nm + ".svg") if g == "身分" else ("/thumb/char/" + nm) if g == "武將" else ("/cards/" + full2key[nm] + ".svg") if nm in full2key else ""
+                    out.append(dict(L, img=img))
+                return self._send(200, {"groups": lessons.GROUPS, "lessons": out})
             if path == "/api/cardcat":   # 牌的目錄: 戰報把牌名換成圖片、滑過去顯示說明用
                 from view import card_img
                 from card_desc import DESC
@@ -2083,6 +2111,9 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(200, {"ok": True})
             if path == "/api/lesson_leave":
                 return self._send(200, M.lesson_leave(data.get("tok")))
+            if path == "/api/lessons_sync":   # 登入後把這台裝置上已通關的關卡補報給伺服器 (以前只存在瀏覽器)
+                ids = data.get("ids") or []
+                return self._send(200, PROFILES.lesson_clear(data.get("tok"), [str(i) for i in ids][:400]))
             if path == "/api/lesson_done":
                 return self._send(200, M.lesson_done(data.get("tok")))
             if path == "/api/rematch":

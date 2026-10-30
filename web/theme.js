@@ -794,6 +794,7 @@ ${S} input[type=range]::-moz-range-thumb{width:${round ? 18 : 12}px;height:${rou
   const SCENE_CSS = `
 [data-bx]{isolation:isolate}
 .pvseat[data-bx],.bxsw[data-bx]{position:relative}
+.bxsw[data-bx]{isolation:isolate;overflow:hidden}   /* 預覽小方塊: 特效層不能跑出框外 / 蓋住框線 */
 .pl[data-bx] .inf,.pvseat[data-bx] .pvt{text-shadow:0 1px 1px rgba(0,0,0,.55)}
 .bxfx{position:absolute;inset:var(--bx-bw,1px);border-radius:inherit;overflow:hidden;pointer-events:none;z-index:-1}
 .bxfx *{position:absolute;pointer-events:none;display:block}

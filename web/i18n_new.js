@@ -44,7 +44,7 @@ window.SGS_LOG_TPL = (window.SGS_LOG_TPL || []).concat([
 ["手牌收藏家", "Card Collector", "手札コレクター"], ["連鎖大師", "Chain Master", "チェーンマスター"], ["易容大師", "Master of Disguise", "変装の達人"],
 ["千人一面", "A Thousand Same Faces", "千人一面"],
 // --- 成就: 條件 ---
-["打完一場新手練習局", "Finish a tutorial practice game", "チュートリアルの練習局を終える"], ["完成 1 場對局", "Complete 1 game", "1局を完了する"],
+["通關全部練習關卡 (獎勵: 新兵框)", "Clear every practice level (reward: Recruit frame)", "すべての練習ステージをクリア (報酬: 新兵フレーム)"], ["完成 1 場對局", "Complete 1 game", "1局を完了する"],
 ["贏得 1 場勝利", "Win 1 game", "1勝する"], ["完成 100 場對局", "Complete 100 games", "100局を完了する"], ["累計 25 場勝利", "Win 25 games in total", "通算25勝する"],
 ["累計輸 50 場", "Lose 50 games in total", "通算50敗する"], ["連續贏 3 場", "Win 3 games in a row", "3連勝する"], ["連續贏 5 場", "Win 5 games in a row", "5連勝する"],
 ["完成 1 場段位模式", "Complete 1 ranked game", "ランクモードを1局完了する"],

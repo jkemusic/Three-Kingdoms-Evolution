@@ -14,8 +14,13 @@ def _best_char_wins(p):
 
 
 # (id, 名稱, 說明, 檢查函式 (p, level, peak_tier, facts) -> bool, 進度函式 或 None)
+def _lesson_total():
+    import lessons
+    return len(lessons.LESSONS)
+
+
 ACHIEVEMENTS = [
-    ("practice", "新兵報到", "打完一場新手練習局", lambda p, lv, pt, f: bool(f.get("practice"))),
+    ("practice", "新兵報到", "通關全部練習關卡 (獎勵: 新兵框)", lambda p, lv, pt, f: len(p.get("lessons", [])) >= _lesson_total()),
     ("first_game", "初出茅廬", "完成 1 場對局", lambda p, lv, pt, f: p["games"] >= 1),
     ("first_win", "首戰告捷", "贏得 1 場勝利", lambda p, lv, pt, f: p["wins"] >= 1),
     ("games100", "身經百戰", "完成 100 場對局", lambda p, lv, pt, f: p["games"] >= 100),
@@ -376,6 +381,7 @@ def auto_frame(tier):
 # 未完成成就的進度: id -> (目前值函式 (p, level, peak_rp), 目標值)。沒列出的 (一次性事件) 不顯示進度條。
 _RP = {"tier_gold": 400, "tier_dia": 1100, "tier_legend": 2000}
 PROGRESS = {
+    "practice": (lambda p, lv, rp: len(p.get("lessons", [])), _lesson_total()),
     "first_game": (lambda p, lv, rp: p["games"], 1),
     "first_win": (lambda p, lv, rp: p["wins"], 1),
     "games100": (lambda p, lv, rp: p["games"], 100),

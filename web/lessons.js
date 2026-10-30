@@ -4,14 +4,14 @@
 (function () {
   const KEY = "sgs_lessons_done";
   const T = {
-    zh: { title: "練習關卡", sub: "不用照順序,挑想學的就好。隨時都能離開。", done: "已完成", of: "/", leave: "離開", retry: "重來", tips: "重點", next: "下一關", fin: "我學會了", ok: "過關!", step: "步驟", back: "回到教學", ask: "離開練習關卡?", free: "自由練習: 照技能說明試試看,學會了就按「我學會了」", all: "全部", ng: "還沒有關卡", load: "載入中…" },
-    en: { title: "Practice Levels", sub: "Pick any level, in any order. You can leave anytime.", done: "Done", of: "/", leave: "Leave", retry: "Retry", tips: "Tips", next: "Next", fin: "Got it", ok: "Cleared!", step: "Step", back: "Back to tutorial", ask: "Leave this level?", free: "Free practice: try the skill as described, then press \"Got it\".", all: "All", ng: "No levels yet", load: "Loading…" },
-    ja: { title: "練習ステージ", sub: "好きな順番で選べます。いつでも終了できます。", done: "クリア", of: "/", leave: "終了", retry: "やり直し", tips: "ポイント", next: "次へ", fin: "覚えた", ok: "クリア!", step: "手順", back: "チュートリアルへ", ask: "このステージを終了しますか?", free: "自由練習: 説明どおりに試して、覚えたら「覚えた」を押してください。", all: "すべて", ng: "ステージがありません", load: "読み込み中…" },
+    zh: { title: "練習關卡", sub: "不用照順序,挑想學的就好。隨時都能離開。", done: "已完成", of: "/", leave: "離開", retry: "重來", tips: "重點", next: "下一關", fin: "我學會了", ok: "過關!", step: "步驟", back: "回到教學", ask: "離開練習關卡?", free: "自由練習: 照技能說明試試看,學會了就按「我學會了」", all: "全部", todo: "只顯示未通關", alldone: "這一類全部通關了!", ng: "還沒有關卡", load: "載入中…" },
+    en: { title: "Practice Levels", sub: "Pick any level, in any order. You can leave anytime.", done: "Done", of: "/", leave: "Leave", retry: "Retry", tips: "Tips", next: "Next", fin: "Got it", ok: "Cleared!", step: "Step", back: "Back to tutorial", ask: "Leave this level?", free: "Free practice: try the skill as described, then press \"Got it\".", all: "All", todo: "Unfinished only", alldone: "All cleared here!", ng: "No levels yet", load: "Loading…" },
+    ja: { title: "練習ステージ", sub: "好きな順番で選べます。いつでも終了できます。", done: "クリア", of: "/", leave: "終了", retry: "やり直し", tips: "ポイント", next: "次へ", fin: "覚えた", ok: "クリア!", step: "手順", back: "チュートリアルへ", ask: "このステージを終了しますか?", free: "自由練習: 説明どおりに試して、覚えたら「覚えた」を押してください。", all: "すべて", todo: "未クリアのみ", alldone: "このカテゴリは全部クリア!", ng: "ステージがありません", load: "読み込み中…" },
   };
   const tx = k => (T[(window.SGS_I18N && SGS_I18N.lang) || "zh"] || T.zh)[k];
   const GN = { "基本牌": { en: "Basic", ja: "基本" }, "錦囊": { en: "Tricks", ja: "錦囊" }, "裝備": { en: "Equipment", ja: "装備" }, "身分": { en: "Roles", ja: "身分" }, "武將": { en: "Generals", ja: "武将" } };
   const gname = g => { const l = (window.SGS_I18N && SGS_I18N.lang) || "zh"; return l === "zh" ? g : (GN[g] && GN[g][l]) || g; };
-  let CAT = null, lessonRoom = "", fac = "", tab = null, curId = null, tipsOn = false, saved = false;
+  let CAT = null, lessonRoom = "", fac = "", tab = null, curId = null, tipsOn = false, saved = false, synced = false, onlyTodo = false;
 
   const el = (tag, attrs, ...kids) => {
     const e = document.createElement(tag);
@@ -25,6 +25,14 @@
   const markDone = id => { try { const m = doneMap(); if (!m[id]) { m[id] = 1; localStorage.setItem(KEY, JSON.stringify(m)); } } catch (e) {} };
   const load = async () => { if (!CAT) CAT = await (await fetch("/api/lessons")).json(); return CAT; };
 
+  const tileImg = L => {   // 圖跟著自己選的卡面風格 / 新舊卡圖 / 武將圖
+    if (!L.img) return null;
+    let u = L.img; const ms = typeof mySel === "function" ? mySel() : {};
+    if (u.startsWith("/cards/")) { const q = []; if (ms.cardbg && ms.cardbg !== "classic") q.push("bg=" + encodeURIComponent(ms.cardbg)); if (ms.cardart === "svg") q.push("art=svg"); if (q.length) u += "?" + q.join("&"); }
+    else u += "?v=ink2" + (typeof gaQ === "function" ? gaQ() : "");
+    return el("img", { src: u, alt: L.name, loading: "lazy" });
+  };
+
   const css = `
 #lsov{position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:9000;display:flex;align-items:center;justify-content:center;padding:16px}
 .lsdlg{background:#161c28;color:#e6edf7;border:1px solid #394559;border-radius:12px;width:min(820px,100%);max-height:90vh;max-height:90dvh;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.6)}
@@ -32,13 +40,14 @@
 .lsdlg .lsh button{background:none;border:0;color:#9fb0c8;font-size:18px;cursor:pointer;min-width:36px;min-height:36px}
 .lsdlg .lss{padding:0 18px 8px;color:#9fb0c8;font-size:13px}
 .lsdlg>.lsh,.lsdlg>.lss,.lsdlg>.lstabs{flex:none}.lssub{padding-top:0}.lssub button{font-size:13px;min-height:32px;padding:4px 12px}.lsgrid{flex:1 1 auto;min-height:0}
+.lsflt{display:flex;align-items:center;gap:6px;padding:0 18px 8px;color:#c7d3e6;font-size:13px;cursor:pointer;flex:none}.lsflt input{width:16px;height:16px;accent-color:#3fd2ff}
 .lstabs{display:flex;gap:6px;padding:4px 18px 10px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}.lstabs::-webkit-scrollbar{display:none}
 .lstabs button{flex:none;background:#232c3d;border:1px solid #394559;border-radius:99px;color:#c7d3e6;padding:6px 14px;font-size:14px;cursor:pointer;min-height:36px}
 .lstabs button.on{background:#2a7de1;border-color:#2a7de1;color:#fff}.lstabs button i{font-style:normal;opacity:.75;font-size:12px;margin-left:4px}
-.lsgrid{padding:2px 18px 16px;overflow:auto;-webkit-overflow-scrolling:touch;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
-.lstile{position:relative;text-align:left;background:#1c2536;border:1px solid #33425a;border-radius:10px;color:#e6edf7;padding:10px 12px;cursor:pointer;display:flex;flex-direction:column;gap:4px;min-height:84px}
+.lsgrid{padding:2px 18px 16px;overflow:auto;-webkit-overflow-scrolling:touch;display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px}
+.lstile{position:relative;text-align:left;background:#1c2536;border:1px solid #33425a;border-radius:10px;color:#e6edf7;padding:8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px}
 .lstile:hover,.lstile:focus-visible{border-color:#3fd2ff;box-shadow:0 0 0 2px rgba(63,210,255,.25);outline:0}
-.lstile b{font-size:15px}.lstile span{font-size:12px;color:#9fb0c8;line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.lstile b{font-size:14px;text-align:center}.lstile .im{width:100%;aspect-ratio:5/7;display:flex;align-items:center;justify-content:center}.lstile .im img{max-width:100%;max-height:100%;border-radius:6px;display:block}
 .lstile.ok{border-color:#2f8f5a}.lstile.ok::after{content:"✓";position:absolute;top:6px;right:9px;color:#4cd488;font-weight:700}
 #lsbar{position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:600;background:#16324a;color:#fff;border:1px solid #3fd2ff;border-radius:10px;padding:8px 12px;width:min(720px,calc(100vw - 16px));box-sizing:border-box;box-shadow:0 4px 18px rgba(0,0,0,.5);font-size:14px}
 #lsbar.ok{background:#14382a;border-color:#4cd488}
@@ -60,6 +69,7 @@ body.ls-on #modal .modal{padding-top:var(--lspush,0)!important;box-sizing:border
 
   async function open(t) {
     if (ranked()) { toast(rankedMsg()); return; }
+    if (!synced && typeof api === "function") { synced = true; api("/api/lessons_sync", { ids: Object.keys(doneMap()) }).then(() => { if (typeof loadProfile === "function") loadProfile(); }).catch(() => { synced = false; }); }   // 以前通關的關卡只存在這台瀏覽器: 補報給伺服器 (全通關拿新兵框)
     addCss(); close();
     const box = el("div", { id: "lsov", onclick: e => { if (e.target === box) close(); } });
     document.body.append(box);
@@ -79,14 +89,17 @@ body.ls-on #modal .modal{padding-top:var(--lspush,0)!important;box-sizing:border
     if (!facs.includes(fac)) fac = "";
     const sub = facs.length ? el("div", { class: "lstabs lssub", role: "tablist" }, ["", ...facs].map(f =>
       el("button", { type: "button", role: "tab", class: f === fac ? "on" : "", onclick: () => { fac = f; open(tab); } }, f || tx("all"), el("i", { text: String(by(tab).filter(L => !f || L.faction === f).length) })))) : null;
-    const grid = el("div", { class: "lsgrid" }, by(tab).filter(L => !fac || L.faction === fac).map(L =>
-      el("button", { type: "button", class: "lstile" + (dm[L.id] ? " ok" : ""), onclick: () => start(L.id) }, el("b", { text: L.name }), el("span", { text: L.intro }))));
+    const grid = el("div", { class: "lsgrid" }, by(tab).filter(L => (!fac || L.faction === fac) && (!onlyTodo || !dm[L.id])).map(L =>
+      el("button", { type: "button", title: L.intro, class: "lstile" + (dm[L.id] ? " ok" : ""), onclick: () => start(L.id) }, el("span", { class: "im" }, tileImg(L)), el("b", { text: L.name }))));
     if (!by(tab).length) grid.append(el("div", { class: "lss", text: tx("ng") }));
+    else if (!grid.children.length) grid.append(el("div", { class: "lss", text: tx("alldone") }));
+    const flt = el("label", { class: "lsflt" }, el("input", { type: "checkbox", onchange: ev => { onlyTodo = ev.target.checked; open(tab); } }), tx("todo"));
+    flt.firstChild.checked = onlyTodo;
     box.textContent = "";
     box.append(el("div", { class: "lsdlg", role: "dialog", "aria-label": tx("title") },
       el("div", { class: "lsh" }, el("b", { text: "🎓 " + tx("title") }), el("span", { class: "sp" }), el("span", { class: "lss", style: "padding:0", text: tx("done") + " " + nd + tx("of") + total }),
         el("button", { type: "button", "aria-label": tx("leave"), text: "✕", onclick: close })),
-      el("div", { class: "lss", text: tx("sub") }), tabs, sub, grid));
+      el("div", { class: "lss", text: tx("sub") }), tabs, sub, flt, grid));
   }
 
   async function start(id) {
