@@ -794,12 +794,15 @@ function bkEl(seat) {   // 手牌數旁邊顯示這位玩家選的卡背 (其他
   const st = S.snap && S.snap.avstyles ? S.snap.avstyles[seat] : null, bk = st && st.bk;
   return bk ? h("img", {class: "cbk", src: "/cards/_back.svg?bk=" + encodeURIComponent(bk), alt: "", title: "卡背"}) : null;
 }
+function caOf(seat) { const st = S.snap && S.snap.avstyles && seat != null ? S.snap.avstyles[seat] : null; return st && st.ca === "svg" ? "svg" : ""; }   // 這個座位的玩家選的卡圖外觀 (空 = 新水墨圖)
+function setRosterArt(v) { S.roster = (S.roster || []).map(c => c.img ? Object.assign({}, c, {img: c.img.replace(/&art=old/, "") + (v === "old" ? "&art=old" : "")}) : c); }   // 選單 / 圖鑑裡的武將圖: 依自己選的新 / 舊版
+function gaQ(seat) { const st = S.snap && S.snap.avstyles && seat != null ? S.snap.avstyles[seat] : null; return st && st.ga === "old" ? "&art=old" : ""; }   // 這個座位的玩家選舊版武將圖
 function cbOf(seat) { const st = S.snap && S.snap.avstyles && seat != null ? S.snap.avstyles[seat] : null; return (st && st.cb) || ""; }   // 這個座位的玩家選的卡面風格
 function cardEl(c, cls, onclick, seat) {
   const col = c.color === "紅" ? "red" : "blk";
   const e = h("div", {class: "card " + col + (c.img ? "" : " noimg") + (c.land ? " rot" : "") + (cls ? " " + cls : ""), title: c.text || c.name});
   if (seat === undefined) seat = S.snap && S.snap.viewer;   // 沒指定是誰的牌 (手牌 / 選項): 用自己的卡面;不知道是誰打的 (棄牌堆) 傳 null
-  const bg = cbOf(seat), src = c.img && bg && c.img.startsWith("/cards/") ? c.img + (c.img.includes("?") ? "&" : "?") + "bg=" + encodeURIComponent(bg) : c.img;
+  const bg = cbOf(seat), ca = caOf(seat), src = c.img && (bg || ca) && c.img.startsWith("/cards/") ? c.img + (c.img.includes("?") ? "&" : "?") + (bg ? "bg=" + encodeURIComponent(bg) : "") + (ca ? (bg ? "&" : "") + "art=" + ca : "") : c.img;
   if (bg.startsWith("pixel")) e.classList.add("px");   // 像素風卡面: 牌種 / 攻擊範圍的框也用像素字,大小跟右下角印章一樣
   if (c.img) { const im = h("img", {src: src, loading: "lazy"}); e.append(im);
     if (bg.startsWith("pixel")) setTimeout(() => { if (im.isConnected && im.clientWidth && im.clientWidth < 80) im.src = src + "&s=1"; }, 60);   // 像素風卡面用濾鏡降解析度,縮圖太小時改用不降解析度的版本
@@ -1079,11 +1082,11 @@ function renderTable0(snap) {
     const rp = n >= 7 ? perimPos(k / n, T.clientWidth, T.clientHeight, HW[T.className], HH[T.className]) : null;
     const ph = h("div", {class: "ph", title: "點擊查看武將詳細資訊", onclick: ev => { ev.stopPropagation(); showCharInfo(p); }});
     bindCharPrev(ph, p);
-    ph.style.backgroundImage = `url("/thumb/char/${encodeURIComponent(p.char || "無名")}?v=ink2")`;   // 沒有武將: 用「無名」的斗笠圖
+    ph.style.backgroundImage = `url("/thumb/char/${encodeURIComponent(p.char || "無名")}?v=ink2${gaQ(p.idx)}")`;   // 沒有武將: 用「無名」的斗笠圖
     const dgFlip = !!p.dg_flip && p.disguise_kind === "disguise";   // 偽裝的那張翻面 → 牌背;本尊翻面看 p.flipped
     if (p.disguise && (!p.flipped || p.disguise_kind === "disguise")) {   // 偽裝: 把偽裝的武將蓋在原本的武將牌上面
       const cv = h("div", {class: "cover", title: (p.disguise_kind === "alias" ? "化身為 " : "偽裝成 ") + p.disguise});
-      cv.style.backgroundImage = `url("${dgFlip ? "/assets/三國殺牌/武將.jpg" : "/thumb/char/" + encodeURIComponent(p.disguise) + "?v=ink2"}")`;
+      cv.style.backgroundImage = `url("${dgFlip ? "/assets/三國殺牌/武將.jpg" : "/thumb/char/" + encodeURIComponent(p.disguise) + "?v=ink2" + gaQ(p.idx)}")`;
       ph.append(cv, h("span", {class: "wei", text: p.disguise_kind === "alias" ? "化" : "偽"}));
     }
     if (p.flipped) { ph.style.backgroundImage = `url("/assets/三國殺牌/武將.jpg")`; ph.classList.add("back"); }   // 翻面: 武將牌顯示牌背
@@ -2712,7 +2715,7 @@ $("#rname").onkeydown = e => { if (e.key === "Enter" && !e.isComposing && e.keyC
   else if (uidNote) toast(uidNote, "host");
   if (!ROOM) showRooms(); else $("#roomname").textContent = "";
   const r = await api("/api/roster");
-  S.roster = r.chars; S.roles = r.roles; renderChars();
+  S.roster = r.chars; S.roles = r.roles; setRosterArt(S.prof && S.prof.sel && S.prof.sel.genart); renderChars();
   setInterval(poll, 250); poll();
 })();
 </script>

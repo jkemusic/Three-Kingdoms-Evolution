@@ -278,14 +278,14 @@ class Profiles:
                 self._save()
         tier, achs = self.peak_tier(p), p.get("ach", {})
         st = self.style(tok)
-        return {"coins": p.get("coins", 0), "renown": p.get("renown", 0), "pres": p.get("pres", 0), "cos": cosmetics.unlocked_ids(tier, achs, set(p.get("owned", [])), p.get("pres", 0)), "sel": {"frame": st["fr"], "fx": st["fx"], "theme": p.get("theme"), "box": st["bx"], "cardbg": st["cb"], "cardback": st["bk"]},
+        return {"coins": p.get("coins", 0), "renown": p.get("renown", 0), "pres": p.get("pres", 0), "cos": cosmetics.unlocked_ids(tier, achs, set(p.get("owned", [])), p.get("pres", 0)), "sel": {"frame": st["fr"], "fx": st["fx"], "theme": p.get("theme"), "box": st["bx"], "cardbg": st["cb"], "cardback": st["bk"], "cardart": st["ca"], "genart": st["ga"]},
                 "ach": achs, "ach_new": list(p.get("ach_new", [])), "peak_tier": tier, "ach_prog": cosmetics.progress(p, self.level(p["xp"]), max(p.get("peak_rp", 0), p.get("rp", 0)))}
 
     def style(self, tok):
         """目前使用的頭像框 / 特效 (沒選過: 頭像框自動用最高段位的框)。"""
         p = self.d.get(tok)
         if not p:
-            return {"fr": "", "fx": "", "bx": "", "cb": "", "bk": ""}
+            return {"fr": "", "fx": "", "bx": "", "cb": "", "bk": "", "ca": "", "ga": ""}
         tier, sel = self.peak_tier(p), p.get("sel", {})
         ok = self._ok(p)
         fr = sel["frame"] if "frame" in sel and ok("frames", sel["frame"]) else cosmetics.auto_frame(tier)
@@ -293,9 +293,10 @@ class Profiles:
         bx = sel.get("box", "") if ok("boxes", sel.get("box", "")) else ""
         cb = sel.get("cardbg", "") if ok("cardbgs", sel.get("cardbg", "")) else ""
         bk = sel.get("cardback", "") if ok("cardbacks", sel.get("cardback", "")) else ""
-        return {"fr": fr, "fx": fx, "bx": bx, "cb": cb, "bk": bk}
+        ca = "svg" if sel.get("cardart") == "svg" else ""   # 卡圖外觀: "" = 新水墨圖, "svg" = 手繪向量圖 (免費,不用解鎖)
+        return {"fr": fr, "fx": fx, "bx": bx, "cb": cb, "bk": bk, "ca": ca, "ga": "old" if sel.get("genart") == "old" else ""}
 
-    def set_style(self, tok, frame, fx, theme=None, box=None, cardbg=None, cardback=None):
+    def set_style(self, tok, frame, fx, theme=None, box=None, cardbg=None, cardback=None, cardart=None, genart=None):
         p = self.get(tok)
         ok = self._ok(p)
         with self.lock:
@@ -308,6 +309,10 @@ class Profiles:
                 sel["box"] = box
             if cardbg is not None and ok("cardbgs", cardbg):
                 sel["cardbg"] = cardbg
+            if cardart in ("", "svg", "ink"):
+                sel["cardart"] = "svg" if cardart == "svg" else ""
+            if genart in ("", "old", "ink"):
+                sel["genart"] = "old" if genart == "old" else ""
             if cardback is not None and ok("cardbacks", cardback):
                 sel["cardback"] = cardback
             if theme is not None:
@@ -1066,7 +1071,7 @@ class Manager:
                 rnd = random.Random(id(g))
                 pick = lambda L, none: rnd.choice([x["id"] for x in L if x["id"]] + [""] * none)
                 self._bot_gid = id(g)
-                self._bot_sty = {i: {"fr": pick(cosmetics.FRAMES, 1), "fx": pick(cosmetics.EFFECTS, 3), "bx": pick(cosmetics.BOXES, 2), "cb": rnd.choice([x["id"] if x["id"] != "classic" else "" for x in cosmetics.CARDBGS]), "bk": ""} for i in range(len(g.players))}
+                self._bot_sty = {i: {"fr": pick(cosmetics.FRAMES, 1), "fx": pick(cosmetics.EFFECTS, 3), "bx": pick(cosmetics.BOXES, 2), "cb": rnd.choice([x["id"] if x["id"] != "classic" else "" for x in cosmetics.CARDBGS]), "bk": "", "ca": "", "ga": ""} for i in range(len(g.players))}
             for i, st in self._bot_sty.items():
                 out.setdefault(i, st)
         return out
@@ -1696,11 +1701,17 @@ WUMING_SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 360"><d
 </svg>"""
 
 
-def make_thumb(name):
+def make_thumb(name, old=False):
+    """old=True: 玩家選了舊版武將圖 (原本的素材圖 / 無名斗笠 SVG);舊版沒有這位武將的圖就退回水墨圖。"""
+    r = _make_thumb(name, old)
+    return r or (_make_thumb(name, False) if old else None)
+
+
+def _make_thumb(name, old):
     if name != "無名" and name not in ROSTER:   # 只認得出的武將名 (擋掉 ../ 之類的路徑)
         return None
     ink = os.path.join(WEB, "ink", "generals", name + ".jpg")   # 水墨武將圖 (含「無名」) 優先
-    if os.path.isfile(ink):
+    if os.path.isfile(ink) and not old:
         return ink
     if name == "無名":   # 沒有指定武將 (練習關卡 / 無武將): 畫一個斗笠無面人
         os.makedirs(CACHE, exist_ok=True)
@@ -1901,13 +1912,13 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(200, {"version": VERSION, "repo": REPO, "changelog": log})
             if path.startswith("/thumb/char/"):
                 nm = path[len("/thumb/char/"):]
-                return self._file(make_thumb(nm), "max-age=86400" if nm == "無名" else None)   # 無名的圖是 SVG,預設不快取: 牌桌每次重畫都重抓會一直閃
+                return self._file(make_thumb(nm, q.get("art", [""])[0] == "old"), "max-age=86400" if nm == "無名" else None)   # 無名的圖是 SVG,預設不快取: 牌桌每次重畫都重抓會一直閃
             if path.startswith("/cards/"):   # 卡面 / 卡背 (SVG,程式即時產生): /cards/<牌名>.svg?bg=<卡面風格>、/cards/_back.svg?bk=<卡背>
                 fn = os.path.basename(path)
                 if not fn.endswith(".svg"):
                     return self._send(404, {"error": "not found"})
                 nm = fn[:-4]
-                body = cardart.svg_back(q.get("bk", [""])[0]) if nm == "_back" else cardart.svg_role(nm[6:], lg=self._lang()) if nm.startswith("_role_") else cardart.svg(nm, q.get("bg", [""])[0], q.get("s", [""])[0] == "1", self._lang())
+                body = cardart.svg_back(q.get("bk", [""])[0]) if nm == "_back" else cardart.svg_role(nm[6:], lg=self._lang(), art=q.get("art", [""])[0]) if nm.startswith("_role_") else cardart.svg(nm, q.get("bg", [""])[0], q.get("s", [""])[0] == "1", self._lang(), q.get("art", [""])[0])
                 if body is None:
                     return self._send(404, {"error": "not found"})
                 raw = body.encode("utf-8")
@@ -1976,7 +1987,7 @@ class Handler(BaseHTTPRequestHandler):
             if path == "/api/ach_ack":
                 return self._send(200, PROFILES.ack_ach(data.get("tok")))
             if path == "/api/cosmetic":
-                return self._send(200, PROFILES.set_style(data.get("tok"), data.get("frame"), data.get("fx"), data.get("theme"), data.get("box"), data.get("cardbg"), data.get("cardback")))
+                return self._send(200, PROFILES.set_style(data.get("tok"), data.get("frame"), data.get("fx"), data.get("theme"), data.get("box"), data.get("cardbg"), data.get("cardback"), data.get("cardart"), data.get("genart")))
             if path == "/api/buy":
                 return self._send(200, PROFILES.buy(data.get("tok"), str(data.get("kind") or ""), str(data.get("id") or "")))
             if path == "/api/prestige":

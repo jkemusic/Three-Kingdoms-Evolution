@@ -894,7 +894,7 @@ def seal_for(name, lg=""):
     return z
 
 
-def wrap(name, body, kind, bg="classic", small=False, land=False, lg=""):
+def wrap(name, body, kind, bg="classic", small=False, land=False, lg="", use_ink=True):
     """卡面統一概念: 深色浮雕金屬邊框 + 宣紙內框 + 水墨暈染 / 飛濺 + 火星 + 墨線圖示 + 朱砂印章 (印章是這張牌的關鍵字)。"""
     W, H = (286, 200) if land else (200, 286)   # 延時錦囊是橫的
     P = BGS.get(bg) or BGS["classic"]
@@ -904,7 +904,7 @@ def wrap(name, body, kind, bg="classic", small=False, land=False, lg=""):
     equip = kind in ("weapon", "armor", "horse")   # 武器 / 防具 / 坐騎: 右下角不放印章 (武器改寫攻擊範圍,見前端)
     if P.get("pixel"):
         out = _wrap_pixel(name, body, kind, P, seal, small, equip, land)
-        return _ink_pixel(out, name, P, land)
+        return _ink_pixel(out, name, P, land) if use_ink else out
     wash = WASH.get(kind, "#4f7f96")
     ember = EMBER.get(kind, "#ff9a4a")
     body = ancient(body, dark, ink)
@@ -1029,15 +1029,16 @@ def back(bk="classic"):
 _cache = {}
 
 
-def svg(name, bg="classic", small=False, lg=""):
+def svg(name, bg="classic", small=False, lg="", art=""):
     """某張牌的卡面 SVG;沒有這張牌回傳 None。bg = 卡面風格 id;small = 很小的縮圖 (像素風不做降解析度,不然太小會看不到圖)。"""
     if name not in E:
         return None
     lg = lg if lg in ("en", "ja") else ""
-    key = (name, bg if bg in BGS else "classic", bool(small), lg)
+    ink = art != "svg"   # art=svg: 玩家選用手繪向量圖 (舊版程式畫的卡面)
+    key = (name, bg if bg in BGS else "classic", bool(small), lg, ink)
     if key not in _cache:
-        out = wrap(name, E[name][0](), KIND.get(name, "trick"), key[1], small, KIND.get(name) == "delay", lg)
-        if True:   # 所有卡面風格都用同一套水墨圖 (只有邊框 / 色調不同)
+        out = wrap(name, E[name][0](), KIND.get(name, "trick"), key[1], small, KIND.get(name) == "delay", lg, use_ink=ink)
+        if ink:   #所有卡面風格都用同一套水墨圖 (只有邊框 / 色調不同)
             out = _ink_overlay(out, name, bool(small), KIND.get(name) == "delay")
             out = _ink_frame(out, key[1], KIND.get(name) == "delay", name)
         _cache[key] = out
@@ -1150,16 +1151,18 @@ ROLE = {"主公": (_role_crown, "basic"), "忠臣": (_role_shield, "basic"), "�
 SEAL.update({"主公": "主", "忠臣": "忠", "反賊": "反", "內奸": "奸"})
 
 
-def svg_role(name, bg="classic", lg=""):
+def svg_role(name, bg="classic", lg="", art=""):
     if name not in ROLE:
         return None
     lg = lg if lg in ("en", "ja") else ""
-    key = ("_role", name, bg if bg in BGS else "classic", lg)
+    ink = art != "svg"
+    key = ("_role", name, bg if bg in BGS else "classic", lg, ink)
     if key not in _cache:
         fn, kind = ROLE[name]
-        out = wrap(name, fn(), kind, key[2], lg=lg)
-        out = _ink_overlay(out, name, False, False, "roles")
-        out = _ink_frame(out, key[2], False, name)
+        out = wrap(name, fn(), kind, key[2], lg=lg, use_ink=ink)
+        if ink:
+            out = _ink_overlay(out, name, False, False, "roles")
+            out = _ink_frame(out, key[2], False, name)
         _cache[key] = out
     return _cache[key]
 
