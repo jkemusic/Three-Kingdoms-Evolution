@@ -1697,6 +1697,11 @@ WUMING_SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 360"><d
 
 
 def make_thumb(name):
+    if name != "無名" and name not in ROSTER:   # 只認得出的武將名 (擋掉 ../ 之類的路徑)
+        return None
+    ink = os.path.join(WEB, "ink", "generals", name + ".jpg")   # 水墨武將圖 (含「無名」) 優先
+    if os.path.isfile(ink):
+        return ink
     if name == "無名":   # 沒有指定武將 (練習關卡 / 無武將): 畫一個斗笠無面人
         os.makedirs(CACHE, exist_ok=True)
         dst = os.path.join(CACHE, "wuming.svg")
@@ -1704,9 +1709,6 @@ def make_thumb(name):
             with open(dst, "w", encoding="utf-8") as f:
                 f.write(WUMING_SVG)
         return dst
-    ink = os.path.join(WEB, "ink", "generals", name + ".jpg")   # 水墨武將圖 (ComfyUI 生成) 優先
-    if os.path.isfile(ink):
-        return ink
     rel = CHAR_IMGS.get(name, {}).get("image")
     if not rel:
         return None
