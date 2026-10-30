@@ -1,0 +1,7 @@
+async function(){ const B=window.SGSBOT;
+  /* 沮授: 受到傷害時可棄1張手牌, 把傷害轉為1點再轉移給另一個人 (v1: 受傷 >=2 / 會致死 / 低血量時發動; 沒手牌不能發動; 目標交給預設的敵人評分) */
+  B.layer('沮授',{ decide(s,p,H){ const pr=p.prompt||''; if(p.kind==='act') return null; const dm=/P(\d)\([^)]*\) 即將受到 (\d+) 點傷害/.exec(pr); if(dm&&+dm[1]===s.viewer){ B.jsN=+dm[2]; B.jsT=Date.now(); } /* 發憤圖強玩法: 少棄 k 點自傷會觸發沮授 (轉成 1 點轉給別人), 所以少棄到上限 (不超過 血量-1 作保險), 只花 1 張牌就能多抽不棄 */ if(/發憤圖強-少棄/.test(pr)&&H.me(s).char==='沮授'){ const m0=H.me(s); const opts=p.options.map(o=>({i:o.i,k:(/扣 (\d+) 點/.exec(o.label)||[0,0])[1]*1})).sort((a,b)=>a.k-b.k); if(opts.length){ const pick=opts.filter(x=>x.k<=Math.max(0,m0.hp-1)).pop()||opts[0]; H.L('沮授: 發憤圖強 少棄 '+pick.k+'/'+opts[opts.length-1].k+' (自傷由沮授轉移)'); return [pick.i]; } } if(!/沮授/.test(pr)) return null; const m=H.me(s); if(m.char!=='沮授') return null;
+      const yes=(p.options||[]).find(o=>!o.card&&/^發動|^使用|^是/.test(o.label||'')); const no=(p.options||[]).find(o=>/不發動|不用|否|取消|跳過/.test(o.label||''));
+      if(yes&&no&&/要發動|是否/.test(pr)){ const N=(B.jsT&&Date.now()-B.jsT<8000&&B.jsN)?B.jsN:2; const hand=(m.hand||[]).length; const use=true;  /* 使用者指定: 只要可轉移一律轉移 (沒手牌時系統不會提供發動選項) */  /* 1點傷害且血量>2: 不值得花一張牌 */ H.L('沮授: 受到傷害 '+N+' 點 (血 '+m.hp+', 手牌 '+hand+') → '+(use?'發動':'不發動')); return [use?yes.i:no.i]; }
+      return null; } });
+  window.JSLOG=window.JSLOG||[]; return 'patch b23 loaded (沮授 v1)'; }

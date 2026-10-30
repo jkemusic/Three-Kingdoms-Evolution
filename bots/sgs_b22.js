@@ -1,0 +1,5 @@
+async function(){ const B=window.SGSBOT;
+  /* 全部武將 (最外層): 絕對不要無懈可擊自己出的牌 (除了諸葛亮 / 需要把手牌清空的武將). 詢問格式: "Pa(..) 對 Pb(..) 使用 X,要使用無懈嗎?" / "Pa(..) 使用 X,要使用無懈嗎?", Pa = 出牌者 */
+  const CLEAR=new Set(['諸葛亮']);
+  (B.roster||[]).forEach((c)=>{ const st=B.strat[c]||{}; const inner=st.decide; st.decide=(s,p,H)=>{ const pr=p.prompt||''; if(p.kind!=='act'&&p.options&&/無懈/.test(pr)&&p.options.some(o=>o.card&&/無懈/.test(o.card.full||o.card.name||''))){ const mt=/^P(\d)\(/.exec(pr.trim()); const m=H.me(s); if(mt&&+mt[1]===s.viewer&&!CLEAR.has(m.char)){ const pass=p.options.find(o=>!o.card&&/不出|不發動|取消|跳過|不要/.test(o.label||''))||p.options.find(o=>!o.card); if(pass){ H.L('無懈: 這是我自己出的牌, 不無懈 ('+pr.slice(0,40)+')'); return [pass.i]; } } } return inner?inner(s,p,H):null; }; B.strat[c]=st; });
+  return 'patch b22 loaded (不無懈自己出的牌)'; }

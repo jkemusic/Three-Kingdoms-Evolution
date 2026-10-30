@@ -2093,6 +2093,8 @@ def _borrow_pick(g, p, cands, skill):
     """馬謖/陳群/韓當: 從 cands 中選一位借技能。真人自己選,AI 隨機。"""
     if not cands:
         return None
+    if hasattr(p.agent, "pick_borrow"):   # 第 5 級電腦: 照優先名單挑
+        return p.agent.pick_borrow(g, p, cands, skill)
     if hasattr(p.agent, "attitude"):
         return g.rng.choice(cands)
     if hasattr(p.agent, "choose_borrow"):   # 真人: 像選角色那樣看頭像與技能

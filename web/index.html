@@ -1890,7 +1890,7 @@ function openOnlineList() {
   document.body.append(m);
   renderOnlineList();
 }
-const diffLabels = () => { const L = (window.SGS_I18N && SGS_I18N.lang) || "zh"; return L === "en" ? ["Easy", "Medium", "Hard", "Expert"] : L === "ja" ? ["弱い", "普通", "強い", "最強"] : ["弱", "中", "強", "很強"]; };
+const diffLabels = () => { const L = (window.SGS_I18N && SGS_I18N.lang) || "zh"; return L === "en" ? ["Easy", "Medium", "Hard", "Expert", "Master"] : L === "ja" ? ["弱い", "普通", "強い", "最強", "極限"] : ["弱", "中", "強", "很強", "極強"]; };
 function openSetup() {
   const M = $("#modal"); M.textContent = ""; S.modalOpen = "setup";
   const roster = S.roster;

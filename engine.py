@@ -1170,6 +1170,9 @@ class Game:
 
     def _zhangba(self, g, p, t):
         """丈八蛇矛: 兩張手牌當一張殺使用。"""
+        if len(p.hand) < 2:   # 技能發動前被連鎖的 ⚡ 打掉了手牌
+            self.log(f"  {p.name} 手牌不足,丈八蛇矛無法發動")
+            return
         cs = p.agent.choose_discard(self, p, 2, list(p.hand))
         for c in cs:
             p.hand.remove(c)

@@ -1,0 +1,6 @@
+async function(){ const B=window.SGSBOT; B.zzUsed=-1;
+  B.layer('曹真',{ decide(s,p,H){ const pr=p.prompt||''; const m=H.me(s); if(/曹真-阻擋/.test(pr)){ const y=p.options.find(o=>/^發動/.test(o.label||'')); if(y){ B.zzUsed=s.round; H.L('曹真: 阻擋傷害 (技能提示 '+pr.slice(0,24)+')'); return [y.i]; } }
+    // 阻擋可擋發憤圖強的自傷: 本回合阻擋還沒用掉 => 少棄全部 (不棄牌)
+    if(/發憤圖強-少棄/.test(pr)){ const opts=p.options.map(o=>({i:o.i,k:(/扣 (\d+) 點/.exec(o.label)||[0,0])[1]*1})).sort((a,b)=>a.k-b.k); const maxK=opts[opts.length-1].k; const ready=B.zzUsed!==s.round&&H.enemies(s).length>0; const pick=ready?(opts.filter(x=>x.k<=Math.max(0,m.hp-1)).pop()||opts[0]):opts.filter(x=>x.k<=Math.max(0,m.hp-1)&&x.k===0).pop()||opts[0]; H.L('曹真: 發憤圖強 少棄 '+pick.k+'/'+maxK+(ready?' (阻擋可擋這次自傷, 不棄牌)':' (阻擋已用掉, 照常棄牌)')); return [pick.i]; }
+    if(p.kind==='skill'&&/即將受到/.test(pr)){ const v=/P(\d)\(/.exec(pr); if(v&&+v[1]===s.viewer){ const o=p.options.find(x=>/曹真/.test(x.label||'')&&/^使用|^發動/.test(x.label||'')); if(o){ B.zzUsed=s.round; H.L('曹真: 阻擋傷害 '+pr.slice(0,40)); return [o.i]; } } } return null; } });
+  return 'patch b6 loaded (曹真: 阻擋可擋發憤圖強自傷, 不棄牌)'; }
