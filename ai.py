@@ -596,6 +596,8 @@ class HeuristicAgent(RandomAgent):
         if skill == "周魴-換血":
             t = max(g.others(p), key=lambda q: q.hp)
             return t.hp - p.hp >= 1 and self.attitude(g, p, t) <= 0
+        if skill == "魯肅-贈牌":   # 有隊友 / 不是敵人就送,不然不白白送牌給敵人
+            return any(self.attitude(g, p, q) >= 0 for q in g.others(p))
         if skill == "司馬懿-奪牌":
             return len(p.hand) <= 1
         if skill == "袁紹-多抽2張":

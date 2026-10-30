@@ -397,7 +397,7 @@ class 孫堅(Char):
 
     def on_targeted(self, g, p, user, card):
         using = getattr(card, "orig", card)  # 正在使用的那張牌不能被選
-        if g.is_trick(card) and g.trigger_ok(p, "孫堅-棄牌"):
+        if g.is_trick(card) and g.trigger_ok(p, "孫堅-棄牌") and _may(g, p, "孫堅-棄牌"):
             pool = [x for x in user.hand + user.equip_cards() + [j for j in user.judge if j.name != "閃電"]
                     if x is not using]
             if pool:
@@ -405,7 +405,7 @@ class 孫堅(Char):
                 g.remove_from(user, c)
                 g.discard.append(getattr(c, "orig", c))
                 g.link(f"{p.name}[孫堅] 棄置 {user.name} 的一張牌")
-        elif card.kind == "basic" and g.trigger_ok(p, "孫堅-奪牌"):
+        elif card.kind == "basic" and g.trigger_ok(p, "孫堅-奪牌") and _may(g, p, "孫堅-奪牌"):
             pool = [x for x in user.hand + user.equip_cards() if x is not using]
             if pool:
                 c = g.rng.choice(pool)
@@ -465,7 +465,7 @@ class 魏延(Char):
     immune_delayed = True
 
     def on_deal_damage(self, g, p, tgt, n):
-        if g.trigger_ok(p, "魏延-抽牌"):
+        if g.trigger_ok(p, "魏延-抽牌") and _may(g, p, "魏延-抽牌"):
             g.link(f"{p.name}[魏延] 造成傷害,抽 1 張")
             g.draw(p, 1)
 
@@ -538,7 +538,7 @@ class 曹仁(Char):
     def after_discard(self, g, p):
         total = 0
         for _ in range(2):  # 展示手牌,同色就抽 2;再重複一次
-            if p.hand and len({c.color for c in p.hand}) == 1 and g.trigger_ok(p, f"曹仁-展示{total}"):
+            if p.hand and len({c.color for c in p.hand}) == 1 and g.trigger_ok(p, f"曹仁-展示{total}") and _may(g, p, "曹仁-展示"):
                 g.link(f"{p.name}[曹仁] 展示手牌全是{p.hand[0].color}色,抽 2 張")
                 g.last_reveal = ("曹仁 展示手牌", [(p.idx, c) for c in p.hand])   # 桌面中央讓大家看到
                 g.draw(p, 2)
@@ -566,7 +566,7 @@ class 孟獲(Char):
         if card is None or g.cur_user is p:
             return
         real = getattr(card, "orig", card)
-        if real in g.discard and g.trigger_ok(p, "孟獲-獲得"):
+        if real in g.discard and g.trigger_ok(p, "孟獲-獲得") and _may(g, p, "孟獲-獲得"):
             g.discard.remove(real)
             p.hand.append(real)
             g.link(f"{p.name}[孟獲] 獲得造成傷害的 {real}")
@@ -746,7 +746,7 @@ class 司馬昭(Char):
         return n * 2 if p.turn_flags.get("sm_double") else n
 
     def on_any_trick(self, g, p, user, real):
-        if not g.trigger_ok(p, "司馬昭-判定"):
+        if not g.trigger_ok(p, "司馬昭-判定") or not _may(g, p, "司馬昭-判定"):
             return
         j = g.flip_judge(p)
         g.link(f"{p.name}[司馬昭] 有人使用錦囊,判定 {j}")
@@ -1133,7 +1133,7 @@ class 張嶷(Char):
         if not p.hand:
             return
         cands = [q for q in g.others(p) if q.hand]
-        if not cands or not g.trigger_ok(p, "張嶷-同顯"):
+        if not cands or not g.trigger_ok(p, "張嶷-同顯") or not _may(g, p, "張嶷-同顯"):
             return
         t = p.agent.choose_target(g, p, "張嶷-同顯", cands)
         a, b = p.agent.show_card(g, p, list(p.hand)), t.agent.show_card(g, t, list(t.hand))
@@ -1250,7 +1250,7 @@ class 邯鄲淳(Char):
     name, faction = "邯鄲淳", "魏"
 
     def on_other_basic(self, g, p, user, real):  # 判定: 紅 回手牌數的血,黑 抽體力張數
-        if getattr(self, "used_turn", None) == g.turn_id or not g.trigger_ok(p, "邯鄲淳-判定"):   # 一回合一次
+        if getattr(self, "used_turn", None) == g.turn_id or not g.trigger_ok(p, "邯鄲淳-判定") or not _may(g, p, "邯鄲淳-判定"):   # 一回合一次
             return
         self.used_turn = g.turn_id
         j = g.flip_judge(p)
@@ -1293,6 +1293,8 @@ class 太史慈(Char):
         if p.turn_flags.get("tsc") or any(g.is_trick(c) for c in drawn):
             return
         p.turn_flags["tsc"] = True
+        if not _may(g, p, "太史慈-再抽"):
+            return
         extra = g.draw(p, self.draw_count(g, p))
         g.log(f"  {p.name}[太史慈] 沒抽到錦囊,再進行一次抽牌階段: {len(extra)} 張")
 
@@ -1458,6 +1460,11 @@ class 伊籍(Char):
                 if getattr(c, "name", "") == "伊籍-棄2張":
                     return i
 
+def _may(g, p, skill):
+    """技能寫「可以」= 可以選擇要不要發動: 真人會問他發動不發動,電腦照舊一律發動。"""
+    return p.agent.choose_skill(g, p, skill) if getattr(p.agent, "is_human", False) else True
+
+
 def _ally_pick(g, p, cands):
     """AI 選最友好的人;真人則讓他自己選。"""
     if hasattr(p.agent, "attitude"):
@@ -1616,6 +1623,8 @@ class 蔣幹(Char):
         g.log(f"  {p.name}[蔣幹] {user.name} 使用 {__import__('view').full_name(card.name)},他的回合直接跳過")
 
     def on_other_draw(self, g, p, cur):  # 別人抽牌階段,我也抽 2 張
+        if not _may(g, p, "蔣幹-趁機抽牌"):
+            return
         g.draw_phase(p, 2)
         g.log(f"  {p.name}[蔣幹] 趁 {cur.name} 抽牌,也抽 2 張")
 
@@ -1831,12 +1840,12 @@ class 李嚴(Char):
     wu_picks = 2
 
     def after_draw(self, g, p, drawn):
-        if any(c.name in DELAYED_NAMES for c in drawn) and g.trigger_ok(p, "李嚴-抽牌"):
+        if any(c.name in DELAYED_NAMES for c in drawn) and g.trigger_ok(p, "李嚴-抽牌") and _may(g, p, "李嚴-抽牌"):
             g.link(f"{p.name}[李嚴] 抽到延時錦囊,再抽 2 張")
             g.draw(p, 2)
 
     def on_other_trick(self, g, p, user, real):
-        if real.name in DELAYED_NAMES and g.trigger_ok(p, "李嚴-延時"):
+        if real.name in DELAYED_NAMES and g.trigger_ok(p, "李嚴-延時") and _may(g, p, "李嚴-延時"):
             g.link(f"{p.name}[李嚴] {user.name} 使用延時錦囊,抽 2 張")
             g.draw(p, 2)
 
@@ -1924,11 +1933,17 @@ class 魯肅(Char):
     name, faction = "魯肅", "吳"
     basic_as_trick = True
 
-    def draw_count(self, g, p): return 4
+    def draw_count(self, g, p):  # 可以選擇要不要發動: 多抽 2 張,再把手牌 2 張交給另一名玩家
+        if g.others(p) and p.agent.choose_skill(g, p, "魯肅-贈牌"):
+            p.turn_flags["ls"] = True
+            return 4
+        return 2
 
     def blocks_target(self, g, p, card): return card.name == "火攻"
 
     def after_draw(self, g, p, drawn):  # 多抽的 2 張: 把手牌 2 張交給另一名玩家
+        if not p.turn_flags.pop("ls", False):
+            return
         others = g.others(p)
         if not others or len(p.hand) < 2:
             return
@@ -2033,6 +2048,8 @@ class 郭圖逢紀(Char):
         g.log(f"  {p.name}[郭圖&逢紀] 記下 {user.name} 偽裝成 {name},下個回合會變成他")
 
     def on_turn_start(self, g, p):
+        if self.next_char and not _may(g, p, "郭圖&逢紀-變身"):
+            self.next_char = None
         if self.next_char:
             from characters import ROSTER
             p.disguise = [g.wei_chars.setdefault(self.next_char, ROSTER[self.next_char]())]
@@ -2046,6 +2063,8 @@ class 司馬炎(Char):
     name, faction = "司馬炎", "晉"
 
     def replace_draw(self, g, p):  # 翻開牌堆頂 x (=體力) 張,拿 2 張,其餘棄掉: 紅 +1 點體力,黑 +1 點體力量上限
+        if not _may(g, p, "司馬炎-抽牌"):
+            return False
         top = [c for c in (g.pop_deck() for _ in range(max(p.hp, 1))) if c]
         if not top:
             return True

@@ -26,6 +26,7 @@ NEED_PROMPT = {
 
 
 class HumanAgent:
+    is_human = True   # 技能寫「可以」的,真人要問他發動不發動 (characters._may)
     def __init__(self, mgr, seat):
         self.mgr, self.seat = mgr, seat
         self.muted = {}   # 玩家選了「本輪不再詢問」的連鎖/別人回合發動選項: 簽名 -> 輪數
