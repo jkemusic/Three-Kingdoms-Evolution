@@ -1,4 +1,4 @@
-# 進化三国 (進化三國)
+# 進化三国 (Three Kingdoms Evolution)
 
 [中文](README.md) | [English](README.en.md) | **日本語**
 
@@ -13,7 +13,7 @@
 - **環境構築不要**: ダウンロードして開くだけ
 
 ## ダウンロード
-**[Releases](https://github.com/jkemusic/Threekingdoms/releases)** から最新版をダウンロードしてください:
+**[Releases](https://github.com/jkemusic/Three-Kingdoms-Evolution/releases)** から最新版をダウンロードしてください:
 
 - **Windows**: `.exe` インストーラー、またはインストール不要の `.zip`
 - **Mac**: `.dmg` (初回起動時は右クリック →「開く」)

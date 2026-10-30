@@ -1,4 +1,4 @@
-# Evolved Three Kingdoms (進化三國)
+# Three Kingdoms Evolution (進化三國)
 
 [中文](README.md) | **English** | [日本語](README.ja.md)
 
@@ -13,7 +13,7 @@ Want to play Sanguosha but can't gather enough people? Here you get 90 generals,
 - **No setup**: download, open, play
 
 ## Download
-Get the latest version from **[Releases](https://github.com/jkemusic/Threekingdoms/releases)**:
+Get the latest version from **[Releases](https://github.com/jkemusic/Three-Kingdoms-Evolution/releases)**:
 
 - **Windows**: download the `.exe` installer or the portable `.zip`
 - **Mac**: download the `.dmg` (on first launch, right-click → "Open")

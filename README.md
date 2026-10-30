@@ -13,7 +13,7 @@
 - **免安裝環境**:下載、打開、開玩
 
 ## 下載
-到 **[Releases](https://github.com/jkemusic/Threekingdoms/releases)** 下載最新版:
+到 **[Releases](https://github.com/jkemusic/Three-Kingdoms-Evolution/releases)** 下載最新版:
 
 - **Windows**:下載 `.exe` 安裝檔,或 `.zip` 免安裝版
 - **Mac**:下載 `.dmg`(第一次開啟請按右鍵 →「打開」)
