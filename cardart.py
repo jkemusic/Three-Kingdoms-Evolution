@@ -1039,6 +1039,7 @@ def svg(name, bg="classic", small=False, lg=""):
         out = wrap(name, E[name][0](), KIND.get(name, "trick"), key[1], small, KIND.get(name) == "delay", lg)
         if True:   # 所有卡面風格都用同一套水墨圖 (只有邊框 / 色調不同)
             out = _ink_overlay(out, name, bool(small), KIND.get(name) == "delay")
+            out = _ink_frame(out, key[1], KIND.get(name) == "delay", name)
         _cache[key] = out
     return _cache[key]
 
@@ -1058,6 +1059,28 @@ def _ink_overlay(svg_text, name, small, land, sub="cards"):
     panel = (f'<g clip-path="url(#panel)"><image href="{uri}" x="16" y="16" width="{W - 32}" height="{H - 32}" preserveAspectRatio="xMidYMid slice"/>'
              f'<rect width="{W}" height="{H}" fill="url(#vg)" opacity=".55"/></g>')
     return svg_text[:a] + panel + svg_text[b + len(end):]
+
+
+def _ink_frame(svg_text, bg, land, name):
+    """有 SDXL 邊框的卡面風格 (絹帛 / 竹簡 / 青花 …): 邊框圖當整張卡的底,拿掉程式畫的金屬邊框 (印章保留),中間仍是水墨圖。"""
+    fn = os.path.join(HERE, "web", "ink", "frames", bg + ".jpg")
+    if not os.path.isfile(fn) or "<image" not in svg_text:
+        return svg_text
+    W, H = (286, 200) if land else (200, 286)
+    a = svg_text.find('<g clip-path="url(#panel)">')
+    cut = svg_text.find(f'<rect x="21" y="21" width="{W - 42}"', a)
+    seal = svg_text.find(f'<g><rect x="{W - 57}" y="{H - 62}"', cut)
+    if a < 0 or cut < 0:
+        return svg_text
+    end = seal if seal > 0 else svg_text.rfind("</svg>")
+    uri = _ink_uri(fn)
+    if land:   # 橫的牌 (延時錦囊): 邊框圖轉 90 度
+        fr = f'<image href="{uri}" width="{H}" height="{W}" transform="translate(0 {H}) rotate(-90)" preserveAspectRatio="none"/>'
+    else:
+        fr = f'<image href="{uri}" width="{W}" height="{H}" preserveAspectRatio="none"/>'
+    win = (f'<rect x="15" y="15" width="{W - 30}" height="{H - 30}" fill="none" stroke="#1a1612" stroke-width="3"/>'
+           f'<rect x="16.5" y="16.5" width="{W - 33}" height="{H - 33}" fill="none" stroke="#f1e7d0" stroke-opacity=".7" stroke-width=".8"/>')
+    return svg_text[:a] + fr + svg_text[a:cut] + win + svg_text[end:]
 
 
 def _ink_pixel(svg_text, name, P, land):
@@ -1136,6 +1159,7 @@ def svg_role(name, bg="classic", lg=""):
         fn, kind = ROLE[name]
         out = wrap(name, fn(), kind, key[2], lg=lg)
         out = _ink_overlay(out, name, False, False, "roles")
+        out = _ink_frame(out, key[2], False, name)
         _cache[key] = out
     return _cache[key]
 
