@@ -17,6 +17,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import unquote, urlparse, parse_qs
 
 from ai import HeuristicAgent, LeveledAgent
+from ai_pro import ProAgent
 from characters import ROSTER
 from engine import Game, ROLES
 from human import HumanAgent
@@ -31,6 +32,12 @@ WEB = os.path.join(HERE, "web")
 CACHE = os.path.join(WEB, "cache") if DATA == HERE else os.path.join(DATA, "cache")
 PORT = int(os.environ.get("SGS_PORT", "8765"))
 os.makedirs(DATA, exist_ok=True)
+
+
+
+def make_ai(level):
+    """電腦代理: 第 5 級用移植自實戰機器人的 ProAgent,其餘照舊用 LeveledAgent。"""
+    return ProAgent() if level >= 5 else LeveledAgent(level)
 
 
 class Profiles:
@@ -81,9 +88,9 @@ class Profiles:
     # 段位: 積分 (rp) 決定。每個段位 (傳說除外) 再分 3 / 2 / 1 三小段,1 最高
     RANKS = [("青銅", 0), ("白銀", 150), ("黃金", 400), ("白金", 700), ("鑽石", 1100), ("大師", 1500), ("傳說", 2000)]
     OLD_RANKS = (0, 100, 250, 450, 700, 1000, 1400)   # v1.7.57 以前的門檻: 啟動時把舊積分照比例換算到新門檻,每個人的段位維持不變
-    WIN_RP = {1: 10, 2: 18, 3: 25, 4: 32}   # 段位模式贏: 依電腦難度加分 (全真人 25)
+    WIN_RP = {1: 10, 2: 18, 3: 25, 4: 32, 5: 40}   # 段位模式贏: 依電腦難度加分 (全真人 25)
     RANK_DIFF = {"青銅": 1, "白銀": 2, "黃金": 2, "白金": 3, "鑽石": 3, "大師": 4, "傳說": 4}   # 段位模式: 電腦難度跟著段位 (弱 / 中 / 強 / 很強)
-    LOSS_RP = {1: 10, 2: 18, 3: 25, 4: 32}   # 段位模式輸: 扣分 = 同難度贏的加分 (所以勝率超過約 50% 積分才會往上走;全真人 25;最低 0 分)
+    LOSS_RP = {1: 10, 2: 18, 3: 25, 4: 32, 5: 40}   # 段位模式輸: 扣分 = 同難度贏的加分 (所以勝率超過約 50% 積分才會往上走;全真人 25;最低 0 分)
     # 身分係數: 依人數和身分的實測勝率 (電腦對電腦各 300 場) 調整輸贏分數,讓每個身分的期望分數接近 0
     # (贏的倍率 = 輸贏賠率的平方根,限制在 0.7~2.5;輸的倍率 = 贏的倍率 / 賠率,限制在 0.5~1.2;主公和忠臣同一陣營,用同一組)
     ROLE_P = {4: {"主公": .59, "忠臣": .59, "反賊": .25, "內奸": .14}, 5: {"主公": .47, "忠臣": .47, "反賊": .38, "內奸": .12},
@@ -367,7 +374,7 @@ class Profiles:
         return self.rank_tag(p) if p else self.rank_label(0)
 
     STREAK_STEP, STREAK_CAP = 3, 15
-    WIN_XP = {1: 15, 2: 30, 3: 45, 4: 70}   # 電腦難度 弱/中/強/很強: 打贏給的經驗值
+    WIN_XP = {1: 15, 2: 30, 3: 45, 4: 70, 5: 100}   # 電腦難度 弱/中/強/很強: 打贏給的經驗值
 
     COIN_LOSS, COIN_DRAW = 8, 12   # 段位模式輸 / 平手 (含內奸次級勝利) 給的遊戲幣;贏 = 贏的積分 ×0.8 + 10 (弱電腦 18 ~ 很強 36)
 
@@ -876,7 +883,7 @@ class Manager:
             if self.game_active():
                 pl = self.game.players[seat]
                 del self.claims[seat]
-                pl.agent = Observed(LeveledAgent(self._level(self.cfg, seat)), self.rec)
+                pl.agent = Observed(make_ai(self._level(self.cfg, seat)), self.rec)
                 with self.lock:
                     if self.pending and self.pending.get("seat") == seat:
                         self._ans = list(getattr(self, "_pend_default", None) or [])
@@ -1037,7 +1044,7 @@ class Manager:
             d, b, a = r
             self._event(f"🏳 {who} 棄賽,段位積分 {'-0' if d == 0 else format(d, '+d')} ({b}" + (f" → {a})" if a != b else ")"), "bad")   # 棄賽一定是輸: 紅底,已經最低分就寫 -0
         del self.claims[seat]
-        pl.agent = Observed(LeveledAgent(self._level(self.cfg, seat)), self.rec)
+        pl.agent = Observed(make_ai(self._level(self.cfg, seat)), self.rec)
         with self.lock:   # 正卡在等這個人回答: 用預設答案放行
             if self.pending and self.pending.get("seat") == seat:
                 self._ans = list(getattr(self, "_pend_default", None) or [])
@@ -1189,7 +1196,7 @@ class Manager:
                 ps = lesson["players"][i]
                 agents.append(lessons.ScriptAgent(ps.get("plan", ()), ps.get("resp", ())))
             else:
-                agents.append(Observed(LeveledAgent(self._level(cfg, i)), self.rec))
+                agents.append(Observed(make_ai(self._level(cfg, i)), self.rec))
         g = Game(agents, max_rounds=100, seed=cfg["seed"], chars=cfg["chars_"], role_variant=int(cfg.get("variant", 0)), lord_seat=self.lord_seat,
                  mode="shuffle" if cfg.get("mode") == "shuffle" else "normal", role_mode=cfg.get("role_mode") or "normal", base_hp=int(cfg.get("base_hp") or 4))
         g.on_log = self.on_log
@@ -1203,11 +1210,11 @@ class Manager:
 
     @staticmethod
     def _level(cfg, i):
-        """第 i 號座位的電腦難度 (1~4):個別設定優先,沒有就用整體難度。"""
+        """第 i 號座位的電腦難度 (1~5):個別設定優先,沒有就用整體難度。"""
         try:
-            return max(1, min(4, int((cfg.get("diffs") or [])[i])))
+            return max(1, min(5, int((cfg.get("diffs") or [])[i])))
         except (IndexError, TypeError, ValueError):
-            return max(1, min(4, int(cfg.get("difficulty", 3) or 3)))
+            return max(1, min(5, int(cfg.get("difficulty", 3) or 3)))
 
     def _award(self, g):
         """對局結束: 有入座的真人依勝負得經驗值。"""

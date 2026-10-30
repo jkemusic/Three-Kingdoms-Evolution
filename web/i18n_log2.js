@@ -55,6 +55,7 @@ window.SGS_LOG_TPL = (window.SGS_LOG_TPL || []).concat([
 // --- 介面固定字串 (整句比對) ---
 ["最強", "Strongest", "最強"],
 ["很強", "Very strong", "とても強い"],
+["極強", "Extreme", "極限"],
 ["普通", "Normal", "普通"],
 ["中", "Medium", "中"],
 ["正常", "Normal", "通常"],
