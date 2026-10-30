@@ -1669,7 +1669,7 @@ def load_roster():
         c = cls()
         src = os.path.join(ROOT, imgs[name]["image"].replace("/", os.sep)) if name in imgs and imgs[name].get("image") else None
         out.append({"name": name, "faction": c.faction, "maxhp": c.maxhp, "skills": skills.get(name, []),
-                    "img": "/thumb/char/" + name if src and os.path.isfile(src) else None})   # 沒放素材圖片就只顯示文字
+                    "img": "/thumb/char/" + name + "?v=ink1" if src and os.path.isfile(src) else None})   # 沒放素材圖片就只顯示文字
     return out, imgs
 
 

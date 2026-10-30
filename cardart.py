@@ -1036,15 +1036,15 @@ def svg(name, bg="classic", small=False, lg=""):
     key = (name, bg if bg in BGS else "classic", bool(small), lg)
     if key not in _cache:
         out = wrap(name, E[name][0](), KIND.get(name, "trick"), key[1], small, KIND.get(name) == "delay", lg)
-        if key[1] == "classic":
+        if key[1] != "line" and not (BGS.get(key[1]) or {}).get("pixel"):   # 古風線稿 / 像素風以外的卡面都用水墨圖 (框 / 色調各自不同)
             out = _ink_overlay(out, name, bool(small), KIND.get(name) == "delay")
         _cache[key] = out
     return _cache[key]
 
 
-def _ink_overlay(svg_text, name, small, land):
+def _ink_overlay(svg_text, name, small, land, sub="cards"):
     """預設卡面 = 水墨卡圖: 把內框 (宣紙 + 程式畫的圖示) 換成 ComfyUI 生成的水墨圖,外框 / 印章 / 角標照舊。沒有這張圖就維持程式畫的。"""
-    fn = os.path.join(HERE, "web", "ink", "cards", ("s_" if small else "") + name + ".jpg")
+    fn = os.path.join(HERE, "web", "ink", sub, ("s_" if small else "") + name + ".jpg")
     if not os.path.isfile(fn):
         return svg_text
     W, H = (286, 200) if land else (200, 286)
@@ -1114,7 +1114,10 @@ def svg_role(name, bg="classic", lg=""):
     key = ("_role", name, bg if bg in BGS else "classic", lg)
     if key not in _cache:
         fn, kind = ROLE[name]
-        _cache[key] = wrap(name, fn(), kind, key[2], lg=lg)
+        out = wrap(name, fn(), kind, key[2], lg=lg)
+        if key[2] != "line" and not (BGS.get(key[2]) or {}).get("pixel"):
+            out = _ink_overlay(out, name, False, False, "roles")
+        _cache[key] = out
     return _cache[key]
 
 

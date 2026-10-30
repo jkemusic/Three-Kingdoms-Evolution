@@ -18,6 +18,7 @@ ALIAS = {
     "諸葛連弩": "諸葛", "貫石斧": "貫", "五": "五穀豐登",
 }
 _img_cache: dict = {}
+THUMB_V = "?v=ink1"   # 武將圖換成水墨版: 換網址讓瀏覽器不要用舊的快取
 ROLE_RE = re.compile(r"P(\d+)\((主公|忠臣|反賊|內奸)((?:/[^)]*)?)\)")
 
 
@@ -50,7 +51,7 @@ def _skill_img(name):
     """技能進連鎖時,卡面放武將的卡圖。"""
     stem = name.split("-")[0]
     if stem in ROSTER:
-        return "/thumb/char/" + stem
+        return "/thumb/char/" + stem + THUMB_V
     return card_img(stem, "紅") or card_img(stem, "黑")   # 丈八蛇矛等裝備技能: 用裝備牌的圖
 
 
