@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # 在 Ubuntu 主機上安裝並常駐執行三國殺伺服器 (Oracle Cloud 免費主機適用)
-# 用法: git clone https://github.com/jkemusic/Threekingdoms.git && bash Threekingdoms/deploy/setup.sh
+# 用法: git clone https://github.com/jkemusic/Three-Kingdoms-Evolution.git && bash Three-Kingdoms-Evolution/deploy/setup.sh
 set -e
 PORT=8765
 APP=/opt/sgs
 DATA=/var/lib/sgs
-REPO=https://github.com/jkemusic/Threekingdoms.git
+REPO=https://github.com/jkemusic/Three-Kingdoms-Evolution.git
 
 sudo apt-get update -y
 sudo apt-get install -y python3 git iptables-persistent
